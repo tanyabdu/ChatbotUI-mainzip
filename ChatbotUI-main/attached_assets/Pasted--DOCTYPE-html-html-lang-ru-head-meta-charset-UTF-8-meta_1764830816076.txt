@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эзотерический Контент-Планировщик</title>
+    <!-- Подключение Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключение Markdown парсера -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;500;700&display=swap');
+        .font-main { font-family: 'Inter', sans-serif; }
+        .font-mystic { font-family: 'Cormorant Garamond', serif; }
+        
+        /* Скроллбар */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6d28d9; }
+
+        /* Анимации */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .recording-pulse { animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .prose h1, .prose h2, .prose h3 { color: #e9d5ff; font-family: 'Cormorant Garamond', serif; margin-top: 1em; margin-bottom: 0.5em; }
+        .prose p { margin-bottom: 0.8em; line-height: 1.6; }
+        .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .prose ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 1em; }
+        .prose strong { color: #d8b4fe; }
+
+        /* Стили для карточки кейса */
+        .case-card-visual {
+            background: linear-gradient(135deg, #2e1065 0%, #0f172a 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Стили для карты архетипа */
+        .archetype-card {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-main p-4 sm:p-8 flex flex-col items-center">
+
+    <div id="app" class="max-w-6xl w-full">
+        
+        <!-- HEADER (Всегда виден) -->
+        <header class="text-center mb-12 pt-8 fade-in">
+            <h1 class="text-4xl sm:text-6xl font-mystic font-semibold text-purple-300 mb-3 tracking-wide">
+                Ваш персональный ЭЗО-маркетолог
+            </h1>
+            <p class="text-purple-400 text-lg sm:text-xl font-light tracking-wider uppercase opacity-80">
+                Стратегия • Контент • Энергия • Продажи
+            </p>
+        </header>
+
+        <!-- NAVIGATION (Всегда видна) -->
+        <div class="flex flex-wrap justify-center gap-3 sm:gap-4 mb-12 fade-in">
+            <button id="navGenerator" class="nav-btn px-5 py-3 rounded-2xl bg-gray-800 text-gray-300 font-bold shadow-lg hover:bg-gray-700 transition-all duration-300 border border-purple-500/20 hover:border-purple-500/50 text-sm sm:text-base flex items-center gap-2">
+                <span>📝</span> Генератор контента
+            </button>
+            <button id="navArchetype" class="nav-btn px-5 py-3 rounded-2xl bg-gray-800 text-gray-300 font-bold shadow-lg hover:bg-gray-700 transition-all duration-300 border border-purple-500/20 hover:border-purple-500/50 text-sm sm:text-base flex items-center gap-2">
+                <span>🧬</span> Архетип стратегии
+            </button>
+            <button id="navVoice" class="nav-btn px-5 py-3 rounded-2xl bg-gray-800 text-gray-300 font-bold shadow-lg hover:bg-gray-700 transition-all duration-300 border border-purple-500/20 hover:border-purple-500/50 text-sm sm:text-base flex items-center gap-2">
+                <span>🎙️</span> Голос потока
+            </button>
+            <button id="navCases" class="nav-btn px-5 py-3 rounded-2xl bg-gray-800 text-gray-300 font-bold shadow-lg hover:bg-gray-700 transition-all duration-300 border border-purple-500/20 hover:border-purple-500/50 text-sm sm:text-base flex items-center gap-2">
+                <span>💎</span> Кейсы
+            </button>
+            <button id="navCalendar" class="nav-btn px-5 py-3 rounded-2xl bg-gray-800 text-gray-300 font-bold shadow-lg hover:bg-gray-700 transition-all duration-300 border border-purple-500/20 hover:border-purple-500/50 text-sm sm:text-base flex items-center gap-2">
+                <span>🌙</span> Лунный календарь
+            </button>
+        </div>
+
+        <!-- ПРИВЕТСТВЕННЫЙ БЛОК (Виден только если ничего не выбрано) -->
+        <section id="welcomeSection" class="text-center py-10 fade-in">
+            <div class="inline-block p-8 rounded-full bg-purple-900/20 mb-6 border border-purple-500/30 shadow-[0_0_50px_rgba(124,58,237,0.2)]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-purple-300 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+            </div>
+            <p class="text-gray-400 text-lg max-w-lg mx-auto">
+                Выберите инструмент в меню выше, чтобы начать работу над вашим проявлением.
+            </p>
+        </section>
+
+        <!-- СЕКЦИЯ 1: ГЕНЕРАТОР КОНТЕНТА (Скрыта) -->
+        <section id="generatorSection" class="hidden fade-in">
+             <div class="bg-gray-800 p-6 rounded-2xl border border-purple-700/50 mb-10 relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-600 rounded-full blur-3xl opacity-20"></div>
+                <div id="archetypeIndicatorGen" class="hidden absolute top-4 right-4 px-3 py-1 bg-purple-900/80 text-purple-200 text-xs rounded-full border border-purple-500/30 flex items-center gap-1">
+                    <span>🧬</span> Архетип активен
+                </div>
+                
+                <h2 class="text-2xl font-mystic font-semibold text-purple-200 mb-6 relative z-10">Настройки Стратегии</h2>
+                <form id="contentForm" class="space-y-6 relative z-10">
+                    <!-- Цель контента -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-3">Цель контента</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label class="cursor-pointer group">
+                                <input type="radio" name="contentGoal" value="sale" class="peer sr-only" checked>
+                                <div class="p-4 rounded-xl bg-gray-700 border-2 border-transparent peer-checked:border-purple-500 peer-checked:bg-purple-900/40 transition text-center hover:bg-gray-600 h-full flex flex-col justify-center items-center shadow-lg group-hover:scale-[1.02]">
+                                    <div class="text-3xl mb-2">💰</div>
+                                    <div class="font-bold text-white text-lg">Продажа</div>
+                                    <div class="text-xs text-gray-400 mt-1">Запуски, услуги, консультации</div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer group">
+                                <input type="radio" name="contentGoal" value="engagement" class="peer sr-only">
+                                <div class="p-4 rounded-xl bg-gray-700 border-2 border-transparent peer-checked:border-pink-500 peer-checked:bg-pink-900/40 transition text-center hover:bg-gray-600 h-full flex flex-col justify-center items-center shadow-lg group-hover:scale-[1.02]">
+                                    <div class="text-3xl mb-2">🔥</div>
+                                    <div class="font-bold text-white text-lg">Охваты и Вовлечение</div>
+                                    <div class="text-xs text-gray-400 mt-1">Лайки, комменты, доверие</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="niche" class="block text-sm font-medium text-gray-300 mb-2">Ниша и Направление</label>
+                            <input type="text" id="niche" placeholder="Напр: Таролог, Астролог, Нумеролог"
+                                   class="w-full p-3 rounded-lg bg-gray-700 border border-purple-500/50 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 text-white placeholder-gray-500 transition"
+                                   required>
+                        </div>
+                        <div>
+                            <label for="daysCount" class="block text-sm font-medium text-gray-300 mb-2">Количество дней / Режим</label>
+                            <select id="daysCount" class="w-full p-3 rounded-lg bg-gray-700 border border-purple-500/50 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 text-white transition">
+                                <option value="today" class="font-bold text-green-400">★ Сегодня (Я в потоке)</option>
+                                <option value="3">3 Дня (Тест)</option>
+                                <option value="7">7 Дней (Неделя)</option>
+                                <option value="14">14 Дней (Прогрев)</option>
+                                <option value="30">30 Дней (Месяц)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Поле продукта -->
+                    <div id="productFieldContainer" class="transition-all duration-300">
+                        <label for="productDescription" class="block text-sm font-medium text-gray-300 mb-2">Что продаем? (Описание продукта)</label>
+                        <textarea id="productDescription" placeholder="Опишите ваш продукт, курс или консультацию..."
+                                  class="w-full p-3 rounded-lg bg-gray-700 border border-purple-500/50 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 text-white placeholder-gray-500 transition"
+                                  rows="2" required></textarea>
+                    </div>
+
+                    <!-- Тип стратегии -->
+                    <div id="strategyTypeContainer" class="transition-all duration-300">
+                        <label for="strategyType" class="block text-sm font-medium text-gray-300 mb-2">Тип Стратегии Продаж</label>
+                        <select id="strategyType" class="w-full p-3 rounded-lg bg-gray-700 border border-purple-500/50 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 text-white transition">
+                            <option value="general">Сбалансированный (Экспертность + Личность + Продажи)</option>
+                            <option value="launch">Прогрев к запуску (Структура запуска)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="generateButton"
+                            class="w-full py-4 bg-gradient-to-r from-purple-700 to-indigo-800 hover:from-purple-600 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transform transition hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed">
+                        Создать Стратегию
+                    </button>
+                </form>
+            </div>
+
+            <!-- Секция результатов -->
+            <div id="resultsContainer" class="hidden space-y-8">
+                <div class="flex justify-between items-center border-b border-purple-800 pb-4">
+                    <h2 class="text-3xl font-mystic text-purple-200">Ваш Контент-План</h2>
+                    <button onclick="window.print()" class="text-gray-400 hover:text-white text-sm flex items-center hover:bg-gray-800 px-3 py-1 rounded transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        Сохранить
+                    </button>
+                </div>
+                <div id="daysList" class="space-y-6">
+                    <!-- Сюда будут генерироваться карточки дней -->
+                </div>
+            </div>
+        </section>
+
+        <!-- СЕКЦИЯ 2: АРХЕТИП СТРАТЕГИИ (Скрыта) -->
+        <section id="archetypeSection" class="hidden fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Блок 1: Тест / Диагностика -->
+                <div id="archetypeTestBlock" class="lg:col-span-12 bg-gray-800 p-8 rounded-2xl border border-purple-700/50 shadow-2xl">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-mystic text-purple-200 mb-2">ДНК Вашего Личного Бренда 🧬</h2>
+                        <p class="text-gray-400">Пройдите диагностику, чтобы нейросеть "заговорила" вашим голосом.</p>
+                    </div>
+
+                    <div id="quizContainer" class="max-w-2xl mx-auto space-y-8">
+                        <!-- Вопросы генерируются JS -->
+                    </div>
+
+                    <div class="text-center mt-10">
+                        <button id="submitQuizBtn" class="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold rounded-xl shadow-lg transform transition hover:scale-105">
+                            Раскрыть мой Архетип
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Блок 2: Результат (Карточка Архетипа) - скрыт по умолчанию -->
+                <div id="archetypeResultBlock" class="hidden lg:col-span-12">
+                    <div class="archetype-card p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+                        <!-- Фоновый градиент -->
+                        <div id="archetypeBg" class="absolute inset-0 opacity-20"></div>
+                        
+                        <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            <div>
+                                <div class="inline-block px-3 py-1 bg-white/10 rounded-full text-xs text-white mb-4 tracking-widest uppercase">Ваш стиль</div>
+                                <h2 id="archetypeTitle" class="text-4xl md:text-5xl font-mystic text-white mb-4 font-bold leading-tight">Маг-Бунтарь</h2>
+                                <p id="archetypeDesc" class="text-gray-300 text-lg mb-6">Глубокий, трансформационный стиль с нотками провокации.</p>
+                                
+                                <div class="flex flex-wrap gap-2 mb-6" id="archetypeKeywords">
+                                    <!-- Теги -->
+                                </div>
+
+                                <div class="bg-black/30 p-4 rounded-lg border border-white/10">
+                                    <h4 class="text-purple-300 text-xs uppercase font-bold mb-2">Тональность (Tone of Voice)</h4>
+                                    <p id="archetypeTone" class="text-sm text-gray-300 italic">...</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-900/50 p-6 rounded-xl border border-white/10">
+                                <h3 class="text-xl font-mystic text-white mb-4">Визуальный код</h3>
+                                <div class="flex gap-4 mb-6" id="archetypeColors">
+                                    <!-- Цвета -->
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <span class="text-xs text-gray-500 block">Шрифты</span>
+                                        <span id="archetypeFonts" class="text-white text-sm">...</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-gray-500 block">Атмосфера (Vibe)</span>
+                                        <span id="archetypeVibes" class="text-white text-sm">...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 text-center">
+                            <button id="applyArchetypeBtn" class="px-8 py-3 bg-white text-purple-900 font-bold rounded-xl shadow-lg hover:bg-purple-50 transition flex items-center justify-center gap-2 mx-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                Активировать этот стиль
+                            </button>
+                            <p class="text-xs text-gray-400 mt-2">Стиль будет применен ко всем будущим генерациям контента</p>
+                        </div>
+                        
+                        <button onclick="resetArchetype()" class="absolute top-4 right-4 text-gray-500 hover:text-white text-xs underline">Пройти тест заново</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- СЕКЦИЯ 3: ГОЛОС ПОТОКА (Скрыта) -->
+        <section id="voiceSection" class="hidden fade-in">
+             <div class="max-w-2xl mx-auto text-center">
+                <div class="bg-gray-800 p-8 rounded-3xl border-2 border-purple-500/50 shadow-2xl relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent pointer-events-none"></div>
+                    <h2 class="text-3xl font-mystic text-white mb-6 relative z-10">🎙️ Голос Потока</h2>
+                    <p class="text-gray-300 mb-8 relative z-10">Надиктуйте свои мысли. ИИ превратит их в идеальный пост.</p>
+                    <div class="relative z-10 mb-8">
+                        <button id="voiceRecordBtn" class="w-24 h-24 rounded-full bg-gradient-to-br from-red-500 to-pink-600 text-white shadow-xl flex items-center justify-center transition-all transform hover:scale-105 focus:outline-none mx-auto ring-4 ring-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                        </button>
+                        <p id="voiceStatus" class="text-sm text-gray-400 mt-4">Нажмите для записи</p>
+                    </div>
+                    <div id="voiceTranscriptContainer" class="hidden text-left mb-6">
+                        <label class="text-xs text-gray-500 mb-1 block">Текст:</label>
+                        <div id="voiceTranscript" class="bg-gray-900/50 p-4 rounded-lg text-gray-300 text-sm max-h-32 overflow-y-auto border border-gray-700"></div>
+                    </div>
+                    <button id="voiceGenerateBtn" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold hidden transition shadow-lg transform hover:scale-[1.02]">✨ Превратить в Пост</button>
+                </div>
+                <div id="voiceResult" class="mt-8 hidden bg-gray-800 p-6 rounded-2xl border border-gray-700 text-left fade-in shadow-xl">
+                    <h3 class="text-xl font-mystic text-purple-300 mb-4">Готовый Пост</h3>
+                    <div id="voicePostContent" class="prose prose-invert max-w-none text-sm text-gray-200 whitespace-pre-wrap"></div>
+                    <button onclick="copyVoicePost()" class="mt-4 w-full py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-bold transition">📋 Скопировать текст</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- СЕКЦИЯ 4: КЕЙСЫ (Скрыта) -->
+        <section id="casesSection" class="hidden fade-in">
+             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-gray-800 p-6 rounded-2xl border border-purple-700/50 shadow-xl">
+                        <h2 class="text-2xl font-mystic text-purple-200 mb-4">Создать Кейс</h2>
+                        <div class="mb-4"><label class="block text-sm text-purple-300 mb-2">1. Скриншот</label><div class="relative border-2 border-dashed border-purple-500/30 rounded-xl p-6 text-center cursor-pointer hover:bg-gray-700/50 transition group"><input type="file" id="reviewImageInput" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*"><div id="uploadPreview" class="text-gray-400 text-sm group-hover:text-white">Загрузить (JPG, PNG)</div></div><button id="recognizeTextBtn" class="mt-3 w-full py-2 bg-blue-600/20 text-blue-300 rounded-lg text-sm hidden hover:bg-blue-600/40 transition">👁️ Распознать текст</button></div>
+                        <div class="mb-4"><label class="block text-sm text-purple-300 mb-2">2. Текст</label><textarea id="reviewText" class="w-full p-3 rounded-lg bg-gray-900 border border-gray-700 text-white text-sm focus:border-purple-500 outline-none transition" rows="4"></textarea></div>
+                        <div class="space-y-3 mb-6">
+                            <div><label class="text-xs text-gray-400 mb-1 block">БЫЛО</label><input type="text" id="caseBefore" class="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white text-sm focus:border-purple-500 outline-none"></div>
+                            <div><label class="text-xs text-gray-400 mb-1 block">СДЕЛАЛИ</label><input type="text" id="caseAction" class="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white text-sm focus:border-purple-500 outline-none"></div>
+                            <div><label class="text-xs text-gray-400 mb-1 block">СТАЛО</label><input type="text" id="caseAfter" class="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white text-sm focus:border-purple-500 outline-none"></div>
+                        </div>
+                        
+                        <!-- 4. Теги -->
+                        <div class="mb-6">
+                            <label class="block text-sm text-purple-300 mb-2">Теги</label>
+                            <div class="flex flex-wrap gap-2 mb-2" id="tagSuggestions">
+                                <span class="px-2 py-1 bg-gray-700 rounded text-xs cursor-pointer hover:bg-purple-600 transition" onclick="addTag('Деньги')">Деньги</span>
+                                <span class="px-2 py-1 bg-gray-700 rounded text-xs cursor-pointer hover:bg-purple-600 transition" onclick="addTag('Отношения')">Отношения</span>
+                                <span class="px-2 py-1 bg-gray-700 rounded text-xs cursor-pointer hover:bg-purple-600 transition" onclick="addTag('Здоровье')">Здоровье</span>
+                                <span class="px-2 py-1 bg-gray-700 rounded text-xs cursor-pointer hover:bg-purple-600 transition" onclick="addTag('Предназначение')">Предназначение</span>
+                            </div>
+                            <input type="text" id="caseTags" placeholder="Введите тег и нажмите Enter" class="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white text-sm focus:border-purple-500 outline-none">
+                            <div id="selectedTagsContainer" class="flex flex-wrap gap-2 mt-2"></div>
+                        </div>
+
+                        <button id="generateCaseBtn" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-purple-500/30 transition transform hover:scale-[1.02]">🚀 Сгенерировать</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-7 space-y-6">
+                    <div id="casePreviewBlock" class="hidden bg-gray-800 p-6 rounded-2xl border-2 border-purple-500 relative shadow-2xl"><button onclick="this.parentElement.classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button><h3 class="text-xl font-mystic text-white mb-4">Готовый Кейс ✨</h3><div class="space-y-4 mb-6"><div><label class="text-xs text-gray-400">Заголовки</label><div id="generatedHeadlines" class="space-y-2 mt-1"></div></div><div><label class="text-xs text-gray-400">Цитата</label><blockquote id="generatedQuote" class="border-l-4 border-purple-500 pl-4 italic text-gray-300 my-2 bg-gray-900/50 p-3 rounded-r"></blockquote></div><div><label class="text-xs text-gray-400">Текст</label><div id="generatedBody" class="bg-gray-900 p-4 rounded-lg text-sm text-gray-200 whitespace-pre-wrap h-64 overflow-y-auto custom-scrollbar border border-gray-700"></div></div></div><div class="flex gap-3"><button id="saveCaseBtn" class="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold shadow-lg transition">💾 В Библиотеку</button><button id="copyCaseBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition" title="Копировать">📋</button><button id="createVisualBtn" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition shadow-lg" title="Создать макет">🎨 Макет</button></div></div>
+                    <div class="bg-gray-800 p-6 rounded-2xl border border-purple-700/30"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-mystic text-purple-200">Библиотека</h2><div class="flex gap-2"><input type="text" id="searchCases" placeholder="Поиск..." class="bg-gray-900 border border-gray-700 text-white text-xs rounded-lg px-3 py-2 w-24 focus:w-40 transition-all outline-none focus:border-purple-500"><select id="filterTags" class="bg-gray-900 border border-gray-700 text-white text-xs rounded-lg px-3 py-2 outline-none focus:border-purple-500"><option value="all">Все теги</option></select></div></div><div id="casesLibraryList" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto custom-scrollbar"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- СЕКЦИЯ 5: ЛУННЫЙ КАЛЕНДАРЬ (Скрыта) -->
+        <section id="calendarSection" class="hidden fade-in">
+            <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-purple-700/50 text-center relative overflow-hidden">
+                <div class="absolute -top-20 -left-20 w-60 h-60 bg-blue-900 rounded-full blur-[100px] opacity-30"></div>
+                <h2 class="text-3xl font-mystic text-purple-200 mb-2">Энергии Сегодняшнего Дня</h2>
+                <p id="currentDateDisplay" class="text-gray-400 mb-6 text-lg border-b border-purple-800 pb-2 inline-block"></p>
+                <div id="moonContent" class="hidden mt-2">
+                    <div class="flex flex-col items-center justify-center mb-8"><div class="w-32 h-32 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 shadow-[0_0_40px_rgba(255,255,255,0.3)] flex items-center justify-center relative overflow-hidden mb-4 border-4 border-purple-500/20"><div class="absolute inset-0 bg-black/10 rounded-full transform -translate-x-4 translate-y-2 filter blur-md"></div><span id="moonDayNumber" class="text-5xl font-mystic font-bold text-gray-800 relative z-10 drop-shadow-md"></span></div><div class="text-center"><h3 id="moonPhaseName" class="text-2xl text-white font-bold"></h3><p id="moonZodiac" class="text-purple-300 font-medium mt-1 text-lg tracking-wide uppercase"></p></div></div>
+                    <div class="bg-gray-900/60 p-6 rounded-xl border-l-4 border-purple-500 mb-8 text-left max-w-3xl mx-auto shadow-lg"><div id="moonDescription" class="text-gray-200 text-lg leading-relaxed font-mystic italic"></div></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-4xl mx-auto"><div class="bg-gray-800/80 p-5 rounded-xl border border-green-500/30 shadow-inner"><h4 class="text-green-400 font-bold mb-3 uppercase tracking-wider text-sm">✅ Благоприятно</h4><ul id="moonGoodList" class="text-gray-300 text-sm space-y-2 list-disc list-inside"></ul></div><div class="bg-gray-800/80 p-5 rounded-xl border border-red-500/30 shadow-inner"><h4 class="text-red-400 font-bold mb-3 uppercase tracking-wider text-sm">⛔ Неблагоприятно</h4><ul id="moonBadList" class="text-gray-300 text-sm space-y-2 list-disc list-inside"></ul></div></div>
+                </div>
+                <div id="moonLoader" class="py-10"><div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div><p class="mt-4 text-purple-300 animate-pulse">Считываю положение звезд...</p></div>
+            </div>
+        </section>
+
+        <!-- Модальные окна -->
+        <!-- Visual Modal -->
+        <div id="visualModal" class="hidden fixed inset-0 bg-gray-900/95 z-50 flex items-center justify-center p-4"><div class="bg-gray-800 border border-purple-500 rounded-2xl w-full max-w-md relative p-6 shadow-2xl"><button onclick="this.parentElement.parentElement.classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-black/50 rounded-full w-8 h-8">✕</button><div id="visualCanvas" class="case-card-visual p-6 rounded-xl aspect-[4/5] flex flex-col justify-between relative overflow-hidden"><div class="relative z-10"><h2 class="text-2xl font-bold text-white mb-4" id="visualTitle"></h2><p class="text-lg text-purple-100 italic" id="visualQuote"></p></div><div class="relative z-10 mt-4 grid grid-cols-3 gap-2 text-xs text-center"><div class="bg-white/10 p-2 rounded backdrop-blur-sm">БЫЛО<br><span id="visualBefore" class="font-bold"></span></div><div class="bg-white/10 p-2 rounded backdrop-blur-sm">СДЕЛАЛИ<br><span id="visualAction" class="font-bold"></span></div><div class="bg-purple-500/20 p-2 rounded border border-purple-500/50 backdrop-blur-sm text-purple-200">СТАЛО<br><span id="visualAfter" class="font-bold"></span></div></div></div><p class="text-center text-xs text-gray-500 mt-4">Сделайте скриншот</p></div></div>
+        
+        <!-- Loading -->
+        <div id="loading" class="hidden fixed inset-0 bg-gray-900/90 z-50 flex items-center justify-center backdrop-blur-sm"><div class="text-center"><div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500 mx-auto mb-4"></div><p id="loadingText" class="text-xl font-mystic text-purple-200 animate-pulse">Загрузка...</p></div></div>
+        
+        <!-- Error -->
+        <div id="errorContainer" class="hidden fixed bottom-4 right-4 bg-red-900/90 border border-red-500 p-4 rounded-lg z-50 text-sm text-red-200 shadow-xl"></div>
+        
+        <!-- Personalize Modal -->
+        <div id="personalizeModal" class="hidden fixed inset-0 bg-gray-900/95 z-50 flex items-center justify-center p-4 backdrop-blur-md"><div class="bg-gray-800 border border-purple-500/50 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative p-8"><button onclick="closePersonalizeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button><h3 class="text-2xl font-mystic text-purple-300 mb-4">Настройка "Под Себя" 🪄</h3><div id="questionsContainer" class="space-y-6 mb-8"></div><div class="flex justify-end gap-4"><button onclick="closePersonalizeModal()" class="text-gray-400 hover:text-white transition">Отмена</button><button id="confirmPersonalizeBtn" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold shadow-lg transition transform hover:scale-105">✨ Создать</button></div></div></div>
+
+    </div>
+
+    <script type="module">
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const apiKey = ""; // API Key
+
+        // Elements
+        const navGenerator = document.getElementById('navGenerator');
+        const navVoice = document.getElementById('navVoice');
+        const navCases = document.getElementById('navCases');
+        const navCalendar = document.getElementById('navCalendar');
+        const navArchetype = document.getElementById('navArchetype');
+        
+        const sections = {
+            generator: document.getElementById('generatorSection'),
+            voice: document.getElementById('voiceSection'),
+            cases: document.getElementById('casesSection'),
+            calendar: document.getElementById('calendarSection'),
+            archetype: document.getElementById('archetypeSection')
+        };
+        
+        // Landing
+        const welcomeSection = document.getElementById('welcomeSection');
+
+        const loadingDiv = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+        const errorContainer = document.getElementById('errorContainer');
+        const archetypeIndicatorGen = document.getElementById('archetypeIndicatorGen');
+
+        // --- QUESTIONS FOR ARCHETYPE TEST ---
+        const archetypeQuestions = [
+            {
+                q: "Что для вас важнее всего в работе с клиентом?",
+                a: ["Дать им структуру и четкий план (Правитель)", "Позаботиться, выслушать и утешить (Заботливый)", "Вдохновить на большие перемены и магию (Маг)", "Показать правду, даже если она жесткая (Бунтарь)"]
+            },
+            {
+                q: "Как вы относитесь к правилам и традициям в эзотерике?",
+                a: ["Чту традиции, но адаптирую их (Мудрец)", "Создаю свои собственные правила (Творец)", "Соблюдаю строго, это база (Правитель)", "Люблю нарушать правила и шокировать (Шут)"]
+            },
+            {
+                q: "Какая фраза лучше всего описывает ваш подход?",
+                a: ["Всё будет так, как ты захочешь (Маг)", "Я знаю, как правильно, и научу тебя (Учитель/Мудрец)", "Давай просто будем собой (Славный малый)", "Мы вместе пройдем этот путь (Герой)"]
+            },
+            {
+                q: "Чего вы больше всего боитесь в профессиональном плане?",
+                a: ["Быть скучным и обычным (Бунтарь)", "Навредить клиенту или дать неверный совет (Заботливый)", "Потерять контроль над ситуацией (Правитель)", "Оказаться некомпетентным (Мудрец)"]
+            },
+             {
+                q: "Какой стиль одежды или визуальный образ вам ближе?",
+                a: ["Строгий, дорогой, статусный (Правитель)", "Мистический, загадочный, мантии (Маг)", "Яркий, необычный, эпатажный (Шут/Бунтарь)", "Уютный, мягкий, натуральный (Заботливый/Славный малый)"]
+            },
+            {
+                q: "Какая ваша главная суперсила?",
+                a: ["Я вижу людей насквозь (Маг)", "Я умею систематизировать хаос (Правитель)", "Я умею любить и принимать (Заботливый)", "Я умею заряжать энергией и весельем (Шут)"]
+            },
+             {
+                q: "Что должен почувствовать клиент после общения с вами?",
+                a: ["Ясность и понимание структуры (Мудрец)", "Волшебство и веру в чудо (Маг)", "Ощущение безопасности и тепла (Заботливый)", "Драйв и желание действовать (Герой)"]
+            }
+        ];
+
+        // Utils
+        function toggleLoading(show, text = "Загрузка...") { loadingText.textContent = text; loadingDiv.classList.toggle('hidden', !show); }
+        function showError(msg) { errorContainer.textContent = msg; errorContainer.classList.remove('hidden'); setTimeout(() => errorContainer.classList.add('hidden'), 4000); }
+        async function fetchGemini(payload) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) throw new Error(`API Error: ${response.status}`);
+            return await response.json();
+        }
+
+        // --- NAVIGATION ---
+        function switchTab(tabName) {
+            welcomeSection.classList.add('hidden'); // Hide welcome
+            Object.values(sections).forEach(sec => sec.classList.add('hidden'));
+            [navGenerator, navVoice, navCases, navCalendar, navArchetype].forEach(btn => {
+                btn.classList.remove('bg-purple-700', 'text-white', 'ring-2', 'ring-purple-400', 'shadow-none');
+                btn.classList.add('bg-gray-800', 'text-gray-300', 'shadow-lg');
+            });
+
+            sections[tabName].classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+            activeBtn.classList.add('bg-purple-700', 'text-white', 'ring-2', 'ring-purple-400');
+            activeBtn.classList.remove('bg-gray-800', 'text-gray-300', 'shadow-lg');
+            activeBtn.classList.add('shadow-none'); // Pressed effect
+
+            if (tabName === 'calendar') loadMoonData();
+            if (tabName === 'cases') renderCasesLibrary();
+            if (tabName === 'archetype') checkArchetypeStatus();
+        }
+
+        navGenerator.addEventListener('click', () => switchTab('generator'));
+        navVoice.addEventListener('click', () => switchTab('voice'));
+        navCases.addEventListener('click', () => switchTab('cases'));
+        navCalendar.addEventListener('click', () => switchTab('calendar'));
+        navArchetype.addEventListener('click', () => switchTab('archetype'));
+
+        // --- TOGGLE FORM LOGIC (Generator) ---
+        const goalRadios = document.getElementsByName('contentGoal');
+        const productContainer = document.getElementById('productFieldContainer');
+        const strategyContainer = document.getElementById('strategyTypeContainer');
+
+        if (goalRadios.length > 0) {
+            goalRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const isEngagement = e.target.value === 'engagement';
+                    if (isEngagement) {
+                        productContainer.classList.add('opacity-0', 'h-0', 'overflow-hidden');
+                        strategyContainer.classList.add('opacity-0', 'h-0', 'overflow-hidden');
+                        document.getElementById('productDescription').removeAttribute('required');
+                    } else {
+                        productContainer.classList.remove('opacity-0', 'h-0', 'overflow-hidden');
+                        strategyContainer.classList.remove('opacity-0', 'h-0', 'overflow-hidden');
+                        document.getElementById('productDescription').setAttribute('required', 'true');
+                    }
+                });
+            });
+        }
+
+        // --- ARCHETYPE LOGIC ---
+        function checkArchetypeStatus() {
+            const savedProfile = localStorage.getItem('archetypeProfile');
+            if (savedProfile) {
+                renderArchetypeResult(JSON.parse(savedProfile));
+                document.getElementById('archetypeTestBlock').classList.add('hidden');
+                document.getElementById('archetypeResultBlock').classList.remove('hidden');
+                archetypeIndicatorGen.classList.remove('hidden');
+            } else {
+                renderArchetypeTest();
+                document.getElementById('archetypeTestBlock').classList.remove('hidden');
+                document.getElementById('archetypeResultBlock').classList.add('hidden');
+                archetypeIndicatorGen.classList.add('hidden');
+            }
+        }
+
+        function renderArchetypeTest() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = archetypeQuestions.map((q, idx) => `
+                <div class="bg-gray-700/50 p-6 rounded-xl border border-gray-600">
+                    <h4 class="text-lg text-white mb-4 font-medium">${idx + 1}. ${q.q}</h4>
+                    <div class="space-y-2">
+                        ${q.a.map(ans => `
+                            <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-600 cursor-pointer transition">
+                                <input type="radio" name="q${idx}" value="${ans}" class="form-radio text-purple-600 h-4 w-4">
+                                <span class="text-gray-300 text-sm">${ans}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('submitQuizBtn').addEventListener('click', async () => {
+            const answers = [];
+            let allAnswered = true;
+            archetypeQuestions.forEach((_, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                if (!selected) allAnswered = false;
+                else answers.push(selected.value);
+            });
+
+            if (!allAnswered) {
+                showError("Пожалуйста, ответьте на все вопросы!");
+                return;
+            }
+
+            toggleLoading(true, "Анализирую ДНК вашего бренда...");
+            
+            try {
+                const prompt = `You are a Brand Archetype Expert (Pearson-Marr system).
+                Analyze these quiz answers from an esoteric expert: ${JSON.stringify(answers)}.
+                
+                Task:
+                1. Determine top 3 archetypes.
+                2. Create a Brand Voice profile.
+                3. Generate a system instruction snippet for future AI content generation.
+                
+                Output strictly JSON:
+                {
+                  "top_archetypes": ["Name 1", "Name 2", "Name 3"],
+                  "description": "Short description of this combination in Russian",
+                  "brand_voice": {
+                    "tone": "Description of tone in Russian",
+                    "keywords": ["word1", "word2", "word3", "word4", "word5"]
+                  },
+                  "visual_guide": {
+                    "colors": ["Hex1", "Hex2", "Hex3"],
+                    "fonts": "Font recommendation in Russian",
+                    "vibes": "Vibe description in Russian"
+                  },
+                  "system_instruction_snippet": "You are writing for an expert with archetypes [Names]. Tone: [Tone]. Keywords: [Keywords]. Avoid: cliches. Style: [Description]."
+                }`;
+
+                const payload = { contents: [{ parts: [{ text: "Analyze archetypes." }] }], systemInstruction: { parts: [{ text: prompt }] }, generationConfig: { responseMimeType: "application/json" } };
+                const data = await fetchGemini(payload);
+                const profile = JSON.parse(data.candidates[0].content.parts[0].text);
+                
+                localStorage.setItem('archetypeProfile', JSON.stringify(profile));
+                checkArchetypeStatus();
+                showError("Архетип определен! 🧬");
+
+            } catch (e) { console.error(e); showError("Ошибка анализа."); } 
+            finally { toggleLoading(false); }
+        });
+
+        function renderArchetypeResult(profile) {
+            document.getElementById('archetypeTitle').textContent = profile.top_archetypes.join(' + ');
+            document.getElementById('archetypeDesc').textContent = profile.description;
+            
+            const keywordsHtml = profile.brand_voice.keywords.map(k => `<span class="px-2 py-1 bg-purple-900/50 rounded text-purple-200 text-xs border border-purple-500/30">#${k}</span>`).join('');
+            document.getElementById('archetypeKeywords').innerHTML = keywordsHtml;
+            
+            document.getElementById('archetypeTone').textContent = profile.brand_voice.tone;
+            
+            const colorsHtml = profile.visual_guide.colors.map(c => `<div class="w-8 h-8 rounded-full shadow-md border border-white/20" style="background-color: ${c}" title="${c}"></div>`).join('');
+            document.getElementById('archetypeColors').innerHTML = colorsHtml;
+            
+            document.getElementById('archetypeFonts').textContent = profile.visual_guide.fonts;
+            document.getElementById('archetypeVibes').textContent = profile.visual_guide.vibes;
+        }
+
+        document.getElementById('applyArchetypeBtn').addEventListener('click', () => {
+            switchTab('generator');
+            showError("Стиль применен! Создайте контент.");
+        });
+
+        window.resetArchetype = () => {
+            if(confirm("Сбросить результаты теста?")) {
+                localStorage.removeItem('archetypeProfile');
+                checkArchetypeStatus();
+            }
+        };
+
+        // --- HELPER: GET SYSTEM PROMPT WITH ARCHETYPE ---
+        function getSystemPromptWithArchetype(basePrompt) {
+            const profile = JSON.parse(localStorage.getItem('archetypeProfile'));
+            if (profile && profile.system_instruction_snippet) {
+                return `${basePrompt}\n\n**IMPORTANT - BRAND VOICE SETTINGS:**\n${profile.system_instruction_snippet}\nApply this tone strictly.`;
+            }
+            return basePrompt;
+        }
+
+        // --- MOON CALENDAR LOGIC ---
+        let moonLoaded = false;
+        async function loadMoonData() {
+            if(moonLoaded) return;
+            const today = new Date().toLocaleDateString('ru-RU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('currentDateDisplay').textContent = today;
+
+            try {
+                const systemPrompt = `You are an expert Astrologer.
+                Task: Analyze the current date (${today}). Determine the Moon Phase, Moon Day, and the Zodiac Sign the Moon is currently in.
+                Then write a specific "Energy of the Day" advice in Russian using this EXACT style/format:
+                "Что можно и нельзя [Date] по Луне: [Actionable advice]. Не идите [warning], даже если [reason related to Moon sign]. Пусть ваша активность будет [type of activity]. Так вы гармонично используете [Moon phase] энергию. [Closing advice/affirmation]."
+                
+                Output strictly JSON:
+                {
+                    "moonDay": number,
+                    "phaseName": "string (e.g. Растущая Луна)",
+                    "zodiacSign": "string (e.g. Луна в Овне)",
+                    "description": "string (The styled text described above)",
+                    "good": ["list", "of", "3", "things", "to do"],
+                    "bad": ["list", "of", "3", "things", "to avoid"]
+                }`;
+
+                const payload = { 
+                    contents: [{ parts: [{ text: `Сегодня ${today}. Дай прогноз.` }] }], 
+                    systemInstruction: { parts: [{ text: systemPrompt }] }, 
+                    generationConfig: { responseMimeType: "application/json" } 
+                };
+                
+                const data = await fetchGemini(payload);
+                const res = JSON.parse(data.candidates[0].content.parts[0].text);
+                
+                document.getElementById('moonDayNumber').textContent = res.moonDay;
+                document.getElementById('moonPhaseName').textContent = res.phaseName;
+                document.getElementById('moonZodiac').textContent = res.zodiacSign;
+                document.getElementById('moonDescription').textContent = res.description;
+                
+                document.getElementById('moonGoodList').innerHTML = res.good.map(i => `<li>${i}</li>`).join('');
+                document.getElementById('moonBadList').innerHTML = res.bad.map(i => `<li>${i}</li>`).join('');
+                
+                document.getElementById('moonLoader').classList.add('hidden');
+                document.getElementById('moonContent').classList.remove('hidden');
+                moonLoaded = true;
+            } catch(e) { console.error(e); }
+        }
+
+        // --- VOICE LOGIC ---
+        const voiceRecordBtn = document.getElementById('voiceRecordBtn');
+        const voiceGenerateBtn = document.getElementById('voiceGenerateBtn');
+        let recognition, isRecording = false, finalTranscript = '';
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.onstart = () => { isRecording = true; voiceRecordBtn.classList.add('recording-pulse'); };
+            recognition.onend = () => { isRecording = false; voiceRecordBtn.classList.remove('recording-pulse'); if(finalTranscript) voiceGenerateBtn.classList.remove('hidden'); };
+            recognition.onresult = (e) => {
+                let interim = '';
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript;
+                    else interim += e.results[i][0].transcript;
+                }
+                document.getElementById('voiceTranscript').textContent = finalTranscript + interim;
+            };
+            voiceRecordBtn.onclick = () => { if(isRecording) recognition.stop(); else recognition.start(); };
+        }
+
+        voiceGenerateBtn.onclick = async () => {
+            toggleLoading(true, "Пишу пост...");
+            try {
+                let basePrompt = `Copywriter. Turn transcript into post. Russian. Structure: Hook -> Body -> CTA. NO EMOJIS.`;
+                const fullPrompt = getSystemPromptWithArchetype(basePrompt); // Apply Archetype
+                
+                const data = await fetchGemini({ contents: [{ parts: [{ text: `Transcript: ${finalTranscript}` }] }], systemInstruction: { parts: [{ text: fullPrompt }] } });
+                document.getElementById('voicePostContent').innerHTML = marked.parse(data.candidates[0].content.parts[0].text);
+                document.getElementById('voiceResult').classList.remove('hidden');
+            } catch(e) { showError("Ошибка"); } finally { toggleLoading(false); }
+        };
+        
+        window.copyVoicePost = () => { navigator.clipboard.writeText(document.getElementById('voicePostContent').innerText); showError("Скопировано!"); };
+
+        // --- CASES LOGIC ---
+        const reviewImageInput = document.getElementById('reviewImageInput');
+        let currentImageBase64 = null;
+
+        reviewImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                currentImageBase64 = reader.result.split(',')[1];
+                document.getElementById('recognizeTextBtn').classList.remove('hidden');
+                document.getElementById('uploadPreview').textContent = `📸 ${file.name}`;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('recognizeTextBtn').onclick = async () => {
+            toggleLoading(true, "OCR...");
+            try {
+                const payload = { contents: [{ parts: [{ text: "Transcribe text." }, { inlineData: { mimeType: "image/jpeg", data: currentImageBase64 } }] }] };
+                const data = await fetchGemini(payload);
+                document.getElementById('reviewText').value = data.candidates[0].content.parts[0].text;
+            } catch(e) { showError("Ошибка OCR"); } finally { toggleLoading(false); }
+        };
+
+        const generateCaseBtn = document.getElementById('generateCaseBtn');
+        let currentGeneratedCase = null;
+
+        generateCaseBtn.onclick = async () => {
+            const text = document.getElementById('reviewText').value;
+            const before = document.getElementById('caseBefore').value;
+            const action = document.getElementById('caseAction').value;
+            const after = document.getElementById('caseAfter').value;
+            
+            toggleLoading(true, "Упаковываю...");
+            try {
+                let basePrompt = `Marketing Expert. Create Case Study JSON: { "headlines": ["H1", "H2", "H3"], "quote": "Quote", "body": "Text PSR" }. Russian. NO EMOJIS.`;
+                const fullPrompt = getSystemPromptWithArchetype(basePrompt); // Apply Archetype
+
+                const query = `Review: ${text}\nBefore: ${before}\nAction: ${action}\nResult: ${after}`;
+                const payload = { contents: [{ parts: [{ text: query }] }], systemInstruction: { parts: [{ text: fullPrompt }] }, generationConfig: { responseMimeType: "application/json" } };
+                const data = await fetchGemini(payload);
+                const res = JSON.parse(data.candidates[0].content.parts[0].text);
+                
+                currentGeneratedCase = { ...res, before, action, after, tags: [...selectedTags] }; // Added tags
+                document.getElementById('generatedHeadlines').innerHTML = res.headlines.map(h => `<div class="p-2 bg-gray-700 border rounded cursor-pointer hover:border-purple-500" onclick="selectHeadline('${h}')">${h}</div>`).join('');
+                document.getElementById('generatedQuote').textContent = res.quote;
+                document.getElementById('generatedBody').textContent = res.body;
+                document.getElementById('casePreviewBlock').classList.remove('hidden');
+            } catch(e) { showError("Ошибка"); } finally { toggleLoading(false); }
+        };
+
+        window.selectHeadline = (h) => currentGeneratedCase.selectedHeadline = h;
+        
+        document.getElementById('saveCaseBtn').onclick = () => {
+            const cases = JSON.parse(localStorage.getItem('cases') || '[]');
+            cases.unshift(currentGeneratedCase);
+            localStorage.setItem('cases', JSON.stringify(cases));
+            renderCasesLibrary();
+            document.getElementById('casePreviewBlock').classList.add('hidden');
+        };
+        
+        // Tagging System
+        const caseTagsInput = document.getElementById('caseTags');
+        const selectedTagsContainer = document.getElementById('selectedTagsContainer');
+        let selectedTags = [];
+
+        window.addTag = (tag) => {
+            if (!selectedTags.includes(tag)) {
+                selectedTags.push(tag);
+                renderTags();
+            }
+        };
+
+        caseTagsInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const tag = e.target.value.trim();
+                if (tag) { addTag(tag); e.target.value = ''; }
+            }
+        });
+
+        function renderTags() {
+            selectedTagsContainer.innerHTML = selectedTags.map(tag => 
+                `<span class="bg-purple-600 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+                    #${tag} <button onclick="removeTag('${tag}')" class="hover:text-red-300">×</button>
+                </span>`
+            ).join('');
+        }
+        window.removeTag = (tag) => { selectedTags = selectedTags.filter(t => t !== tag); renderTags(); };
+
+
+        function renderCasesLibrary() {
+            const cases = JSON.parse(localStorage.getItem('cases') || '[]');
+            const container = document.getElementById('casesLibraryList');
+            const filter = document.getElementById('filterTags').value;
+            const search = document.getElementById('searchCases').value.toLowerCase();
+
+            // Update filter options
+            const allTags = [...new Set(cases.flatMap(c => c.tags || []))];
+            const filterSelect = document.getElementById('filterTags');
+            // Re-populate filter options to avoid duplicates and include new tags
+            filterSelect.innerHTML = '<option value="all">Все теги</option>';
+             allTags.forEach(t => filterSelect.add(new Option(t, t)));
+            filterSelect.value = filter; // Restore selection
+
+            const filtered = cases.filter(c => {
+                const matchesTag = filter === 'all' || (c.tags && c.tags.includes(filter));
+                const matchesSearch = (c.selectedHeadline + c.body + c.quote).toLowerCase().includes(search);
+                return matchesTag && matchesSearch;
+            });
+
+            container.innerHTML = filtered.length ? filtered.map(c => `
+                <div class="bg-gray-700 p-4 rounded-xl border border-gray-600 relative group">
+                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                        <button onclick="navigator.clipboard.writeText('${c.body}')" class="p-1 bg-gray-800 rounded hover:text-purple-300">📋</button>
+                    </div>
+                     <div class="flex gap-1 mb-2 flex-wrap">${(c.tags || []).map(t=>`<span class="text-[10px] bg-gray-800 px-1 rounded text-purple-300">#${t}</span>`).join('')}</div>
+                    <h4 class="font-bold text-white mb-2">${c.selectedHeadline || c.headlines[0]}</h4>
+                    <p class="text-xs text-gray-300 italic mb-2">"${c.quote}"</p>
+                    <p class="text-xs text-gray-400 line-clamp-3">${c.body}</p>
+                </div>`).join('') : '<div class="col-span-full text-center text-gray-500">Нет кейсов</div>';
+        }
+        
+        document.getElementById('searchCases').addEventListener('input', renderCasesLibrary);
+        document.getElementById('filterTags').addEventListener('change', renderCasesLibrary);
+
+
+        document.getElementById('createVisualBtn').onclick = () => {
+             document.getElementById('visualTitle').textContent = currentGeneratedCase.selectedHeadline || currentGeneratedCase.headlines[0];
+             document.getElementById('visualQuote').textContent = `"${currentGeneratedCase.quote}"`;
+             document.getElementById('visualBefore').textContent = currentGeneratedCase.before;
+             document.getElementById('visualAction').textContent = currentGeneratedCase.action;
+             document.getElementById('visualAfter').textContent = currentGeneratedCase.after;
+             document.getElementById('visualModal').classList.remove('hidden');
+        };
+
+        // --- PERSONALIZATION & MAIN GENERATOR ---
+        window.closePersonalizeModal = () => { personalizeModal.classList.add('hidden'); currentPersonalizeData = null; };
+        
+        const contentForm = document.getElementById('contentForm');
+        const daysList = document.getElementById('daysList');
+
+        contentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const niche = document.getElementById('niche').value;
+            const days = document.getElementById('daysCount').value;
+            const goal = document.querySelector('input[name="contentGoal"]:checked').value;
+            const product = document.getElementById('productDescription').value;
+
+            if (!niche || (goal === 'sale' && !product)) { showError("Заполните поля!"); return; }
+
+            toggleLoading(true, "Создаю...");
+            document.getElementById('resultsContainer').classList.add('hidden');
+            daysList.innerHTML = '';
+
+            try {
+                const kb = `KNOWLEDGE: Runes (safety, gratitude, dangerous tattoos, cleaning negatives), Ba-zi/Numerology (dates, health, compatibility, child talents), Chakras/Psychology (energy leaks, victim mentality, self-love, money blocks, burnout, alcohol family scripts), Tarot (myths, decision making, relationship crisis), T-Games (fullness, femininity, assertiveness), Astro (retrogrades, solstices, eclipses). Formats: Guess the fact, Direct message breakdown, My ritual, Client story.`;
+                let basePrompt = `Expert Content Strategist. Create content plan JSON: {days: [{day, title, theses}]}. Niche: ${niche}. Product: ${product}. Days: ${days}. ${kb}. NO EMOJIS.`;
+                const fullPrompt = getSystemPromptWithArchetype(basePrompt); // Apply Archetype
+
+                const query = `Goal: ${goal}. Generate.`;
+
+                const data = await fetchGemini({ contents: [{ parts: [{ text: query }] }], systemInstruction: { parts: [{ text: fullPrompt }] }, generationConfig: { responseMimeType: "application/json" } });
+                const plan = JSON.parse(data.candidates[0].content.parts[0].text);
+                
+                plan.days.forEach(day => {
+                    const div = document.createElement('div');
+                    div.className = "bg-gray-800 p-4 rounded border border-gray-700";
+                    div.innerHTML = `<h3 class="text-xl text-white">День ${day.day}: ${day.title}</h3><p class="text-gray-400 mb-2">${day.theses}</p>
+                    <div class="flex gap-2"><button class="px-3 py-1 bg-purple-600 rounded text-xs text-white" onclick="genDetail('stories', '${day.title}', '${day.theses}')">Сторис</button><button class="px-3 py-1 bg-blue-600 rounded text-xs text-white" onclick="genDetail('telegram', '${day.title}', '${day.theses}')">Telegram</button></div>
+                    <div class="mt-2 text-sm text-gray-300 whitespace-pre-wrap output-area"></div>`;
+                    daysList.appendChild(div);
+                });
+                document.getElementById('resultsContainer').classList.remove('hidden');
+            } catch(e) { showError("Ошибка"); } finally { toggleLoading(false); }
+        });
+
+        window.genDetail = async (type, title, theses) => {
+            let basePrompt = `Copywriter. Write ${type} for "${title}". Theses: ${theses}. Russian. NO EMOJIS.`;
+            const fullPrompt = getSystemPromptWithArchetype(basePrompt); // Apply Archetype
+            
+            const data = await fetchGemini({ contents: [{ parts: [{ text: "Write." }] }], systemInstruction: { parts: [{ text: fullPrompt }] } });
+            event.target.parentElement.nextElementSibling.innerHTML = marked.parse(data.candidates[0].content.parts[0].text);
+        };
+        
+        // Init: Check archetype status on load
+        checkArchetypeStatus();
+        renderCasesLibrary();
+
+    </script>
+</body>
+</html>
