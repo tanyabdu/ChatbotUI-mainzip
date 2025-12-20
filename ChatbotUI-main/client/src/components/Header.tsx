@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 export default function Header({ 
-  subtitle = "Стратегия • Контент • Энергия • Продажи"
+  subtitle = "стратегия • контент • энергия • продажи"
 }: HeaderProps) {
   const { user, isAuthenticated } = useAuth();
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
@@ -57,7 +57,7 @@ export default function Header({
           <span className="block">Ваш персональный</span>
           <span className="block">ЭЗО-маркетолог</span>
         </h1>
-        <p className="text-purple-500 text-lg sm:text-xl font-light tracking-wider uppercase">
+        <p className="text-purple-500 text-lg sm:text-xl font-light tracking-wider">
           {subtitle}
         </p>
       </div>
