@@ -274,18 +274,27 @@ export default function Admin() {
                           
                           <div className="flex items-center justify-between flex-wrap gap-3 text-sm">
                             <div className="flex items-center gap-4 text-purple-600">
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                Триал до: {formatDate(u.trialEndsAt)}
-                                {trialDays !== null && trialDays > 0 && (
-                                  <span className="text-green-600 ml-1">({trialDays} дн.)</span>
-                                )}
-                              </span>
-                              {u.subscriptionExpiresAt && (
-                                <span className="flex items-center gap-1">
+                              {u.isAdmin ? (
+                                <span className="flex items-center gap-1 text-pink-600 font-medium">
                                   <Crown className="h-3 w-3" />
-                                  Подписка до: {formatDate(u.subscriptionExpiresAt)}
+                                  Безлимит
                                 </span>
+                              ) : (
+                                <>
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    Триал до: {formatDate(u.trialEndsAt)}
+                                    {trialDays !== null && trialDays > 0 && (
+                                      <span className="text-green-600 ml-1">({trialDays} дн.)</span>
+                                    )}
+                                  </span>
+                                  {u.subscriptionExpiresAt && (
+                                    <span className="flex items-center gap-1">
+                                      <Crown className="h-3 w-3" />
+                                      Подписка до: {formatDate(u.subscriptionExpiresAt)}
+                                    </span>
+                                  )}
+                                </>
                               )}
                             </div>
                             
