@@ -115,7 +115,7 @@ export default function Landing() {
 
       <footer className="border-t-2 border-purple-200 py-8 bg-white">
         <div className="container mx-auto px-6 text-center text-purple-500">
-          <p>Эзотерический Планировщик Контента &copy; 2024</p>
+          <p>Эзотерический Планировщик Контента &copy; 2026</p>
         </div>
       </footer>
     </div>
