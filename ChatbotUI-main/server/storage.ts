@@ -6,11 +6,12 @@ import {
   type CaseStudy, type InsertCaseStudy,
   type SalesTrainerSample, type InsertSalesTrainerSample,
   type SalesTrainerSession, type InsertSalesTrainerSession,
+  type PasswordResetToken, type InsertPasswordResetToken,
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
-  salesTrainerSamples, salesTrainerSessions
+  salesTrainerSamples, salesTrainerSessions, passwordResetTokens
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, ilike, or, and } from "drizzle-orm";
+import { eq, desc, ilike, or, and, isNull, gt } from "drizzle-orm";
 
 export interface IStorage {
   // Users (for Replit Auth)
@@ -69,9 +70,19 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // Users (for Replit Auth)
+  // Users
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
     return user;
   }
 
@@ -97,6 +108,36 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  // Password Reset Tokens
+  async createPasswordResetToken(data: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const [token] = await db.insert(passwordResetTokens).values(data).returning();
+    return token;
+  }
+
+  async getValidPasswordResetToken(userId: string): Promise<PasswordResetToken | undefined> {
+    const now = new Date();
+    const [token] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(
+        and(
+          eq(passwordResetTokens.userId, userId),
+          gt(passwordResetTokens.expiresAt, now),
+          isNull(passwordResetTokens.usedAt)
+        )
+      )
+      .orderBy(desc(passwordResetTokens.createdAt))
+      .limit(1);
+    return token;
+  }
+
+  async markPasswordResetTokenUsed(tokenId: string): Promise<void> {
+    await db
+      .update(passwordResetTokens)
+      .set({ usedAt: new Date() })
+      .where(eq(passwordResetTokens.id, tokenId));
   }
 
   // Access control

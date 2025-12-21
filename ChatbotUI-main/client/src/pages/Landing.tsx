@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Wand2, Mic, BookOpen, Moon, ArrowRight, Star } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Landing() {
   return (
@@ -17,10 +18,10 @@ export default function Landing() {
             className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
             data-testid="button-login"
           >
-            <a href="/api/login">
+            <Link href="/login">
               Войти
               <ArrowRight className="ml-2 h-4 w-4" />
-            </a>
+            </Link>
           </Button>
         </div>
       </header>
@@ -44,10 +45,10 @@ export default function Landing() {
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg px-8"
               data-testid="button-start"
             >
-              <a href="/api/login">
+              <Link href="/register">
                 Начать бесплатно
                 <Star className="ml-2 h-5 w-5" />
-              </a>
+              </Link>
             </Button>
           </div>
         </section>

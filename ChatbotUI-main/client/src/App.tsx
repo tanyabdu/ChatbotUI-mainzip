@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +8,10 @@ import Home from "@/pages/Home";
 import Landing from "@/pages/Landing";
 import Grimoire from "@/pages/Grimoire";
 import Admin from "@/pages/Admin";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import { useAuth } from "@/hooks/useAuth";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -22,16 +26,32 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
   
   if (!isAuthenticated) {
-    return <Landing />;
+    return <Redirect to="/login" />;
   }
   
   return <Component />;
 }
 
 function Router() {
+  const { isAuthenticated, isLoading } = useAuth();
+
   return (
     <Switch>
-      <Route path="/" component={() => <ProtectedRoute component={Home} />} />
+      <Route path="/">
+        {isLoading ? (
+          <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
+            <div className="animate-pulse text-purple-600">Загрузка...</div>
+          </div>
+        ) : isAuthenticated ? (
+          <Home />
+        ) : (
+          <Landing />
+        )}
+      </Route>
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       <Route path="/grimoire" component={() => <ProtectedRoute component={Grimoire} />} />
       <Route path="/admin" component={() => <ProtectedRoute component={Admin} />} />
       <Route path="/landing" component={Landing} />

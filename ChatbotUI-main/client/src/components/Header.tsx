@@ -78,17 +78,17 @@ export default function Header({
                 </Link>
               </Button>
               <Button variant="outline" size="icon" asChild data-testid="button-logout">
-                <a href="/api/logout">
+                <a href="/api/auth/logout">
                   <LogOut className="h-4 w-4 text-purple-600" />
                 </a>
               </Button>
             </>
           ) : (
             <Button asChild data-testid="button-login" className="bg-gradient-to-r from-purple-500 to-pink-500">
-              <a href="/api/login" className="flex items-center gap-2">
+              <Link href="/login" className="flex items-center gap-2">
                 <LogIn className="h-4 w-4" />
                 <span>Войти</span>
-              </a>
+              </Link>
             </Button>
           )}
         </div>

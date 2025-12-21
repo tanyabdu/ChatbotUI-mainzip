@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContentStrategySchema, insertArchetypeResultSchema, insertVoicePostSchema, insertCaseStudySchema, insertSalesTrainerSampleSchema } from "@shared/schema";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, requireAdmin } from "./auth";
 import { generateImprovedAnswer } from "./services/moneyTrainer";
 
 export async function registerRoutes(
@@ -13,22 +13,10 @@ export async function registerRoutes(
   // Setup authentication
   await setupAuth(app);
 
-  // Auth routes
-  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
   // Update user profile
   app.patch("/api/auth/user", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { nickname } = req.body;
       const user = await storage.updateUser(userId, { nickname });
       res.json(user);
@@ -41,7 +29,7 @@ export async function registerRoutes(
   // Content Strategies (protected routes)
   app.get("/api/strategies", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const strategies = await storage.getContentStrategies(userId);
       res.json(strategies);
     } catch (error) {
@@ -51,7 +39,7 @@ export async function registerRoutes(
 
   app.get("/api/strategies/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const strategy = await storage.getContentStrategy(req.params.id, userId);
       if (!strategy) {
         return res.status(404).json({ error: "Strategy not found" });
@@ -64,7 +52,7 @@ export async function registerRoutes(
 
   app.get("/api/generation-limit", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const limit = await storage.canGenerateStrategy(userId);
       res.json(limit);
     } catch (error) {
@@ -74,7 +62,7 @@ export async function registerRoutes(
 
   app.post("/api/strategies", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Check generation limit
       const limitCheck = await storage.canGenerateStrategy(userId);
@@ -99,7 +87,7 @@ export async function registerRoutes(
 
   app.delete("/api/strategies/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       await storage.deleteContentStrategy(req.params.id, userId);
       res.status(204).send();
     } catch (error) {
@@ -110,7 +98,7 @@ export async function registerRoutes(
   // Archetype Results (protected routes)
   app.get("/api/archetypes", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const results = await storage.getArchetypeResults(userId);
       res.json(results);
     } catch (error) {
@@ -120,7 +108,7 @@ export async function registerRoutes(
 
   app.get("/api/archetypes/latest", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const result = await storage.getLatestArchetypeResult(userId);
       res.json(result || null);
     } catch (error) {
@@ -130,7 +118,7 @@ export async function registerRoutes(
 
   app.post("/api/archetypes", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const parsed = insertArchetypeResultSchema.safeParse({ ...req.body, userId });
       if (!parsed.success) {
         return res.status(400).json({ error: parsed.error.message });
@@ -145,7 +133,7 @@ export async function registerRoutes(
   // Voice Posts (protected routes)
   app.get("/api/voice-posts", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const posts = await storage.getVoicePosts(userId);
       res.json(posts);
     } catch (error) {
@@ -155,7 +143,7 @@ export async function registerRoutes(
 
   app.post("/api/voice-posts", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const parsed = insertVoicePostSchema.safeParse({ ...req.body, userId });
       if (!parsed.success) {
         return res.status(400).json({ error: parsed.error.message });
@@ -169,7 +157,7 @@ export async function registerRoutes(
 
   app.delete("/api/voice-posts/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       await storage.deleteVoicePost(req.params.id, userId);
       res.status(204).send();
     } catch (error) {
@@ -180,7 +168,7 @@ export async function registerRoutes(
   // Case Studies (protected routes)
   app.get("/api/cases", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const query = req.query.q as string | undefined;
       const cases = query 
         ? await storage.searchCaseStudies(query, userId)
@@ -193,7 +181,7 @@ export async function registerRoutes(
 
   app.get("/api/cases/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const caseStudy = await storage.getCaseStudy(req.params.id, userId);
       if (!caseStudy) {
         return res.status(404).json({ error: "Case study not found" });
@@ -206,7 +194,7 @@ export async function registerRoutes(
 
   app.post("/api/cases", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const parsed = insertCaseStudySchema.safeParse({ ...req.body, userId });
       if (!parsed.success) {
         return res.status(400).json({ error: parsed.error.message });
@@ -220,7 +208,7 @@ export async function registerRoutes(
 
   app.delete("/api/cases/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       await storage.deleteCaseStudy(req.params.id, userId);
       res.status(204).send();
     } catch (error) {
@@ -288,7 +276,7 @@ export async function registerRoutes(
   // Access check route
   app.get("/api/auth/access", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const access = await storage.hasActiveAccess(userId);
       res.json(access);
     } catch (error) {
@@ -321,7 +309,7 @@ export async function registerRoutes(
 
   app.get("/api/trainer/sessions", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const sessions = await storage.getSalesTrainerSessions(userId);
       res.json(sessions);
     } catch (error) {
@@ -331,7 +319,7 @@ export async function registerRoutes(
 
   app.post("/api/trainer/generate", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { clientQuestion, expertDraft, painType, offerType } = req.body;
 
       if (!clientQuestion || !expertDraft) {
