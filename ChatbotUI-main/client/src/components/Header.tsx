@@ -1,5 +1,5 @@
-import { Sparkles, LogOut, LogIn, Clock, Crown, Settings } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Sparkles, LogOut, LogIn, Clock, Settings } from "lucide-react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,7 +23,6 @@ export default function Header({
   subtitle = "стратегия • контент • энергия • продажи"
 }: HeaderProps) {
   const { user, isAuthenticated } = useAuth();
-  const [, setLocation] = useLocation();
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
   
   const { data: accessStatus } = useQuery<AccessStatus>({
@@ -34,7 +33,7 @@ export default function Header({
   const handleLogout = () => {
     removeToken();
     queryClient.clear();
-    setLocation("/");
+    window.location.href = "/";
   };
 
   return (
