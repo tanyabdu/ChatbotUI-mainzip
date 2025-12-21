@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dna, Loader2, Printer, Coins, Flame, Sparkles, Save, Check, History, Trash2, Lock, Crown } from "lucide-react";
+import { Dna, Loader2, Printer, Coins, Flame, Sparkles, Save, Check, History, Trash2, Lock, Crown, AlertCircle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { ContentStrategy, ContentPost } from "@shared/schema";
@@ -51,6 +51,7 @@ export default function ContentGenerator({ archetypeActive = false, onGenerate }
   const [generatedContent, setGeneratedContent] = useState<ContentDay[]>([]);
   const [saved, setSaved] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const { data: generationLimit } = useQuery<GenerationLimit>({
@@ -78,6 +79,29 @@ export default function ContentGenerator({ archetypeActive = false, onGenerate }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/strategies"] });
+    },
+  });
+
+  const generateMutation = useMutation({
+    mutationFn: async (data: {
+      goal: ContentGoal;
+      niche: string;
+      days: DaysCount;
+      product?: string;
+      strategy?: StrategyType;
+    }) => {
+      const response = await apiRequest("POST", "/api/strategies/generate", data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setGeneratedContent(data.content);
+      setIsGenerating(false);
+      setError(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/generation-limit"] });
+    },
+    onError: (err: Error) => {
+      setError(`Ошибка генерации: ${err.message}`);
+      setIsGenerating(false);
     },
   });
 
@@ -117,42 +141,18 @@ export default function ContentGenerator({ archetypeActive = false, onGenerate }
     
     setIsGenerating(true);
     setSaved(false);
+    setError(null);
     
-    onGenerate?.({
+    const requestData = {
       goal,
       niche,
       days,
       product: goal === "sale" ? product : undefined,
       strategy: goal === "sale" ? strategy : undefined,
-    });
-
-    setTimeout(() => {
-      setIsGenerating(false);
-      setGeneratedContent([
-        {
-          day: 1,
-          title: "Энергетический старт недели",
-          type: "Экспертный пост",
-          content: "Начните неделю с очищения энергетического поля. Сегодня Луна благоприятствует новым начинаниям...",
-          hashtags: ["#таро", "#энергия", "#новоеначало"],
-        },
-        {
-          day: 2,
-          title: "Личная история трансформации",
-          type: "Сторителлинг",
-          content: "Расскажу вам историю одной клиентки, которая пришла ко мне в полном отчаянии...",
-          hashtags: ["#трансформация", "#кейс", "#результат"],
-        },
-        {
-          day: 3,
-          title: "Прогрев к продаже",
-          type: "Продающий контент",
-          content: "Открываю набор на индивидуальную работу. Только 5 мест для глубокой трансформации...",
-          hashtags: ["#консультация", "#таролог", "#запись"],
-        },
-      ]);
-      queryClient.invalidateQueries({ queryKey: ["/api/generation-limit"] });
-    }, 1500);
+    };
+    
+    onGenerate?.(requestData);
+    generateMutation.mutate(requestData);
   };
 
   const limitReached = generationLimit && !generationLimit.allowed;
@@ -198,6 +198,12 @@ export default function ContentGenerator({ archetypeActive = false, onGenerate }
         
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
             <div>
               <Label className="block text-sm font-medium text-muted-foreground mb-3">
                 Цель контента

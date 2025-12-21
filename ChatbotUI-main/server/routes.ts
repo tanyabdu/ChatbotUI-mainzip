@@ -5,6 +5,7 @@ import { insertContentStrategySchema, insertArchetypeResultSchema, insertVoicePo
 import { setupAuth, isAuthenticated, requireAdmin } from "./auth";
 import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
+import { generateContentStrategy } from "./services/contentGenerator";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -61,7 +62,8 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/strategies", isAuthenticated, async (req: any, res) => {
+  // Generate content strategy using AI
+  app.post("/api/strategies/generate", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
       
@@ -71,14 +73,44 @@ export async function registerRoutes(
         return res.status(403).json({ error: limitCheck.reason, limitReached: true });
       }
       
+      const { goal, niche, days, product, strategy } = req.body;
+      
+      if (!goal || !niche || !days) {
+        return res.status(400).json({ error: "Missing required fields: goal, niche, days" });
+      }
+      
+      const daysNumber = days === "today" ? 1 : parseInt(days) || 1;
+      
+      console.log("Generating content strategy:", { goal, niche, days: daysNumber, product, strategy });
+      
+      const generatedContent = await generateContentStrategy({
+        goal,
+        niche,
+        days: daysNumber,
+        product,
+        strategy,
+      });
+      
+      // Increment daily generation count only on success
+      await storage.incrementDailyGeneration(userId);
+      
+      res.json({ content: generatedContent });
+    } catch (error) {
+      console.error("Content generation error:", error);
+      res.status(500).json({ error: "Ошибка генерации контента. Попробуйте ещё раз." });
+    }
+  });
+
+  app.post("/api/strategies", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Check generation limit (don't check for saving, only for generating)
       const parsed = insertContentStrategySchema.safeParse({ ...req.body, userId });
       if (!parsed.success) {
         return res.status(400).json({ error: parsed.error.message });
       }
       const strategy = await storage.createContentStrategy(parsed.data);
-      
-      // Increment daily generation count
-      await storage.incrementDailyGeneration(userId);
       
       res.status(201).json(strategy);
     } catch (error) {
