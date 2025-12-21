@@ -21,6 +21,133 @@ export interface GeneratedContentDay {
   hashtags: string[];
 }
 
+function fixHashtagsArray(jsonStr: string): string {
+  // Find hashtags arrays and fix unquoted values
+  // Pattern: "hashtags": [ ... ]
+  return jsonStr.replace(/"hashtags"\s*:\s*\[([^\]]*)\]/g, (match, arrayContent) => {
+    // Split by comma, but be careful with quoted strings
+    const items: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (const char of arrayContent) {
+      if (char === '"' && (current.length === 0 || current[current.length - 1] !== '\\')) {
+        inQuotes = !inQuotes;
+        current += char;
+      } else if (char === ',' && !inQuotes) {
+        if (current.trim()) {
+          items.push(current.trim());
+        }
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    if (current.trim()) {
+      items.push(current.trim());
+    }
+    
+    // Fix each item
+    const fixedItems = items.map(item => {
+      item = item.trim();
+      // Already properly quoted
+      if (item.startsWith('"') && item.endsWith('"')) {
+        return item;
+      }
+      // Single quoted - convert to double
+      if (item.startsWith("'") && item.endsWith("'")) {
+        return `"${item.slice(1, -1)}"`;
+      }
+      // Unquoted hashtag or text - add quotes
+      return `"${item.replace(/"/g, '\\"')}"`;
+    });
+    
+    return `"hashtags": [${fixedItems.join(', ')}]`;
+  });
+}
+
+function cleanJsonResponse(content: string): string {
+  // Remove markdown code blocks if present
+  let cleaned = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+  
+  // Fix hashtags arrays specifically
+  cleaned = fixHashtagsArray(cleaned);
+  
+  // Fix trailing commas before closing brackets
+  cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
+  
+  return cleaned;
+}
+
+function parseContentResponse(content: string): GeneratedContentDay[] {
+  // Try to extract JSON array from response
+  const jsonMatch = content.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) {
+    console.error("No JSON array found in response:", content.substring(0, 500));
+    throw new Error("Invalid response format from AI");
+  }
+  
+  let jsonStr = jsonMatch[0];
+  
+  // First attempt: parse as-is
+  try {
+    return JSON.parse(jsonStr) as GeneratedContentDay[];
+  } catch (e) {
+    console.log("First parse attempt failed, trying to clean JSON...");
+  }
+  
+  // Second attempt: clean and parse
+  try {
+    const cleaned = cleanJsonResponse(jsonStr);
+    return JSON.parse(cleaned) as GeneratedContentDay[];
+  } catch (e) {
+    console.log("Second parse attempt failed, trying line-by-line fix...");
+  }
+  
+  // Third attempt: try to fix line by line
+  try {
+    // More aggressive: try to manually reconstruct valid JSON
+    let fixed = jsonStr;
+    
+    // Fix common issues with hashtags arrays
+    // Match "hashtags": [ and everything until ]
+    const hashtagPattern = /"hashtags"\s*:\s*\[([^\]]+)\]/g;
+    fixed = fixed.replace(hashtagPattern, (match, content) => {
+      // Split on commas that are not inside quotes
+      const parts = content.split(',').map((p: string) => {
+        p = p.trim();
+        // Remove leading/trailing whitespace and newlines
+        p = p.replace(/^[\s\n]+|[\s\n]+$/g, '');
+        
+        // If starts with # and not in quotes, quote it
+        if (p.startsWith('#') && !p.startsWith('"')) {
+          return `"${p}"`;
+        }
+        // If in quotes, keep as is
+        if (p.startsWith('"') && p.endsWith('"')) {
+          return p;
+        }
+        // Otherwise wrap in quotes
+        if (p && !p.startsWith('"')) {
+          return `"${p}"`;
+        }
+        return p;
+      }).filter((p: string) => p.length > 0);
+      
+      return `"hashtags": [${parts.join(', ')}]`;
+    });
+    
+    // Remove trailing commas
+    fixed = fixed.replace(/,(\s*[}\]])/g, '$1');
+    
+    return JSON.parse(fixed) as GeneratedContentDay[];
+  } catch (e) {
+    console.error("All parse attempts failed. Error:", e);
+    console.error("Raw content sample:", jsonStr.substring(0, 500));
+    throw new Error("Failed to parse AI response as JSON");
+  }
+}
+
 export async function generateContentStrategy(input: ContentGenerationInput): Promise<GeneratedContentDay[]> {
   const { goal, niche, days, product, strategy } = input;
   
@@ -43,16 +170,11 @@ export async function generateContentStrategy(input: ContentGenerationInput): Pr
 - Учитывай специфику ниши пользователя
 - Контент должен быть готов к публикации
 
-Формат ответа — строго JSON массив объектов:
-[
-  {
-    "day": 1,
-    "title": "Заголовок поста",
-    "type": "Тип контента (Экспертный/Личная история/Продающий/Вовлекающий)",
-    "content": "Полный текст поста готовый к публикации (2-3 абзаца)",
-    "hashtags": ["#хэштег1", "#хэштег2", "#хэштег3"]
-  }
-]`;
+КРИТИЧЕСКИ ВАЖНО - формат ответа:
+Верни ТОЛЬКО валидный JSON массив. Все строки в двойных кавычках!
+
+Пример:
+[{"day":1,"title":"Заголовок","type":"Экспертный","content":"Текст поста","hashtags":["#тег1","#тег2"]}]`;
 
   const userPrompt = `Создай контент-план на ${days} ${getDaysWord(days)} для:
 
@@ -62,12 +184,12 @@ ${goal === "sale" ? `Стратегия: ${strategyDescription}` : ""}
 ${product ? `Продукт для продажи: ${product}` : ""}
 
 Требования:
-- Каждый день должен иметь уникальную тему
-- Чередуй типы контента для разнообразия
-- Учитывай воронку: знакомство → доверие → ${goal === "sale" ? "покупка" : "вовлечение"}
-- Посты должны быть готовы к копированию и публикации
+- ${days} уникальных постов, по одному на каждый день
+- Чередуй типы контента: Экспертный, Личная история, Продающий, Вовлекающий
+- Каждый пост: 2-3 абзаца текста готового к публикации
+- 3-5 хэштегов на каждый пост
 
-Верни ТОЛЬКО JSON массив без дополнительного текста.`;
+Ответь ТОЛЬКО JSON массивом. Никакого текста до или после JSON.`;
 
   try {
     const response = await client.chat.completions.create({
@@ -76,21 +198,14 @@ ${product ? `Продукт для продажи: ${product}` : ""}
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      temperature: 0.8,
+      temperature: 0.7,
       max_tokens: 4000,
     });
 
     const content = response.choices[0]?.message?.content || "[]";
+    console.log("Raw AI response length:", content.length);
     
-    // Parse JSON from response
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      console.error("Failed to parse content strategy response:", content);
-      throw new Error("Invalid response format from AI");
-    }
-    
-    const parsed = JSON.parse(jsonMatch[0]) as GeneratedContentDay[];
-    return parsed;
+    return parseContentResponse(content);
   } catch (error) {
     console.error("Content generation error:", error);
     throw error;
