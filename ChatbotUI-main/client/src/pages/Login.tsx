@@ -21,9 +21,9 @@ export default function Login() {
       const res = await apiRequest("POST", "/api/auth/login", { email, password });
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setLocation("/");
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
+      window.location.href = "/";
     },
     onError: (err: any) => {
       setError(err.message || "Ошибка при входе");
