@@ -3,16 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Check, X, Moon, Calendar, AlertTriangle, Sun } from "lucide-react";
 import { 
-  getLunarDayData, 
-  getUpcomingPhases, 
+  getMoonDayInfo, 
+  getLunarData,
+  getUpcomingPhasesCalculated,
   getUpcomingEclipses,
   SEASONS_2026,
-  type MoonDayData 
-} from "@/lib/lunarData2026";
+  type MoonDayInfo 
+} from "@/lib/lunarCalculator";
 
 export default function LunarCalendar() {
   const [isLoading, setIsLoading] = useState(true);
-  const [moonData, setMoonData] = useState<MoonDayData | null>(null);
+  const [moonData, setMoonData] = useState<MoonDayInfo | null>(null);
+  const [lunarDetails, setLunarDetails] = useState<{ illumination: number; isWaxing: boolean } | null>(null);
   const [upcomingPhases, setUpcomingPhases] = useState<Array<{ date: string; type: string; label: string }>>([]);
   const [upcomingEclipses, setUpcomingEclipses] = useState<Array<{ date: string; type: string; description: string }>>([]);
 
@@ -25,12 +27,15 @@ export default function LunarCalendar() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const data = getLunarDayData(new Date());
+      const today = new Date();
+      const data = getMoonDayInfo(today);
+      const details = getLunarData(today);
       setMoonData(data);
-      setUpcomingPhases(getUpcomingPhases(4));
+      setLunarDetails({ illumination: details.illumination, isWaxing: details.isWaxing });
+      setUpcomingPhases(getUpcomingPhasesCalculated(4));
       setUpcomingEclipses(getUpcomingEclipses().slice(0, 2));
       setIsLoading(false);
-    }, 800);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -73,7 +78,7 @@ export default function LunarCalendar() {
             {currentDate}
           </p>
           <p className="text-xs text-purple-400 mt-2">
-            Данные Астрономического календаря 2026
+            Расчёт на основе астрономических данных
           </p>
         </CardHeader>
 
@@ -103,6 +108,11 @@ export default function LunarCalendar() {
                   <p className="text-sm text-purple-400 mt-1">
                     {moonData.day}-й лунный день
                   </p>
+                  {lunarDetails && (
+                    <p className="text-xs text-purple-400 mt-1">
+                      Освещённость: {lunarDetails.illumination}% | {lunarDetails.isWaxing ? "Растущая" : "Убывающая"}
+                    </p>
+                  )}
                 </div>
               </div>
 
