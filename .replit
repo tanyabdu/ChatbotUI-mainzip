@@ -43,3 +43,8 @@ EXTERNAL_DB_NAME = "default_db"
 EXTERNAL_DB_USER = "gen_user"
 EXTERNAL_DB_SCHEMA = "esoteric_planner"
 RUSENDER_FROM_EMAIL = "klimova@magic-content.ru"
+
+[deployment]
+build = ["sh", "-c", "cd ChatbotUI-main && npm install && npm run build"]
+run = ["sh", "-c", "cd ChatbotUI-main && npm run start"]
+deploymentTarget = "cloudrun"
