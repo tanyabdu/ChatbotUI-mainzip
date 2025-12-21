@@ -17,11 +17,13 @@ export const sessions = esotericSchema.table(
 
 export const users = esotericSchema.table("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
+  email: varchar("email").unique().notNull(),
+  passwordHash: varchar("password_hash"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   nickname: varchar("nickname"),
+  emailVerifiedAt: timestamp("email_verified_at"),
   subscriptionTier: varchar("subscription_tier").default("trial"),
   subscriptionExpiresAt: timestamp("subscription_expires_at"),
   trialEndsAt: timestamp("trial_ends_at"),
@@ -29,10 +31,23 @@ export const users = esotericSchema.table("users", {
   generationsLimit: integer("generations_limit").default(50),
   dailyGenerationsUsed: integer("daily_generations_used").default(0),
   lastGenerationDate: varchar("last_generation_date"),
+  lastLoginAt: timestamp("last_login_at"),
   isAdmin: boolean("is_admin").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const passwordResetTokens = esotericSchema.table("password_reset_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tokenHash: varchar("token_hash").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type InsertPasswordResetToken = typeof passwordResetTokens.$inferInsert;
 
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
