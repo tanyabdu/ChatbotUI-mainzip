@@ -77,15 +77,20 @@ Preferred communication style: Simple, everyday language.
 ### Authentication & Authorization
 
 **Current Implementation**
-- Basic user storage schema with username/password fields
-- No active authentication middleware implemented yet
-- User-related API endpoints defined in storage interface but not exposed in routes
-- Sessions support prepared via `connect-pg-simple` and `express-session` packages
+- Custom JWT-based authentication with 7-day token expiration
+- Tokens stored in localStorage, sent via Authorization header (Bearer token)
+- bcryptjs for password hashing
+- Email-based registration with auto-generated passwords sent via Rusender API
 
-**Prepared Architecture**
-- Dependencies included for future implementation: `passport`, `passport-local`, `jsonwebtoken`
-- Session store ready to use PostgreSQL via `connect-pg-simple`
-- Storage layer includes user CRUD operations ready for authentication flow
+**Key Endpoints**
+- POST `/api/auth/register` - Register with email, get password via email
+- POST `/api/auth/login` - Login with email/password, receive JWT token
+- GET `/api/auth/user` - Get current user info (requires auth)
+- POST `/api/auth/forgot-password` - Reset password via email
+
+**Admin Authorization**
+- `requireAdmin` middleware checks `req.user.id` and verifies `isAdmin` flag in database
+- Admin endpoints: `/api/admin/stats`, `/api/admin/users`, `/api/admin/users/:id`
 
 ### Build & Deployment
 

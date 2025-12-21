@@ -258,7 +258,7 @@ export async function registerRoutes(
   // Admin Routes
   const requireAdmin = async (req: any, res: any, next: any) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user?.id;
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
