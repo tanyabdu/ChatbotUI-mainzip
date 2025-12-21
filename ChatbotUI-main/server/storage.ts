@@ -54,7 +54,9 @@ export interface IStorage {
     totalStrategies: number;
     totalVoicePosts: number;
     totalCaseStudies: number;
-    subscriptionBreakdown: { free: number; standard: number; pro: number };
+    subscriptionBreakdown: { trial: number; free: number; monthly: number; yearly: number };
+    activeTrials: number;
+    expiredTrials: number;
   }>;
   
   // Generation limits
@@ -155,7 +157,7 @@ export class DatabaseStorage implements IStorage {
     const now = new Date();
 
     // Check active subscription
-    if (user.subscriptionTier === "standard" || user.subscriptionTier === "pro") {
+    if (user.subscriptionTier === "monthly" || user.subscriptionTier === "yearly") {
       if (user.subscriptionExpiresAt && user.subscriptionExpiresAt > now) {
         const daysLeft = Math.ceil((user.subscriptionExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         return { hasAccess: true, daysLeft };
@@ -187,7 +189,7 @@ export class DatabaseStorage implements IStorage {
     const now = new Date();
     let newExpiresAt: Date;
 
-    if (tier && (tier === "standard" || tier === "pro")) {
+    if (tier && (tier === "monthly" || tier === "yearly")) {
       // Extend/create subscription
       const currentExpires = user.subscriptionExpiresAt && user.subscriptionExpiresAt > now 
         ? user.subscriptionExpiresAt 
@@ -323,7 +325,7 @@ export class DatabaseStorage implements IStorage {
     totalStrategies: number;
     totalVoicePosts: number;
     totalCaseStudies: number;
-    subscriptionBreakdown: { trial: number; free: number; standard: number; pro: number };
+    subscriptionBreakdown: { trial: number; free: number; monthly: number; yearly: number };
     activeTrials: number;
     expiredTrials: number;
   }> {
@@ -336,8 +338,8 @@ export class DatabaseStorage implements IStorage {
     const subscriptionBreakdown = {
       trial: allUsers.filter(u => u.subscriptionTier === "trial").length,
       free: allUsers.filter(u => !u.subscriptionTier || u.subscriptionTier === "free").length,
-      standard: allUsers.filter(u => u.subscriptionTier === "standard").length,
-      pro: allUsers.filter(u => u.subscriptionTier === "pro").length,
+      monthly: allUsers.filter(u => u.subscriptionTier === "monthly").length,
+      yearly: allUsers.filter(u => u.subscriptionTier === "yearly").length,
     };
     
     const activeTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) > now).length;
@@ -345,7 +347,7 @@ export class DatabaseStorage implements IStorage {
 
     return {
       totalUsers: allUsers.length,
-      activeUsers: activeTrials + subscriptionBreakdown.standard + subscriptionBreakdown.pro,
+      activeUsers: activeTrials + subscriptionBreakdown.monthly + subscriptionBreakdown.yearly,
       totalStrategies: allStrategies.length,
       totalVoicePosts: allVoicePosts.length,
       totalCaseStudies: allCaseStudies.length,
@@ -362,8 +364,8 @@ export class DatabaseStorage implements IStorage {
       return { allowed: false, reason: "Пользователь не найден" };
     }
 
-    // PRO users (standard or pro tier) have unlimited generations
-    if (user.subscriptionTier === "standard" || user.subscriptionTier === "pro") {
+    // Paid users (monthly or yearly tier) have unlimited generations
+    if (user.subscriptionTier === "monthly" || user.subscriptionTier === "yearly") {
       return { allowed: true, remaining: -1 };
     }
 
@@ -375,7 +377,7 @@ export class DatabaseStorage implements IStorage {
     if (dailyUsed >= dailyLimit) {
       return { 
         allowed: false, 
-        reason: "Достигнут дневной лимит. Бесплатный тариф позволяет 1 генерацию в сутки. Перейдите на PRO для безлимитного доступа.",
+        reason: "Достигнут дневной лимит. Бесплатный тариф позволяет 1 генерацию в сутки. Оформите подписку для безлимитного доступа.",
         remaining: 0
       };
     }

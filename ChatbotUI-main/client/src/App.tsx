@@ -12,6 +12,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
+import Pricing from "@/pages/Pricing";
 import { useAuth } from "@/hooks/useAuth";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/grimoire" component={() => <ProtectedRoute component={Grimoire} />} />
       <Route path="/admin" component={() => <ProtectedRoute component={Admin} />} />
       <Route path="/landing" component={Landing} />
+      <Route path="/pricing" component={Pricing} />
       <Route component={NotFound} />
     </Switch>
   );

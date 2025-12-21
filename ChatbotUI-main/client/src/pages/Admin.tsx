@@ -22,8 +22,8 @@ interface AdminStats {
   subscriptionBreakdown: {
     trial: number;
     free: number;
-    standard: number;
-    pro: number;
+    monthly: number;
+    yearly: number;
   };
   activeTrials: number;
   expiredTrials: number;
@@ -193,12 +193,12 @@ export default function Admin() {
                     <p className="text-sm text-red-500">Триал истёк</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-3xl font-bold text-purple-600">{stats?.subscriptionBreakdown?.standard || 0}</p>
-                    <p className="text-sm text-purple-500">Стандарт</p>
+                    <p className="text-3xl font-bold text-purple-600">{stats?.subscriptionBreakdown?.monthly || 0}</p>
+                    <p className="text-sm text-purple-500">Месячная</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-pink-200">
-                    <p className="text-3xl font-bold text-pink-600">{stats?.subscriptionBreakdown?.pro || 0}</p>
-                    <p className="text-sm text-pink-500">PRO</p>
+                    <p className="text-3xl font-bold text-pink-600">{stats?.subscriptionBreakdown?.yearly || 0}</p>
+                    <p className="text-sm text-pink-500">Годовая</p>
                   </div>
                 </div>
               </CardContent>
@@ -239,13 +239,13 @@ export default function Admin() {
                             </div>
                             <div className="flex items-center gap-2 flex-wrap">
                               <Badge variant="outline" className={`${
-                                u.subscriptionTier === "pro" ? "text-pink-600 border-pink-300" :
-                                u.subscriptionTier === "standard" ? "text-purple-600 border-purple-300" :
+                                u.subscriptionTier === "yearly" ? "text-pink-600 border-pink-300" :
+                                u.subscriptionTier === "monthly" ? "text-purple-600 border-purple-300" :
                                 u.subscriptionTier === "trial" ? "text-blue-600 border-blue-300" :
                                 "text-gray-600 border-gray-300"
                               }`}>
-                                {u.subscriptionTier === "pro" ? "PRO" : 
-                                 u.subscriptionTier === "standard" ? "Стандарт" : 
+                                {u.subscriptionTier === "yearly" ? "Годовая" : 
+                                 u.subscriptionTier === "monthly" ? "Месячная" : 
                                  u.subscriptionTier === "trial" ? "Триал" : "Бесплатный"}
                               </Badge>
                               {isExpired && !u.isAdmin && (
@@ -280,20 +280,20 @@ export default function Admin() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => extendAccessMutation.mutate({ userId: u.id, days: 7 })}
+                                onClick={() => extendAccessMutation.mutate({ userId: u.id, days: 30, tier: "monthly" })}
                                 disabled={extendAccessMutation.isPending}
                               >
                                 <Plus className="h-3 w-3 mr-1" />
-                                +7 дней
+                                +Месяц
                               </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => extendAccessMutation.mutate({ userId: u.id, days: 30, tier: "standard" })}
+                                onClick={() => extendAccessMutation.mutate({ userId: u.id, days: 365, tier: "yearly" })}
                                 disabled={extendAccessMutation.isPending}
                               >
                                 <Crown className="h-3 w-3 mr-1" />
-                                +30 дней PRO
+                                +Год
                               </Button>
                               {!u.isAdmin && (
                                 <Button
@@ -365,7 +365,7 @@ export default function Admin() {
                       <li className="flex justify-between">
                         <span>Платных подписок</span>
                         <span className="font-medium">
-                          {(stats?.subscriptionBreakdown?.standard || 0) + (stats?.subscriptionBreakdown?.pro || 0)}
+                          {(stats?.subscriptionBreakdown?.monthly || 0) + (stats?.subscriptionBreakdown?.yearly || 0)}
                         </span>
                       </li>
                     </ul>

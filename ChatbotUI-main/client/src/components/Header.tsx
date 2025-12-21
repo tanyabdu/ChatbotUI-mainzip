@@ -1,4 +1,4 @@
-import { Sparkles, LogOut, LogIn, Clock, Settings } from "lucide-react";
+import { Sparkles, LogOut, LogIn, Clock, Settings, CreditCard } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,25 +47,30 @@ export default function Header({
           {isAuthenticated ? (
             <>
               {accessStatus && (
-                <Badge 
-                  variant={accessStatus.hasAccess ? "outline" : "destructive"}
-                  className={accessStatus.hasAccess 
-                    ? "text-green-600 border-green-300 bg-green-50" 
-                    : ""
-                  }
-                >
-                  {accessStatus.hasAccess ? (
-                    <>
-                      <Clock className="h-3 w-3 mr-1" />
-                      {accessStatus.daysLeft === -1 
-                        ? "Безлимит" 
-                        : `${accessStatus.daysLeft} дн.`
-                      }
-                    </>
-                  ) : (
-                    "Доступ истёк"
-                  )}
-                </Badge>
+                <Link href="/pricing">
+                  <Badge 
+                    variant={accessStatus.hasAccess ? "outline" : "destructive"}
+                    className={accessStatus.hasAccess 
+                      ? "text-green-600 border-green-300 bg-green-50 cursor-pointer hover:bg-green-100" 
+                      : "cursor-pointer"
+                    }
+                  >
+                    {accessStatus.hasAccess ? (
+                      <>
+                        <Clock className="h-3 w-3 mr-1" />
+                        {accessStatus.daysLeft === -1 
+                          ? "Безлимит" 
+                          : `${accessStatus.daysLeft} дн.`
+                        }
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="h-3 w-3 mr-1" />
+                        Оформить подписку
+                      </>
+                    )}
+                  </Badge>
+                </Link>
               )}
               {user?.isAdmin && (
                 <Button variant="ghost" size="icon" asChild data-testid="link-admin">
