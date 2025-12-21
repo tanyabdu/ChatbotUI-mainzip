@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Upload, Eye, Loader2, Rocket, Save, Copy, Palette, X, Search } from "lucide-react";
+import { Upload, Eye, Loader2, Rocket, Save, Copy, Palette, X, Search, CheckCircle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { CaseStudy } from "@shared/schema";
+import { createWorker } from "tesseract.js";
 
 interface CaseData {
   id?: string;
@@ -38,6 +39,10 @@ export default function CasesManager() {
   const [showVisualModal, setShowVisualModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTag, setFilterTag] = useState("all");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [isRecognizing, setIsRecognizing] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: savedCases = [], isLoading } = useQuery<CaseStudy[]>({
     queryKey: ["/api/cases"],
@@ -82,6 +87,43 @@ export default function CasesManager() {
       e.preventDefault();
       addTag(tagInput);
       setTagInput("");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+    }
+  };
+
+  const handleRecognizeText = async () => {
+    if (!selectedImage) return;
+
+    setIsRecognizing(true);
+    setOcrProgress(0);
+
+    try {
+      const worker = await createWorker("rus+eng", 1, {
+        logger: (m) => {
+          if (m.progress) {
+            setOcrProgress(Math.round(m.progress * 100));
+          }
+        },
+      });
+
+      const { data: { text } } = await worker.recognize(selectedImage);
+      
+      await worker.terminate();
+
+      if (text.trim()) {
+        setReviewText(text.trim());
+      }
+    } catch (error) {
+      console.error("OCR error:", error);
+    } finally {
+      setIsRecognizing(false);
+      setOcrProgress(0);
     }
   };
 
@@ -145,26 +187,58 @@ export default function CasesManager() {
             <CardContent className="space-y-4">
               <div>
                 <Label className="block text-sm text-purple-600 mb-2">1. Скриншот</Label>
-                <div className="relative border-2 border-dashed border-purple-300 rounded-xl p-6 text-center cursor-pointer hover-elevate transition group bg-purple-50">
+                <div 
+                  className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer hover-elevate transition group ${
+                    selectedImage ? "border-green-400 bg-green-50" : "border-purple-300 bg-purple-50"
+                  }`}
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <input
+                    ref={fileInputRef}
                     type="file"
-                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    className="hidden"
                     accept="image/*"
+                    onChange={handleFileChange}
                     data-testid="input-screenshot"
                   />
-                  <Upload className="h-8 w-8 mx-auto mb-2 text-purple-400 group-hover:text-purple-600" />
-                  <div className="text-purple-500 text-sm group-hover:text-purple-700">
-                    Загрузить (JPG, PNG)
-                  </div>
+                  {selectedImage ? (
+                    <>
+                      <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                      <div className="text-green-600 text-sm font-medium">
+                        {selectedImage.name}
+                      </div>
+                      <div className="text-green-500 text-xs mt-1">
+                        Нажмите чтобы заменить
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-8 w-8 mx-auto mb-2 text-purple-400 group-hover:text-purple-600" />
+                      <div className="text-purple-500 text-sm group-hover:text-purple-700">
+                        Загрузить (JPG, PNG)
+                      </div>
+                    </>
+                  )}
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="mt-2 w-full text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200"
+                  onClick={handleRecognizeText}
+                  disabled={!selectedImage || isRecognizing}
                   data-testid="button-recognize"
                 >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Распознать текст
+                  {isRecognizing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Распознаю... {ocrProgress}%
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Распознать текст
+                    </>
+                  )}
                 </Button>
               </div>
 
