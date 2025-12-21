@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertContentStrategySchema, insertArchetypeResultSchema, insertVoicePostSchema, insertCaseStudySchema, insertSalesTrainerSampleSchema } from "@shared/schema";
 import { setupAuth, isAuthenticated, requireAdmin } from "./auth";
 import { generateImprovedAnswer } from "./services/moneyTrainer";
+import { generateCase, cleanOcrText } from "./services/caseGenerator";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -213,6 +214,44 @@ export async function registerRoutes(
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete case study" });
+    }
+  });
+
+  app.post("/api/cases/generate", isAuthenticated, async (req: any, res) => {
+    try {
+      const { reviewText, before, action, after, tags } = req.body;
+      
+      if (!reviewText) {
+        return res.status(400).json({ error: "Текст отзыва обязателен" });
+      }
+      
+      const generated = await generateCase({
+        reviewText,
+        before: before || "",
+        action: action || "",
+        after: after || "",
+        tags: tags || []
+      });
+      
+      res.json(generated);
+    } catch (error: any) {
+      console.error("Case generation error:", error);
+      res.status(500).json({ error: error.message || "Ошибка генерации кейса" });
+    }
+  });
+
+  app.post("/api/cases/clean-ocr", isAuthenticated, async (req: any, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ error: "Текст обязателен" });
+      }
+      
+      const cleaned = cleanOcrText(text);
+      res.json({ cleaned });
+    } catch (error: any) {
+      res.status(500).json({ error: "Ошибка очистки текста" });
     }
   });
 

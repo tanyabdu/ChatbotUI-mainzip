@@ -117,7 +117,9 @@ export default function CasesManager() {
       await worker.terminate();
 
       if (text.trim()) {
-        setReviewText(text.trim());
+        const response = await apiRequest("POST", "/api/cases/clean-ocr", { text: text.trim() });
+        const data = await response.json();
+        setReviewText(data.cleaned || text.trim());
       }
     } catch (error) {
       console.error("OCR error:", error);
@@ -127,27 +129,69 @@ export default function CasesManager() {
     }
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     
-    setTimeout(() => {
-      const newCase: CaseData = {
+    try {
+      const response = await apiRequest("POST", "/api/cases/generate", {
+        reviewText,
+        before,
+        action,
+        after,
+        tags
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        const newCase: CaseData = {
+          reviewText,
+          before,
+          action,
+          after,
+          tags,
+          generatedHeadlines: data.headlines || [],
+          generatedQuote: data.quote || "",
+          generatedBody: data.body || ""
+        };
+        setGeneratedCase(newCase);
+      } else {
+        const fallbackCase: CaseData = {
+          reviewText,
+          before,
+          action,
+          after,
+          tags,
+          generatedHeadlines: [
+            "История трансформации клиента",
+            "Реальный результат работы",
+            "Путь к изменениям"
+          ],
+          generatedQuote: reviewText.slice(0, 100) + (reviewText.length > 100 ? "..." : ""),
+          generatedBody: `**БЫЛО:**\n${before || "Клиент обратился с запросом..."}\n\n**СДЕЛАЛИ:**\n${action || "Провели работу..."}\n\n**СТАЛО:**\n${after || "Получили результат..."}`
+        };
+        setGeneratedCase(fallbackCase);
+      }
+    } catch (error) {
+      console.error("Generation error:", error);
+      const fallbackCase: CaseData = {
         reviewText,
         before,
         action,
         after,
         tags,
         generatedHeadlines: [
-          "Как избавиться от денежных блоков за одну сессию",
-          "История трансформации: от долгов к процветанию",
-          "Реальный отзыв клиента о работе с энергией денег"
+          "История трансформации клиента",
+          "Реальный результат работы",
+          "Путь к изменениям"
         ],
         generatedQuote: reviewText.slice(0, 100) + (reviewText.length > 100 ? "..." : ""),
-        generatedBody: `БЫЛО: ${before}\n\nКлиентка обратилась ко мне с запросом на проработку финансовой сферы. Ситуация казалась безвыходной...\n\nСДЕЛАЛИ: ${action}\n\nМы провели глубокую работу с энергетическими блоками и родовыми программами...\n\nСТАЛО: ${after}\n\nУже через месяц ситуация начала меняться. Появились новые возможности...`
+        generatedBody: `**БЫЛО:**\n${before || "Клиент обратился с запросом..."}\n\n**СДЕЛАЛИ:**\n${action || "Провели работу..."}\n\n**СТАЛО:**\n${after || "Получили результат..."}`
       };
-      setGeneratedCase(newCase);
+      setGeneratedCase(fallbackCase);
+    } finally {
       setIsGenerating(false);
-    }, 1500);
+    }
   };
 
   const handleSaveCase = () => {
