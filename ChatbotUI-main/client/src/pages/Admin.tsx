@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
-  Plus, Clock, Crown, Shield
+  Plus, Clock, Crown, Shield, Trash2
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import type { User } from "@shared/schema";
@@ -76,6 +76,20 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({ title: "Права изменены" });
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      await apiRequest("DELETE", `/api/admin/users/${userId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      toast({ title: "Пользователь удалён", description: "Все данные пользователя удалены" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Ошибка", description: error.message || "Не удалось удалить пользователя", variant: "destructive" });
     },
   });
 
@@ -302,6 +316,21 @@ export default function Admin() {
                                   disabled={toggleAdminMutation.isPending}
                                 >
                                   <Shield className="h-3 w-3" />
+                                </Button>
+                              )}
+                              {u.id !== user?.id && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => {
+                                    if (confirm(`Удалить пользователя ${u.email}? Все его данные будут удалены.`)) {
+                                      deleteUserMutation.mutate(u.id);
+                                    }
+                                  }}
+                                  disabled={deleteUserMutation.isPending}
+                                >
+                                  <Trash2 className="h-3 w-3" />
                                 </Button>
                               )}
                             </div>

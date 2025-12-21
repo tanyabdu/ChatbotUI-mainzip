@@ -48,6 +48,7 @@ export interface IStorage {
   
   // Admin
   getAllUsers(): Promise<User[]>;
+  deleteUser(id: string): Promise<void>;
   getAdminStats(): Promise<{
     totalUsers: number;
     activeUsers: number;
@@ -317,6 +318,15 @@ export class DatabaseStorage implements IStorage {
   // Admin Methods
   async getAllUsers(): Promise<User[]> {
     return db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(contentStrategies).where(eq(contentStrategies.userId, id));
+    await db.delete(archetypeResults).where(eq(archetypeResults.userId, id));
+    await db.delete(voicePosts).where(eq(voicePosts.userId, id));
+    await db.delete(caseStudies).where(eq(caseStudies.userId, id));
+    await db.delete(salesTrainerSessions).where(eq(salesTrainerSessions.userId, id));
+    await db.delete(users).where(eq(users.id, id));
   }
 
   async getAdminStats(): Promise<{

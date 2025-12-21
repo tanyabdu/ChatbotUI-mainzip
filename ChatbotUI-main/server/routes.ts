@@ -312,6 +312,23 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/admin/users/:id", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const currentUserId = req.user.id;
+      
+      if (id === currentUserId) {
+        return res.status(400).json({ error: "Нельзя удалить самого себя" });
+      }
+      
+      await storage.deleteUser(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+
   // Access check route
   app.get("/api/auth/access", isAuthenticated, async (req: any, res) => {
     try {
