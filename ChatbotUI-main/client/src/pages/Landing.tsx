@@ -31,7 +31,7 @@ export default function Landing() {
             Планировщик контента для экспертов
           </Badge>
           <h2 className="text-5xl font-mystic text-purple-800 mb-6 leading-tight">
-            Контент-план на месяц<br/>за 10 минут
+            Все инструменты для вашего контента<br/>в одном месте
           </h2>
           <p className="text-xl text-purple-600 mb-10 max-w-2xl mx-auto">
             Планировщик контента для тарологов, астрологов и духовных практиков.
