@@ -38,11 +38,19 @@ export default function Admin() {
 
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/stats");
+      return res.json();
+    },
     enabled: !!user?.isAdmin,
   });
 
   const { data: allUsers = [] } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/users");
+      return res.json();
+    },
     enabled: !!user?.isAdmin,
   });
 
