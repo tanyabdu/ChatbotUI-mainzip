@@ -1,10 +1,12 @@
 import { Sparkles, LogOut, LogIn, Clock, Crown, Settings } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import { removeToken } from "@/lib/auth";
+import { queryClient } from "@/lib/queryClient";
 
 interface HeaderProps {
   title?: string;
@@ -21,12 +23,19 @@ export default function Header({
   subtitle = "стратегия • контент • энергия • продажи"
 }: HeaderProps) {
   const { user, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
   
   const { data: accessStatus } = useQuery<AccessStatus>({
     queryKey: ["/api/auth/access"],
     enabled: isAuthenticated,
   });
+
+  const handleLogout = () => {
+    removeToken();
+    queryClient.clear();
+    setLocation("/");
+  };
 
   return (
     <header className="fade-in">
@@ -77,10 +86,13 @@ export default function Header({
                   <span className="hidden sm:inline text-purple-600">{displayName}</span>
                 </Link>
               </Button>
-              <Button variant="outline" size="icon" asChild data-testid="button-logout">
-                <a href="/api/auth/logout">
-                  <LogOut className="h-4 w-4 text-purple-600" />
-                </a>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={handleLogout}
+                data-testid="button-logout"
+              >
+                <LogOut className="h-4 w-4 text-purple-600" />
               </Button>
             </>
           ) : (

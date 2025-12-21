@@ -11,6 +11,8 @@
   "description": "",
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "bcryptjs": "^3.0.3"
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3"
   }
 }

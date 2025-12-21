@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Sparkles, LogIn, UserPlus, KeyRound } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { setToken } from "@/lib/auth";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -21,9 +22,10 @@ export default function Login() {
       const res = await apiRequest("POST", "/api/auth/login", { email, password });
       return res.json();
     },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
-      window.location.href = "/";
+    onSuccess: async (data: { token: string }) => {
+      setToken(data.token);
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setLocation("/");
     },
     onError: (err: any) => {
       setError(err.message || "Ошибка при входе");

@@ -1,10 +1,12 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import session from "express-session";
+import jwt from "jsonwebtoken";
 import type { Express, RequestHandler } from "express";
-import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 import { sendWelcomeEmail, sendPasswordResetEmail } from "./services/email";
+
+const JWT_SECRET = process.env.SESSION_SECRET || "your-secret-key-change-in-production";
+const JWT_EXPIRES_IN = "7d";
 
 function generatePassword(length: number = 12): string {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -15,43 +17,27 @@ function generatePassword(length: number = 12): string {
   return password;
 }
 
-export function getSession() {
-  const sessionTtl = 7 * 24 * 60 * 60 * 1000;
-  const pgStore = connectPg(session);
-  
-  const host = process.env.EXTERNAL_DB_HOST;
-  const port = process.env.EXTERNAL_DB_PORT;
-  const database = process.env.EXTERNAL_DB_NAME;
-  const user = process.env.EXTERNAL_DB_USER;
-  const password = process.env.EXTERNAL_DB_PASSWORD;
-  const connectionString = `postgresql://${user}:${encodeURIComponent(password!)}@${host}:${port}/${database}`;
-  
-  const sessionStore = new pgStore({
-    conString: connectionString,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-    schemaName: "esoteric_planner",
-  });
-  
-  return session({
-    secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: sessionTtl,
-    },
-  });
+function generateToken(userId: string): string {
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+}
+
+function verifyToken(token: string): { userId: string } | null {
+  try {
+    return jwt.verify(token, JWT_SECRET) as { userId: string };
+  } catch {
+    return null;
+  }
+}
+
+function getTokenFromRequest(req: any): string | null {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.substring(7);
+  }
+  return null;
 }
 
 export async function setupAuth(app: Express) {
-  app.set("trust proxy", 1);
-  app.use(getSession());
-  
   app.post("/api/auth/register", async (req, res) => {
     try {
       const { email, firstName, lastName } = req.body;
@@ -112,24 +98,18 @@ export async function setupAuth(app: Express) {
       
       await storage.updateUser(user.id, { lastLoginAt: new Date() });
       
-      (req.session as any).userId = user.id;
+      const token = generateToken(user.id);
       
-      req.session.save((err) => {
-        if (err) {
-          console.error("Session save error:", err);
-          return res.status(500).json({ message: "Ошибка при сохранении сессии" });
+      res.json({ 
+        message: "Вход выполнен успешно",
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isAdmin: user.isAdmin,
         }
-        
-        res.json({ 
-          message: "Вход выполнен успешно",
-          user: {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            isAdmin: user.isAdmin,
-          }
-        });
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -138,13 +118,7 @@ export async function setupAuth(app: Express) {
   });
   
   app.post("/api/auth/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Ошибка при выходе" });
-      }
-      res.clearCookie("connect.sid");
-      res.json({ message: "Выход выполнен успешно" });
-    });
+    res.json({ message: "Выход выполнен успешно" });
   });
   
   app.post("/api/auth/password-reset/request", async (req, res) => {
@@ -221,13 +195,18 @@ export async function setupAuth(app: Express) {
   });
   
   app.get("/api/auth/user", async (req, res) => {
-    const userId = (req.session as any).userId;
+    const token = getTokenFromRequest(req);
     
-    if (!userId) {
+    if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     
-    const user = await storage.getUser(userId);
+    const payload = verifyToken(token);
+    if (!payload) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    const user = await storage.getUser(payload.userId);
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -246,25 +225,35 @@ export async function setupAuth(app: Express) {
   });
   
   app.get("/api/auth/access", async (req, res) => {
-    const userId = (req.session as any).userId;
+    const token = getTokenFromRequest(req);
     
-    if (!userId) {
+    if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     
-    const accessStatus = await storage.hasActiveAccess(userId);
+    const payload = verifyToken(token);
+    if (!payload) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    const accessStatus = await storage.hasActiveAccess(payload.userId);
     res.json(accessStatus);
   });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const userId = (req.session as any).userId;
+  const token = getTokenFromRequest(req);
   
-  if (!userId) {
+  if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
   }
   
-  const user = await storage.getUser(userId);
+  const payload = verifyToken(token);
+  if (!payload) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  
+  const user = await storage.getUser(payload.userId);
   if (!user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
