@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2 } from "lucide-react";
+import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2, AlertCircle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { VoicePost } from "@shared/schema";
 
@@ -12,14 +12,141 @@ interface VoiceRecorderProps {
   onGeneratePost?: (transcript: string) => void;
 }
 
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  onstart: (() => void) | null;
+  start(): void;
+  stop(): void;
+  abort(): void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
 export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [interimTranscript, setInterimTranscript] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState("");
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSupported, setIsSupported] = useState(true);
+  
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const isRecordingRef = useRef(false);
+  const transcriptRef = useRef("");
+
+  useEffect(() => {
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      setIsSupported(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "ru-RU";
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let finalTranscript = "";
+      let interim = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript + " ";
+        } else {
+          interim += result[0].transcript;
+        }
+      }
+
+      if (finalTranscript) {
+        transcriptRef.current += finalTranscript;
+        setTranscript(transcriptRef.current);
+      }
+      setInterimTranscript(interim);
+    };
+
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.error("Speech recognition error:", event.error);
+      if (event.error === "not-allowed") {
+        setError("Микрофон не разрешён. Пожалуйста, разрешите доступ к микрофону в настройках браузера.");
+      } else if (event.error === "no-speech") {
+        if (isRecordingRef.current) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.log("Restarting after no-speech");
+          }
+        }
+        return;
+      } else if (event.error === "aborted") {
+        return;
+      } else {
+        setError(`Ошибка распознавания: ${event.error}`);
+      }
+      setIsRecording(false);
+      isRecordingRef.current = false;
+    };
+
+    recognition.onend = () => {
+      if (isRecordingRef.current) {
+        try {
+          recognition.start();
+        } catch (e) {
+          console.log("Could not restart recognition");
+        }
+      }
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (recognitionRef.current) {
+        isRecordingRef.current = false;
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
 
   const { data: savedPosts = [], isLoading: isLoadingPosts } = useQuery<VoicePost[]>({
     queryKey: ["/api/voice-posts"],
@@ -45,49 +172,70 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
     },
   });
 
-  const toggleRecording = () => {
-    if (isRecording) {
-      setIsRecording(false);
-      const mockTranscript = "Сегодня я хочу поговорить о том, как важно следовать своей интуиции. Многие мои клиенты приходят ко мне с вопросом - как понять, что это именно интуиция, а не страх...";
-      setTranscript(mockTranscript);
-      onTranscript?.(mockTranscript);
-    } else {
-      setIsRecording(true);
-      setTranscript("");
-      setGeneratedPost("");
-      setSaved(false);
+  const generatePostMutation = useMutation({
+    mutationFn: async (text: string) => {
+      const response = await apiRequest("POST", "/api/voice-posts/generate", { transcript: text });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setGeneratedPost(data.post);
+      setIsGenerating(false);
+    },
+    onError: (error: Error) => {
+      setError(`Ошибка генерации: ${error.message}`);
+      setIsGenerating(false);
+    },
+  });
+
+  const startRecording = useCallback(() => {
+    setError(null);
+    setTranscript("");
+    setInterimTranscript("");
+    setGeneratedPost("");
+    setSaved(false);
+    transcriptRef.current = "";
+    
+    if (recognitionRef.current) {
+      try {
+        isRecordingRef.current = true;
+        setIsRecording(true);
+        recognitionRef.current.start();
+      } catch (e) {
+        setError("Не удалось запустить распознавание речи. Попробуйте обновить страницу.");
+        setIsRecording(false);
+        isRecordingRef.current = false;
+      }
     }
-  };
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    isRecordingRef.current = false;
+    setIsRecording(false);
+    setInterimTranscript("");
+    
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    
+    const finalText = transcriptRef.current.trim();
+    if (finalText) {
+      onTranscript?.(finalText);
+    }
+  }, [onTranscript]);
+
+  const toggleRecording = useCallback(() => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  }, [isRecording, startRecording, stopRecording]);
 
   const handleGeneratePost = () => {
     setIsGenerating(true);
+    setError(null);
     onGeneratePost?.(transcript);
-    
-    setTimeout(() => {
-      setGeneratedPost(`Интуиция vs Страх: как отличить голос души от голоса эго
-
-Знакомо ли вам это чувство - вы стоите на пороге важного решения, и внутри словно две силы тянут в разные стороны?
-
-Одна шепчет: "Иди, это твой путь"
-Другая кричит: "Стой! Это опасно!"
-
-Как понять, кому верить?
-
-Делюсь простым, но мощным инструментом, который работает безотказно:
-
-Интуиция приходит спокойно, как легкий ветерок. Она не торопит, не пугает. Просто знание.
-
-Страх всегда громкий. Он создает напряжение в теле, учащает дыхание, сжимает горло.
-
-Попробуйте прямо сейчас: закройте глаза и задайте себе вопрос. Прислушайтесь не к словам - к ощущениям в теле.
-
-Тело никогда не врет.
-
-А вы умеете различать эти голоса?
-
-#интуиция #эзотерика #саморазвитие #духовность`);
-      setIsGenerating(false);
-    }, 2000);
+    generatePostMutation.mutate(transcript);
   };
 
   const handleSavePost = () => {
@@ -103,6 +251,25 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const displayTranscript = transcript + interimTranscript;
+
+  if (!isSupported) {
+    return (
+      <section className="fade-in max-w-2xl mx-auto">
+        <Card className="relative overflow-visible bg-white border-2 border-purple-300 shadow-lg">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+            <h3 className="text-xl font-mystic text-purple-700 mb-2">Браузер не поддерживается</h3>
+            <p className="text-purple-600">
+              Ваш браузер не поддерживает распознавание речи. 
+              Пожалуйста, используйте Google Chrome или Microsoft Edge для этой функции.
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <section className="fade-in max-w-2xl mx-auto">
@@ -120,6 +287,13 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
         </CardHeader>
 
         <CardContent className="relative z-10 space-y-6">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
           <div className="text-center">
             <button
               onClick={toggleRecording}
@@ -144,16 +318,24 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
             </p>
           </div>
 
-          {transcript && (
+          {(displayTranscript || isRecording) && (
             <div className="text-left fade-in">
-              <label className="text-xs text-purple-600 mb-1 block">Текст:</label>
-              <div className="bg-purple-50 p-4 rounded-lg text-purple-700 text-sm max-h-32 overflow-y-auto border-2 border-purple-200">
+              <label className="text-xs text-purple-600 mb-1 block">
+                {isRecording ? "Распознавание речи..." : "Текст:"}
+              </label>
+              <div className="bg-purple-50 p-4 rounded-lg text-purple-700 text-sm min-h-[80px] max-h-32 overflow-y-auto border-2 border-purple-200">
                 {transcript}
+                {interimTranscript && (
+                  <span className="text-purple-400">{interimTranscript}</span>
+                )}
+                {isRecording && !displayTranscript && (
+                  <span className="text-purple-400">Говорите...</span>
+                )}
               </div>
             </div>
           )}
 
-          {transcript && !generatedPost && (
+          {transcript && !isRecording && !generatedPost && (
             <Button
               onClick={handleGeneratePost}
               disabled={isGenerating}

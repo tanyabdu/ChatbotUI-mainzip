@@ -166,6 +166,32 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/voice-posts/generate", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { transcript } = req.body;
+      
+      if (!transcript || typeof transcript !== "string") {
+        return res.status(400).json({ error: "Transcript is required" });
+      }
+
+      const limitCheck = await storage.canGenerateStrategy(userId);
+      if (!limitCheck.allowed) {
+        return res.status(403).json({ error: limitCheck.reason });
+      }
+
+      const { generatePostFromTranscript } = await import("./services/voicePostGenerator");
+      const post = await generatePostFromTranscript(transcript);
+      
+      await storage.incrementDailyGeneration(userId);
+      
+      res.json({ post });
+    } catch (error: any) {
+      console.error("Voice post generation error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate post" });
+    }
+  });
+
   // Case Studies (protected routes)
   app.get("/api/cases", isAuthenticated, async (req: any, res) => {
     try {
