@@ -43,6 +43,7 @@ export default function CasesManager() {
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [viewingCase, setViewingCase] = useState<CaseStudy | null>(null);
 
   const { data: savedCases = [], isLoading } = useQuery<CaseStudy[]>({
     queryKey: ["/api/cases"],
@@ -508,7 +509,11 @@ export default function CasesManager() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
                   {filteredCases.map((caseItem) => (
-                    <Card key={caseItem.id} className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 hover-elevate cursor-pointer">
+                    <Card 
+                      key={caseItem.id} 
+                      className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 hover-elevate cursor-pointer"
+                      onClick={() => setViewingCase(caseItem)}
+                    >
                       <CardContent className="p-4">
                         <h4 className="font-medium text-purple-700 mb-2 line-clamp-2">
                           {(caseItem.generatedHeadlines as string[])?.[0] || (caseItem.before || "") + " → " + (caseItem.after || "")}
@@ -567,6 +572,70 @@ export default function CasesManager() {
           <p className="text-center text-xs text-muted-foreground">
             Сделайте скриншот для сохранения
           </p>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewingCase} onOpenChange={(open) => !open && setViewingCase(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-mystic text-purple-700">
+              {(viewingCase?.generatedHeadlines as string[])?.[0] || "Кейс"}
+            </DialogTitle>
+          </DialogHeader>
+          {viewingCase && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs text-purple-500">Заголовки</Label>
+                <div className="space-y-2 mt-1">
+                  {(viewingCase.generatedHeadlines as string[])?.map((headline, idx) => (
+                    <div key={idx} className="p-2 bg-purple-50 rounded text-sm text-purple-700 border border-purple-200">
+                      {headline}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {viewingCase.generatedQuote && (
+                <div>
+                  <Label className="text-xs text-purple-500">Цитата</Label>
+                  <blockquote className="border-l-4 border-pink-400 pl-4 italic text-purple-600 my-2 bg-pink-50 p-3 rounded-r">
+                    "{viewingCase.generatedQuote}"
+                  </blockquote>
+                </div>
+              )}
+              
+              {viewingCase.generatedBody && (
+                <div>
+                  <Label className="text-xs text-purple-500">Текст кейса</Label>
+                  <div className="bg-purple-50 p-4 rounded-lg text-sm text-purple-700 whitespace-pre-wrap border-2 border-purple-200">
+                    {viewingCase.generatedBody}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex flex-wrap gap-2">
+                {(viewingCase.tags as string[])?.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="bg-purple-100 text-purple-700 border border-purple-300">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <Button 
+                  variant="secondary" 
+                  onClick={() => {
+                    const text = `${(viewingCase.generatedHeadlines as string[])?.[0] || ""}\n\n"${viewingCase.generatedQuote || ""}"\n\n${viewingCase.generatedBody || ""}`;
+                    navigator.clipboard.writeText(text);
+                  }}
+                  className="flex-1"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Скопировать
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </section>
