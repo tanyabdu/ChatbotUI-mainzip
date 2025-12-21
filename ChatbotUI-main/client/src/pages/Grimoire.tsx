@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { 
   User, BookOpen, Palette, CreditCard, Sparkles, 
   FileText, Mic, Archive, Wand2, LogOut, Home,
@@ -20,6 +22,7 @@ export default function Grimoire() {
   const { user } = useAuth();
   const [editingNickname, setEditingNickname] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname || "");
+  const [viewingCase, setViewingCase] = useState<CaseStudy | null>(null);
 
   const { data: strategies = [] } = useQuery<ContentStrategy[]>({
     queryKey: ["/api/strategies"],
@@ -312,7 +315,11 @@ export default function Grimoire() {
                   </p>
                 ) : (
                   caseStudies.map((caseStudy) => (
-                    <Card key={caseStudy.id} className="bg-purple-50 border border-purple-200">
+                    <Card 
+                      key={caseStudy.id} 
+                      className="bg-purple-50 border border-purple-200 cursor-pointer hover:border-purple-400 transition-colors"
+                      onClick={() => setViewingCase(caseStudy)}
+                    >
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start gap-2 mb-2">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -325,7 +332,10 @@ export default function Grimoire() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => deleteCaseMutation.mutate(caseStudy.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteCaseMutation.mutate(caseStudy.id);
+                            }}
                             data-testid={`button-delete-case-${caseStudy.id}`}
                             className="text-red-500"
                           >
@@ -487,6 +497,70 @@ export default function Grimoire() {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Dialog open={!!viewingCase} onOpenChange={(open) => !open && setViewingCase(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-mystic text-purple-700">
+              {(viewingCase?.generatedHeadlines as string[])?.[0] || "Кейс"}
+            </DialogTitle>
+          </DialogHeader>
+          {viewingCase && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs text-purple-500">Заголовки</Label>
+                <div className="space-y-2 mt-1">
+                  {(viewingCase.generatedHeadlines as string[])?.map((headline, idx) => (
+                    <div key={idx} className="p-2 bg-purple-50 rounded text-sm text-purple-700 border border-purple-200">
+                      {headline}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {viewingCase.generatedQuote && (
+                <div>
+                  <Label className="text-xs text-purple-500">Цитата</Label>
+                  <blockquote className="border-l-4 border-pink-400 pl-4 italic text-purple-600 my-2 bg-pink-50 p-3 rounded-r">
+                    "{viewingCase.generatedQuote}"
+                  </blockquote>
+                </div>
+              )}
+              
+              {viewingCase.generatedBody && (
+                <div>
+                  <Label className="text-xs text-purple-500">Текст кейса</Label>
+                  <div className="bg-purple-50 p-4 rounded-lg text-sm text-purple-700 whitespace-pre-wrap border-2 border-purple-200">
+                    {viewingCase.generatedBody}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex flex-wrap gap-2">
+                {(viewingCase.tags as string[])?.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="bg-purple-100 text-purple-700 border border-purple-300">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <Button 
+                  variant="secondary" 
+                  onClick={() => {
+                    const text = `${(viewingCase.generatedHeadlines as string[])?.[0] || ""}\n\n"${viewingCase.generatedQuote || ""}"\n\n${viewingCase.generatedBody || ""}`;
+                    navigator.clipboard.writeText(text);
+                  }}
+                  className="flex-1"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Скопировать
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
