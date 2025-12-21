@@ -374,25 +374,30 @@ export class DatabaseStorage implements IStorage {
       return { allowed: false, reason: "Пользователь не найден" };
     }
 
-    // Paid users (monthly or yearly tier) have unlimited generations
-    if (user.subscriptionTier === "monthly" || user.subscriptionTier === "yearly") {
+    // Admins have unlimited access
+    if (user.isAdmin) {
       return { allowed: true, remaining: -1 };
     }
 
-    // Free users: 1 generation per day
-    const today = new Date().toISOString().split("T")[0];
-    const dailyUsed = user.lastGenerationDate === today ? (user.dailyGenerationsUsed || 0) : 0;
-    const dailyLimit = 1;
-
-    if (dailyUsed >= dailyLimit) {
-      return { 
-        allowed: false, 
-        reason: "Достигнут дневной лимит. Бесплатный тариф позволяет 1 генерацию в сутки. Оформите подписку для безлимитного доступа.",
-        remaining: 0
-      };
+    // Paid users (monthly or yearly tier) have unlimited generations
+    if (user.subscriptionTier === "monthly" || user.subscriptionTier === "yearly") {
+      if (user.subscriptionExpiresAt && user.subscriptionExpiresAt > new Date()) {
+        return { allowed: true, remaining: -1 };
+      }
     }
 
-    return { allowed: true, remaining: dailyLimit - dailyUsed };
+    // Users with active trial have unlimited access during trial period
+    const now = new Date();
+    if (user.trialEndsAt && user.trialEndsAt > now) {
+      return { allowed: true, remaining: -1 };
+    }
+
+    // Trial expired - no access
+    return { 
+      allowed: false, 
+      reason: "Пробный период закончился. Оформите подписку для продолжения работы.",
+      remaining: 0
+    };
   }
 
   async incrementDailyGeneration(userId: string): Promise<void> {

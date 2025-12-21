@@ -28,7 +28,7 @@ export const users = esotericSchema.table("users", {
   subscriptionExpiresAt: timestamp("subscription_expires_at"),
   trialEndsAt: timestamp("trial_ends_at"),
   generationsUsed: integer("generations_used").default(0),
-  generationsLimit: integer("generations_limit").default(50),
+  generationsLimit: integer("generations_limit").default(0),
   dailyGenerationsUsed: integer("daily_generations_used").default(0),
   lastGenerationDate: varchar("last_generation_date"),
   lastLoginAt: timestamp("last_login_at"),
