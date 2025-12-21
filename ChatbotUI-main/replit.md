@@ -123,6 +123,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Date & Time
 - **date-fns**: Date manipulation and formatting library
+- **suncalc**: Astronomical calculations for moon phases, illumination, and positions
 
 ### Development Tools
 - **Replit plugins**: Runtime error modal, cartographer (development mapping), dev banner
