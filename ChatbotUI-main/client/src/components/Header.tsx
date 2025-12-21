@@ -1,12 +1,20 @@
-import { Sparkles, LogOut, LogIn } from "lucide-react";
+import { Sparkles, LogOut, LogIn, Clock, Crown, Settings } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 
 interface HeaderProps {
   title?: string;
   subtitle?: string;
+}
+
+interface AccessStatus {
+  hasAccess: boolean;
+  reason?: string;
+  daysLeft?: number;
 }
 
 export default function Header({ 
@@ -14,6 +22,11 @@ export default function Header({
 }: HeaderProps) {
   const { user, isAuthenticated } = useAuth();
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
+  
+  const { data: accessStatus } = useQuery<AccessStatus>({
+    queryKey: ["/api/auth/access"],
+    enabled: isAuthenticated,
+  });
 
   return (
     <header className="fade-in">
@@ -25,6 +38,34 @@ export default function Header({
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <>
+              {accessStatus && (
+                <Badge 
+                  variant={accessStatus.hasAccess ? "outline" : "destructive"}
+                  className={accessStatus.hasAccess 
+                    ? "text-green-600 border-green-300 bg-green-50" 
+                    : ""
+                  }
+                >
+                  {accessStatus.hasAccess ? (
+                    <>
+                      <Clock className="h-3 w-3 mr-1" />
+                      {accessStatus.daysLeft === -1 
+                        ? "Безлимит" 
+                        : `${accessStatus.daysLeft} дн.`
+                      }
+                    </>
+                  ) : (
+                    "Доступ истёк"
+                  )}
+                </Badge>
+              )}
+              {user?.isAdmin && (
+                <Button variant="ghost" size="icon" asChild data-testid="link-admin">
+                  <Link href="/admin">
+                    <Settings className="h-4 w-4 text-purple-600" />
+                  </Link>
+                </Button>
+              )}
               <Button variant="ghost" asChild data-testid="link-grimoire">
                 <Link href="/grimoire" className="flex items-center gap-2">
                   <Avatar className="h-8 w-8 border-2 border-purple-300">

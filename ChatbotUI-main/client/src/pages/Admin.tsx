@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutDashboard, Users, BarChart3, Settings, 
-  Sparkles, Home, TrendingUp, FileText, Mic, Archive
+  Sparkles, Home, TrendingUp, FileText, Mic, Archive,
+  Plus, Clock, Crown, Shield
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import type { ContentStrategy, VoicePost, CaseStudy, User } from "@shared/schema";
+import type { User } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminStats {
   totalUsers: number;
@@ -18,15 +20,20 @@ interface AdminStats {
   totalVoicePosts: number;
   totalCaseStudies: number;
   subscriptionBreakdown: {
+    trial: number;
     free: number;
     standard: number;
     pro: number;
   };
+  activeTrials: number;
+  expiredTrials: number;
 }
 
 export default function Admin() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
@@ -37,6 +44,52 @@ export default function Admin() {
     queryKey: ["/api/admin/users"],
     enabled: !!user?.isAdmin,
   });
+
+  const extendAccessMutation = useMutation({
+    mutationFn: async ({ userId, days, tier }: { userId: string; days: number; tier?: string }) => {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "extend", days, tier }),
+      });
+      if (!res.ok) throw new Error("Ошибка при продлении доступа");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Доступ продлён", description: "Изменения сохранены" });
+    },
+    onError: () => {
+      toast({ title: "Ошибка", description: "Не удалось продлить доступ", variant: "destructive" });
+    },
+  });
+
+  const toggleAdminMutation = useMutation({
+    mutationFn: async ({ userId, isAdmin }: { userId: string; isAdmin: boolean }) => {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "setAdmin", isAdmin }),
+      });
+      if (!res.ok) throw new Error("Ошибка при изменении прав");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Права изменены" });
+    },
+  });
+
+  const formatDate = (date: string | Date | null | undefined) => {
+    if (!date) return "—";
+    return new Date(date).toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" });
+  };
+
+  const getDaysLeft = (date: string | Date | null | undefined) => {
+    if (!date) return null;
+    const diff = new Date(date).getTime() - Date.now();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
 
   if (!user?.isAdmin) {
     return (
@@ -126,22 +179,26 @@ export default function Admin() {
               <CardHeader>
                 <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-pink-500" />
-                  Распределение подписок
+                  Распределение пользователей
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-3xl font-bold text-gray-600">{stats?.subscriptionBreakdown?.free || 0}</p>
-                    <p className="text-sm text-gray-500">Послушник</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-3xl font-bold text-blue-600">{stats?.activeTrials || 0}</p>
+                    <p className="text-sm text-blue-500">Активный триал</p>
+                  </div>
+                  <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+                    <p className="text-3xl font-bold text-red-600">{stats?.expiredTrials || 0}</p>
+                    <p className="text-sm text-red-500">Триал истёк</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
                     <p className="text-3xl font-bold text-purple-600">{stats?.subscriptionBreakdown?.standard || 0}</p>
-                    <p className="text-sm text-purple-500">Адепт</p>
+                    <p className="text-sm text-purple-500">Стандарт</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-pink-200">
                     <p className="text-3xl font-bold text-pink-600">{stats?.subscriptionBreakdown?.pro || 0}</p>
-                    <p className="text-sm text-pink-500">Магистр</p>
+                    <p className="text-sm text-pink-500">PRO</p>
                   </div>
                 </div>
               </CardContent>
@@ -161,34 +218,98 @@ export default function Admin() {
                   <p className="text-purple-500 text-center py-8">Нет зарегистрированных пользователей</p>
                 ) : (
                   <div className="space-y-4">
-                    {allUsers.map((u) => (
-                      <div key={u.id} className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-200 flex-wrap gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold">
-                            {(u.nickname || u.firstName || u.email || "?").charAt(0).toUpperCase()}
+                    {allUsers.map((u) => {
+                      const trialDays = getDaysLeft(u.trialEndsAt);
+                      const subDays = getDaysLeft(u.subscriptionExpiresAt);
+                      const isExpired = (trialDays === null || trialDays <= 0) && (subDays === null || subDays <= 0);
+                      
+                      return (
+                        <div key={u.id} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                          <div className="flex items-center justify-between flex-wrap gap-4 mb-3">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold">
+                                {(u.nickname || u.firstName || u.email || "?").charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="font-medium text-purple-700">
+                                  {u.nickname || u.firstName || u.email?.split("@")[0] || "Пользователь"}
+                                </p>
+                                <p className="text-sm text-purple-500">{u.email}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge variant="outline" className={`${
+                                u.subscriptionTier === "pro" ? "text-pink-600 border-pink-300" :
+                                u.subscriptionTier === "standard" ? "text-purple-600 border-purple-300" :
+                                u.subscriptionTier === "trial" ? "text-blue-600 border-blue-300" :
+                                "text-gray-600 border-gray-300"
+                              }`}>
+                                {u.subscriptionTier === "pro" ? "PRO" : 
+                                 u.subscriptionTier === "standard" ? "Стандарт" : 
+                                 u.subscriptionTier === "trial" ? "Триал" : "Бесплатный"}
+                              </Badge>
+                              {isExpired && !u.isAdmin && (
+                                <Badge variant="destructive">Истёк</Badge>
+                              )}
+                              {u.isAdmin && (
+                                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                                  Админ
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-purple-700">
-                              {u.nickname || u.firstName || u.email?.split("@")[0] || "Пользователь"}
-                            </p>
-                            <p className="text-sm text-purple-500">{u.email}</p>
+                          
+                          <div className="flex items-center justify-between flex-wrap gap-3 text-sm">
+                            <div className="flex items-center gap-4 text-purple-600">
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                Триал до: {formatDate(u.trialEndsAt)}
+                                {trialDays !== null && trialDays > 0 && (
+                                  <span className="text-green-600 ml-1">({trialDays} дн.)</span>
+                                )}
+                              </span>
+                              {u.subscriptionExpiresAt && (
+                                <span className="flex items-center gap-1">
+                                  <Crown className="h-3 w-3" />
+                                  Подписка до: {formatDate(u.subscriptionExpiresAt)}
+                                </span>
+                              )}
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => extendAccessMutation.mutate({ userId: u.id, days: 7 })}
+                                disabled={extendAccessMutation.isPending}
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                +7 дней
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => extendAccessMutation.mutate({ userId: u.id, days: 30, tier: "standard" })}
+                                disabled={extendAccessMutation.isPending}
+                              >
+                                <Crown className="h-3 w-3 mr-1" />
+                                +30 дней PRO
+                              </Button>
+                              {!u.isAdmin && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => toggleAdminMutation.mutate({ userId: u.id, isAdmin: true })}
+                                  disabled={toggleAdminMutation.isPending}
+                                >
+                                  <Shield className="h-3 w-3" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="outline" className="text-purple-600 border-purple-300">
-                            {u.subscriptionTier === "pro" ? "Магистр" : u.subscriptionTier === "standard" ? "Адепт" : "Послушник"}
-                          </Badge>
-                          <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-                            {u.generationsUsed || 0} / {u.generationsLimit || 50}
-                          </Badge>
-                          {u.isAdmin && (
-                            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                              Админ
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>

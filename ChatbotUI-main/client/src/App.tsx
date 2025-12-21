@@ -8,14 +8,32 @@ import Home from "@/pages/Home";
 import Landing from "@/pages/Landing";
 import Grimoire from "@/pages/Grimoire";
 import Admin from "@/pages/Admin";
+import { useAuth } from "@/hooks/useAuth";
+
+function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
+        <div className="animate-pulse text-purple-600">Загрузка...</div>
+      </div>
+    );
+  }
+  
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
+  
+  return <Component />;
+}
 
 function Router() {
-  // Временно отключена авторизация для просмотра
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/grimoire" component={Grimoire} />
-      <Route path="/admin" component={Admin} />
+      <Route path="/" component={() => <ProtectedRoute component={Home} />} />
+      <Route path="/grimoire" component={() => <ProtectedRoute component={Grimoire} />} />
+      <Route path="/admin" component={() => <ProtectedRoute component={Admin} />} />
       <Route path="/landing" component={Landing} />
       <Route component={NotFound} />
     </Switch>

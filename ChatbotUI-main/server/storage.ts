@@ -18,6 +18,10 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   updateUser(id: string, data: Partial<UpsertUser>): Promise<User | undefined>;
   
+  // Access control
+  hasActiveAccess(userId: string): Promise<{ hasAccess: boolean; reason?: string; daysLeft?: number }>;
+  extendUserAccess(userId: string, days: number, tier?: string): Promise<User | undefined>;
+  
   // Content Strategies
   getContentStrategies(userId: string): Promise<ContentStrategy[]>;
   getContentStrategy(id: string, userId: string): Promise<ContentStrategy | undefined>;
@@ -93,6 +97,80 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  // Access control
+  async hasActiveAccess(userId: string): Promise<{ hasAccess: boolean; reason?: string; daysLeft?: number }> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      return { hasAccess: false, reason: "Пользователь не найден" };
+    }
+
+    // Admins always have access
+    if (user.isAdmin) {
+      return { hasAccess: true, daysLeft: -1 };
+    }
+
+    const now = new Date();
+
+    // Check active subscription
+    if (user.subscriptionTier === "standard" || user.subscriptionTier === "pro") {
+      if (user.subscriptionExpiresAt && user.subscriptionExpiresAt > now) {
+        const daysLeft = Math.ceil((user.subscriptionExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        return { hasAccess: true, daysLeft };
+      }
+      // Subscription expired, check trial
+    }
+
+    // Check trial period
+    if (user.trialEndsAt && user.trialEndsAt > now) {
+      const daysLeft = Math.ceil((user.trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return { hasAccess: true, daysLeft };
+    }
+
+    return { 
+      hasAccess: false, 
+      reason: "Пробный период закончился. Оформите подписку для продолжения работы." 
+    };
+  }
+
+  async extendUserAccess(userId: string, days: number, tier?: string): Promise<User | undefined> {
+    const user = await this.getUser(userId);
+    if (!user) return undefined;
+    
+    // Validate days is positive
+    if (days <= 0) {
+      throw new Error("Количество дней должно быть положительным");
+    }
+
+    const now = new Date();
+    let newExpiresAt: Date;
+
+    if (tier && (tier === "standard" || tier === "pro")) {
+      // Extend/create subscription
+      const currentExpires = user.subscriptionExpiresAt && user.subscriptionExpiresAt > now 
+        ? user.subscriptionExpiresAt 
+        : now;
+      newExpiresAt = new Date(currentExpires);
+      newExpiresAt.setDate(newExpiresAt.getDate() + days);
+
+      return this.updateUser(userId, {
+        subscriptionTier: tier,
+        subscriptionExpiresAt: newExpiresAt,
+      });
+    } else {
+      // Extend trial
+      const currentTrialEnds = user.trialEndsAt && user.trialEndsAt > now 
+        ? user.trialEndsAt 
+        : now;
+      newExpiresAt = new Date(currentTrialEnds);
+      newExpiresAt.setDate(newExpiresAt.getDate() + days);
+
+      return this.updateUser(userId, {
+        subscriptionTier: "trial",
+        trialEndsAt: newExpiresAt,
+      });
+    }
   }
 
   // Content Strategies
@@ -204,26 +282,35 @@ export class DatabaseStorage implements IStorage {
     totalStrategies: number;
     totalVoicePosts: number;
     totalCaseStudies: number;
-    subscriptionBreakdown: { free: number; standard: number; pro: number };
+    subscriptionBreakdown: { trial: number; free: number; standard: number; pro: number };
+    activeTrials: number;
+    expiredTrials: number;
   }> {
     const allUsers = await db.select().from(users);
     const allStrategies = await db.select().from(contentStrategies);
     const allVoicePosts = await db.select().from(voicePosts);
     const allCaseStudies = await db.select().from(caseStudies);
+    const now = new Date();
 
     const subscriptionBreakdown = {
+      trial: allUsers.filter(u => u.subscriptionTier === "trial").length,
       free: allUsers.filter(u => !u.subscriptionTier || u.subscriptionTier === "free").length,
       standard: allUsers.filter(u => u.subscriptionTier === "standard").length,
       pro: allUsers.filter(u => u.subscriptionTier === "pro").length,
     };
+    
+    const activeTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) > now).length;
+    const expiredTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) <= now).length;
 
     return {
       totalUsers: allUsers.length,
-      activeUsers: allUsers.length,
+      activeUsers: activeTrials + subscriptionBreakdown.standard + subscriptionBreakdown.pro,
       totalStrategies: allStrategies.length,
       totalVoicePosts: allVoicePosts.length,
       totalCaseStudies: allCaseStudies.length,
       subscriptionBreakdown,
+      activeTrials,
+      expiredTrials,
     };
   }
 

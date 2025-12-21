@@ -263,6 +263,39 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/admin/users/:id", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { action, days, tier } = req.body;
+      
+      if (action === "extend") {
+        const user = await storage.extendUserAccess(id, days || 30, tier);
+        if (!user) {
+          return res.status(404).json({ error: "Пользователь не найден" });
+        }
+        res.json(user);
+      } else if (action === "setAdmin") {
+        const user = await storage.updateUser(id, { isAdmin: req.body.isAdmin });
+        res.json(user);
+      } else {
+        res.status(400).json({ error: "Неизвестное действие" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  });
+
+  // Access check route
+  app.get("/api/auth/access", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const access = await storage.hasActiveAccess(userId);
+      res.json(access);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check access" });
+    }
+  });
+
   // Money Trainer Routes
   app.get("/api/trainer/samples", isAuthenticated, async (req: any, res) => {
     try {
