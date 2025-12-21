@@ -45,19 +45,21 @@ Preferred communication style: Simple, everyday language.
 ### Subscription & Access System
 
 - **Trial System**: New users automatically receive a 3-day free trial upon registration
-- **Subscription Tiers**: trial, standard, pro (stored in `subscriptionTier` field)
+- **Subscription Tiers**: trial, monthly (990₽/month), yearly (3990₽/year)
+- **Pricing Page**: `/pricing` route displays subscription plans with features and savings comparison
 - **Access Control**: `hasActiveAccess()` checks trial or paid subscription validity
-- **Admin Panel**: `/admin` route for user management (extend trials, assign subscriptions)
+- **Generation Limits**: Free users get 1 generation/day, paid users get unlimited
+- **Admin Panel**: `/admin` route for user management (extend trials, assign monthly/yearly subscriptions)
 - **Protected Routes**: All core features require active trial or subscription
 - **Landing Page**: Unauthenticated users see marketing landing page at root
 
 ### Recent Changes (December 2025)
 
-- Added subscription fields to users table: `trialEndsAt`, `subscriptionExpiresAt`, `subscriptionTier`
-- Implemented 3-day auto-trial on Replit Auth registration
-- Created admin panel with user management features
-- Added access status badge in header (shows days remaining)
-- Protected all core routes with authentication middleware
+- Updated subscription tiers from standard/pro to monthly (990₽) and yearly (3990₽)
+- Created pricing page with plan comparison and trial status display
+- Added clickable subscription badge in header linking to pricing
+- Real-time lunar calendar calculations using SunCalc library
+- Admin panel updated for monthly/yearly subscription management
 
 ## External Dependencies
 

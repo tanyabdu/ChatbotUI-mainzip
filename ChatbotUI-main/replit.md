@@ -136,7 +136,15 @@ Preferred communication style: Simple, everyday language.
 - **pg (node-postgres)**: PostgreSQL client for Node.js
 - **connect-pg-simple**: PostgreSQL session store for Express
 
+### Subscription System
+- **Tiers**: trial (3 days free), monthly (990₽/month), yearly (3990₽/year)
+- **Access Control**: `hasActiveAccess()` validates trial or paid subscription
+- **Generation Limits**: Free users get 1 generation/day, paid users get unlimited
+- **Pricing Page**: `/pricing` route displays subscription plans with features comparison
+- **Admin Management**: `/admin` route for extending trials and assigning subscriptions
+
 ### Potential Future Integrations
+- **Prodamus**: Payment processing integration planned
 - **Prepared packages**: OpenAI, Google Generative AI, Stripe, Nodemailer, Multer (file uploads), WebSocket support (ws)
 - **Rate limiting**: express-rate-limit included but not configured
 - **Excel support**: xlsx package for potential data import/export
