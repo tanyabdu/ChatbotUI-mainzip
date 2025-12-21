@@ -67,7 +67,6 @@ export default function Grimoire() {
 
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
   const archetypeTitle = archetypeResult?.archetypeName || "Неизвестный";
-  const generationsLeft = (user?.generationsLimit || 50) - (user?.generationsUsed || 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
@@ -183,24 +182,6 @@ export default function Grimoire() {
                       <p className="text-sm text-purple-500">{user.email}</p>
                     )}
                   </div>
-                </div>
-
-                <div className="pt-4 border-t border-purple-200">
-                  <h3 className="text-lg font-mystic text-purple-700 mb-3">Энергия генераций</h3>
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 h-4 bg-purple-100 rounded-full overflow-hidden border border-purple-200">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
-                        style={{ width: `${(generationsLeft / (user?.generationsLimit || 50)) * 100}%` }}
-                      />
-                    </div>
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 border border-purple-300">
-                      {generationsLeft} / {user?.generationsLimit || 50}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-purple-500 mt-2">
-                    Осталось генераций в этом месяце
-                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -452,44 +433,44 @@ export default function Grimoire() {
               <CardHeader>
                 <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
                   <CreditCard className="h-5 w-5 text-pink-500" />
-                  Магическая Лавка
+                  Тарифы
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-3 gap-6">
                   <SubscriptionTier
-                    name="Послушник"
-                    price="Бесплатно"
+                    name="Пробный период"
+                    price="3 дня бесплатно"
                     features={[
-                      "50 генераций в месяц",
-                      "Базовые инструменты",
-                      "Хранилище знаний",
+                      "Полный доступ ко всем функциям",
+                      "Безлимитные запросы",
+                      "Автоматически при регистрации",
                     ]}
-                    current={user?.subscriptionTier === "free"}
+                    current={user?.subscriptionTier === "trial"}
                   />
                   <SubscriptionTier
-                    name="Адепт"
+                    name="Месячный"
                     price="990 ₽/мес"
                     features={[
-                      "500 генераций в месяц",
-                      "Все инструменты",
-                      "Приоритетная поддержка",
-                      "Экспорт в PDF",
+                      "Генератор контент-стратегий",
+                      "Квиз архетипов бренда",
+                      "Голосовые посты с ИИ",
+                      "Гримуар кейсов",
+                      "Лунный календарь",
+                      "Тренажёр продаж",
                     ]}
-                    current={user?.subscriptionTier === "standard"}
+                    current={user?.subscriptionTier === "monthly"}
                     highlighted
                   />
                   <SubscriptionTier
-                    name="Магистр"
-                    price="2490 ₽/мес"
+                    name="Годовой"
+                    price="3990 ₽/год"
                     features={[
-                      "Безлимитные генерации",
-                      "Все функции Адепта",
-                      "API доступ",
-                      "Персональные промпты",
-                      "White-label отчёты",
+                      "Все функции месячного тарифа",
+                      "Экономия 7 890₽ в год",
+                      "Выгоднее на 66%",
                     ]}
-                    current={user?.subscriptionTier === "pro"}
+                    current={user?.subscriptionTier === "yearly"}
                   />
                 </div>
               </CardContent>
