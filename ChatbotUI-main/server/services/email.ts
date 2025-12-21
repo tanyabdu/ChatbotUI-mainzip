@@ -14,8 +14,11 @@ interface EmailParams {
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   const apiKey = process.env.RUSENDER_API_KEY;
   
+  console.log(`[Email] Attempting to send email to ${params.to}, subject: "${params.subject}"`);
+  console.log(`[Email] FROM_EMAIL: ${FROM_EMAIL}, API Key exists: ${!!apiKey}`);
+  
   if (!apiKey) {
-    console.error("RUSENDER_API_KEY not configured");
+    console.error("[Email] RUSENDER_API_KEY not configured");
     return false;
   }
 
@@ -38,6 +41,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
   };
 
   try {
+    console.log(`[Email] Sending request to Rusender API...`);
     const response = await fetch(RUSENDER_API_URL, {
       method: "POST",
       headers: {
@@ -47,16 +51,18 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       body: JSON.stringify(payload),
     });
 
+    const responseText = await response.text();
+    console.log(`[Email] Rusender response status: ${response.status}, body: ${responseText}`);
+
     if (!response.ok) {
-      const error = await response.text();
-      console.error("Rusender API error:", error);
+      console.error(`[Email] Rusender API error (${response.status}): ${responseText}`);
       return false;
     }
 
-    console.log(`Email sent to ${params.to}`);
+    console.log(`[Email] Successfully sent email to ${params.to}`);
     return true;
   } catch (error) {
-    console.error("Failed to send email:", error);
+    console.error("[Email] Failed to send email:", error);
     return false;
   }
 }

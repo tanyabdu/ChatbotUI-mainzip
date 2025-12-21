@@ -12,6 +12,7 @@ import {
 import { Link, useLocation } from "wouter";
 import type { User } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface AdminStats {
   totalUsers: number;
@@ -47,12 +48,7 @@ export default function Admin() {
 
   const extendAccessMutation = useMutation({
     mutationFn: async ({ userId, days, tier }: { userId: string; days: number; tier?: string }) => {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "extend", days, tier }),
-      });
-      if (!res.ok) throw new Error("Ошибка при продлении доступа");
+      const res = await apiRequest("PATCH", `/api/admin/users/${userId}`, { action: "extend", days, tier });
       return res.json();
     },
     onSuccess: () => {
@@ -66,12 +62,7 @@ export default function Admin() {
 
   const toggleAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }: { userId: string; isAdmin: boolean }) => {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "setAdmin", isAdmin }),
-      });
-      if (!res.ok) throw new Error("Ошибка при изменении прав");
+      const res = await apiRequest("PATCH", `/api/admin/users/${userId}`, { action: "setAdmin", isAdmin });
       return res.json();
     },
     onSuccess: () => {
