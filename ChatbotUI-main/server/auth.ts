@@ -41,7 +41,8 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
+      sameSite: "none",
       maxAge: sessionTtl,
     },
   });
@@ -113,15 +114,22 @@ export async function setupAuth(app: Express) {
       
       (req.session as any).userId = user.id;
       
-      res.json({ 
-        message: "Вход выполнен успешно",
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          isAdmin: user.isAdmin,
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Ошибка при сохранении сессии" });
         }
+        
+        res.json({ 
+          message: "Вход выполнен успешно",
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            isAdmin: user.isAdmin,
+          }
+        });
       });
     } catch (error) {
       console.error("Login error:", error);
