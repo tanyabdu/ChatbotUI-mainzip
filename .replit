@@ -1,7 +1,7 @@
 modules = ["nodejs-20"]
 [nix]
 channel = "stable-25_05"
-packages = ["unzip"]
+packages = ["unzip", "postgresql"]
 
 [agent]
 expertMode = true
@@ -33,3 +33,12 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+EXTERNAL_DB_HOST = "176.53.161.247"
+EXTERNAL_DB_PORT = "5432"
+EXTERNAL_DB_NAME = "default_db"
+EXTERNAL_DB_USER = "gen_user"
+EXTERNAL_DB_SCHEMA = "esoteric_planner"

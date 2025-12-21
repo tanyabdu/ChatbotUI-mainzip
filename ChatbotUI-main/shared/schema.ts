@@ -1,10 +1,11 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, index } from "drizzle-orm/pg-core";
+import { text, varchar, integer, boolean, timestamp, jsonb, index, pgSchema } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table for Replit Auth
-export const sessions = pgTable(
+export const esotericSchema = pgSchema("esoteric_planner");
+
+export const sessions = esotericSchema.table(
   "sessions",
   {
     sid: varchar("sid").primaryKey(),
@@ -14,8 +15,7 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table for Replit Auth
-export const users = pgTable("users", {
+export const users = esotericSchema.table("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
@@ -37,8 +37,7 @@ export const users = pgTable("users", {
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
-// Content Strategies
-export const contentStrategies = pgTable("content_strategies", {
+export const contentStrategies = esotericSchema.table("content_strategies", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   topic: text("topic").notNull(),
@@ -64,8 +63,7 @@ export const insertContentStrategySchema = createInsertSchema(contentStrategies)
 export type InsertContentStrategy = z.infer<typeof insertContentStrategySchema>;
 export type ContentStrategy = typeof contentStrategies.$inferSelect;
 
-// Archetype Results
-export const archetypeResults = pgTable("archetype_results", {
+export const archetypeResults = esotericSchema.table("archetype_results", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   archetypeName: text("archetype_name").notNull(),
@@ -85,8 +83,7 @@ export const insertArchetypeResultSchema = createInsertSchema(archetypeResults).
 export type InsertArchetypeResult = z.infer<typeof insertArchetypeResultSchema>;
 export type ArchetypeResult = typeof archetypeResults.$inferSelect;
 
-// Voice Posts
-export const voicePosts = pgTable("voice_posts", {
+export const voicePosts = esotericSchema.table("voice_posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   originalText: text("original_text").notNull(),
@@ -103,8 +100,7 @@ export const insertVoicePostSchema = createInsertSchema(voicePosts).omit({
 export type InsertVoicePost = z.infer<typeof insertVoicePostSchema>;
 export type VoicePost = typeof voicePosts.$inferSelect;
 
-// Case Studies
-export const caseStudies = pgTable("case_studies", {
+export const caseStudies = esotericSchema.table("case_studies", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   reviewText: text("review_text").notNull(),
@@ -126,14 +122,13 @@ export const insertCaseStudySchema = createInsertSchema(caseStudies).omit({
 export type InsertCaseStudy = z.infer<typeof insertCaseStudySchema>;
 export type CaseStudy = typeof caseStudies.$inferSelect;
 
-// Money Trainer - Training Samples (примеры для обучения AI)
-export const salesTrainerSamples = pgTable("sales_trainer_samples", {
+export const salesTrainerSamples = esotericSchema.table("sales_trainer_samples", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   clientQuestion: text("client_question").notNull(),
   expertDraft: text("expert_draft"),
   improvedAnswer: text("improved_answer").notNull(),
   coachFeedback: text("coach_feedback"),
-  painType: varchar("pain_type"), // relationships, career, money, health, etc.
+  painType: varchar("pain_type"),
   tags: jsonb("tags").$type<string[]>(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -146,8 +141,7 @@ export const insertSalesTrainerSampleSchema = createInsertSchema(salesTrainerSam
 export type InsertSalesTrainerSample = z.infer<typeof insertSalesTrainerSampleSchema>;
 export type SalesTrainerSample = typeof salesTrainerSamples.$inferSelect;
 
-// Money Trainer - User Sessions (история генераций пользователя)
-export const salesTrainerSessions = pgTable("sales_trainer_sessions", {
+export const salesTrainerSessions = esotericSchema.table("sales_trainer_sessions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   clientQuestion: text("client_question").notNull(),

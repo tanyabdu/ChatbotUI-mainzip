@@ -61,8 +61,17 @@ Preferred communication style: Simple, everyday language.
 
 ## External Dependencies
 
-- **Database**: PostgreSQL (DATABASE_URL environment variable required)
+- **Database**: External PostgreSQL on user's server (176.53.161.247)
+  - Schema: `esoteric_planner` (separate schema for this project)
+  - Environment variables: EXTERNAL_DB_HOST, EXTERNAL_DB_PORT, EXTERNAL_DB_NAME, EXTERNAL_DB_USER, EXTERNAL_DB_PASSWORD
 - **AI Provider**: DeepSeek API for content generation (DEEPSEEK_API_KEY required)
 - **Authentication**: Replit OpenID Connect (ISSUER_URL, REPL_ID, SESSION_SECRET required)
 - **UI Libraries**: Radix UI primitives, Embla Carousel, React Day Picker, Recharts
 - **Build Tools**: Vite, esbuild for production builds, tsx for development
+
+### Database Initialization
+
+To initialize the external database schema, run:
+```bash
+cd ChatbotUI-main && npx tsx server/initExternalDb.ts
+```

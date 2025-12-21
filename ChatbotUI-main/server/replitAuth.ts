@@ -21,11 +21,20 @@ const getOidcConfig = memoize(
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000;
   const pgStore = connectPg(session);
+  
+  const host = process.env.EXTERNAL_DB_HOST;
+  const port = process.env.EXTERNAL_DB_PORT;
+  const database = process.env.EXTERNAL_DB_NAME;
+  const user = process.env.EXTERNAL_DB_USER;
+  const password = process.env.EXTERNAL_DB_PASSWORD;
+  const connectionString = `postgresql://${user}:${encodeURIComponent(password!)}@${host}:${port}/${database}`;
+  
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
+    conString: connectionString,
     createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",
+    schemaName: "esoteric_planner",
   });
   return session({
     secret: process.env.SESSION_SECRET!,
