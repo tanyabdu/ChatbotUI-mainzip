@@ -12,17 +12,20 @@ import { Label } from "@/components/ui/label";
 import { 
   User, BookOpen, Palette, CreditCard, Sparkles, 
   FileText, Mic, Archive, Wand2, LogOut, Home,
-  Edit2, Check, X, Trash2, Copy
+  Edit2, Check, X, Trash2, Copy, Gift
 } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { ContentStrategy, VoicePost, CaseStudy, ArchetypeResult } from "@shared/schema";
 
 export default function Grimoire() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [editingNickname, setEditingNickname] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname || "");
   const [viewingCase, setViewingCase] = useState<CaseStudy | null>(null);
+  const [promocode, setPromocode] = useState("");
 
   const { data: strategies = [] } = useQuery<ContentStrategy[]>({
     queryKey: ["/api/strategies"],
@@ -63,6 +66,38 @@ export default function Grimoire() {
   const deleteCaseMutation = useMutation({
     mutationFn: async (id: string) => apiRequest("DELETE", `/api/cases/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/cases"] }),
+  });
+
+  const activatePromocodeMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const response = await fetch("/api/promocode/activate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ code }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Ошибка при активации промокода");
+      }
+      return data;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Успешно!",
+        description: data.message,
+      });
+      setPromocode("");
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/access"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Ошибка",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
@@ -473,6 +508,35 @@ export default function Grimoire() {
                     current={user?.subscriptionTier === "yearly"}
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-2 border-purple-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                  <Gift className="h-5 w-5 text-pink-500" />
+                  Активировать промокод
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-3 max-w-md">
+                  <Input
+                    placeholder="Введите промокод"
+                    value={promocode}
+                    onChange={(e) => setPromocode(e.target.value.toUpperCase())}
+                    className="border-purple-300 focus:border-purple-500 uppercase"
+                  />
+                  <Button
+                    onClick={() => activatePromocodeMutation.mutate(promocode)}
+                    disabled={!promocode.trim() || activatePromocodeMutation.isPending}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                  >
+                    {activatePromocodeMutation.isPending ? "..." : "Активировать"}
+                  </Button>
+                </div>
+                <p className="text-sm text-purple-500 mt-3">
+                  Введите промокод, чтобы получить бонусные дни подписки
+                </p>
               </CardContent>
             </Card>
           </TabsContent>

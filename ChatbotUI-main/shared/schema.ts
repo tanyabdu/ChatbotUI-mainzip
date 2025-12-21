@@ -49,6 +49,28 @@ export const passwordResetTokens = esotericSchema.table("password_reset_tokens",
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type InsertPasswordResetToken = typeof passwordResetTokens.$inferInsert;
 
+export const promocodes = esotericSchema.table("promocodes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: varchar("code").unique().notNull(),
+  bonusDays: integer("bonus_days").notNull().default(30),
+  maxUses: integer("max_uses").default(1),
+  usedCount: integer("used_count").default(0),
+  isActive: boolean("is_active").default(true),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const promocodeUsages = esotericSchema.table("promocode_usages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  promocodeId: varchar("promocode_id").references(() => promocodes.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  usedAt: timestamp("used_at").defaultNow(),
+});
+
+export type Promocode = typeof promocodes.$inferSelect;
+export type InsertPromocode = typeof promocodes.$inferInsert;
+export type PromocodeUsage = typeof promocodeUsages.$inferSelect;
+
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 

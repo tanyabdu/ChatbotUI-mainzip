@@ -137,6 +137,30 @@ async function initDatabase() {
       )
     `);
     
+    console.log("Creating promocodes table...");
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS esoteric_planner.promocodes (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        code VARCHAR UNIQUE NOT NULL,
+        bonus_days INTEGER NOT NULL DEFAULT 30,
+        max_uses INTEGER DEFAULT 1,
+        used_count INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT true,
+        expires_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    console.log("Creating promocode_usages table...");
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS esoteric_planner.promocode_usages (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        promocode_id VARCHAR NOT NULL REFERENCES esoteric_planner.promocodes(id),
+        user_id VARCHAR NOT NULL REFERENCES esoteric_planner.users(id),
+        used_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
     console.log("Database schema and tables created successfully!");
   } catch (error) {
     console.error("Error initializing database:", error);

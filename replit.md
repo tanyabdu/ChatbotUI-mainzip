@@ -48,13 +48,23 @@ Preferred communication style: Simple, everyday language.
 - **Subscription Tiers**: trial, monthly (990₽/month), yearly (3990₽/year)
 - **Pricing Page**: `/pricing` route displays subscription plans with features and savings comparison
 - **Access Control**: `hasActiveAccess()` checks trial or paid subscription validity
-- **Generation Limits**: Free users get 1 generation/day, paid users get unlimited
-- **Admin Panel**: `/admin` route for user management (extend trials, assign monthly/yearly subscriptions)
+- **Generation Limits**: All users have unlimited access (trial, paid, admin)
+- **Admin Panel**: `/admin` route for user management (extend trials, assign monthly/yearly subscriptions, create promocodes)
 - **Protected Routes**: All core features require active trial or subscription
 - **Landing Page**: Unauthenticated users see marketing landing page at root
+- **Promocode System**: Users can activate promocodes in Grimoire (subscription tab) to get bonus days
+
+### Promocode System
+
+- **Tables**: `promocodes` (code, bonus_days, max_uses, used_count, is_active, expires_at), `promocode_usages` (tracks who used which code)
+- **User Activation**: POST `/api/promocode/activate` - validates code, checks usage, extends subscription
+- **Admin Endpoints**: GET/POST `/api/admin/promocodes` - view and create promocodes
+- **UI Location**: Grimoire page → Subscription tab → "Активировать промокод" card
 
 ### Recent Changes (December 2025)
 
+- Added promocode activation system for bonus subscription days
+- Removed generation limits - all users have unlimited access
 - Updated subscription tiers from standard/pro to monthly (990₽) and yearly (3990₽)
 - Created pricing page with plan comparison and trial status display
 - Added clickable subscription badge in header linking to pricing

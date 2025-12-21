@@ -7,8 +7,10 @@ import {
   type SalesTrainerSample, type InsertSalesTrainerSample,
   type SalesTrainerSession, type InsertSalesTrainerSession,
   type PasswordResetToken, type InsertPasswordResetToken,
+  type Promocode, type InsertPromocode,
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
-  salesTrainerSamples, salesTrainerSessions, passwordResetTokens
+  salesTrainerSamples, salesTrainerSessions, passwordResetTokens,
+  promocodes, promocodeUsages
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, ilike, or, and, isNull, gt } from "drizzle-orm";
@@ -441,6 +443,109 @@ export class DatabaseStorage implements IStorage {
   async createSalesTrainerSession(session: InsertSalesTrainerSession): Promise<SalesTrainerSession> {
     const [created] = await db.insert(salesTrainerSessions).values(session).returning();
     return created;
+  }
+
+  // Promocode Methods
+  async activatePromocode(userId: string, code: string): Promise<{ success: boolean; message: string; bonusDays?: number }> {
+    const normalizedCode = code.trim().toUpperCase();
+    
+    // Find promocode
+    const [promocode] = await db.select().from(promocodes)
+      .where(eq(promocodes.code, normalizedCode));
+    
+    if (!promocode) {
+      return { success: false, message: "Промокод не найден" };
+    }
+
+    if (!promocode.isActive) {
+      return { success: false, message: "Промокод неактивен" };
+    }
+
+    // Check expiration
+    if (promocode.expiresAt && promocode.expiresAt < new Date()) {
+      return { success: false, message: "Срок действия промокода истёк" };
+    }
+
+    // Check max uses
+    if (promocode.maxUses && (promocode.usedCount || 0) >= promocode.maxUses) {
+      return { success: false, message: "Промокод исчерпан" };
+    }
+
+    // Check if user already used this promocode
+    const [existingUsage] = await db.select().from(promocodeUsages)
+      .where(and(
+        eq(promocodeUsages.promocodeId, promocode.id),
+        eq(promocodeUsages.userId, userId)
+      ));
+
+    if (existingUsage) {
+      return { success: false, message: "Вы уже использовали этот промокод" };
+    }
+
+    // Apply bonus days
+    const user = await this.getUser(userId);
+    if (!user) {
+      return { success: false, message: "Пользователь не найден" };
+    }
+
+    const now = new Date();
+    const bonusDays = promocode.bonusDays || 30;
+    
+    // Extend current subscription or trial
+    let newExpiresAt: Date;
+    if (user.subscriptionTier === "monthly" || user.subscriptionTier === "yearly") {
+      const currentExpires = user.subscriptionExpiresAt && user.subscriptionExpiresAt > now 
+        ? user.subscriptionExpiresAt 
+        : now;
+      newExpiresAt = new Date(currentExpires);
+      newExpiresAt.setDate(newExpiresAt.getDate() + bonusDays);
+      
+      await this.updateUser(userId, {
+        subscriptionExpiresAt: newExpiresAt,
+      });
+    } else {
+      const currentTrialEnds = user.trialEndsAt && user.trialEndsAt > now 
+        ? user.trialEndsAt 
+        : now;
+      newExpiresAt = new Date(currentTrialEnds);
+      newExpiresAt.setDate(newExpiresAt.getDate() + bonusDays);
+      
+      await this.updateUser(userId, {
+        subscriptionTier: "monthly",
+        subscriptionExpiresAt: newExpiresAt,
+      });
+    }
+
+    // Record usage
+    await db.insert(promocodeUsages).values({
+      promocodeId: promocode.id,
+      userId: userId,
+    });
+
+    // Increment used count
+    await db.update(promocodes).set({
+      usedCount: (promocode.usedCount || 0) + 1,
+    }).where(eq(promocodes.id, promocode.id));
+
+    return { 
+      success: true, 
+      message: `Промокод активирован! Добавлено ${bonusDays} дней`, 
+      bonusDays 
+    };
+  }
+
+  async createPromocode(data: { code: string; bonusDays: number; maxUses?: number; expiresAt?: Date }): Promise<Promocode> {
+    const [created] = await db.insert(promocodes).values({
+      code: data.code.toUpperCase(),
+      bonusDays: data.bonusDays,
+      maxUses: data.maxUses || 1,
+      expiresAt: data.expiresAt,
+    }).returning();
+    return created;
+  }
+
+  async getAllPromocodes(): Promise<Promocode[]> {
+    return db.select().from(promocodes).orderBy(desc(promocodes.createdAt));
   }
 }
 

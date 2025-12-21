@@ -480,5 +480,62 @@ export async function registerRoutes(
     }
   });
 
+  // Promocode activation
+  app.post("/api/promocode/activate", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { code } = req.body;
+
+      if (!code || typeof code !== "string") {
+        return res.status(400).json({ success: false, message: "Введите промокод" });
+      }
+
+      const result = await storage.activatePromocode(userId, code);
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error: any) {
+      console.error("Promocode activation error:", error);
+      res.status(500).json({ success: false, message: "Ошибка при активации промокода" });
+    }
+  });
+
+  // Admin: Create promocode
+  app.post("/api/admin/promocodes", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { code, bonusDays, maxUses, expiresAt } = req.body;
+
+      if (!code || !bonusDays) {
+        return res.status(400).json({ error: "Укажите код и количество дней" });
+      }
+
+      const promocode = await storage.createPromocode({
+        code,
+        bonusDays: parseInt(bonusDays),
+        maxUses: maxUses ? parseInt(maxUses) : undefined,
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+      });
+
+      res.json(promocode);
+    } catch (error: any) {
+      console.error("Create promocode error:", error);
+      res.status(500).json({ error: "Ошибка при создании промокода" });
+    }
+  });
+
+  // Admin: Get all promocodes
+  app.get("/api/admin/promocodes", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const promocodes = await storage.getAllPromocodes();
+      res.json(promocodes);
+    } catch (error: any) {
+      console.error("Get promocodes error:", error);
+      res.status(500).json({ error: "Ошибка при получении промокодов" });
+    }
+  });
+
   return httpServer;
 }
