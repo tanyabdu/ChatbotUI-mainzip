@@ -73,7 +73,7 @@ export async function registerRoutes(
         return res.status(403).json({ error: limitCheck.reason, limitReached: true });
       }
       
-      const { goal, niche, days, product, strategy } = req.body;
+      const { goal, niche, days, product, strategy, archetype } = req.body;
       
       if (!goal || !niche || !days) {
         return res.status(400).json({ error: "Missing required fields: goal, niche, days" });
@@ -81,7 +81,7 @@ export async function registerRoutes(
       
       const daysNumber = days === "today" ? 1 : parseInt(days) || 1;
       
-      console.log("Generating content strategy:", { goal, niche, days: daysNumber, product, strategy });
+      console.log("Generating content strategy:", { goal, niche, days: daysNumber, product, strategy, archetype: !!archetype });
       
       const generatedContent = await generateContentStrategy({
         goal,
@@ -89,6 +89,7 @@ export async function registerRoutes(
         days: daysNumber,
         product,
         strategy,
+        archetype,
       });
       
       // Increment daily generation count only on success

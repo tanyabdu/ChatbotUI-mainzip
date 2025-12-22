@@ -11,6 +11,11 @@ export interface ContentGenerationInput {
   days: number;
   product?: string;
   strategy?: "general" | "launch";
+  archetype?: {
+    name: string;
+    description: string;
+    recommendations: string[];
+  };
 }
 
 export interface GeneratedContentDay {
@@ -149,11 +154,20 @@ function parseContentResponse(content: string): GeneratedContentDay[] {
 }
 
 export async function generateContentStrategy(input: ContentGenerationInput): Promise<GeneratedContentDay[]> {
-  const { goal, niche, days, product, strategy } = input;
+  const { goal, niche, days, product, strategy, archetype } = input;
   
   const strategyDescription = strategy === "launch"
     ? "Структура запуска: предзапуск → открытие → дедлайны → закрытие"
     : "Сбалансированный микс: экспертный контент + личные истории + мягкие продажи";
+    
+  const archetypeInstruction = archetype 
+    ? `\n\nДНК БРЕНДА (ОБЯЗАТЕЛЬНО учитывай в стиле текста!):
+Архетип: ${archetype.name}
+Описание стиля: ${archetype.description}
+Ключевые слова для использования: ${archetype.recommendations.join(", ")}
+
+Пиши в стиле этого архетипа — используй соответствующий тон, настроение и ключевые слова.`
+    : "";
 
   // Different system prompts for sale vs engagement
   const saleSystemPrompt = `Ты — копирайтер-эксперт по ПРОДАЮЩЕМУ контенту для эзотерических практиков.
@@ -171,7 +185,7 @@ export async function generateContentStrategy(input: ContentGenerationInput): Pr
 4. Упоминай конкретные выгоды продукта
 
 Формат: ТОЛЬКО JSON массив с двойными кавычками.
-Пример: [{"day":1,"title":"Заголовок","type":"Продающий","content":"Текст...\\n\\nЗаписывайтесь в директ!","hashtags":["#тег1","#тег2"]}]`;
+Пример: [{"day":1,"title":"Заголовок","type":"Продающий","content":"Текст...\\n\\nЗаписывайтесь в директ!","hashtags":["#тег1","#тег2"]}]${archetypeInstruction}`;
 
   const engagementSystemPrompt = `Ты — копирайтер-эксперт по вовлекающему контенту для эзотерических практиков.
 
@@ -188,7 +202,7 @@ export async function generateContentStrategy(input: ContentGenerationInput): Pr
 4. Создавай интригу и желание обсуждать
 
 Формат: ТОЛЬКО JSON массив с двойными кавычками.
-Пример: [{"day":1,"title":"Заголовок","type":"Вовлекающий","content":"Текст...\\n\\nНапишите в комментариях!","hashtags":["#тег1","#тег2"]}]`;
+Пример: [{"day":1,"title":"Заголовок","type":"Вовлекающий","content":"Текст...\\n\\nНапишите в комментариях!","hashtags":["#тег1","#тег2"]}]${archetypeInstruction}`;
 
   const systemPrompt = goal === "sale" ? saleSystemPrompt : engagementSystemPrompt;
 

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dna, Loader2, Printer, Coins, Flame, Sparkles, Save, Check, History, Trash2, Lock, Crown, AlertCircle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { ContentStrategy, ContentPost } from "@shared/schema";
+import type { ContentStrategy, ContentPost, ArchetypeResult } from "@shared/schema";
 
 interface GenerationLimit {
   allowed: boolean;
@@ -32,6 +32,7 @@ interface ContentDay {
 
 interface ContentGeneratorProps {
   archetypeActive?: boolean;
+  archetypeData?: ArchetypeResult;
   onGenerate?: (data: {
     goal: ContentGoal;
     niche: string;
@@ -41,7 +42,7 @@ interface ContentGeneratorProps {
   }) => void;
 }
 
-export default function ContentGenerator({ archetypeActive = false, onGenerate }: ContentGeneratorProps) {
+export default function ContentGenerator({ archetypeActive = false, archetypeData, onGenerate }: ContentGeneratorProps) {
   const [goal, setGoal] = useState<ContentGoal>("sale");
   const [niche, setNiche] = useState("");
   const [days, setDays] = useState<DaysCount>("today");
@@ -89,6 +90,7 @@ export default function ContentGenerator({ archetypeActive = false, onGenerate }
       days: DaysCount;
       product?: string;
       strategy?: StrategyType;
+      archetype?: { name: string; description: string; recommendations: string[] };
     }) => {
       const response = await apiRequest("POST", "/api/strategies/generate", data);
       return response.json();
@@ -149,9 +151,14 @@ export default function ContentGenerator({ archetypeActive = false, onGenerate }
       days,
       product: goal === "sale" ? product : undefined,
       strategy: goal === "sale" ? strategy : undefined,
+      archetype: archetypeActive && archetypeData ? {
+        name: archetypeData.archetypeName,
+        description: archetypeData.archetypeDescription,
+        recommendations: archetypeData.recommendations || [],
+      } : undefined,
     };
     
-    onGenerate?.(requestData);
+    onGenerate?.({ goal, niche, days, product: requestData.product, strategy: requestData.strategy });
     generateMutation.mutate(requestData);
   };
 

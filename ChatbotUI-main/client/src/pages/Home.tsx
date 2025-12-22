@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import Navigation, { type TabName } from "@/components/Navigation";
 import WelcomeSection from "@/components/WelcomeSection";
@@ -8,18 +9,32 @@ import VoiceRecorder from "@/components/VoiceRecorder";
 import CasesManager from "@/components/CasesManager";
 import LunarCalendar from "@/components/LunarCalendar";
 import MoneyTrainer from "@/components/MoneyTrainer";
+import { queryClient } from "@/lib/queryClient";
+import type { ArchetypeResult } from "@shared/schema";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabName | null>(null);
-  const [archetypeActive, setArchetypeActive] = useState(false);
+  const [localArchetypeActive, setLocalArchetypeActive] = useState(false);
+
+  const { data: archetypeResult } = useQuery<ArchetypeResult | null>({
+    queryKey: ["/api/archetypes/latest"],
+    queryFn: async () => {
+      const res = await fetch("/api/archetypes/latest", { credentials: "include" });
+      if (!res.ok) return null;
+      return res.json();
+    },
+  });
+
+  const archetypeActive = !!archetypeResult || localArchetypeActive;
 
   const handleTabChange = (tab: TabName) => {
     setActiveTab(tab);
   };
 
   const handleArchetypeApply = () => {
-    setArchetypeActive(true);
-    console.log("Archetype activated");
+    setLocalArchetypeActive(true);
+    queryClient.invalidateQueries({ queryKey: ["/api/archetypes/latest"] });
+    console.log("Archetype applied");
   };
 
   return (
@@ -33,6 +48,7 @@ export default function Home() {
         {activeTab === "generator" && (
           <ContentGenerator 
             archetypeActive={archetypeActive}
+            archetypeData={archetypeResult || undefined}
             onGenerate={(data) => console.log("Generate:", data)} 
           />
         )}
