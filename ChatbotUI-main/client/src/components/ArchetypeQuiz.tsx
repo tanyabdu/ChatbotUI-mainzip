@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Loader2, Check, RotateCcw, Sparkles, Palette, History } from "lucide-react";
+import { Loader2, Check, RotateCcw, Sparkles, Palette, History, AlertCircle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { ArchetypeResult } from "@shared/schema";
 
 interface Question {
@@ -61,6 +62,11 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [profile, setProfile] = useState<ArchetypeProfile | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showUnanswered, setShowUnanswered] = useState(false);
+  const { toast } = useToast();
+
+  const answeredCount = Object.keys(answers).length;
+  const totalQuestions = archetypeQuestions.length;
 
   const { data: latestResult } = useQuery<ArchetypeResult | null>({
     queryKey: ["/api/archetypes/latest"],
@@ -83,10 +89,17 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
   const handleSubmit = () => {
     const allAnswered = archetypeQuestions.every((_, idx) => answers[idx]);
     if (!allAnswered) {
-      console.log("Please answer all questions");
+      setShowUnanswered(true);
+      const unansweredCount = totalQuestions - answeredCount;
+      toast({
+        title: "Ответьте на все вопросы",
+        description: `Осталось ответить на ${unansweredCount} ${unansweredCount === 1 ? 'вопрос' : unansweredCount < 5 ? 'вопроса' : 'вопросов'}`,
+        variant: "destructive",
+      });
       return;
     }
 
+    setShowUnanswered(false);
     setIsAnalyzing(true);
 
     const answerIndices = archetypeQuestions.map((q, idx) => {
@@ -263,11 +276,18 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
           <p className="text-purple-500">
             Пройдите диагностику, чтобы нейросеть "заговорила" вашим голосом.
           </p>
+          <div className="mt-4">
+            <Badge variant="outline" className="text-purple-600 border-purple-300">
+              Отвечено: {answeredCount} из {totalQuestions}
+            </Badge>
+          </div>
         </CardHeader>
         
         <CardContent className="max-w-2xl mx-auto space-y-6">
-          {archetypeQuestions.map((question, idx) => (
-            <Card key={idx} className="bg-purple-50 border-2 border-purple-200">
+          {archetypeQuestions.map((question, idx) => {
+            const isUnanswered = showUnanswered && !answers[idx];
+            return (
+            <Card key={idx} className={`bg-purple-50 border-2 ${isUnanswered ? 'border-red-400 ring-2 ring-red-200' : 'border-purple-200'}`}>
               <CardContent className="p-6">
                 <h4 className="text-lg text-purple-700 mb-4 font-medium">
                   {idx + 1}. {question.q}
@@ -297,7 +317,8 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                 </RadioGroup>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
 
           <div className="text-center pt-4">
             <Button
