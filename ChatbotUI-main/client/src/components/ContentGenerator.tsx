@@ -385,24 +385,31 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
                 </Button>
               </div>
             ) : (
-              <Button
-                type="submit"
-                data-testid="button-generate"
-                disabled={isGenerating || !niche}
-                className="w-full py-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-lg border-2 border-purple-400"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Генерирую стратегию...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-5 w-5 mr-2" />
-                    Создать Стратегию
-                  </>
+              <div className="space-y-3">
+                <Button
+                  type="submit"
+                  data-testid="button-generate"
+                  disabled={isGenerating || !niche}
+                  className="w-full py-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-xl shadow-lg border-2 border-purple-400"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Генерирую стратегию...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-5 w-5 mr-2" />
+                      Создать Стратегию
+                    </>
+                  )}
+                </Button>
+                {isGenerating && (
+                  <p className="text-center text-sm text-purple-600 animate-pulse">
+                    ИИ создаёт 4 формата контента для каждого дня. Это может занять 2-4 минуты, пожалуйста подождите...
+                  </p>
                 )}
-              </Button>
+              </div>
             )}
           </form>
         </CardContent>
