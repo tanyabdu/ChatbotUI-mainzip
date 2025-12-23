@@ -299,6 +299,31 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     });
   };
 
+  const createEmptyFormat = (): FormatContent => ({ content: "", hashtags: [] });
+
+  const handleSaveToGrimoire = () => {
+    const posts: ContentPost[] = generatedIdeas.map(idea => ({
+      day: idea.day,
+      idea: idea.idea,
+      type: idea.type,
+      post: generatedFormats[`${idea.day}-post`] || createEmptyFormat(),
+      carousel: generatedFormats[`${idea.day}-carousel`] || createEmptyFormat(),
+      reels: generatedFormats[`${idea.day}-reels`] || createEmptyFormat(),
+      stories: generatedFormats[`${idea.day}-stories`] || createEmptyFormat(),
+    }));
+
+    saveMutation.mutate({
+      topic: generationContext?.niche || niche,
+      goal: generationContext?.goal || goal,
+      days: getDaysNumber(days),
+      posts: posts,
+    });
+  };
+
+  const hasAnyGeneratedFormat = () => {
+    return Object.keys(generatedFormats).length > 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -551,7 +576,33 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
         <div className="space-y-6 fade-in">
           <div className="flex justify-between items-center border-b-2 border-purple-300 pb-4 flex-wrap gap-2">
             <h2 className="text-3xl font-mystic text-purple-700">Ваш Контент-План</h2>
-            <p className="text-sm text-purple-600">Нажмите на формат, чтобы сгенерировать контент</p>
+            <div className="flex gap-2 items-center">
+              <p className="text-sm text-purple-600 hidden sm:block">Нажмите на формат, чтобы сгенерировать контент</p>
+              <Button
+                size="sm"
+                onClick={handleSaveToGrimoire}
+                disabled={saveMutation.isPending || saved || !hasAnyGeneratedFormat()}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white disabled:opacity-50"
+                title={!hasAnyGeneratedFormat() ? "Сначала сгенерируйте хотя бы один формат" : ""}
+              >
+                {saved ? (
+                  <>
+                    <Check className="h-4 w-4 mr-1" />
+                    Сохранено!
+                  </>
+                ) : saveMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    Сохраняю...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-1" />
+                    Сохранить в Гримуар
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
           
           <div className="space-y-6">
