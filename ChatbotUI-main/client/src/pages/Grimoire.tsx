@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { 
   User, BookOpen, Palette, CreditCard, Sparkles, 
   FileText, Mic, Archive, Wand2, LogOut, Home,
-  Edit2, Check, X, Trash2, Copy, Gift
+  Edit2, Check, X, Trash2, Copy, Gift, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -26,6 +26,46 @@ export default function Grimoire() {
   const [nickname, setNickname] = useState(user?.nickname || "");
   const [viewingCase, setViewingCase] = useState<CaseStudy | null>(null);
   const [promocode, setPromocode] = useState("");
+  const [expandedStrategies, setExpandedStrategies] = useState<Set<string>>(new Set());
+  const [activePostFormats, setActivePostFormats] = useState<Record<string, "post" | "carousel" | "reels" | "stories">>({});
+
+  const toggleStrategy = (id: string) => {
+    setExpandedStrategies(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const getFirstAvailableFormat = (post: { post?: { content: string }, carousel?: { content: string }, reels?: { content: string }, stories?: { content: string } }): "post" | "carousel" | "reels" | "stories" => {
+    const formats: ("post" | "carousel" | "reels" | "stories")[] = ["post", "carousel", "reels", "stories"];
+    for (const format of formats) {
+      if (post[format] && post[format]!.content) {
+        return format;
+      }
+    }
+    return "post";
+  };
+
+  const getPostFormat = (strategyId: string, postDay: number, post?: { post?: { content: string }, carousel?: { content: string }, reels?: { content: string }, stories?: { content: string } }) => {
+    const key = `${strategyId}-${postDay}`;
+    if (activePostFormats[key]) {
+      return activePostFormats[key];
+    }
+    if (post) {
+      return getFirstAvailableFormat(post);
+    }
+    return "post";
+  };
+
+  const setPostFormat = (strategyId: string, postDay: number, format: "post" | "carousel" | "reels" | "stories") => {
+    const key = `${strategyId}-${postDay}`;
+    setActivePostFormats(prev => ({ ...prev, [key]: format }));
+  };
 
   const { data: strategies = [] } = useQuery<ContentStrategy[]>({
     queryKey: ["/api/strategies"],
@@ -247,34 +287,137 @@ export default function Grimoire() {
                     У вас пока нет сохранённых контент-планов
                   </p>
                 ) : (
-                  strategies.map((strategy) => (
-                    <Card key={strategy.id} className="bg-purple-50 border border-purple-200">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start gap-2 mb-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                              {strategy.topic}
-                            </Badge>
-                            <Badge variant="outline" className="text-pink-600 border-pink-300">
-                              {strategy.days} дней
-                            </Badge>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteStrategyMutation.mutate(strategy.id)}
-                            data-testid={`button-delete-strategy-${strategy.id}`}
-                            className="text-red-500"
+                  strategies.map((strategy) => {
+                    const isExpanded = expandedStrategies.has(strategy.id);
+                    return (
+                      <Card key={strategy.id} className="bg-purple-50 border border-purple-200 overflow-hidden">
+                        <CardContent className="p-0">
+                          <div 
+                            className="p-4 cursor-pointer hover:bg-purple-100 transition-colors"
+                            onClick={() => toggleStrategy(strategy.id)}
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <p className="text-sm text-purple-600">
-                          {strategy.posts.length} публикаций запланировано
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ))
+                            <div className="flex justify-between items-start gap-2 mb-2">
+                              <div className="flex items-center gap-2 flex-wrap flex-1">
+                                <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                                  {strategy.topic}
+                                </Badge>
+                                <Badge variant="outline" className="text-pink-600 border-pink-300">
+                                  {strategy.goal === "sale" ? "Продажа" : "Охваты"}
+                                </Badge>
+                                <Badge variant="outline" className="text-purple-600 border-purple-300">
+                                  {strategy.days} дней
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {isExpanded ? (
+                                  <ChevronUp className="h-5 w-5 text-purple-500" />
+                                ) : (
+                                  <ChevronDown className="h-5 w-5 text-purple-500" />
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteStrategyMutation.mutate(strategy.id);
+                                  }}
+                                  data-testid={`button-delete-strategy-${strategy.id}`}
+                                  className="text-red-500"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            <p className="text-sm text-purple-600">
+                              {strategy.posts.length} публикаций • Нажмите чтобы {isExpanded ? "свернуть" : "раскрыть"}
+                            </p>
+                          </div>
+                          
+                          {isExpanded && (
+                            <div className="border-t border-purple-200 p-4 space-y-4 bg-white">
+                              {strategy.posts.map((post) => {
+                                const activeFormat = getPostFormat(strategy.id, post.day, post);
+                                const formatContent = post[activeFormat];
+                                const hasContent = formatContent && formatContent.content;
+                                
+                                return (
+                                  <div key={post.day} className="border border-purple-200 rounded-lg p-4 bg-purple-50">
+                                    <div className="flex items-center gap-2 mb-3 flex-wrap">
+                                      <Badge className="bg-purple-600 text-white">День {post.day}</Badge>
+                                      <Badge variant="outline" className="text-pink-600 border-pink-300">{post.type}</Badge>
+                                    </div>
+                                    
+                                    <p className="text-purple-700 font-medium mb-3">💡 {post.idea}</p>
+                                    
+                                    <div className="flex gap-2 mb-3 flex-wrap">
+                                      {(["post", "carousel", "reels", "stories"] as const).map((format) => {
+                                        const hasFormatContent = post[format] && post[format].content;
+                                        return (
+                                          <Button
+                                            key={format}
+                                            size="sm"
+                                            variant={activeFormat === format ? "default" : "outline"}
+                                            onClick={() => setPostFormat(strategy.id, post.day, format)}
+                                            disabled={!hasFormatContent}
+                                            className={
+                                              activeFormat === format
+                                                ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                                                : hasFormatContent
+                                                  ? "border-green-400 text-green-700 bg-green-50"
+                                                  : "border-gray-300 text-gray-400"
+                                            }
+                                          >
+                                            {format === "post" ? "Пост" : 
+                                             format === "carousel" ? "Карусель" :
+                                             format === "reels" ? "Reels" : "Stories"}
+                                            {hasFormatContent && activeFormat !== format && (
+                                              <Check className="h-3 w-3 ml-1" />
+                                            )}
+                                          </Button>
+                                        );
+                                      })}
+                                    </div>
+                                    
+                                    {hasContent ? (
+                                      <div className="space-y-3">
+                                        <div className="bg-white rounded-lg p-4 border border-purple-200">
+                                          <p className="text-gray-700 whitespace-pre-line">{formatContent.content}</p>
+                                        </div>
+                                        {formatContent.hashtags && formatContent.hashtags.length > 0 && (
+                                          <div className="flex flex-wrap gap-2">
+                                            {formatContent.hashtags.map((tag, idx) => (
+                                              <Badge key={idx} variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                                                {tag}
+                                              </Badge>
+                                            ))}
+                                          </div>
+                                        )}
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() => {
+                                            const text = formatContent.content + "\n\n" + (formatContent.hashtags?.join(" ") || "");
+                                            navigator.clipboard.writeText(text);
+                                            toast({ title: "Скопировано!", description: "Текст скопирован в буфер обмена" });
+                                          }}
+                                          className="text-purple-600"
+                                        >
+                                          <Copy className="h-4 w-4 mr-1" />
+                                          Копировать
+                                        </Button>
+                                      </div>
+                                    ) : (
+                                      <p className="text-gray-400 text-sm italic">Контент для этого формата не был сгенерирован</p>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })
                 )}
               </CardContent>
             </Card>
