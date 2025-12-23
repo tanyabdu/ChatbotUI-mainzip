@@ -620,6 +620,28 @@ export default function Grimoire() {
           <TabsContent value="subscription" className="space-y-6">
             {/* Информация о текущей подписке */}
             {(() => {
+              if (user?.isAdmin) {
+                return (
+                  <Card className="border-2 shadow-lg bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-300">
+                    <CardContent className="py-6">
+                      <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-3">
+                          <Sparkles className="h-8 w-8 text-amber-500" />
+                          <div>
+                            <p className="font-medium text-amber-700">Администратор</p>
+                            <p className="text-sm text-amber-600">Полный доступ ко всем функциям</p>
+                          </div>
+                        </div>
+                        <div className="text-right text-amber-700">
+                          <span className="text-2xl font-bold">∞</span>
+                          <p className="text-xs text-amber-500">безлимит</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
+
               const tier = user?.subscriptionTier;
               const expiresAt = user?.subscriptionExpiresAt ? new Date(user.subscriptionExpiresAt) : null;
               const trialEndsAt = user?.trialEndsAt ? new Date(user.trialEndsAt) : null;
