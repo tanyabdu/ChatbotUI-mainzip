@@ -55,6 +55,7 @@ export interface IStorage {
     totalUsers: number;
     usersWithAccess: number;
     activeToday: number;
+    activePaidSubscriptions: number;
     totalStrategies: number;
     totalVoicePosts: number;
     totalCaseStudies: number;
@@ -336,6 +337,7 @@ export class DatabaseStorage implements IStorage {
     totalUsers: number;
     usersWithAccess: number;
     activeToday: number;
+    activePaidSubscriptions: number;
     totalStrategies: number;
     totalVoicePosts: number;
     totalCaseStudies: number;
@@ -377,11 +379,18 @@ export class DatabaseStorage implements IStorage {
         usersWithAccessSet.add(u.id);
       }
     });
+    
+    const activePaidSubscriptions = allUsers.filter(u => 
+      (u.subscriptionTier === "monthly" || u.subscriptionTier === "yearly") &&
+      u.subscriptionExpiresAt &&
+      new Date(u.subscriptionExpiresAt) > now
+    ).length;
 
     return {
       totalUsers: allUsers.length,
       usersWithAccess: usersWithAccessSet.size,
       activeToday,
+      activePaidSubscriptions,
       totalStrategies: allStrategies.length,
       totalVoicePosts: allVoicePosts.length,
       totalCaseStudies: allCaseStudies.length,

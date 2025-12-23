@@ -18,6 +18,7 @@ interface AdminStats {
   totalUsers: number;
   usersWithAccess: number;
   activeToday: number;
+  activePaidSubscriptions: number;
   totalStrategies: number;
   totalVoicePosts: number;
   totalCaseStudies: number;
@@ -429,9 +430,7 @@ export default function Admin() {
                       </li>
                       <li className="flex justify-between">
                         <span>Платных подписок</span>
-                        <span className="font-medium">
-                          {(stats?.subscriptionBreakdown?.monthly || 0) + (stats?.subscriptionBreakdown?.yearly || 0)}
-                        </span>
+                        <span className="font-medium">{stats?.activePaidSubscriptions || 0}</span>
                       </li>
                     </ul>
                   </div>
