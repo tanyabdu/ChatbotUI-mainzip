@@ -299,3 +299,151 @@ function getDaysWord(days: number): string {
   if (days >= 2 && days <= 4) return "дня";
   return "дней";
 }
+
+// New interfaces for two-step generation
+export interface ContentIdea {
+  day: number;
+  idea: string;
+  type: string;
+}
+
+export interface SingleFormatInput {
+  goal: "sale" | "engagement";
+  niche: string;
+  product?: string;
+  idea: string;
+  type: string;
+  format: "post" | "carousel" | "reels" | "stories";
+  archetype?: {
+    name: string;
+    description: string;
+    recommendations: string[];
+  };
+}
+
+// Step 1: Generate only ideas (fast, ~10-20 seconds)
+export async function generateIdeasOnly(input: ContentGenerationInput): Promise<ContentIdea[]> {
+  const { goal, niche, days, product, strategy, archetype } = input;
+  
+  const archetypeInstruction = archetype 
+    ? `\n\nАрхетип бренда: ${archetype.name}. ${archetype.description}`
+    : "";
+
+  const systemPrompt = `Ты — эксперт по контент-стратегии для эзотерических практиков.
+Твоя задача: создать ТОЛЬКО краткие идеи/темы для контента на каждый день.
+НЕ пиши сам контент, только идеи!${archetypeInstruction}`;
+
+  const userPrompt = goal === "sale"
+    ? `Создай ${days} идей для ПРОДАЮЩЕГО контента:
+НИША: ${niche}
+ПРОДУКТ: "${product || 'консультация'}"
+
+Для каждого дня укажи:
+- day: номер дня
+- idea: краткая идея (1-2 предложения, что будет в контенте)
+- type: тип (Экспертный/Личная история/Продающий/Вовлекающий)
+
+Ответь ТОЛЬКО JSON массивом: [{"day":1,"idea":"...","type":"..."}]`
+    : `Создай ${days} идей для ВОВЛЕКАЮЩЕГО контента:
+НИША: ${niche}
+
+Для каждого дня укажи:
+- day: номер дня  
+- idea: краткая идея (1-2 предложения)
+- type: тип (Экспертный/Личная история/Вовлекающий/Развлекательный)
+
+Ответь ТОЛЬКО JSON массивом: [{"day":1,"idea":"...","type":"..."}]`;
+
+  try {
+    console.log("Generating ideas only...");
+    const startTime = Date.now();
+    
+    const response = await client.chat.completions.create({
+      model: "deepseek-chat",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 1500,
+    });
+
+    const elapsed = Date.now() - startTime;
+    console.log(`Ideas generated in ${elapsed}ms`);
+
+    const content = response.choices[0]?.message?.content || "[]";
+    const cleaned = cleanJsonResponse(content);
+    const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) {
+      throw new Error("Invalid response format");
+    }
+    
+    return JSON.parse(jsonMatch[0]) as ContentIdea[];
+  } catch (error: any) {
+    console.error("Ideas generation error:", error?.message || error);
+    throw error;
+  }
+}
+
+// Step 2: Generate single format content (on demand)
+export async function generateSingleFormat(input: SingleFormatInput): Promise<FormatContent> {
+  const { goal, niche, product, idea, type, format, archetype } = input;
+  
+  const archetypeInstruction = archetype 
+    ? `\nСтиль архетипа "${archetype.name}": ${archetype.description}. Ключевые слова: ${archetype.recommendations.join(", ")}`
+    : "";
+
+  const formatInstructions: Record<string, string> = {
+    post: "Напиши готовый ПОСТ для ленты Instagram (2-3 абзаца). Включи призыв к действию.",
+    carousel: "Напиши КАРУСЕЛЬ из 5-7 слайдов. Формат: 'Слайд 1: Заголовок\\nТекст...'",
+    reels: "Напиши СЦЕНАРИЙ РИЛС. Формат: 'Хук: ...\\nОснова: ...\\nПризыв: ...'",
+    stories: "Напиши серию из 4-5 СТОРИС. Формат: 'Сторис 1: ...\\nСторис 2: ...'"
+  };
+
+  const callToAction = goal === "sale" 
+    ? `Обязательно включи призыв к покупке продукта "${product || 'консультация'}".`
+    : "Включи призыв к взаимодействию (комментарий, лайк, сохранение).";
+
+  const systemPrompt = `Ты — копирайтер для эзотерических практиков. Пиши на русском в мистическом стиле.${archetypeInstruction}`;
+
+  const userPrompt = `${formatInstructions[format]}
+
+НИША: ${niche}
+ТИП КОНТЕНТА: ${type}
+ИДЕЯ: ${idea}
+${callToAction}
+
+Ответь JSON объектом: {"content": "текст контента", "hashtags": ["#хештег1", "#хештег2"]}`;
+
+  try {
+    console.log(`Generating ${format} for idea: ${idea.substring(0, 50)}...`);
+    const startTime = Date.now();
+    
+    const response = await client.chat.completions.create({
+      model: "deepseek-chat",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 2000,
+    });
+
+    const elapsed = Date.now() - startTime;
+    console.log(`${format} generated in ${elapsed}ms`);
+
+    const content = response.choices[0]?.message?.content || "{}";
+    const cleaned = cleanJsonResponse(content);
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    
+    if (!jsonMatch) {
+      throw new Error("Invalid response format");
+    }
+    
+    return JSON.parse(jsonMatch[0]) as FormatContent;
+  } catch (error: any) {
+    console.error(`${format} generation error:`, error?.message || error);
+    throw error;
+  }
+}

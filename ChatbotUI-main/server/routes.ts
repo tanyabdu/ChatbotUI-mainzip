@@ -5,7 +5,7 @@ import { insertContentStrategySchema, insertArchetypeResultSchema, insertVoicePo
 import { setupAuth, isAuthenticated, requireAdmin } from "./auth";
 import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
-import { generateContentStrategy } from "./services/contentGenerator";
+import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -62,7 +62,7 @@ export async function registerRoutes(
     }
   });
 
-  // Generate content strategy using AI
+  // Generate content strategy using AI (legacy - full generation)
   app.post("/api/strategies/generate", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -98,6 +98,73 @@ export async function registerRoutes(
       res.json({ content: generatedContent });
     } catch (error) {
       console.error("Content generation error:", error);
+      res.status(500).json({ error: "Ошибка генерации контента. Попробуйте ещё раз." });
+    }
+  });
+
+  // Step 1: Generate only ideas (fast)
+  app.post("/api/strategies/generate-ideas", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      
+      const limitCheck = await storage.canGenerateStrategy(userId);
+      if (!limitCheck.allowed) {
+        return res.status(403).json({ error: limitCheck.reason, limitReached: true });
+      }
+      
+      const { goal, niche, days, product, strategy, archetype } = req.body;
+      
+      if (!goal || !niche || !days) {
+        return res.status(400).json({ error: "Missing required fields: goal, niche, days" });
+      }
+      
+      const daysNumber = days === "today" ? 1 : parseInt(days) || 1;
+      
+      console.log("Generating ideas only:", { goal, niche, days: daysNumber });
+      
+      const ideas = await generateIdeasOnly({
+        goal,
+        niche,
+        days: daysNumber,
+        product,
+        strategy,
+        archetype,
+      });
+      
+      // Increment daily generation count
+      await storage.incrementDailyGeneration(userId);
+      
+      res.json({ ideas, context: { goal, niche, product, archetype } });
+    } catch (error) {
+      console.error("Ideas generation error:", error);
+      res.status(500).json({ error: "Ошибка генерации идей. Попробуйте ещё раз." });
+    }
+  });
+
+  // Step 2: Generate single format content (on demand)
+  app.post("/api/strategies/generate-format", isAuthenticated, async (req: any, res) => {
+    try {
+      const { goal, niche, product, idea, type, format, archetype } = req.body;
+      
+      if (!goal || !niche || !idea || !type || !format) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      console.log(`Generating ${format} for: ${idea.substring(0, 50)}...`);
+      
+      const content = await generateSingleFormat({
+        goal,
+        niche,
+        product,
+        idea,
+        type,
+        format,
+        archetype,
+      });
+      
+      res.json({ content });
+    } catch (error) {
+      console.error("Format generation error:", error);
       res.status(500).json({ error: "Ошибка генерации контента. Попробуйте ещё раз." });
     }
   });

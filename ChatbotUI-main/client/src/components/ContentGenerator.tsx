@@ -38,6 +38,21 @@ interface ContentDay {
   stories: FormatContent;
 }
 
+// New: Simple idea structure for step 1
+interface ContentIdea {
+  day: number;
+  idea: string;
+  type: string;
+}
+
+// Context saved from step 1 for use in step 2
+interface GenerationContext {
+  goal: ContentGoal;
+  niche: string;
+  product?: string;
+  archetype?: { name: string; description: string; recommendations: string[] };
+}
+
 type FormatType = "post" | "carousel" | "reels" | "stories";
 
 interface ContentGeneratorProps {
@@ -60,6 +75,14 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
   const [product, setProduct] = useState("");
   const [strategy, setStrategy] = useState<StrategyType>("general");
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Two-step generation state
+  const [generatedIdeas, setGeneratedIdeas] = useState<ContentIdea[]>([]);
+  const [generationContext, setGenerationContext] = useState<GenerationContext | null>(null);
+  const [generatedFormats, setGeneratedFormats] = useState<Record<string, FormatContent>>({}); // key: "day-format"
+  const [loadingFormats, setLoadingFormats] = useState<Record<string, boolean>>({}); // key: "day-format"
+  
+  // Legacy state for saved strategies display
   const [generatedContent, setGeneratedContent] = useState<ContentDay[]>([]);
   const [activeFormats, setActiveFormats] = useState<Record<number, FormatType>>({});
   const [saved, setSaved] = useState(false);
@@ -95,6 +118,75 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     },
   });
 
+  // Step 1: Generate ideas only (fast)
+  const generateIdeasMutation = useMutation({
+    mutationFn: async (data: {
+      goal: ContentGoal;
+      niche: string;
+      days: DaysCount;
+      product?: string;
+      strategy?: StrategyType;
+      archetype?: { name: string; description: string; recommendations: string[] };
+    }) => {
+      const response = await apiRequest("POST", "/api/strategies/generate-ideas", data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setGeneratedIdeas(data.ideas);
+      setGenerationContext(data.context);
+      setGeneratedFormats({});
+      setLoadingFormats({});
+      setIsGenerating(false);
+      setError(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/generation-limit"] });
+    },
+    onError: (err: Error) => {
+      setError(`Ошибка генерации: ${err.message}`);
+      setIsGenerating(false);
+    },
+  });
+
+  // Step 2: Generate single format (on demand)
+  const generateFormatMutation = useMutation({
+    mutationFn: async (data: {
+      goal: ContentGoal;
+      niche: string;
+      product?: string;
+      idea: string;
+      type: string;
+      format: FormatType;
+      archetype?: { name: string; description: string; recommendations: string[] };
+      dayNum: number; // for state tracking
+    }) => {
+      const response = await apiRequest("POST", "/api/strategies/generate-format", {
+        goal: data.goal,
+        niche: data.niche,
+        product: data.product,
+        idea: data.idea,
+        type: data.type,
+        format: data.format,
+        archetype: data.archetype,
+      });
+      const result = await response.json();
+      return { ...result, dayNum: data.dayNum, format: data.format };
+    },
+    onSuccess: (data) => {
+      const key = `${data.dayNum}-${data.format}`;
+      setGeneratedFormats(prev => ({ ...prev, [key]: data.content }));
+      setLoadingFormats(prev => ({ ...prev, [key]: false }));
+    },
+    onError: (err: Error, variables) => {
+      const key = `${variables.dayNum}-${variables.format}`;
+      setLoadingFormats(prev => ({ ...prev, [key]: false }));
+      toast({
+        title: "Ошибка",
+        description: `Не удалось сгенерировать контент: ${err.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Legacy mutation (keep for compatibility)
   const generateMutation = useMutation({
     mutationFn: async (data: {
       goal: ContentGoal;
@@ -109,7 +201,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     },
     onSuccess: (data) => {
       setGeneratedContent(data.content);
-      setActiveFormats({}); // Reset format selections for new content
+      setActiveFormats({});
       setIsGenerating(false);
       setError(null);
       queryClient.invalidateQueries({ queryKey: ["/api/generation-limit"] });
@@ -153,6 +245,41 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     stories: "Сторис",
   };
 
+  // Handler for generating a specific format
+  const handleGenerateFormat = (idea: ContentIdea, format: FormatType) => {
+    if (!generationContext) return;
+    
+    const key = `${idea.day}-${format}`;
+    
+    // Skip if already loaded or loading
+    if (generatedFormats[key] || loadingFormats[key]) return;
+    
+    setLoadingFormats(prev => ({ ...prev, [key]: true }));
+    
+    generateFormatMutation.mutate({
+      goal: generationContext.goal,
+      niche: generationContext.niche,
+      product: generationContext.product,
+      idea: idea.idea,
+      type: idea.type,
+      format: format,
+      archetype: generationContext.archetype,
+      dayNum: idea.day,
+    });
+  };
+
+  // Check if format content is available
+  const getFormatForIdea = (dayNum: number, format: FormatType): FormatContent | null => {
+    const key = `${dayNum}-${format}`;
+    return generatedFormats[key] || null;
+  };
+
+  // Check if format is loading
+  const isFormatLoading = (dayNum: number, format: FormatType): boolean => {
+    const key = `${dayNum}-${format}`;
+    return loadingFormats[key] || false;
+  };
+
   const handleSaveStrategy = () => {
     const posts: ContentPost[] = generatedContent.map(day => ({
       day: day.day,
@@ -187,6 +314,9 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     setIsGenerating(true);
     setSaved(false);
     setError(null);
+    setGeneratedIdeas([]);
+    setGeneratedFormats({});
+    setLoadingFormats({});
     
     const requestData = {
       goal,
@@ -206,7 +336,8 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     };
     
     onGenerate?.({ goal, niche, days, product: requestData.product, strategy: requestData.strategy });
-    generateMutation.mutate(requestData);
+    // Use new two-step generation
+    generateIdeasMutation.mutate(requestData);
   };
 
   const limitReached = generationLimit && !generationLimit.allowed;
@@ -406,7 +537,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
                 </Button>
                 {isGenerating && (
                   <p className="text-center text-sm text-purple-600 animate-pulse">
-                    ИИ создаёт 4 формата контента для каждого дня. Это может занять 2-4 минуты, пожалуйста подождите...
+                    Генерирую идеи для контента... (10-20 секунд)
                   </p>
                 )}
               </div>
@@ -415,7 +546,120 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
         </CardContent>
       </Card>
 
-      {generatedContent.length > 0 && (
+      {/* Two-step generation: Show ideas with format buttons */}
+      {generatedIdeas.length > 0 && (
+        <div className="space-y-6 fade-in">
+          <div className="flex justify-between items-center border-b-2 border-purple-300 pb-4 flex-wrap gap-2">
+            <h2 className="text-3xl font-mystic text-purple-700">Ваш Контент-План</h2>
+            <p className="text-sm text-purple-600">Нажмите на формат, чтобы сгенерировать контент</p>
+          </div>
+          
+          <div className="space-y-6">
+            {generatedIdeas.map((idea) => {
+              const activeFormat = getActiveFormat(idea.day);
+              const formatContent = getFormatForIdea(idea.day, activeFormat);
+              const isLoading = isFormatLoading(idea.day, activeFormat);
+              
+              return (
+                <Card key={idea.day} className="bg-white border-2 border-purple-300 shadow-md">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-2 border-purple-400">
+                        День {idea.day}
+                      </Badge>
+                      <Badge variant="outline" className="text-purple-600 border-2 border-pink-300">
+                        {idea.type}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-xl font-mystic text-purple-700 mt-2">
+                      💡 {idea.idea}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Format Buttons - click to generate */}
+                    <div className="flex gap-2 flex-wrap">
+                      {(["post", "carousel", "reels", "stories"] as FormatType[]).map((format) => {
+                        const hasContent = !!getFormatForIdea(idea.day, format);
+                        const formatLoading = isFormatLoading(idea.day, format);
+                        const isActive = activeFormat === format;
+                        
+                        return (
+                          <Button
+                            key={format}
+                            size="sm"
+                            variant={isActive ? "default" : "outline"}
+                            disabled={formatLoading}
+                            onClick={() => {
+                              setDayFormat(idea.day, format);
+                              if (!hasContent && !formatLoading) {
+                                handleGenerateFormat(idea, format);
+                              }
+                            }}
+                            className={
+                              isActive ? 
+                                format === "reels" ? "bg-gradient-to-r from-pink-500 to-red-500 text-white" :
+                                format === "stories" ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white" :
+                                format === "carousel" ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white" :
+                                "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+                              : hasContent 
+                                ? "border-green-400 text-green-700 bg-green-50"
+                                : "border-purple-300 text-purple-600"
+                            }
+                          >
+                            {formatLoading ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : hasContent ? (
+                              <>
+                                <Check className="h-3 w-3 mr-1" />
+                                {formatLabels[format]}
+                              </>
+                            ) : (
+                              formatLabels[format]
+                            )}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Content Display */}
+                    {isLoading ? (
+                      <div className="bg-purple-50 rounded-lg p-8 border border-purple-200 flex flex-col items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-purple-500 mb-2" />
+                        <p className="text-purple-600 text-sm">Генерирую {formatLabels[activeFormat].toLowerCase()}... (20-40 сек)</p>
+                      </div>
+                    ) : formatContent ? (
+                      <>
+                        <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                          <p className="text-gray-700 whitespace-pre-line">{formatContent.content}</p>
+                        </div>
+                        
+                        {/* Hashtags */}
+                        {formatContent.hashtags && formatContent.hashtags.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {formatContent.hashtags.map((tag, idx) => (
+                              <Badge key={`${tag}-${idx}`} variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 text-center">
+                        <Sparkles className="h-8 w-8 text-purple-400 mx-auto mb-2" />
+                        <p className="text-gray-500">Нажмите на кнопку формата выше, чтобы сгенерировать контент</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Legacy: Show old format content for saved strategies */}
+      {generatedContent.length > 0 && generatedIdeas.length === 0 && (
         <div className="space-y-6 fade-in">
           <div className="flex justify-between items-center border-b-2 border-purple-300 pb-4 flex-wrap gap-2">
             <h2 className="text-3xl font-mystic text-purple-700">Ваш Контент-План</h2>

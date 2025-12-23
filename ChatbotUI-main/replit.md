@@ -148,13 +148,24 @@ Preferred communication style: Simple, everyday language.
 - **Pricing Page**: `/pricing` route displays subscription plans with features comparison
 - **Admin Management**: `/admin` route for extending trials and assigning subscriptions
 
-### Content Generator Multi-Format Feature (December 2025)
-- **Structure**: Each day generates an idea + 4 content formats (Post, Carousel, Reels, Stories)
-- **FormatContent interface**: `{ content: string, hashtags: string[] }`
-- **ContentDay interface**: `{ day, idea, type, post, carousel, reels, stories }`
-- **UI**: Tab buttons to switch between formats with gradient colors
-- **Fallbacks**: getFormatContent() provides safe access with fallback to post format
-- **State management**: activeFormats tracks selected format per day, resets on new generation
+### Content Generator Two-Step Generation (December 2025)
+- **Step 1**: Fast generation of ideas only (10-20 seconds)
+  - API: POST `/api/strategies/generate-ideas`
+  - Returns: array of `{ day, idea, type }` + context for step 2
+- **Step 2**: On-demand format generation (20-40 seconds each)
+  - API: POST `/api/strategies/generate-format`
+  - Generates single format when user clicks button
+  - Formats: Post, Carousel, Reels, Stories
+- **UI Flow**:
+  1. User submits form → ideas appear quickly
+  2. User clicks format button → that format generates
+  3. Green checkmark shows which formats are ready
+  4. Content displayed only after generation
+- **State management**:
+  - `generatedIdeas`: array of ContentIdea
+  - `generationContext`: saved params for format generation
+  - `generatedFormats`: Record<"day-format", FormatContent>
+  - `loadingFormats`: Record<"day-format", boolean>
 
 ### Potential Future Integrations
 - **Prodamus**: Payment processing integration planned
