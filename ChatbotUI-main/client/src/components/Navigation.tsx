@@ -8,9 +8,9 @@ interface NavigationProps {
   onTabChange: (tab: TabName) => void;
 }
 
-const navItems: { id: TabName; label: string; icon: typeof FileText }[] = [
+const navItems: { id: TabName; label: string; icon: typeof FileText; hint?: string }[] = [
+  { id: "archetype", label: "Архетип стратегии", icon: Dna, hint: "Пройдите тест, чтобы генератор учитывал ваш стиль" },
   { id: "generator", label: "Генератор контента", icon: FileText },
-  { id: "archetype", label: "Архетип стратегии", icon: Dna },
   { id: "voice", label: "Голос потока", icon: Mic },
   { id: "cases", label: "Кейсы", icon: Gem },
   { id: "calendar", label: "Лунный календарь", icon: Moon },
@@ -25,22 +25,26 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
         const Icon = item.icon;
         
         return (
-          <Button
-            key={item.id}
-            data-testid={`nav-${item.id}`}
-            variant="ghost"
-            className={`
-              w-full px-5 py-3 rounded-xl font-medium transition-all duration-300
-              ${isActive 
-                ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border-2 border-purple-400 shadow-lg" 
-                : "bg-white border-2 border-purple-300 text-purple-700 hover:border-pink-400 hover:bg-purple-50"
-              }
-            `}
-            onClick={() => onTabChange(item.id)}
-          >
-            <Icon className="h-4 w-4 mr-2" />
-            <span className="text-sm sm:text-base">{item.label}</span>
-          </Button>
+          <div key={item.id} className="w-full">
+            <Button
+              data-testid={`nav-${item.id}`}
+              variant="ghost"
+              className={`
+                w-full px-5 py-3 rounded-xl font-medium transition-all duration-300
+                ${isActive 
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border-2 border-purple-400 shadow-lg" 
+                  : "bg-white border-2 border-purple-300 text-purple-700 hover:border-pink-400 hover:bg-purple-50"
+                }
+              `}
+              onClick={() => onTabChange(item.id)}
+            >
+              <Icon className="h-4 w-4 mr-2" />
+              <span className="text-sm sm:text-base">{item.label}</span>
+            </Button>
+            {item.hint && (
+              <p className="text-xs text-purple-500 text-center mt-1 opacity-75">{item.hint}</p>
+            )}
+          </div>
         );
       })}
     </div>
