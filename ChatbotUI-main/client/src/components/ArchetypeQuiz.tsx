@@ -77,7 +77,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (data: { archetypeName: string; archetypeDescription: string; answers: number[]; recommendations: string[] }) => {
+    mutationFn: async (data: { archetypeName: string; archetypeDescription: string; answers: number[]; recommendations: string[]; brandColors?: string[]; brandFonts?: string[] }) => {
       return apiRequest("POST", "/api/archetypes", data);
     },
     onSuccess: () => {
@@ -127,6 +127,8 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
         archetypeDescription: mockProfile.description,
         answers: answerIndices,
         recommendations: mockProfile.brandVoice.keywords,
+        brandColors: mockProfile.visualGuide.colors,
+        brandFonts: [mockProfile.visualGuide.fonts],
       });
       
       setProfile(mockProfile);
