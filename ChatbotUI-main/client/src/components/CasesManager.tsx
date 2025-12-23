@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Upload, Eye, Loader2, Rocket, Save, Copy, Palette, X, Search, CheckCircle } from "lucide-react";
+import { Upload, Eye, Loader2, Rocket, Save, Copy, Palette, X, Search, CheckCircle, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { CaseStudy } from "@shared/schema";
 import { createWorker } from "tesseract.js";
+import html2canvas from "html2canvas";
 
 interface CaseData {
   id?: string;
@@ -43,7 +44,39 @@ export default function CasesManager() {
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const visualRef = useRef<HTMLDivElement>(null);
   const [viewingCase, setViewingCase] = useState<CaseStudy | null>(null);
+  const [currentTemplate, setCurrentTemplate] = useState(0);
+  const [isSavingImage, setIsSavingImage] = useState(false);
+
+  const templates = [
+    { name: "Мистика", bg: "bg-gradient-to-br from-purple-900 to-slate-900", text: "text-white", accent: "text-purple-100", boxBg: "bg-white/10", boxAccent: "bg-primary/30 border-primary/50 text-purple-200" },
+    { name: "Золото", bg: "bg-gradient-to-br from-amber-900 to-slate-900", text: "text-amber-100", accent: "text-amber-200", boxBg: "bg-amber-500/20", boxAccent: "bg-amber-500/30 border-amber-400/50 text-amber-200" },
+    { name: "Океан", bg: "bg-gradient-to-br from-cyan-800 to-slate-900", text: "text-cyan-100", accent: "text-cyan-200", boxBg: "bg-cyan-500/20", boxAccent: "bg-cyan-500/30 border-cyan-400/50 text-cyan-200" },
+    { name: "Роза", bg: "bg-gradient-to-br from-rose-800 to-slate-900", text: "text-rose-100", accent: "text-rose-200", boxBg: "bg-rose-500/20", boxAccent: "bg-rose-500/30 border-rose-400/50 text-rose-200" },
+  ];
+
+  const handleSaveImage = useCallback(async () => {
+    if (!visualRef.current) return;
+    setIsSavingImage(true);
+    try {
+      const canvas = await html2canvas(visualRef.current, {
+        backgroundColor: null,
+        scale: 2,
+      });
+      const link = document.createElement("a");
+      link.download = `case-${templates[currentTemplate].name}-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (error) {
+      console.error("Error saving image:", error);
+    } finally {
+      setIsSavingImage(false);
+    }
+  }, [currentTemplate]);
+
+  const nextTemplate = () => setCurrentTemplate((prev) => (prev + 1) % templates.length);
+  const prevTemplate = () => setCurrentTemplate((prev) => (prev - 1 + templates.length) % templates.length);
 
   const { data: savedCases = [], isLoading } = useQuery<CaseStudy[]>({
     queryKey: ["/api/cases"],
@@ -539,39 +572,92 @@ export default function CasesManager() {
       </div>
 
       <Dialog open={showVisualModal} onOpenChange={setShowVisualModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Визуальный макет кейса</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Визуальный макет кейса</span>
+              <span className="text-sm font-normal text-purple-500">
+                {templates[currentTemplate].name} ({currentTemplate + 1}/{templates.length})
+              </span>
+            </DialogTitle>
           </DialogHeader>
           {generatedCase && (
-            <div className="bg-gradient-to-br from-purple-900 to-slate-900 p-6 rounded-xl aspect-[4/5] flex flex-col justify-between relative overflow-hidden border border-primary/30">
-              <div className="relative z-10">
-                <h2 className="text-xl font-bold text-white mb-4">
-                  {generatedCase.generatedHeadlines?.[0]}
-                </h2>
-                <p className="text-lg text-purple-100 italic">
-                  "{generatedCase.generatedQuote}"
-                </p>
+            <>
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full shadow-md"
+                  onClick={prevTemplate}
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full shadow-md"
+                  onClick={nextTemplate}
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+                <div
+                  ref={visualRef}
+                  className={`${templates[currentTemplate].bg} p-6 rounded-xl aspect-[4/5] flex flex-col justify-between relative overflow-hidden border border-primary/30 mx-6`}
+                >
+                  <div className="relative z-10">
+                    <h2 className={`text-xl font-bold ${templates[currentTemplate].text} mb-4`}>
+                      {generatedCase.generatedHeadlines?.[0]}
+                    </h2>
+                    <p className={`text-lg ${templates[currentTemplate].accent} italic`}>
+                      "{generatedCase.generatedQuote}"
+                    </p>
+                  </div>
+                  <div className="relative z-10 mt-4 grid grid-cols-3 gap-2 text-xs text-center">
+                    <div className={`${templates[currentTemplate].boxBg} p-2 rounded backdrop-blur-sm ${templates[currentTemplate].text}`}>
+                      БЫЛО<br />
+                      <span className="font-bold">{generatedCase.before}</span>
+                    </div>
+                    <div className={`${templates[currentTemplate].boxBg} p-2 rounded backdrop-blur-sm ${templates[currentTemplate].text}`}>
+                      СДЕЛАЛИ<br />
+                      <span className="font-bold">{generatedCase.action}</span>
+                    </div>
+                    <div className={`${templates[currentTemplate].boxAccent} p-2 rounded border backdrop-blur-sm`}>
+                      СТАЛО<br />
+                      <span className="font-bold">{generatedCase.after}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="relative z-10 mt-4 grid grid-cols-3 gap-2 text-xs text-center">
-                <div className="bg-white/10 p-2 rounded backdrop-blur-sm">
-                  БЫЛО<br />
-                  <span className="font-bold">{generatedCase.before}</span>
-                </div>
-                <div className="bg-white/10 p-2 rounded backdrop-blur-sm">
-                  СДЕЛАЛИ<br />
-                  <span className="font-bold">{generatedCase.action}</span>
-                </div>
-                <div className="bg-primary/30 p-2 rounded border border-primary/50 backdrop-blur-sm text-purple-200">
-                  СТАЛО<br />
-                  <span className="font-bold">{generatedCase.after}</span>
-                </div>
+              <div className="flex justify-center gap-2 mt-2">
+                {templates.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentTemplate(idx)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      idx === currentTemplate ? "bg-purple-500 w-4" : "bg-purple-200"
+                    }`}
+                  />
+                ))}
               </div>
-            </div>
+              <Button
+                onClick={handleSaveImage}
+                disabled={isSavingImage}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+              >
+                {isSavingImage ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Сохраняю...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    Сохранить картинку
+                  </>
+                )}
+              </Button>
+            </>
           )}
-          <p className="text-center text-xs text-muted-foreground">
-            Сделайте скриншот для сохранения
-          </p>
         </DialogContent>
       </Dialog>
 
