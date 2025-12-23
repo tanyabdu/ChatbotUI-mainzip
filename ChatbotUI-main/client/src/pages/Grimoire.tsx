@@ -618,6 +618,68 @@ export default function Grimoire() {
           </TabsContent>
 
           <TabsContent value="subscription" className="space-y-6">
+            {/* Информация о текущей подписке */}
+            {(() => {
+              const tier = user?.subscriptionTier;
+              const expiresAt = user?.subscriptionExpiresAt ? new Date(user.subscriptionExpiresAt) : null;
+              const trialEndsAt = user?.trialEndsAt ? new Date(user.trialEndsAt) : null;
+              const now = new Date();
+              
+              let endDate: Date | null = null;
+              let label = "";
+              
+              if (tier === "monthly" || tier === "yearly") {
+                endDate = expiresAt;
+                label = tier === "monthly" ? "Месячная подписка" : "Годовая подписка";
+              } else if (tier === "trial" && trialEndsAt) {
+                endDate = trialEndsAt;
+                label = "Пробный период";
+              }
+              
+              if (endDate) {
+                const diffMs = endDate.getTime() - now.getTime();
+                const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                const isExpired = daysLeft <= 0;
+                
+                return (
+                  <Card className={`border-2 shadow-lg ${isExpired ? "bg-red-50 border-red-300" : "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-300"}`}>
+                    <CardContent className="py-6">
+                      <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-3">
+                          <Sparkles className={`h-8 w-8 ${isExpired ? "text-red-400" : "text-pink-500"}`} />
+                          <div>
+                            <p className="font-medium text-purple-700">{label}</p>
+                            <p className={`text-sm ${isExpired ? "text-red-500" : "text-purple-500"}`}>
+                              {isExpired 
+                                ? "Подписка истекла" 
+                                : `до ${endDate.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}`
+                              }
+                            </p>
+                          </div>
+                        </div>
+                        <div className={`text-right ${isExpired ? "text-red-600" : "text-purple-700"}`}>
+                          <span className="text-3xl font-bold">{isExpired ? 0 : daysLeft}</span>
+                          <span className="text-sm ml-1">
+                            {(() => {
+                              const d = isExpired ? 0 : daysLeft;
+                              const mod10 = d % 10;
+                              const mod100 = d % 100;
+                              if (mod100 >= 11 && mod100 <= 14) return "дней";
+                              if (mod10 === 1) return "день";
+                              if (mod10 >= 2 && mod10 <= 4) return "дня";
+                              return "дней";
+                            })()}
+                          </span>
+                          <p className="text-xs text-purple-400">осталось</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
+              return null;
+            })()}
+
             <Card className="bg-white border-2 border-purple-300 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
