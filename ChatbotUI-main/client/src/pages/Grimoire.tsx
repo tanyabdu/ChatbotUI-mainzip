@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { 
   User, BookOpen, Palette, CreditCard, Sparkles, 
   FileText, Mic, Archive, Wand2, LogOut, Home,
-  Edit2, Check, X, Trash2, Copy, Gift, ChevronDown, ChevronUp
+  Edit2, Check, X, Trash2, Copy, Gift, ChevronDown, ChevronUp, Lock, Loader2
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -28,6 +28,9 @@ export default function Grimoire() {
   const [promocode, setPromocode] = useState("");
   const [expandedStrategies, setExpandedStrategies] = useState<Set<string>>(new Set());
   const [activePostFormats, setActivePostFormats] = useState<Record<string, "post" | "carousel" | "reels" | "stories">>({});
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const toggleStrategy = (id: string) => {
     setExpandedStrategies(prev => {
@@ -139,6 +142,65 @@ export default function Grimoire() {
       });
     },
   });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) => {
+      return apiRequest("POST", "/api/auth/change-password", { currentPassword, newPassword });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Успешно!",
+        description: "Пароль успешно изменён",
+      });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    },
+    onError: (error: Error) => {
+      let message = "Ошибка при смене пароля";
+      try {
+        const parsed = JSON.parse(error.message.split(": ").slice(1).join(": "));
+        message = parsed.message || message;
+      } catch {
+        if (error.message.includes("Неверный")) {
+          message = "Неверный текущий пароль";
+        }
+      }
+      toast({
+        title: "Ошибка",
+        description: message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleChangePassword = () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните все поля",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({
+        title: "Ошибка",
+        description: "Новый пароль должен быть не менее 6 символов",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Ошибка",
+        description: "Пароли не совпадают",
+        variant: "destructive",
+      });
+      return;
+    }
+    changePasswordMutation.mutate({ currentPassword, newPassword });
+  };
 
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
   const archetypeTitle = archetypeResult?.archetypeName || "Неизвестный";
@@ -268,6 +330,63 @@ export default function Grimoire() {
                       <p className="text-sm text-purple-500">{user.email}</p>
                     )}
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-2 border-purple-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                  <Lock className="h-5 w-5 text-pink-500" />
+                  Сменить пароль
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="max-w-md space-y-4">
+                  <div>
+                    <Label className="text-purple-600">Текущий пароль</Label>
+                    <Input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Введите текущий пароль"
+                      className="border-purple-300 mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-purple-600">Новый пароль</Label>
+                    <Input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Минимум 6 символов"
+                      className="border-purple-300 mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-purple-600">Подтвердите новый пароль</Label>
+                    <Input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Повторите новый пароль"
+                      className="border-purple-300 mt-1"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleChangePassword}
+                    disabled={changePasswordMutation.isPending}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                  >
+                    {changePasswordMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Сохраняю...
+                      </>
+                    ) : (
+                      "Сменить пароль"
+                    )}
+                  </Button>
                 </div>
               </CardContent>
             </Card>

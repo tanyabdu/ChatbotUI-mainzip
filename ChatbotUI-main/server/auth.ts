@@ -239,6 +239,49 @@ export async function setupAuth(app: Express) {
     const accessStatus = await storage.hasActiveAccess(payload.userId);
     res.json(accessStatus);
   });
+
+  app.post("/api/auth/change-password", async (req, res) => {
+    try {
+      const token = getTokenFromRequest(req);
+      
+      if (!token) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const payload = verifyToken(token);
+      if (!payload) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { currentPassword, newPassword } = req.body;
+      
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Заполните все поля" });
+      }
+      
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Новый пароль должен быть не менее 6 символов" });
+      }
+      
+      const user = await storage.getUser(payload.userId);
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const isValidCurrent = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!isValidCurrent) {
+        return res.status(400).json({ message: "Неверный текущий пароль" });
+      }
+      
+      const passwordHash = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(user.id, { passwordHash });
+      
+      res.json({ message: "Пароль успешно изменён" });
+    } catch (error) {
+      console.error("Change password error:", error);
+      res.status(500).json({ message: "Ошибка при смене пароля" });
+    }
+  });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
