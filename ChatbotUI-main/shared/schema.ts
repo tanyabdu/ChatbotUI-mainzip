@@ -84,13 +84,19 @@ export const contentStrategies = esotericSchema.table("content_strategies", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export interface FormatContent {
+  content: string;
+  hashtags: string[];
+}
+
 export interface ContentPost {
   day: number;
-  topic: string;
-  hook: string;
-  cta: string;
-  hashtags: string[];
-  format?: string;
+  idea: string;
+  type: string;
+  post: FormatContent;
+  carousel: FormatContent;
+  reels: FormatContent;
+  stories: FormatContent;
 }
 
 export const insertContentStrategySchema = createInsertSchema(contentStrategies).omit({

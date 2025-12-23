@@ -144,9 +144,17 @@ Preferred communication style: Simple, everyday language.
 ### Subscription System
 - **Tiers**: trial (3 days free), monthly (990₽/month), yearly (3990₽/year)
 - **Access Control**: `hasActiveAccess()` validates trial or paid subscription
-- **Generation Limits**: Free users get 1 generation/day, paid users get unlimited
+- **Generation Limits**: All users have unlimited access
 - **Pricing Page**: `/pricing` route displays subscription plans with features comparison
 - **Admin Management**: `/admin` route for extending trials and assigning subscriptions
+
+### Content Generator Multi-Format Feature (December 2025)
+- **Structure**: Each day generates an idea + 4 content formats (Post, Carousel, Reels, Stories)
+- **FormatContent interface**: `{ content: string, hashtags: string[] }`
+- **ContentDay interface**: `{ day, idea, type, post, carousel, reels, stories }`
+- **UI**: Tab buttons to switch between formats with gradient colors
+- **Fallbacks**: getFormatContent() provides safe access with fallback to post format
+- **State management**: activeFormats tracks selected format per day, resets on new generation
 
 ### Potential Future Integrations
 - **Prodamus**: Payment processing integration planned

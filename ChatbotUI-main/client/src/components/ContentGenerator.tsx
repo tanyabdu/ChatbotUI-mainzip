@@ -23,14 +23,22 @@ type ContentGoal = "sale" | "engagement";
 type DaysCount = "today" | "3" | "7" | "14" | "30";
 type StrategyType = "general" | "launch";
 
-interface ContentDay {
-  day: number;
-  title: string;
-  type: string;
-  format?: string;
+interface FormatContent {
   content: string;
   hashtags: string[];
 }
+
+interface ContentDay {
+  day: number;
+  idea: string;
+  type: string;
+  post: FormatContent;
+  carousel: FormatContent;
+  reels: FormatContent;
+  stories: FormatContent;
+}
+
+type FormatType = "post" | "carousel" | "reels" | "stories";
 
 interface ContentGeneratorProps {
   archetypeActive?: boolean;
@@ -53,6 +61,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
   const [strategy, setStrategy] = useState<StrategyType>("general");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<ContentDay[]>([]);
+  const [activeFormats, setActiveFormats] = useState<Record<number, FormatType>>({});
   const [saved, setSaved] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +109,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     },
     onSuccess: (data) => {
       setGeneratedContent(data.content);
+      setActiveFormats({}); // Reset format selections for new content
       setIsGenerating(false);
       setError(null);
       queryClient.invalidateQueries({ queryKey: ["/api/generation-limit"] });
@@ -115,14 +125,43 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     return parseInt(daysValue);
   };
 
+  const getActiveFormat = (dayNum: number): FormatType => {
+    return activeFormats[dayNum] || "post";
+  };
+
+  const getFormatContent = (day: ContentDay, format: FormatType): FormatContent => {
+    const content = day[format];
+    if (content && content.content) {
+      return content;
+    }
+    // Fallback to post if format is missing
+    if (day.post && day.post.content) {
+      return day.post;
+    }
+    // Ultimate fallback
+    return { content: "Контент недоступен", hashtags: [] };
+  };
+
+  const setDayFormat = (dayNum: number, format: FormatType) => {
+    setActiveFormats(prev => ({ ...prev, [dayNum]: format }));
+  };
+
+  const formatLabels: Record<FormatType, string> = {
+    post: "Пост",
+    carousel: "Карусель",
+    reels: "Рилс",
+    stories: "Сторис",
+  };
+
   const handleSaveStrategy = () => {
     const posts: ContentPost[] = generatedContent.map(day => ({
       day: day.day,
-      topic: day.title,
-      hook: day.content,
-      cta: day.type,
-      hashtags: day.hashtags,
-      format: day.format,
+      idea: day.idea,
+      type: day.type,
+      post: day.post,
+      carousel: day.carousel,
+      reels: day.reels,
+      stories: day.stories,
     }));
 
     saveMutation.mutate({
@@ -411,42 +450,66 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
           </div>
           
           <div className="space-y-6">
-            {generatedContent.map((day) => (
-              <Card key={day.day} className="bg-white border-2 border-purple-300 shadow-md">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-2 border-purple-400">
-                      День {day.day}
-                    </Badge>
-                    {day.format && (
-                      <Badge className={`
-                        ${day.format === "Рилс" ? "bg-gradient-to-r from-pink-500 to-red-500 text-white" : 
-                          day.format === "Сторис" ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white" : 
-                          "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"}
-                      `}>
-                        {day.format}
+            {generatedContent.map((day) => {
+              const activeFormat = getActiveFormat(day.day);
+              const currentContent = getFormatContent(day, activeFormat);
+              
+              return (
+                <Card key={day.day} className="bg-white border-2 border-purple-300 shadow-md">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-2 border-purple-400">
+                        День {day.day}
                       </Badge>
+                      <Badge variant="outline" className="text-purple-600 border-2 border-pink-300">
+                        {day.type || "Контент"}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-xl font-mystic text-purple-700 mt-2">
+                      💡 {day.idea || `Идея дня ${day.day}`}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Format Buttons */}
+                    <div className="flex gap-2 flex-wrap">
+                      {(["post", "carousel", "reels", "stories"] as FormatType[]).map((format) => (
+                        <Button
+                          key={format}
+                          size="sm"
+                          variant={activeFormat === format ? "default" : "outline"}
+                          onClick={() => setDayFormat(day.day, format)}
+                          className={activeFormat === format ? 
+                            format === "reels" ? "bg-gradient-to-r from-pink-500 to-red-500 text-white" :
+                            format === "stories" ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white" :
+                            format === "carousel" ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white" :
+                            "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+                            : "border-purple-300 text-purple-600"
+                          }
+                        >
+                          {formatLabels[format]}
+                        </Button>
+                      ))}
+                    </div>
+                    
+                    {/* Content Display */}
+                    <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                      <p className="text-gray-700 whitespace-pre-line">{currentContent.content}</p>
+                    </div>
+                    
+                    {/* Hashtags */}
+                    {currentContent.hashtags && currentContent.hashtags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {currentContent.hashtags.map((tag, idx) => (
+                          <Badge key={`${tag}-${idx}`} variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
                     )}
-                    <Badge variant="outline" className="text-purple-600 border-2 border-pink-300">
-                      {day.type}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-xl font-mystic text-purple-700 mt-2">
-                    {day.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{day.content}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {day.hashtags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       )}
@@ -497,7 +560,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
                     <div className="space-y-2">
                       {strat.posts.slice(0, 2).map((post, idx) => (
                         <div key={idx} className="text-sm text-purple-600 bg-white p-2 rounded border border-purple-100">
-                          <span className="font-medium">День {post.day}:</span> {post.topic}
+                          <span className="font-medium">День {post.day}:</span> {post.idea}
                         </div>
                       ))}
                       {strat.posts.length > 2 && (
