@@ -71,11 +71,18 @@ export default function Admin() {
   const toggleAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }: { userId: string; isAdmin: boolean }) => {
       const res = await apiRequest("PATCH", `/api/admin/users/${userId}`, { action: "setAdmin", isAdmin });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Ошибка при изменении прав");
+      }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      toast({ title: "Права изменены" });
+      toast({ title: "Права изменены", description: `Пользователь ${data.email} ${data.isAdmin ? "теперь админ" : "больше не админ"}` });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Ошибка", description: error.message, variant: "destructive" });
     },
   });
 

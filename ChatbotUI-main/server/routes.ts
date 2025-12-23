@@ -361,7 +361,12 @@ export async function registerRoutes(
         }
         res.json(user);
       } else if (action === "setAdmin") {
+        console.log(`[Admin] Setting isAdmin=${req.body.isAdmin} for user ${id}`);
         const user = await storage.updateUser(id, { isAdmin: req.body.isAdmin });
+        console.log(`[Admin] Updated user:`, user?.id, user?.email, `isAdmin=${user?.isAdmin}`);
+        if (!user) {
+          return res.status(404).json({ error: "Пользователь не найден" });
+        }
         res.json(user);
       } else {
         res.status(400).json({ error: "Неизвестное действие" });
