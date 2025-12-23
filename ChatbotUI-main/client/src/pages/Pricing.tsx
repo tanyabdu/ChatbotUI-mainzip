@@ -92,9 +92,8 @@ export default function Pricing() {
               
               <Button 
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 text-lg"
-                disabled={!!hasActiveSubscription}
               >
-                {hasActiveSubscription ? 'Подписка активна' : 'Оформить подписку'}
+                {hasActiveSubscription ? 'Продлить на месяц (+30 дней)' : 'Оформить подписку'}
               </Button>
               
               <p className="text-xs text-purple-400 mt-3">
@@ -139,9 +138,8 @@ export default function Pricing() {
               
               <Button 
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg"
-                disabled={!!hasActiveSubscription}
               >
-                {hasActiveSubscription ? 'Подписка активна' : 'Оформить подписку'}
+                {hasActiveSubscription ? 'Продлить на год (+365 дней)' : 'Оформить подписку'}
               </Button>
               
               <p className="text-xs text-purple-400 mt-3">
