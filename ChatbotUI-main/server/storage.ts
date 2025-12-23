@@ -53,7 +53,8 @@ export interface IStorage {
   deleteUser(id: string): Promise<void>;
   getAdminStats(): Promise<{
     totalUsers: number;
-    activeUsers: number;
+    usersWithAccess: number;
+    activeToday: number;
     totalStrategies: number;
     totalVoicePosts: number;
     totalCaseStudies: number;
@@ -333,7 +334,8 @@ export class DatabaseStorage implements IStorage {
 
   async getAdminStats(): Promise<{
     totalUsers: number;
-    activeUsers: number;
+    usersWithAccess: number;
+    activeToday: number;
     totalStrategies: number;
     totalVoicePosts: number;
     totalCaseStudies: number;
@@ -346,6 +348,7 @@ export class DatabaseStorage implements IStorage {
     const allVoicePosts = await db.select().from(voicePosts);
     const allCaseStudies = await db.select().from(caseStudies);
     const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     const subscriptionBreakdown = {
       trial: allUsers.filter(u => u.subscriptionTier === "trial").length,
@@ -356,10 +359,13 @@ export class DatabaseStorage implements IStorage {
     
     const activeTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) > now).length;
     const expiredTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) <= now).length;
+    
+    const activeToday = allUsers.filter(u => u.lastLoginAt && new Date(u.lastLoginAt) >= todayStart).length;
 
     return {
       totalUsers: allUsers.length,
-      activeUsers: activeTrials + subscriptionBreakdown.monthly + subscriptionBreakdown.yearly,
+      usersWithAccess: activeTrials + subscriptionBreakdown.monthly + subscriptionBreakdown.yearly,
+      activeToday,
       totalStrategies: allStrategies.length,
       totalVoicePosts: allVoicePosts.length,
       totalCaseStudies: allCaseStudies.length,

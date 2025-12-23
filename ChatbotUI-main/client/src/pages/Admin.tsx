@@ -16,7 +16,8 @@ import { apiRequest } from "@/lib/queryClient";
 
 interface AdminStats {
   totalUsers: number;
-  activeUsers: number;
+  usersWithAccess: number;
+  activeToday: number;
   totalStrategies: number;
   totalVoicePosts: number;
   totalCaseStudies: number;
@@ -419,8 +420,12 @@ export default function Admin() {
                         <span className="font-medium">{stats?.totalUsers || 0}</span>
                       </li>
                       <li className="flex justify-between">
+                        <span>С активным доступом</span>
+                        <span className="font-medium">{stats?.usersWithAccess || 0}</span>
+                      </li>
+                      <li className="flex justify-between">
                         <span>Активных сегодня</span>
-                        <span className="font-medium">{stats?.activeUsers || 0}</span>
+                        <span className="font-medium">{stats?.activeToday || 0}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Платных подписок</span>
