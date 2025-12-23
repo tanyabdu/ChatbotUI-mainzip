@@ -11,6 +11,7 @@ import { Dna, Loader2, Printer, Coins, Flame, Sparkles, Save, Check, History, Tr
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { ContentStrategy, ContentPost, ArchetypeResult } from "@shared/schema";
+import type { ArchetypeProfile } from "@/components/ArchetypeQuiz";
 
 interface GenerationLimit {
   allowed: boolean;
@@ -33,6 +34,7 @@ interface ContentDay {
 interface ContentGeneratorProps {
   archetypeActive?: boolean;
   archetypeData?: ArchetypeResult;
+  localArchetypeProfile?: ArchetypeProfile;
   onGenerate?: (data: {
     goal: ContentGoal;
     niche: string;
@@ -42,7 +44,7 @@ interface ContentGeneratorProps {
   }) => void;
 }
 
-export default function ContentGenerator({ archetypeActive = false, archetypeData, onGenerate }: ContentGeneratorProps) {
+export default function ContentGenerator({ archetypeActive = false, archetypeData, localArchetypeProfile, onGenerate }: ContentGeneratorProps) {
   const [goal, setGoal] = useState<ContentGoal>("sale");
   const [niche, setNiche] = useState("");
   const [days, setDays] = useState<DaysCount>("today");
@@ -151,11 +153,15 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       days,
       product: goal === "sale" ? product : undefined,
       strategy: goal === "sale" ? strategy : undefined,
-      archetype: archetypeActive && archetypeData ? {
+      archetype: archetypeActive ? (archetypeData ? {
         name: archetypeData.archetypeName,
         description: archetypeData.archetypeDescription,
         recommendations: archetypeData.recommendations || [],
-      } : undefined,
+      } : localArchetypeProfile ? {
+        name: localArchetypeProfile.topArchetypes.join('-'),
+        description: localArchetypeProfile.description,
+        recommendations: localArchetypeProfile.brandVoice.keywords || [],
+      } : undefined) : undefined,
     };
     
     onGenerate?.({ goal, niche, days, product: requestData.product, strategy: requestData.strategy });

@@ -15,7 +15,7 @@ interface Question {
   a: string[];
 }
 
-interface ArchetypeProfile {
+export interface ArchetypeProfile {
   topArchetypes: string[];
   description: string;
   brandVoice: {

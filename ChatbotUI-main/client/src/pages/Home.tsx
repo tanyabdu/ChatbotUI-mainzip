@@ -4,17 +4,20 @@ import Header from "@/components/Header";
 import Navigation, { type TabName } from "@/components/Navigation";
 import WelcomeSection from "@/components/WelcomeSection";
 import ContentGenerator from "@/components/ContentGenerator";
-import ArchetypeQuiz from "@/components/ArchetypeQuiz";
+import ArchetypeQuiz, { type ArchetypeProfile } from "@/components/ArchetypeQuiz";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import CasesManager from "@/components/CasesManager";
 import LunarCalendar from "@/components/LunarCalendar";
 import MoneyTrainer from "@/components/MoneyTrainer";
 import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { ArchetypeResult } from "@shared/schema";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabName | null>(null);
   const [localArchetypeActive, setLocalArchetypeActive] = useState(false);
+  const [localArchetypeData, setLocalArchetypeData] = useState<ArchetypeProfile | null>(null);
+  const { toast } = useToast();
 
   const { data: archetypeResult } = useQuery<ArchetypeResult | null>({
     queryKey: ["/api/archetypes/latest"],
@@ -31,10 +34,15 @@ export default function Home() {
     setActiveTab(tab);
   };
 
-  const handleArchetypeApply = () => {
+  const handleArchetypeApply = (profile: ArchetypeProfile) => {
     setLocalArchetypeActive(true);
+    setLocalArchetypeData(profile);
     queryClient.invalidateQueries({ queryKey: ["/api/archetypes/latest"] });
-    console.log("Archetype applied");
+    toast({
+      title: "Архетип активирован!",
+      description: `Стиль "${profile.topArchetypes.join('-')}" применён к генератору контента`,
+    });
+    console.log("Archetype applied:", profile);
   };
 
   return (
@@ -49,6 +57,7 @@ export default function Home() {
           <ContentGenerator 
             archetypeActive={archetypeActive}
             archetypeData={archetypeResult || undefined}
+            localArchetypeProfile={localArchetypeData || undefined}
             onGenerate={(data) => console.log("Generate:", data)} 
           />
         )}
