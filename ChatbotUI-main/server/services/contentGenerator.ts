@@ -262,6 +262,9 @@ export async function generateContentStrategy(input: ContentGenerationInput): Pr
 Ответь ТОЛЬКО JSON массивом.`;
 
   try {
+    console.log("Calling DeepSeek API...");
+    const startTime = Date.now();
+    
     const response = await client.chat.completions.create({
       model: "deepseek-chat",
       messages: [
@@ -269,15 +272,24 @@ export async function generateContentStrategy(input: ContentGenerationInput): Pr
         { role: "user", content: userPrompt },
       ],
       temperature: 0.7,
-      max_tokens: 4000,
+      max_tokens: 8000,
     });
+
+    const elapsed = Date.now() - startTime;
+    console.log(`DeepSeek API responded in ${elapsed}ms`);
 
     const content = response.choices[0]?.message?.content || "[]";
     console.log("Raw AI response length:", content.length);
     
+    if (content.length < 100) {
+      console.error("Response too short, content:", content);
+      throw new Error("AI returned empty or too short response");
+    }
+    
     return parseContentResponse(content);
-  } catch (error) {
-    console.error("Content generation error:", error);
+  } catch (error: any) {
+    console.error("Content generation error:", error?.message || error);
+    console.error("Error details:", JSON.stringify(error, null, 2));
     throw error;
   }
 }
