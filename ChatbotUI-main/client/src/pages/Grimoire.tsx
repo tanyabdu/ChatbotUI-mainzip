@@ -14,7 +14,7 @@ import {
   FileText, Mic, Archive, Wand2, LogOut, Home,
   Edit2, Check, X, Trash2, Copy, Gift
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { ContentStrategy, VoicePost, CaseStudy, ArchetypeResult } from "@shared/schema";
@@ -103,12 +103,16 @@ export default function Grimoire() {
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
   const archetypeTitle = archetypeResult?.archetypeName || "Неизвестный";
 
+  const [, setLocation] = useLocation();
+  
   const isActiveMonthly = !!(user?.subscriptionTier === "monthly" && 
     user?.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) > new Date());
   const isActiveYearly = !!(user?.subscriptionTier === "yearly" && 
     user?.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) > new Date());
-  const isActiveTrial = !!(user?.subscriptionTier === "trial" && 
-    user?.trialEndsAt && new Date(user.trialEndsAt) > new Date());
+  
+  const handleSelectPlan = () => {
+    setLocation("/pricing");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
@@ -479,17 +483,7 @@ export default function Grimoire() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-3 gap-6">
-                  <SubscriptionTier
-                    name="Пробный период"
-                    price="3 дня бесплатно"
-                    features={[
-                      "Полный доступ ко всем функциям",
-                      "Безлимитные запросы",
-                      "Автоматически при регистрации",
-                    ]}
-                    current={isActiveTrial}
-                  />
+                <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                   <SubscriptionTier
                     name="Месячный"
                     price="990 ₽/мес"
@@ -502,7 +496,7 @@ export default function Grimoire() {
                       "Тренажёр продаж",
                     ]}
                     current={isActiveMonthly}
-                    highlighted
+                    onSelect={handleSelectPlan}
                   />
                   <SubscriptionTier
                     name="Годовой"
@@ -513,6 +507,8 @@ export default function Grimoire() {
                       "Выгоднее на 66%",
                     ]}
                     current={isActiveYearly}
+                    badge="Выгодно"
+                    onSelect={handleSelectPlan}
                   />
                 </div>
               </CardContent>
@@ -622,23 +618,25 @@ function SubscriptionTier({
   price,
   features,
   current,
-  highlighted,
+  badge,
+  onSelect,
 }: {
   name: string;
   price: string;
   features: string[];
   current?: boolean;
-  highlighted?: boolean;
+  badge?: string;
+  onSelect?: () => void;
 }) {
   return (
     <Card className={`
-      ${highlighted ? "border-2 border-pink-400 shadow-lg" : "border-2 border-purple-200"}
+      ${badge ? "border-2 border-pink-400 shadow-lg" : "border-2 border-purple-200"}
       ${current ? "bg-purple-50" : "bg-white"}
     `}>
       <CardContent className="p-6 text-center">
-        {highlighted && (
-          <Badge className="mb-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-            Популярный
+        {badge && (
+          <Badge className="mb-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+            {badge}
           </Badge>
         )}
         <h3 className="text-xl font-mystic text-purple-700 mb-2">{name}</h3>
@@ -652,13 +650,10 @@ function SubscriptionTier({
           ))}
         </ul>
         <Button
-          className={current 
-            ? "w-full bg-purple-200 text-purple-700 cursor-default" 
-            : "w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-          }
-          disabled={current}
+          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+          onClick={onSelect}
         >
-          {current ? "Текущий план" : "Выбрать"}
+          {current ? "Продлить" : "Выбрать"}
         </Button>
       </CardContent>
     </Card>
