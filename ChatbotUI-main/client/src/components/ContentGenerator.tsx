@@ -27,6 +27,7 @@ interface ContentDay {
   day: number;
   title: string;
   type: string;
+  format?: string;
   content: string;
   hashtags: string[];
 }
@@ -121,6 +122,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       hook: day.content,
       cta: day.type,
       hashtags: day.hashtags,
+      format: day.format,
     }));
 
     saveMutation.mutate({
@@ -416,6 +418,15 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
                     <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-2 border-purple-400">
                       День {day.day}
                     </Badge>
+                    {day.format && (
+                      <Badge className={`
+                        ${day.format === "Рилс" ? "bg-gradient-to-r from-pink-500 to-red-500 text-white" : 
+                          day.format === "Сторис" ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white" : 
+                          "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"}
+                      `}>
+                        {day.format}
+                      </Badge>
+                    )}
                     <Badge variant="outline" className="text-purple-600 border-2 border-pink-300">
                       {day.type}
                     </Badge>

@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
-  Plus, Clock, Crown, Shield, Trash2
+  Plus, Clock, Crown, Shield, ShieldOff, Trash2
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import type { User } from "@shared/schema";
@@ -324,14 +324,30 @@ export default function Admin() {
                                 <Crown className="h-3 w-3 mr-1" />
                                 +Год
                               </Button>
-                              {!u.isAdmin && (
+                              {!u.isAdmin ? (
                                 <Button
                                   size="sm"
                                   variant="ghost"
+                                  title="Сделать админом"
                                   onClick={() => toggleAdminMutation.mutate({ userId: u.id, isAdmin: true })}
                                   disabled={toggleAdminMutation.isPending}
                                 >
                                   <Shield className="h-3 w-3" />
+                                </Button>
+                              ) : u.id !== user?.id && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  title="Убрать из админов"
+                                  className="text-orange-500 hover:text-orange-700 hover:bg-orange-50"
+                                  onClick={() => {
+                                    if (confirm(`Убрать права администратора у ${u.email}?`)) {
+                                      toggleAdminMutation.mutate({ userId: u.id, isAdmin: false });
+                                    }
+                                  }}
+                                  disabled={toggleAdminMutation.isPending}
+                                >
+                                  <ShieldOff className="h-3 w-3" />
                                 </Button>
                               )}
                               {u.id !== user?.id && (

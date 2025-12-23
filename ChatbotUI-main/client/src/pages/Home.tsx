@@ -21,11 +21,6 @@ export default function Home() {
 
   const { data: archetypeResult } = useQuery<ArchetypeResult | null>({
     queryKey: ["/api/archetypes/latest"],
-    queryFn: async () => {
-      const res = await fetch("/api/archetypes/latest", { credentials: "include" });
-      if (!res.ok) return null;
-      return res.json();
-    },
   });
 
   const archetypeActive = !!archetypeResult || localArchetypeActive;

@@ -90,6 +90,7 @@ export interface ContentPost {
   hook: string;
   cta: string;
   hashtags: string[];
+  format?: string;
 }
 
 export const insertContentStrategySchema = createInsertSchema(contentStrategies).omit({
