@@ -361,10 +361,26 @@ export class DatabaseStorage implements IStorage {
     const expiredTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) <= now).length;
     
     const activeToday = allUsers.filter(u => u.lastLoginAt && new Date(u.lastLoginAt) >= todayStart).length;
+    
+    const usersWithAccessSet = new Set<string>();
+    
+    allUsers.forEach(u => {
+      if (u.isAdmin) {
+        usersWithAccessSet.add(u.id);
+      } else if (u.trialEndsAt && new Date(u.trialEndsAt) > now) {
+        usersWithAccessSet.add(u.id);
+      } else if (
+        (u.subscriptionTier === "monthly" || u.subscriptionTier === "yearly") &&
+        u.subscriptionExpiresAt &&
+        new Date(u.subscriptionExpiresAt) > now
+      ) {
+        usersWithAccessSet.add(u.id);
+      }
+    });
 
     return {
       totalUsers: allUsers.length,
-      usersWithAccess: activeTrials + subscriptionBreakdown.monthly + subscriptionBreakdown.yearly,
+      usersWithAccess: usersWithAccessSet.size,
       activeToday,
       totalStrategies: allStrategies.length,
       totalVoicePosts: allVoicePosts.length,
