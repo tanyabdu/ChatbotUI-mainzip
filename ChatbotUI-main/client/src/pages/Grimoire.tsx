@@ -103,6 +103,13 @@ export default function Grimoire() {
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
   const archetypeTitle = archetypeResult?.archetypeName || "Неизвестный";
 
+  const isActiveMonthly = !!(user?.subscriptionTier === "monthly" && 
+    user?.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) > new Date());
+  const isActiveYearly = !!(user?.subscriptionTier === "yearly" && 
+    user?.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) > new Date());
+  const isActiveTrial = !!(user?.subscriptionTier === "trial" && 
+    user?.trialEndsAt && new Date(user.trialEndsAt) > new Date());
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <header className="border-b-2 border-purple-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
@@ -481,7 +488,7 @@ export default function Grimoire() {
                       "Безлимитные запросы",
                       "Автоматически при регистрации",
                     ]}
-                    current={user?.subscriptionTier === "trial"}
+                    current={isActiveTrial}
                   />
                   <SubscriptionTier
                     name="Месячный"
@@ -494,7 +501,7 @@ export default function Grimoire() {
                       "Лунный календарь",
                       "Тренажёр продаж",
                     ]}
-                    current={user?.subscriptionTier === "monthly"}
+                    current={isActiveMonthly}
                     highlighted
                   />
                   <SubscriptionTier
@@ -505,7 +512,7 @@ export default function Grimoire() {
                       "Экономия 7 890₽ в год",
                       "Выгоднее на 66%",
                     ]}
-                    current={user?.subscriptionTier === "yearly"}
+                    current={isActiveYearly}
                   />
                 </div>
               </CardContent>
