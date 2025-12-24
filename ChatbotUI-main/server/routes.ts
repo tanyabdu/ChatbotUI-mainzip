@@ -630,7 +630,7 @@ export async function registerRoutes(
       const orderId = `order_${userId}_${Date.now()}`;
       const baseUrl = `https://${req.get('host')}`;
 
-      const paymentUrl = createPaymentLink({
+      const { url: paymentUrl, shortOrderId } = createPaymentLink({
         orderId,
         customerEmail: user.email,
         planType,
@@ -638,9 +638,19 @@ export async function registerRoutes(
         baseUrl
       });
 
-      console.log(`Payment link created for user ${userId}, plan: ${planType}`);
+      const price = planType === 'monthly' ? '990.00' : '3990.00';
+      await storage.recordPayment({
+        userId,
+        orderId: shortOrderId,
+        amount: price,
+        planType,
+        status: 'pending',
+        prodamusData: null
+      });
+
+      console.log(`Payment link created for user ${userId}, plan: ${planType}, order: ${shortOrderId}`);
       
-      res.json({ paymentUrl, orderId });
+      res.json({ paymentUrl, orderId: shortOrderId });
     } catch (error: any) {
       console.error("Create payment link error:", error);
       res.status(500).json({ error: error.message || "Ошибка при создании ссылки оплаты" });
@@ -653,39 +663,32 @@ export async function registerRoutes(
       console.log("Received payment webhook:", JSON.stringify(req.body, null, 2));
 
       const webhookData = parseWebhookData(req.body);
-      const orderId = webhookData.order_id || webhookData.order_num || '';
+      const orderNum = req.body.order_num || webhookData.order_num || '';
       
-      if (!orderId) {
-        console.error("Missing order_id in webhook");
-        return res.status(400).json({ error: "Missing order_id" });
+      if (!orderNum) {
+        console.error("Missing order_num in webhook");
+        return res.status(400).json({ error: "Missing order_num" });
       }
 
-      const existingPayment = await storage.getPaymentByOrderId(orderId);
-      if (existingPayment && existingPayment.status === 'success') {
-        console.log(`Payment ${orderId} already processed, skipping`);
+      const existingPayment = await storage.getPaymentByOrderId(orderNum);
+      
+      if (!existingPayment) {
+        console.error(`Payment not found for order: ${orderNum}`);
+        return res.status(404).json({ error: "Payment not found" });
+      }
+
+      if (existingPayment.status === 'success') {
+        console.log(`Payment ${orderNum} already processed, skipping`);
         return res.json({ success: true, message: "Already processed" });
       }
 
       const paymentStatus = webhookData.payment_status;
       
       if (paymentStatus === 'success') {
-        const userId = webhookData._param_user_id;
-        const planType = webhookData._param_plan_type;
+        const userId = existingPayment.userId;
+        const planType = existingPayment.planType as 'monthly' | 'yearly';
 
-        if (!userId || !planType) {
-          console.error("Missing user_id or plan_type in webhook, order:", orderId);
-          console.error("Full webhook data:", JSON.stringify(req.body, null, 2));
-          return res.status(400).json({ error: "Missing user data" });
-        }
-
-        await storage.recordPayment({
-          userId,
-          orderId: orderId,
-          amount: webhookData.sum,
-          planType,
-          status: 'success',
-          prodamusData: req.body
-        });
+        await storage.updatePaymentStatus(orderNum, 'success', req.body);
 
         const daysToAdd = planType === 'yearly' ? 365 : 30;
         const now = new Date();

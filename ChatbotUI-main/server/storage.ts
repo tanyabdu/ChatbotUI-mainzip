@@ -80,6 +80,7 @@ export interface IStorage {
   recordPayment(data: { userId: string; orderId: string; amount: string; planType: string; status: string; prodamusData?: any }): Promise<Payment>;
   getPaymentHistory(userId: string): Promise<Payment[]>;
   getPaymentByOrderId(orderId: string): Promise<Payment | undefined>;
+  updatePaymentStatus(orderId: string, status: string, prodamusData?: any): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -605,6 +606,12 @@ export class DatabaseStorage implements IStorage {
   async getPaymentByOrderId(orderId: string): Promise<Payment | undefined> {
     const [payment] = await db.select().from(payments).where(eq(payments.orderId, orderId));
     return payment;
+  }
+
+  async updatePaymentStatus(orderId: string, status: string, prodamusData?: any): Promise<void> {
+    await db.update(payments)
+      .set({ status, prodamusData })
+      .where(eq(payments.orderId, orderId));
   }
 }
 

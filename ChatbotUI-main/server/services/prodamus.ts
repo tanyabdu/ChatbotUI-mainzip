@@ -94,7 +94,12 @@ function generateShortOrderId(): string {
   return `ESP-${date}-${random}`;
 }
 
-export function createPaymentLink(params: CreatePaymentLinkParams): string {
+export interface CreatePaymentLinkResult {
+  url: string;
+  shortOrderId: string;
+}
+
+export function createPaymentLink(params: CreatePaymentLinkParams): CreatePaymentLinkResult {
   const { orderId, customerEmail, customerPhone, planType, userId, baseUrl } = params;
 
   const price = planType === 'monthly' ? '990.00' : '3990.00';
@@ -125,7 +130,10 @@ export function createPaymentLink(params: CreatePaymentLinkParams): string {
   
   queryParams.append('customer_extra', `Эзотерический Планировщик (${planLabel})`);
 
-  return `${getProdamusUrl()}?${queryParams.toString()}`;
+  return {
+    url: `${getProdamusUrl()}?${queryParams.toString()}`,
+    shortOrderId
+  };
 }
 
 export interface WebhookPayload {
