@@ -87,17 +87,27 @@ interface CreatePaymentLinkParams {
   baseUrl: string;
 }
 
+function generateShortOrderId(): string {
+  const now = new Date();
+  const date = now.toISOString().slice(2, 10).replace(/-/g, '');
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `ESP-${date}-${random}`;
+}
+
 export function createPaymentLink(params: CreatePaymentLinkParams): string {
   const { orderId, customerEmail, customerPhone, planType, userId, baseUrl } = params;
 
   const price = planType === 'monthly' ? '990.00' : '3990.00';
   const productName = planType === 'monthly' 
-    ? 'Эзотерический Планировщик - Месячная подписка' 
-    : 'Эзотерический Планировщик - Годовая подписка';
+    ? 'Подписка Месяц' 
+    : 'Подписка Год';
+  const planLabel = planType === 'monthly' ? 'месяц' : 'год';
+  
+  const shortOrderId = generateShortOrderId();
 
   const queryParams = new URLSearchParams();
   
-  queryParams.append('order_id', orderId);
+  queryParams.append('order_id', shortOrderId);
   queryParams.append('customer_email', customerEmail);
   if (customerPhone) {
     queryParams.append('customer_phone', customerPhone);
@@ -106,13 +116,14 @@ export function createPaymentLink(params: CreatePaymentLinkParams): string {
   queryParams.append('products[0][name]', productName);
   queryParams.append('products[0][price]', price);
   queryParams.append('products[0][quantity]', '1');
+  queryParams.append('products[0][sku]', `${orderId}|${userId}|${planType}`);
   
   queryParams.append('do', 'pay');
   queryParams.append('urlReturn', `${baseUrl}/pricing`);
   queryParams.append('urlSuccess', `${baseUrl}/pricing?payment=success`);
   queryParams.append('urlNotification', `${baseUrl}/api/payments/webhook`);
   
-  queryParams.append('customer_extra', `user_id:${userId};plan_type:${planType}`);
+  queryParams.append('customer_extra', `Эзотерический Планировщик (${planLabel})`);
 
   return `${getProdamusUrl()}?${queryParams.toString()}`;
 }
@@ -132,6 +143,21 @@ export interface WebhookPayload {
   [key: string]: any;
 }
 
+function parseProductSku(body: any): { order_id?: string; user_id?: string; plan_type?: string } {
+  const sku = body.products?.[0]?.sku;
+  if (!sku || typeof sku !== 'string') return {};
+  
+  const parts = sku.split('|');
+  if (parts.length >= 3) {
+    return {
+      order_id: parts[0],
+      user_id: parts[1],
+      plan_type: parts[2]
+    };
+  }
+  return {};
+}
+
 function parseCustomerExtra(extra: string | object): { user_id?: string; plan_type?: string } {
   if (!extra) return {};
   
@@ -142,7 +168,7 @@ function parseCustomerExtra(extra: string | object): { user_id?: string; plan_ty
     };
   }
   
-  if (typeof extra === 'string') {
+  if (typeof extra === 'string' && extra.includes(':')) {
     const result: { user_id?: string; plan_type?: string } = {};
     const pairs = extra.split(';');
     for (const pair of pairs) {
@@ -158,6 +184,10 @@ function parseCustomerExtra(extra: string | object): { user_id?: string; plan_ty
 
 function extractParam(body: any, paramName: string): string | undefined {
   if (body[paramName]) return body[paramName];
+  
+  const skuParsed = parseProductSku(body);
+  if (paramName === '_param_user_id' && skuParsed.user_id) return skuParsed.user_id;
+  if (paramName === '_param_plan_type' && skuParsed.plan_type) return skuParsed.plan_type;
   
   const extraParsed = parseCustomerExtra(body.customer_extra);
   if (paramName === '_param_user_id' && extraParsed.user_id) return extraParsed.user_id;
