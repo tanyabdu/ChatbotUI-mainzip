@@ -166,15 +166,12 @@ async function initDatabase() {
       CREATE TABLE IF NOT EXISTS esoteric_planner.payments (
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
         user_id VARCHAR NOT NULL REFERENCES esoteric_planner.users(id),
-        order_id VARCHAR UNIQUE NOT NULL,
-        amount DECIMAL(10,2) NOT NULL,
-        currency VARCHAR DEFAULT 'RUB',
+        order_id VARCHAR NOT NULL,
+        amount VARCHAR NOT NULL,
         status VARCHAR DEFAULT 'pending',
         plan_type VARCHAR NOT NULL,
-        payment_method VARCHAR,
-        prodamus_order_id VARCHAR,
-        created_at TIMESTAMP DEFAULT NOW(),
-        paid_at TIMESTAMP
+        prodamus_data JSONB,
+        created_at TIMESTAMP DEFAULT NOW()
       )
     `);
     
