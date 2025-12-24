@@ -6,6 +6,7 @@ import { setupAuth, isAuthenticated, requireAdmin } from "./auth";
 import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
 import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
+import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -607,6 +608,122 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Get promocodes error:", error);
       res.status(500).json({ error: "Ошибка при получении промокодов" });
+    }
+  });
+
+  // Payments - Create payment link
+  app.post("/api/payments/create-link", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "Пользователь не найден" });
+      }
+
+      const { planType } = req.body;
+      
+      if (!planType || !['monthly', 'yearly'].includes(planType)) {
+        return res.status(400).json({ error: "Укажите тип подписки: monthly или yearly" });
+      }
+
+      const orderId = `order_${userId}_${Date.now()}`;
+      const baseUrl = `https://${req.get('host')}`;
+
+      const paymentUrl = createPaymentLink({
+        orderId,
+        customerEmail: user.email,
+        planType,
+        userId,
+        baseUrl
+      });
+
+      console.log(`Payment link created for user ${userId}, plan: ${planType}`);
+      
+      res.json({ paymentUrl, orderId });
+    } catch (error: any) {
+      console.error("Create payment link error:", error);
+      res.status(500).json({ error: error.message || "Ошибка при создании ссылки оплаты" });
+    }
+  });
+
+  // Payments - Webhook from Prodamus
+  app.post("/api/payments/webhook", async (req, res) => {
+    try {
+      console.log("Received payment webhook:", JSON.stringify(req.body, null, 2));
+
+      const webhookData = parseWebhookData(req.body);
+      const orderId = webhookData.order_id || webhookData.order_num || '';
+      
+      if (!orderId) {
+        console.error("Missing order_id in webhook");
+        return res.status(400).json({ error: "Missing order_id" });
+      }
+
+      const existingPayment = await storage.getPaymentByOrderId(orderId);
+      if (existingPayment && existingPayment.status === 'success') {
+        console.log(`Payment ${orderId} already processed, skipping`);
+        return res.json({ success: true, message: "Already processed" });
+      }
+
+      const paymentStatus = webhookData.payment_status;
+      
+      if (paymentStatus === 'success') {
+        const userId = webhookData._param_user_id;
+        const planType = webhookData._param_plan_type;
+
+        if (!userId || !planType) {
+          console.error("Missing user_id or plan_type in webhook, order:", orderId);
+          console.error("Full webhook data:", JSON.stringify(req.body, null, 2));
+          return res.status(400).json({ error: "Missing user data" });
+        }
+
+        await storage.recordPayment({
+          userId,
+          orderId: orderId,
+          amount: webhookData.sum,
+          planType,
+          status: 'success',
+          prodamusData: req.body
+        });
+
+        const daysToAdd = planType === 'yearly' ? 365 : 30;
+        const now = new Date();
+        const user = await storage.getUser(userId);
+        
+        let newExpiresAt: Date;
+        if (user?.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) > now) {
+          newExpiresAt = new Date(user.subscriptionExpiresAt);
+          newExpiresAt.setDate(newExpiresAt.getDate() + daysToAdd);
+        } else {
+          newExpiresAt = new Date(now);
+          newExpiresAt.setDate(newExpiresAt.getDate() + daysToAdd);
+        }
+
+        await storage.updateUser(userId, {
+          subscriptionTier: planType,
+          subscriptionExpiresAt: newExpiresAt
+        });
+
+        console.log(`Payment successful for user ${userId}, plan: ${planType}, expires: ${newExpiresAt}`);
+      }
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Payment webhook error:", error);
+      res.status(500).json({ error: "Webhook processing failed" });
+    }
+  });
+
+  // Get payment history for user
+  app.get("/api/payments/history", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const payments = await storage.getPaymentHistory(userId);
+      res.json(payments);
+    } catch (error: any) {
+      console.error("Get payment history error:", error);
+      res.status(500).json({ error: "Ошибка при получении истории платежей" });
     }
   });
 

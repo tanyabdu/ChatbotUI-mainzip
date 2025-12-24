@@ -167,8 +167,21 @@ Preferred communication style: Simple, everyday language.
   - `generatedFormats`: Record<"day-format", FormatContent>
   - `loadingFormats`: Record<"day-format", boolean>
 
+### Payment Integration (December 2025)
+- **Prodamus**: Russian payment gateway integrated in test mode
+  - Payment URL: https://Kati-klimovaa.payform.ru
+  - Environment variables: `PRODAMUS_URL`, `PRODAMUS_SECRET_KEY`
+  - Signature: HMAC-SHA256 with recursive JSON sorting
+  - API Endpoints:
+    - POST `/api/payments/create-link` - Generate payment URL for user
+    - POST `/api/payments/webhook` - Receive payment notifications from Prodamus
+    - GET `/api/payments/history` - User's payment history
+  - Webhook URL for Prodamus: `https://<domain>/api/payments/webhook`
+  - Custom params passed: `_param_user_id`, `_param_plan_type` (monthly/yearly)
+  - Payments table stores: userId, orderId, amount, planType, status, prodamusData
+  - Deduplication: order_id checked before processing to prevent double-counting
+
 ### Potential Future Integrations
-- **Prodamus**: Payment processing integration planned
 - **Prepared packages**: OpenAI, Google Generative AI, Stripe, Nodemailer, Multer (file uploads), WebSocket support (ws)
 - **Rate limiting**: express-rate-limit included but not configured
 - **Excel support**: xlsx package for potential data import/export

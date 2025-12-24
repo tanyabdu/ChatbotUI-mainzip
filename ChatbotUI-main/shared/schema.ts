@@ -71,6 +71,20 @@ export type Promocode = typeof promocodes.$inferSelect;
 export type InsertPromocode = typeof promocodes.$inferInsert;
 export type PromocodeUsage = typeof promocodeUsages.$inferSelect;
 
+export const payments = esotericSchema.table("payments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  orderId: varchar("order_id").notNull(),
+  amount: varchar("amount").notNull(),
+  planType: varchar("plan_type").notNull(),
+  status: varchar("status").notNull().default("pending"),
+  prodamusData: jsonb("prodamus_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Payment = typeof payments.$inferSelect;
+export type InsertPayment = typeof payments.$inferInsert;
+
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 

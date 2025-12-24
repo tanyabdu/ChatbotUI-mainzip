@@ -1,12 +1,61 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, Crown, ArrowLeft } from "lucide-react";
+import { Check, Sparkles, Crown, ArrowLeft, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function Pricing() {
   const { user, isAuthenticated } = useAuth();
+  const [loading, setLoading] = useState<'monthly' | 'yearly' | null>(null);
+  const { toast } = useToast();
+  const [location] = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      toast({
+        title: "Оплата прошла успешно!",
+        description: "Ваша подписка активирована. Спасибо за покупку!",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      window.history.replaceState({}, '', '/pricing');
+    }
+  }, [location]);
+
+  const handlePayment = async (planType: 'monthly' | 'yearly') => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Требуется авторизация",
+        description: "Войдите в аккаунт, чтобы оформить подписку",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(planType);
+    try {
+      const response = await apiRequest('POST', '/api/payments/create-link', { planType });
+      const data = await response.json();
+      
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        throw new Error('Не удалось создать ссылку оплаты');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось создать ссылку оплаты",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
 
   const features = [
     "Генератор контент-стратегий",
@@ -92,8 +141,14 @@ export default function Pricing() {
               
               <Button 
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 text-lg"
+                onClick={() => handlePayment('monthly')}
+                disabled={loading !== null}
               >
-                {hasActiveSubscription ? 'Продлить на месяц (+30 дней)' : 'Оформить подписку'}
+                {loading === 'monthly' ? (
+                  <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Переход к оплате...</>
+                ) : (
+                  hasActiveSubscription ? 'Продлить на месяц (+30 дней)' : 'Оформить подписку'
+                )}
               </Button>
               
               <p className="text-xs text-purple-400 mt-3">
@@ -138,8 +193,14 @@ export default function Pricing() {
               
               <Button 
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg"
+                onClick={() => handlePayment('yearly')}
+                disabled={loading !== null}
               >
-                {hasActiveSubscription ? 'Продлить на год (+365 дней)' : 'Оформить подписку'}
+                {loading === 'yearly' ? (
+                  <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Переход к оплате...</>
+                ) : (
+                  hasActiveSubscription ? 'Продлить на год (+365 дней)' : 'Оформить подписку'
+                )}
               </Button>
               
               <p className="text-xs text-purple-400 mt-3">
