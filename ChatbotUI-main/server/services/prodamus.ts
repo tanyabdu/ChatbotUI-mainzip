@@ -20,7 +20,6 @@ interface Product {
   name: string;
   price: string;
   quantity: string;
-  sum: string;
 }
 
 interface PaymentData {
@@ -88,7 +87,7 @@ interface CreatePaymentLinkParams {
   baseUrl: string;
 }
 
-export function createPaymentLink(params: CreatePaymentLinkParams): string {
+export async function createPaymentLink(params: CreatePaymentLinkParams): Promise<string> {
   const { orderId, customerEmail, customerPhone, planType, userId, baseUrl } = params;
 
   const price = planType === 'monthly' ? '990.00' : '3990.00';
@@ -102,17 +101,16 @@ export function createPaymentLink(params: CreatePaymentLinkParams): string {
     products: [{
       name: productName,
       price: price,
-      quantity: '1',
-      sum: price
+      quantity: '1'
     }],
-    sum: price,
-    currency: 'rub',
     do: 'link',
     urlReturn: `${baseUrl}/pricing`,
     urlSuccess: `${baseUrl}/pricing?payment=success`,
     urlNotification: `${baseUrl}/api/payments/webhook`,
-    _param_user_id: userId,
-    _param_plan_type: planType
+    customer_extra: {
+      _param_user_id: userId,
+      _param_plan_type: planType
+    }
   };
 
   if (customerPhone) {
@@ -122,38 +120,77 @@ export function createPaymentLink(params: CreatePaymentLinkParams): string {
   const signature = createSignature(paymentData, getProdamusSecretKey());
   paymentData.signature = signature;
 
-  const queryString = new URLSearchParams();
+  const formData = new URLSearchParams();
   
-  function addToQuery(prefix: string, obj: any) {
+  function addToFormData(prefix: string, obj: any) {
     if (Array.isArray(obj)) {
       obj.forEach((item, index) => {
         if (typeof item === 'object') {
           Object.keys(item).forEach(key => {
-            queryString.append(`${prefix}[${index}][${key}]`, String(item[key]));
+            formData.append(`${prefix}[${index}][${key}]`, String(item[key]));
           });
         } else {
-          queryString.append(`${prefix}[${index}]`, String(item));
+          formData.append(`${prefix}[${index}]`, String(item));
         }
       });
     } else if (typeof obj === 'object' && obj !== null) {
       Object.keys(obj).forEach(key => {
-        addToQuery(`${prefix}[${key}]`, obj[key]);
+        addToFormData(`${prefix}[${key}]`, obj[key]);
       });
     } else {
-      queryString.append(prefix, String(obj));
+      formData.append(prefix, String(obj));
     }
   }
 
   Object.keys(paymentData).forEach(key => {
     const value = paymentData[key];
     if (Array.isArray(value)) {
-      addToQuery(key, value);
+      addToFormData(key, value);
+    } else if (typeof value === 'object' && value !== null) {
+      addToFormData(key, value);
     } else {
-      queryString.append(key, String(value));
+      formData.append(key, String(value));
     }
   });
 
-  return `${getProdamusUrl()}?${queryString.toString()}`;
+  try {
+    const response = await fetch(getProdamusUrl(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData.toString()
+    });
+
+    const responseText = await response.text();
+    console.log('Prodamus API response:', responseText);
+
+    if (responseText.startsWith('http')) {
+      return responseText.trim();
+    }
+
+    try {
+      const jsonResponse = JSON.parse(responseText);
+      if (jsonResponse.payment_url) {
+        return jsonResponse.payment_url;
+      }
+      if (jsonResponse.link) {
+        return jsonResponse.link;
+      }
+      throw new Error(`Unexpected response format: ${responseText}`);
+    } catch (e) {
+      if (responseText.includes('http')) {
+        const urlMatch = responseText.match(/https?:\/\/[^\s"<>]+/);
+        if (urlMatch) {
+          return urlMatch[0];
+        }
+      }
+      throw new Error(`Failed to parse Prodamus response: ${responseText}`);
+    }
+  } catch (error: any) {
+    console.error('Prodamus API error:', error);
+    throw new Error(`Prodamus API error: ${error.message}`);
+  }
 }
 
 export interface WebhookPayload {

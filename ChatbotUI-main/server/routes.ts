@@ -630,7 +630,7 @@ export async function registerRoutes(
       const orderId = `order_${userId}_${Date.now()}`;
       const baseUrl = `https://${req.get('host')}`;
 
-      const paymentUrl = createPaymentLink({
+      const paymentUrl = await createPaymentLink({
         orderId,
         customerEmail: user.email,
         planType,
