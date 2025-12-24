@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { removeToken } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import type { ContentStrategy, VoicePost, CaseStudy, ArchetypeResult } from "@shared/schema";
 
@@ -216,6 +217,12 @@ export default function Grimoire() {
     setLocation("/pricing");
   };
 
+  const handleLogout = () => {
+    removeToken();
+    queryClient.clear();
+    window.location.href = "/";
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <header className="border-b-2 border-purple-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
@@ -231,11 +238,9 @@ export default function Grimoire() {
                 На главную
               </Link>
             </Button>
-            <Button variant="outline" asChild data-testid="button-logout">
-              <a href="/api/logout">
-                <LogOut className="h-4 w-4 mr-2" />
-                Выйти
-              </a>
+            <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
+              <LogOut className="h-4 w-4 mr-2" />
+              Выйти
             </Button>
           </div>
         </div>
