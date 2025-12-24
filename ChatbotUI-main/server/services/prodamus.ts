@@ -87,7 +87,7 @@ interface CreatePaymentLinkParams {
   baseUrl: string;
 }
 
-export async function createPaymentLink(params: CreatePaymentLinkParams): Promise<string> {
+export function createPaymentLink(params: CreatePaymentLinkParams): string {
   const { orderId, customerEmail, customerPhone, planType, userId, baseUrl } = params;
 
   const price = planType === 'monthly' ? '990.00' : '3990.00';
@@ -95,102 +95,26 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
     ? 'Эзотерический Планировщик - Месячная подписка' 
     : 'Эзотерический Планировщик - Годовая подписка';
 
-  const paymentData: PaymentData = {
-    order_id: orderId,
-    customer_email: customerEmail,
-    products: [{
-      name: productName,
-      price: price,
-      quantity: '1'
-    }],
-    do: 'link',
-    urlReturn: `${baseUrl}/pricing`,
-    urlSuccess: `${baseUrl}/pricing?payment=success`,
-    urlNotification: `${baseUrl}/api/payments/webhook`,
-    customer_extra: {
-      _param_user_id: userId,
-      _param_plan_type: planType
-    }
-  };
-
-  if (customerPhone) {
-    paymentData.customer_phone = customerPhone;
-  }
-
-  const signature = createSignature(paymentData, getProdamusSecretKey());
-  paymentData.signature = signature;
-
-  const formData = new URLSearchParams();
+  const queryParams = new URLSearchParams();
   
-  function addToFormData(prefix: string, obj: any) {
-    if (Array.isArray(obj)) {
-      obj.forEach((item, index) => {
-        if (typeof item === 'object') {
-          Object.keys(item).forEach(key => {
-            formData.append(`${prefix}[${index}][${key}]`, String(item[key]));
-          });
-        } else {
-          formData.append(`${prefix}[${index}]`, String(item));
-        }
-      });
-    } else if (typeof obj === 'object' && obj !== null) {
-      Object.keys(obj).forEach(key => {
-        addToFormData(`${prefix}[${key}]`, obj[key]);
-      });
-    } else {
-      formData.append(prefix, String(obj));
-    }
+  queryParams.append('order_id', orderId);
+  queryParams.append('customer_email', customerEmail);
+  if (customerPhone) {
+    queryParams.append('customer_phone', customerPhone);
   }
+  
+  queryParams.append('products[0][name]', productName);
+  queryParams.append('products[0][price]', price);
+  queryParams.append('products[0][quantity]', '1');
+  
+  queryParams.append('do', 'pay');
+  queryParams.append('urlReturn', `${baseUrl}/pricing`);
+  queryParams.append('urlSuccess', `${baseUrl}/pricing?payment=success`);
+  queryParams.append('urlNotification', `${baseUrl}/api/payments/webhook`);
+  
+  queryParams.append('customer_extra', `user_id:${userId};plan_type:${planType}`);
 
-  Object.keys(paymentData).forEach(key => {
-    const value = paymentData[key];
-    if (Array.isArray(value)) {
-      addToFormData(key, value);
-    } else if (typeof value === 'object' && value !== null) {
-      addToFormData(key, value);
-    } else {
-      formData.append(key, String(value));
-    }
-  });
-
-  try {
-    const response = await fetch(getProdamusUrl(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData.toString()
-    });
-
-    const responseText = await response.text();
-    console.log('Prodamus API response:', responseText);
-
-    if (responseText.startsWith('http')) {
-      return responseText.trim();
-    }
-
-    try {
-      const jsonResponse = JSON.parse(responseText);
-      if (jsonResponse.payment_url) {
-        return jsonResponse.payment_url;
-      }
-      if (jsonResponse.link) {
-        return jsonResponse.link;
-      }
-      throw new Error(`Unexpected response format: ${responseText}`);
-    } catch (e) {
-      if (responseText.includes('http')) {
-        const urlMatch = responseText.match(/https?:\/\/[^\s"<>]+/);
-        if (urlMatch) {
-          return urlMatch[0];
-        }
-      }
-      throw new Error(`Failed to parse Prodamus response: ${responseText}`);
-    }
-  } catch (error: any) {
-    console.error('Prodamus API error:', error);
-    throw new Error(`Prodamus API error: ${error.message}`);
-  }
+  return `${getProdamusUrl()}?${queryParams.toString()}`;
 }
 
 export interface WebhookPayload {
@@ -208,9 +132,41 @@ export interface WebhookPayload {
   [key: string]: any;
 }
 
+function parseCustomerExtra(extra: string | object): { user_id?: string; plan_type?: string } {
+  if (!extra) return {};
+  
+  if (typeof extra === 'object') {
+    return {
+      user_id: (extra as any)._param_user_id || (extra as any).user_id,
+      plan_type: (extra as any)._param_plan_type || (extra as any).plan_type
+    };
+  }
+  
+  if (typeof extra === 'string') {
+    const result: { user_id?: string; plan_type?: string } = {};
+    const pairs = extra.split(';');
+    for (const pair of pairs) {
+      const [key, value] = pair.split(':');
+      if (key === 'user_id') result.user_id = value;
+      if (key === 'plan_type') result.plan_type = value;
+    }
+    return result;
+  }
+  
+  return {};
+}
+
 function extractParam(body: any, paramName: string): string | undefined {
   if (body[paramName]) return body[paramName];
-  if (body.customer_extra?.[paramName]) return body.customer_extra[paramName];
+  
+  const extraParsed = parseCustomerExtra(body.customer_extra);
+  if (paramName === '_param_user_id' && extraParsed.user_id) return extraParsed.user_id;
+  if (paramName === '_param_plan_type' && extraParsed.plan_type) return extraParsed.plan_type;
+  
+  if (typeof body.customer_extra === 'object' && body.customer_extra?.[paramName]) {
+    return body.customer_extra[paramName];
+  }
+  
   if (body.products?.[0]?.[paramName]) return body.products[0][paramName];
   
   for (const key of Object.keys(body)) {
