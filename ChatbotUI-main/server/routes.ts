@@ -674,8 +674,8 @@ export async function registerRoutes(
       const existingPayment = await storage.getPaymentByOrderId(orderNum);
       
       if (!existingPayment) {
-        console.error(`Payment not found for order: ${orderNum}`);
-        return res.status(404).json({ error: "Payment not found" });
+        console.log(`Payment not found for order: ${orderNum}, acknowledging to stop retries`);
+        return res.json({ success: true, message: "Payment not found, acknowledged" });
       }
 
       if (existingPayment.status === 'success') {
