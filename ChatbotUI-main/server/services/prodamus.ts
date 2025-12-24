@@ -124,7 +124,7 @@ export function createPaymentLink(params: CreatePaymentLinkParams): CreatePaymen
   queryParams.append('products[0][sku]', `${orderId}|${userId}|${planType}`);
   
   queryParams.append('do', 'pay');
-  queryParams.append('urlReturn', `${baseUrl}/pricing`);
+  queryParams.append('urlReturn', `${baseUrl}/pricing?payment=success`);
   queryParams.append('urlSuccess', `${baseUrl}/pricing?payment=success`);
   queryParams.append('urlNotification', `${baseUrl}/api/payments/webhook`);
   

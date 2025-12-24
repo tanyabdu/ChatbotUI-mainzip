@@ -14,9 +14,12 @@ export default function Pricing() {
   const { toast } = useToast();
   const [location] = useLocation();
 
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('payment') === 'success') {
+      setPaymentSuccess(true);
       toast({
         title: "Оплата прошла успешно!",
         description: "Ваша подписка активирована. Спасибо за покупку!",
@@ -89,6 +92,23 @@ export default function Pricing() {
             </Button>
           </Link>
         </div>
+
+        {paymentSuccess && (
+          <div className="mb-8 p-6 bg-green-50 border-2 border-green-200 rounded-xl text-center">
+            <div className="flex items-center justify-center gap-2 text-green-700 mb-2">
+              <Check className="h-6 w-6" />
+              <span className="text-xl font-semibold">Оплата прошла успешно!</span>
+            </div>
+            <p className="text-green-600">
+              Ваша подписка активирована. Спасибо за покупку!
+            </p>
+            <Link href="/">
+              <Button className="mt-4 bg-green-600 hover:bg-green-700 text-white">
+                Перейти к инструментам
+              </Button>
+            </Link>
+          </div>
+        )}
 
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-mystic text-purple-800 mb-4">
