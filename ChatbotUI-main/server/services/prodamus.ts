@@ -105,6 +105,8 @@ export function createPaymentLink(params: CreatePaymentLinkParams): string {
       quantity: '1',
       sum: price
     }],
+    sum: price,
+    currency: 'rub',
     do: 'link',
     urlReturn: `${baseUrl}/pricing`,
     urlSuccess: `${baseUrl}/pricing?payment=success`,
