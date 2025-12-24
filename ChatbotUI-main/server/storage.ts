@@ -14,7 +14,7 @@ import {
   promocodes, promocodeUsages, payments
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, ilike, or, and, isNull, gt } from "drizzle-orm";
+import { eq, desc, ilike, or, and, isNull, gt, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Users (for Replit Auth)
@@ -609,13 +609,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updatePaymentStatus(orderId: string, status: string, prodamusData?: any): Promise<void> {
-    const updateData: { status: string; prodamusData?: any } = { status };
     if (prodamusData !== undefined && prodamusData !== null) {
-      updateData.prodamusData = prodamusData;
+      await db.execute(sql`
+        UPDATE esoteric_planner.payments 
+        SET status = ${status}, prodamus_data = ${JSON.stringify(prodamusData)}::jsonb
+        WHERE order_id = ${orderId}
+      `);
+    } else {
+      await db.execute(sql`
+        UPDATE esoteric_planner.payments 
+        SET status = ${status}
+        WHERE order_id = ${orderId}
+      `);
     }
-    await db.update(payments)
-      .set(updateData)
-      .where(eq(payments.orderId, orderId));
   }
 }
 
