@@ -609,8 +609,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updatePaymentStatus(orderId: string, status: string, prodamusData?: any): Promise<void> {
+    const updateData: { status: string; prodamusData?: any } = { status };
+    if (prodamusData !== undefined && prodamusData !== null) {
+      updateData.prodamusData = prodamusData;
+    }
     await db.update(payments)
-      .set({ status, prodamusData })
+      .set(updateData)
       .where(eq(payments.orderId, orderId));
   }
 }
