@@ -20,6 +20,7 @@ interface Product {
   name: string;
   price: string;
   quantity: string;
+  sum: string;
 }
 
 interface PaymentData {
@@ -90,7 +91,7 @@ interface CreatePaymentLinkParams {
 export function createPaymentLink(params: CreatePaymentLinkParams): string {
   const { orderId, customerEmail, customerPhone, planType, userId, baseUrl } = params;
 
-  const price = planType === 'monthly' ? '990' : '3990';
+  const price = planType === 'monthly' ? '990.00' : '3990.00';
   const productName = planType === 'monthly' 
     ? 'Эзотерический Планировщик - Месячная подписка' 
     : 'Эзотерический Планировщик - Годовая подписка';
@@ -101,7 +102,8 @@ export function createPaymentLink(params: CreatePaymentLinkParams): string {
     products: [{
       name: productName,
       price: price,
-      quantity: '1'
+      quantity: '1',
+      sum: price
     }],
     do: 'link',
     urlReturn: `${baseUrl}/pricing`,
