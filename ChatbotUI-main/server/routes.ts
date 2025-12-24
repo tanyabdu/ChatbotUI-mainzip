@@ -628,7 +628,8 @@ export async function registerRoutes(
       }
 
       const orderId = `order_${userId}_${Date.now()}`;
-      const baseUrl = `https://${req.get('host')}`;
+      const domain = process.env.REPLIT_DEV_DOMAIN || process.env.REPLIT_DOMAINS || req.get('host');
+      const baseUrl = `https://${domain}`;
 
       const { url: paymentUrl, shortOrderId } = createPaymentLink({
         orderId,
@@ -648,7 +649,7 @@ export async function registerRoutes(
         prodamusData: null
       });
 
-      console.log(`Payment link created for user ${userId}, plan: ${planType}, order: ${shortOrderId}`);
+      console.log(`Payment link created for user ${userId}, plan: ${planType}, order: ${shortOrderId}, baseUrl: ${baseUrl}`);
       
       res.json({ paymentUrl, orderId: shortOrderId });
     } catch (error: any) {
