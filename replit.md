@@ -70,7 +70,10 @@ Preferred communication style: Simple, everyday language.
 - Added clickable subscription badge in header linking to pricing
 - Real-time lunar calendar calculations using SunCalc library
 - Admin panel updated for monthly/yearly subscription management
-- Fixed deployment health checks: server starts listening immediately, DB uses lazy initialization
+- Fixed deployment health checks with two-file architecture:
+  - prod-entry.ts: minimal entry point with health checks, starts listening immediately
+  - app-init.ts: full application loaded asynchronously after server starts
+  - Health checks respond in ~13ms, full app loads in background
 - Root endpoint (/) returns instant "OK" for health checks, redirects browsers to /app
 
 ## External Dependencies
