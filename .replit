@@ -22,13 +22,13 @@ args = "Dev Server"
 name = "Dev Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd ChatbotUI-main && npm run dev"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
@@ -36,7 +36,7 @@ externalPort = 80
 
 [[ports]]
 localPort = 5001
-externalPort = 3000
+externalPort = 3001
 
 [userenv]
 
@@ -50,6 +50,6 @@ RUSENDER_FROM_EMAIL = "klimova@magic-content.ru"
 PRODAMUS_URL = "https://Kati-klimovaa.payform.ru"
 
 [deployment]
-build = ["bash", "-c", "npm --prefix ChatbotUI-main ci && npm --prefix ChatbotUI-main run build"]
-run = ["bash", "-c", "cd ChatbotUI-main && NODE_ENV=production node dist/prod-entry.cjs"]
+build = ["bash", "-c", "npm ci && npm run build"]
+run = ["bash", "-c", "NODE_ENV=production node dist/prod-entry.cjs"]
 deploymentTarget = "vm"
