@@ -14,7 +14,13 @@ export function serveStatic(app: Express) {
   const indexPath = path.resolve(distPath, "index.html");
   const indexHtml = fs.readFileSync(indexPath, "utf-8");
 
-  app.use(express.static(distPath, { maxAge: "1d" }));
+  // Fast root endpoint handler for health checks - must be before static middleware
+  app.get("/", (_req, res) => {
+    res.setHeader("Content-Type", "text/html");
+    res.send(indexHtml);
+  });
+
+  app.use(express.static(distPath, { maxAge: "1d", index: false }));
 
   // fall through to index.html if the file doesn't exist
   // Send from memory for faster health check responses
