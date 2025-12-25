@@ -70,6 +70,8 @@ Preferred communication style: Simple, everyday language.
 - Added clickable subscription badge in header linking to pricing
 - Real-time lunar calendar calculations using SunCalc library
 - Admin panel updated for monthly/yearly subscription management
+- Fixed deployment health checks: server starts listening immediately, DB uses lazy initialization
+- Root endpoint (/) returns instant "OK" for health checks, redirects browsers to /app
 
 ## External Dependencies
 
