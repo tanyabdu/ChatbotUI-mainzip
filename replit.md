@@ -10,8 +10,8 @@ Project files are now in the **root directory** (not in ChatbotUI-main subdirect
 - `script/` - Build scripts
 
 ## Deployment Commands
-- **Build**: `npm ci && npm run build`
-- **Run**: `NODE_ENV=production node dist/prod-entry.cjs`
+- **Build**: `npm run build`
+- **Run**: `npm start`
 - **Type**: Reserved VM
 
 ## Overview
