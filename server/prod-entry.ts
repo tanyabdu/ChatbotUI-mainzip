@@ -1,19 +1,22 @@
 import express from "express";
 import { createServer } from "http";
+import { isReady } from "./readiness";
 
 const app = express();
 const httpServer = createServer(app);
 
-app.get("/", (_req, res) => {
-  res.status(200).send("OK");
-});
-
-app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "ok" });
-});
-
-app.get("/__healthcheck", (_req, res) => {
-  res.status(200).send("OK");
+app.use((req, res, next) => {
+  if (req.path === "/health" || req.path === "/__healthcheck") {
+    return res.status(200).json({ status: "ok", ready: isReady() });
+  }
+  
+  if (req.path === "/" && req.method === "GET") {
+    if (!isReady()) {
+      return res.status(200).send("OK");
+    }
+  }
+  
+  next();
 });
 
 const port = parseInt(process.env.PORT || "5000", 10);

@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import express from "express";
+import { markReady } from "./readiness";
 
 declare module "http" {
   interface IncomingMessage {
@@ -62,4 +63,6 @@ export async function initializeApp(httpServer: Server, app: Express): Promise<v
 
   const { serveStatic } = await import("./static");
   serveStatic(app);
+  
+  markReady();
 }
