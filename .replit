@@ -50,6 +50,6 @@ RUSENDER_FROM_EMAIL = "klimova@magic-content.ru"
 PRODAMUS_URL = "https://Kati-klimovaa.payform.ru"
 
 [deployment]
-build = ["bash", "-c", "cd ChatbotUI-main && npm ci && npm run build"]
-run = ["bash", "-c", "cd ChatbotUI-main && NODE_ENV=production node dist/prod-entry.cjs"]
+build = ["bash", "-c", "(cd ChatbotUI-main && npm ci && npm run build)"]
+run = ["bash", "-c", "(cd ChatbotUI-main && NODE_ENV=production node dist/prod-entry.cjs)"]
 deploymentTarget = "vm"
