@@ -28,8 +28,19 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-// Root health check for Replit deployment (checks / endpoint)
 app.get("/__healthcheck", (_req, res) => {
+  res.status(200).send("OK");
+});
+
+// Root endpoint - fast plain text response for deployment health checks
+// Redirects browsers to /app, returns OK for health checkers
+app.get("/", (req, res) => {
+  const userAgent = req.headers["user-agent"] || "";
+  // If it's a browser, redirect to the app
+  if (userAgent.includes("Mozilla") || userAgent.includes("Chrome") || userAgent.includes("Safari")) {
+    return res.redirect("/app");
+  }
+  // For health checkers, return simple OK
   res.status(200).send("OK");
 });
 

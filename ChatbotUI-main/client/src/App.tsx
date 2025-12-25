@@ -36,19 +36,21 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  const MainPage = () => {
+    if (isLoading) {
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
+          <div className="animate-pulse text-purple-600">Загрузка...</div>
+        </div>
+      );
+    }
+    return isAuthenticated ? <Home /> : <Landing />;
+  };
+
   return (
     <Switch>
-      <Route path="/">
-        {isLoading ? (
-          <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
-            <div className="animate-pulse text-purple-600">Загрузка...</div>
-          </div>
-        ) : isAuthenticated ? (
-          <Home />
-        ) : (
-          <Landing />
-        )}
-      </Route>
+      <Route path="/" component={MainPage} />
+      <Route path="/app" component={MainPage} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/forgot-password" component={ForgotPassword} />
