@@ -57,17 +57,9 @@ export async function initializeApp(httpServer: Server, app: Express): Promise<v
     console.error(err);
   });
 
+  const { registerRoutes } = await import("./routes");
+  await registerRoutes(httpServer, app);
+
   const { serveStatic } = await import("./static");
   serveStatic(app);
-
-  // Load routes asynchronously without blocking
-  setImmediate(async () => {
-    try {
-      const { registerRoutes } = await import("./routes");
-      await registerRoutes(httpServer, app);
-      console.log("[app-init] Routes registered");
-    } catch (err) {
-      console.error("[app-init] Failed to register routes:", err);
-    }
-  });
 }
