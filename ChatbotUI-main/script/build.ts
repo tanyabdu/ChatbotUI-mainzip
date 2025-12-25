@@ -56,7 +56,7 @@ async function buildAll() {
       "process.env.NODE_ENV": '"production"',
     },
     minify: true,
-    external: [...externals, "./app-init.cjs"],
+    external: [...allDeps, "./app-init.cjs"],
     logLevel: "info",
   });
   
