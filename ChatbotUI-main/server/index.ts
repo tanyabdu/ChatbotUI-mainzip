@@ -22,9 +22,15 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
-// Health check endpoint - responds immediately for deployment health checks
+// Health check endpoints - respond immediately for deployment health checks
+// Must be defined before any middleware that might slow down responses
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });
+});
+
+// Root health check for Replit deployment (checks / endpoint)
+app.get("/__healthcheck", (_req, res) => {
+  res.status(200).send("OK");
 });
 
 export function log(message: string, source = "express") {
