@@ -1,6 +1,4 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { serveStatic } from "./static";
 import { createServer } from "http";
 
 const app = express();
@@ -94,8 +92,10 @@ httpServer.listen(
   },
 );
 
-// Initialize routes and other middleware asynchronously
+// Initialize routes and other middleware asynchronously AFTER server is listening
 (async () => {
+  // Dynamic imports to avoid blocking startup with DB connections
+  const { registerRoutes } = await import("./routes");
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -110,6 +110,7 @@ httpServer.listen(
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (process.env.NODE_ENV === "production") {
+    const { serveStatic } = await import("./static");
     serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");
