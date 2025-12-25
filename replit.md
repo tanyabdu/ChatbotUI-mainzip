@@ -1,5 +1,19 @@
 # Esoteric Content Planner
 
+## Project Structure (Updated December 2025)
+
+Project files are now in the **root directory** (not in ChatbotUI-main subdirectory).
+- `client/` - React frontend with Vite
+- `server/` - Express backend
+- `shared/` - Shared types and schemas
+- `dist/` - Production build output
+- `script/` - Build scripts
+
+## Deployment Commands
+- **Build**: `npm ci && npm run build`
+- **Run**: `NODE_ENV=production node dist/prod-entry.cjs`
+- **Type**: Reserved VM
+
 ## Overview
 
 The Esoteric Content Planner is a mystical-themed marketing and content planning web application designed for spiritual and esoteric practitioners. It provides tools for content strategy generation, archetype-based branding analysis, voice-to-text content creation, case study management, and lunar calendar insights. The application combines spiritual aesthetics with modern web development practices to create an immersive planning experience.
