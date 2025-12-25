@@ -47,5 +47,5 @@ PRODAMUS_URL = "https://Kati-klimovaa.payform.ru"
 
 [deployment]
 build = ["sh", "-c", "cd ChatbotUI-main && npm ci --omit=dev --ignore-scripts && NODE_ENV=production npm run build"]
-run = ["sh", "-c", "cd ChatbotUI-main && NODE_ENV=production npm run start"]
+run = ["sh", "-c", "cd ChatbotUI-main && NODE_ENV=production node dist/index.cjs"]
 deploymentTarget = "vm"
