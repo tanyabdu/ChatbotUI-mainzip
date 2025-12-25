@@ -10,7 +10,7 @@ Project files are now in the **root directory** (not in ChatbotUI-main subdirect
 - `script/` - Build scripts
 
 ## Deployment Commands
-- **Build**: `npm run build`
+- **Build**: `npm install` (triggers postinstall → npm run build automatically)
 - **Run**: `npm start`
 - **Type**: Reserved VM
 
