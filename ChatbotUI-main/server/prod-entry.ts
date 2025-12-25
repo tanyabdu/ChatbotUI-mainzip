@@ -4,11 +4,7 @@ import { createServer } from "http";
 const app = express();
 const httpServer = createServer(app);
 
-app.get("/", (req, res) => {
-  const userAgent = req.headers["user-agent"] || "";
-  if (userAgent.includes("Mozilla") || userAgent.includes("Chrome") || userAgent.includes("Safari")) {
-    return res.redirect("/app");
-  }
+app.get("/", (_req, res) => {
   res.status(200).send("OK");
 });
 
