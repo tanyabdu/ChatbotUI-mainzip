@@ -2,14 +2,10 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import fs from "fs";
-import { markReady } from "./readiness";
-import { registerRoutes } from "./routes";
 
-declare module "http" {
-  interface IncomingMessage {
-    rawBody: unknown;
-  }
-}
+console.log("[prod] Starting server...");
+console.log("[prod] NODE_ENV:", process.env.NODE_ENV);
+console.log("[prod] PORT:", process.env.PORT);
 
 const app = express();
 const httpServer = createServer(app);
@@ -24,21 +20,26 @@ const possiblePaths = [
 let publicPath = "";
 let indexPath = "";
 
+console.log("[prod] __dirname:", __dirname);
+console.log("[prod] process.cwd():", process.cwd());
+
 for (const p of possiblePaths) {
   const idx = path.join(p, "index.html");
   console.log(`[prod] Checking path: ${p}`);
-  if (fs.existsSync(idx)) {
-    publicPath = p;
-    indexPath = idx;
-    console.log(`[prod] Found index.html at: ${idx}`);
-    break;
+  try {
+    if (fs.existsSync(idx)) {
+      publicPath = p;
+      indexPath = idx;
+      console.log(`[prod] Found index.html at: ${idx}`);
+      break;
+    }
+  } catch (e) {
+    console.log(`[prod] Error checking ${p}:`, e);
   }
 }
 
 if (!publicPath) {
   console.error("[prod] ERROR: Could not find public folder!");
-  console.error("[prod] __dirname:", __dirname);
-  console.error("[prod] process.cwd():", process.cwd());
 }
 
 app.get("/health", (_req, res) => {
@@ -51,11 +52,16 @@ app.get("/__healthcheck", (_req, res) => {
 
 app.get("/__debug", (_req, res) => {
   res.json({
+    status: "running",
     __dirname,
     cwd: process.cwd(),
     publicPath,
     indexPath,
-    exists: fs.existsSync(indexPath),
+    nodeVersion: process.version,
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+    },
     triedPaths: possiblePaths.map(p => ({
       path: p,
       exists: fs.existsSync(p),
@@ -64,54 +70,17 @@ app.get("/__debug", (_req, res) => {
   });
 });
 
-app.use(
-  express.json({
-    verify: (req, _res, buf) => {
-      req.rawBody = buf;
-    },
-  }),
-);
-
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const reqPath = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (reqPath.startsWith("/api")) {
-      let logLine = `${req.method} ${reqPath} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-      const formattedTime = new Date().toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      });
-      console.log(`${formattedTime} [express] ${logLine}`);
-    }
-  });
-
-  next();
-});
-
 if (publicPath) {
+  console.log("[prod] Setting up static file serving from:", publicPath);
   app.use(express.static(publicPath));
 }
 
 app.get("*", (req, res) => {
   if (req.path.startsWith("/api")) {
-    return res.status(404).json({ error: "API endpoint not found" });
+    return res.status(503).json({ error: "API not initialized yet - minimal test mode" });
   }
   
   if (indexPath && fs.existsSync(indexPath)) {
@@ -120,15 +89,22 @@ app.get("*", (req, res) => {
     res.status(500).send(`
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><title>Error</title></head>
+<head><meta charset="utf-8"><title>Diagnostic</title></head>
 <body>
-  <h1>Static files not found</h1>
+  <h1>Server is running but static files not found</h1>
+  <p>This is a diagnostic page from prod-entry.ts</p>
   <p>__dirname: ${__dirname}</p>
   <p>cwd: ${process.cwd()}</p>
   <p>publicPath: ${publicPath || 'not found'}</p>
   <p>Tried paths:</p>
   <ul>
-    ${possiblePaths.map(p => `<li>${p} - ${fs.existsSync(p) ? 'exists' : 'missing'}</li>`).join('')}
+    ${possiblePaths.map(p => {
+      try {
+        return `<li>${p} - ${fs.existsSync(p) ? 'exists' : 'missing'}</li>`;
+      } catch {
+        return `<li>${p} - error checking</li>`;
+      }
+    }).join('')}
   </ul>
 </body>
 </html>
@@ -136,26 +112,23 @@ app.get("*", (req, res) => {
   }
 });
 
-async function startServer() {
-  const port = parseInt(process.env.PORT || "5000", 10);
-  
-  try {
-    console.log("[prod] Registering routes...");
-    await registerRoutes(httpServer, app);
-    console.log("[prod] Routes registered");
-  } catch (err) {
-    console.error("[prod] Failed to register routes:", err);
-  }
-  
-  httpServer.listen(port, "0.0.0.0", () => {
-    console.log(`[prod] Server listening on port ${port}`);
-    console.log(`[prod] Serving static from: ${publicPath || 'NOT FOUND'}`);
-    markReady();
-    console.log("[prod] App fully initialized");
-  });
-}
+const port = parseInt(process.env.PORT || "5000", 10);
+console.log(`[prod] About to listen on port ${port}...`);
 
-startServer().catch((err) => {
-  console.error("[prod] Fatal error:", err);
-  process.exit(1);
+httpServer.listen(port, "0.0.0.0", () => {
+  console.log(`[prod] Server listening on port ${port}`);
+  console.log(`[prod] Serving static from: ${publicPath || 'NOT FOUND'}`);
+  console.log("[prod] Minimal server started successfully!");
+});
+
+httpServer.on("error", (err) => {
+  console.error("[prod] Server error:", err);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("[prod] Uncaught exception:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[prod] Unhandled rejection at:", promise, "reason:", reason);
 });
