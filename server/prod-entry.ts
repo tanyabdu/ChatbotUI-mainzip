@@ -1,21 +1,13 @@
 import express from "express";
 import { createServer } from "http";
-import { isReady } from "./readiness";
 
 const app = express();
 const httpServer = createServer(app);
 
 app.use((req, res, next) => {
   if (req.path === "/health" || req.path === "/__healthcheck") {
-    return res.status(200).json({ status: "ok", ready: isReady() });
+    return res.status(200).send("OK");
   }
-  
-  if (req.path === "/" && req.method === "GET") {
-    if (!isReady()) {
-      return res.status(200).send("OK");
-    }
-  }
-  
   next();
 });
 
