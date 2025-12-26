@@ -3,6 +3,7 @@ import { createServer } from "http";
 import path from "path";
 import fs from "fs";
 import { markReady } from "./readiness";
+import { registerRoutes } from "./routes";
 
 declare module "http" {
   interface IncomingMessage {
@@ -104,17 +105,6 @@ app.use((req, res, next) => {
   next();
 });
 
-async function initializeRoutes() {
-  try {
-    console.log("[prod] Importing routes...");
-    const { registerRoutes } = await import("./routes");
-    await registerRoutes(httpServer, app);
-    console.log("[prod] Routes registered");
-  } catch (err) {
-    console.error("[prod] Failed to register routes:", err);
-  }
-}
-
 if (publicPath) {
   app.use(express.static(publicPath));
 }
@@ -146,12 +136,26 @@ app.get("*", (req, res) => {
   }
 });
 
-const port = parseInt(process.env.PORT || "5000", 10);
-httpServer.listen(port, "0.0.0.0", async () => {
-  console.log(`[prod] Server listening on port ${port}`);
-  console.log(`[prod] Serving static from: ${publicPath || 'NOT FOUND'}`);
+async function startServer() {
+  const port = parseInt(process.env.PORT || "5000", 10);
   
-  await initializeRoutes();
-  markReady();
-  console.log("[prod] App fully initialized");
+  try {
+    console.log("[prod] Registering routes...");
+    await registerRoutes(httpServer, app);
+    console.log("[prod] Routes registered");
+  } catch (err) {
+    console.error("[prod] Failed to register routes:", err);
+  }
+  
+  httpServer.listen(port, "0.0.0.0", () => {
+    console.log(`[prod] Server listening on port ${port}`);
+    console.log(`[prod] Serving static from: ${publicPath || 'NOT FOUND'}`);
+    markReady();
+    console.log("[prod] App fully initialized");
+  });
+}
+
+startServer().catch((err) => {
+  console.error("[prod] Fatal error:", err);
+  process.exit(1);
 });
