@@ -1,9 +1,16 @@
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  baseURL: "https://api.deepseek.com/v1",
-  apiKey: process.env.DEEPSEEK_API_KEY,
-});
+let client: OpenAI | null = null;
+
+function getClient(): OpenAI {
+  if (!client) {
+    client = new OpenAI({
+      baseURL: "https://api.deepseek.com/v1",
+      apiKey: process.env.DEEPSEEK_API_KEY,
+    });
+  }
+  return client;
+}
 
 export interface ContentGenerationInput {
   goal: "sale" | "engagement";
@@ -305,7 +312,7 @@ ${writingStyleRules}
     console.log("Calling DeepSeek API...");
     const startTime = Date.now();
     
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model: "deepseek-chat",
       messages: [
         { role: "system", content: systemPrompt },
@@ -413,7 +420,7 @@ JSON массив: [{"day":1,"idea":"...","type":"..."}]`;
     console.log("Generating ideas only...");
     const startTime = Date.now();
     
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model: "deepseek-chat",
       messages: [
         { role: "system", content: systemPrompt },
@@ -529,7 +536,7 @@ JSON: {"content": "готовый текст", "hashtags": ["#тег1", "#тег
     console.log(`Generating ${format} for idea: ${idea.substring(0, 50)}...`);
     const startTime = Date.now();
     
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model: "deepseek-chat",
       messages: [
         { role: "system", content: systemPrompt },
