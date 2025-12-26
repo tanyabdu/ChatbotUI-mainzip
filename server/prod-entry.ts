@@ -4,8 +4,9 @@ import { createServer } from "http";
 const app = express();
 const httpServer = createServer(app);
 
-// CRITICAL: Health check routes MUST be defined FIRST as explicit routes
-// These respond immediately without any middleware processing
+let appInitialized = false;
+
+// CRITICAL: Health check routes respond IMMEDIATELY - no waiting
 app.get("/health", (_req, res) => {
   res.status(200).send("OK");
 });
@@ -14,15 +15,24 @@ app.get("/__healthcheck", (_req, res) => {
   res.status(200).send("OK");
 });
 
-// Root endpoint for health checks - must respond immediately
+// Root endpoint - ALWAYS responds immediately
+// After app is initialized, it will serve the real app
 app.get("/", (req, res, next) => {
-  const userAgent = req.headers["user-agent"] || "";
-  // For browsers, let the static handler deal with it later
-  if (userAgent.includes("Mozilla") || userAgent.includes("Chrome") || userAgent.includes("Safari")) {
+  if (appInitialized) {
+    // App is ready, let the static handler serve the real page
     return next();
   }
-  // For health checkers (no user agent or curl), respond immediately
-  res.status(200).send("OK");
+  // App still loading - respond with a simple loading page
+  res.status(200).send(`<!DOCTYPE html>
+<html>
+<head><title>Loading...</title><meta http-equiv="refresh" content="2"></head>
+<body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background:#1e1b4b;color:white;">
+<div style="text-align:center">
+<h1>Загрузка приложения...</h1>
+<p>Обновление через 2 секунды</p>
+</div>
+</body>
+</html>`);
 });
 
 // Start listening IMMEDIATELY so health checks pass
@@ -35,6 +45,7 @@ httpServer.listen(port, "0.0.0.0", () => {
     try {
       const { initializeApp } = await import("./app-init.cjs");
       await initializeApp(httpServer, app);
+      appInitialized = true;
       console.log("[prod] Full application initialized");
     } catch (err) {
       console.error("[prod] Failed to initialize app:", err);
