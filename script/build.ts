@@ -11,11 +11,11 @@ async function buildAll() {
   console.log("building server...");
   
   await esbuild({
-    entryPoints: ["server/prod-entry.ts"],
+    entryPoints: ["server/index.ts"],
     platform: "node",
     bundle: true,
     format: "cjs",
-    outfile: "dist/prod-entry.cjs",
+    outfile: "dist/index.cjs",
     define: {
       "process.env.NODE_ENV": '"production"',
     },
