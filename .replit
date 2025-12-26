@@ -50,6 +50,6 @@ RUSENDER_FROM_EMAIL = "klimova@magic-content.ru"
 PRODAMUS_URL = "https://Kati-klimovaa.payform.ru"
 
 [deployment]
-build = ["npm", "install"]
-run = ["npm", "start"]
+build = ["npm", "run", "build"]
+run = ["node", "dist/prod-entry.cjs"]
 deploymentTarget = "vm"
