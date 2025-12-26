@@ -2,17 +2,21 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import fs from "fs";
+import { markReady } from "./readiness";
+
+declare module "http" {
+  interface IncomingMessage {
+    rawBody: unknown;
+  }
+}
 
 const app = express();
 const httpServer = createServer(app);
 
-// Try multiple paths to find static files
-declare const __dirname: string;
 const possiblePaths = [
   path.join(__dirname, "public"),
   path.resolve(process.cwd(), "dist", "public"),
   path.resolve(process.cwd(), "public"),
-  path.join(__dirname, "..", "dist", "public"),
   "/home/runner/workspace/dist/public",
 ];
 
@@ -34,12 +38,8 @@ if (!publicPath) {
   console.error("[prod] ERROR: Could not find public folder!");
   console.error("[prod] __dirname:", __dirname);
   console.error("[prod] process.cwd():", process.cwd());
-  console.error("[prod] Tried paths:", possiblePaths);
 }
 
-let appReady = false;
-
-// Health check routes
 app.get("/health", (_req, res) => {
   res.status(200).send("OK");
 });
@@ -48,7 +48,6 @@ app.get("/__healthcheck", (_req, res) => {
   res.status(200).send("OK");
 });
 
-// Debug endpoint to see paths
 app.get("/__debug", (_req, res) => {
   res.json({
     __dirname,
@@ -64,24 +63,70 @@ app.get("/__debug", (_req, res) => {
   });
 });
 
-// Serve static files if path found
+app.use(
+  express.json({
+    verify: (req, _res, buf) => {
+      req.rawBody = buf;
+    },
+  }),
+);
+
+app.use(express.urlencoded({ extended: false }));
+
+app.use((req, res, next) => {
+  const start = Date.now();
+  const reqPath = req.path;
+  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+
+  const originalResJson = res.json;
+  res.json = function (bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
+
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (reqPath.startsWith("/api")) {
+      let logLine = `${req.method} ${reqPath} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
+      const formattedTime = new Date().toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+      console.log(`${formattedTime} [express] ${logLine}`);
+    }
+  });
+
+  next();
+});
+
+async function initializeRoutes() {
+  try {
+    console.log("[prod] Importing routes...");
+    const { registerRoutes } = await import("./routes");
+    await registerRoutes(httpServer, app);
+    console.log("[prod] Routes registered");
+  } catch (err) {
+    console.error("[prod] Failed to register routes:", err);
+  }
+}
+
 if (publicPath) {
   app.use(express.static(publicPath));
 }
 
-// SPA fallback
-app.get("*", (req, res, next) => {
+app.get("*", (req, res) => {
   if (req.path.startsWith("/api")) {
-    if (!appReady) {
-      return res.status(503).json({ error: "Server starting..." });
-    }
-    return next();
+    return res.status(404).json({ error: "API endpoint not found" });
   }
   
   if (indexPath && fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    // Fallback error page with debug info
     res.status(500).send(`
 <!DOCTYPE html>
 <html>
@@ -91,7 +136,6 @@ app.get("*", (req, res, next) => {
   <p>__dirname: ${__dirname}</p>
   <p>cwd: ${process.cwd()}</p>
   <p>publicPath: ${publicPath || 'not found'}</p>
-  <p>indexPath: ${indexPath || 'not found'}</p>
   <p>Tried paths:</p>
   <ul>
     ${possiblePaths.map(p => `<li>${p} - ${fs.existsSync(p) ? 'exists' : 'missing'}</li>`).join('')}
@@ -102,26 +146,12 @@ app.get("*", (req, res, next) => {
   }
 });
 
-// Start listening
 const port = parseInt(process.env.PORT || "5000", 10);
-httpServer.listen(port, "0.0.0.0", () => {
+httpServer.listen(port, "0.0.0.0", async () => {
   console.log(`[prod] Server listening on port ${port}`);
   console.log(`[prod] Serving static from: ${publicPath || 'NOT FOUND'}`);
-  initializeApp();
+  
+  await initializeRoutes();
+  markReady();
+  console.log("[prod] App fully initialized");
 });
-
-async function initializeApp() {
-  try {
-    console.log("[prod] Starting app initialization...");
-    const startTime = Date.now();
-    
-    const { initializeApp: init } = await import("./app-init.cjs");
-    await init(httpServer, app);
-    
-    appReady = true;
-    const elapsed = Date.now() - startTime;
-    console.log(`[prod] App fully initialized in ${elapsed}ms`);
-  } catch (err) {
-    console.error("[prod] Failed to initialize app:", err);
-  }
-}
