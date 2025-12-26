@@ -248,22 +248,22 @@ export default function Grimoire() {
 
       <main className="container mx-auto px-6 py-8">
         <Tabs defaultValue="profile" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex bg-purple-100 border-2 border-purple-200">
-            <TabsTrigger value="profile" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-              <User className="h-4 w-4 mr-2" />
-              Профиль
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:w-auto lg:inline-flex bg-purple-100 border-2 border-purple-200 h-auto p-1 gap-1">
+            <TabsTrigger value="profile" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <User className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span>Профиль</span>
             </TabsTrigger>
-            <TabsTrigger value="library" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Хранилище
+            <TabsTrigger value="library" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <BookOpen className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span>Хранилище</span>
             </TabsTrigger>
-            <TabsTrigger value="brand" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-              <Palette className="h-4 w-4 mr-2" />
-              ДНК Бренда
+            <TabsTrigger value="brand" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <Palette className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span>ДНК</span>
             </TabsTrigger>
-            <TabsTrigger value="subscription" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-              <CreditCard className="h-4 w-4 mr-2" />
-              Подписка
+            <TabsTrigger value="subscription" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <CreditCard className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span>Подписка</span>
             </TabsTrigger>
           </TabsList>
 
@@ -688,11 +688,11 @@ export default function Grimoire() {
                     {archetypeResult.brandFonts && archetypeResult.brandFonts.length > 0 && (
                       <div>
                         <h3 className="text-lg font-mystic text-purple-700 mb-2">Рекомендованные Шрифты</h3>
-                        <div className="flex gap-4 flex-wrap">
+                        <div className="space-y-2">
                           {archetypeResult.brandFonts.map((font, idx) => (
-                            <Badge key={idx} variant="outline" className="text-purple-600 border-purple-300">
+                            <div key={idx} className="text-purple-600 border border-purple-300 rounded-lg px-3 py-2 text-sm break-words">
                               {font}
-                            </Badge>
+                            </div>
                           ))}
                         </div>
                       </div>

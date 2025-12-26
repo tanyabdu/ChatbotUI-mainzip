@@ -160,10 +160,10 @@ export default function LunarCalendar() {
                 </Card>
               </div>
 
-              <div className="text-center pt-4">
-                <Badge variant="secondary" className="text-sm px-4 py-2 bg-purple-100 text-purple-700 border-2 border-purple-400">
+              <div className="pt-4 px-2">
+                <div className="text-sm px-4 py-3 bg-purple-100 text-purple-700 border-2 border-purple-400 rounded-lg text-center">
                   {moonData.contentRecommendation}
-                </Badge>
+                </div>
               </div>
             </div>
           )}
@@ -223,7 +223,7 @@ export default function LunarCalendar() {
                 
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="font-medium text-blue-700 mb-2">Сезоны 2026</p>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                     <div className="text-blue-600">
                       <span className="font-medium">Весна:</span> {formatDate(SEASONS_2026.spring.date)}
                     </div>

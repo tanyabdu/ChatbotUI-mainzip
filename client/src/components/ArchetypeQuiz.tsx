@@ -231,8 +231,8 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                     </div>
                   </div>
                   <div>
-                    <span className="text-xs text-purple-500 block">Шрифты</span>
-                    <span className="text-purple-700 text-sm">{displayProfile.visualGuide.fonts}</span>
+                    <span className="text-xs text-purple-500 block mb-1">Шрифты</span>
+                    <p className="text-purple-700 text-sm break-words">{displayProfile.visualGuide.fonts}</p>
                   </div>
                   <div>
                     <span className="text-xs text-purple-500 block">Атмосфера (Vibe)</span>

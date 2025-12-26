@@ -373,37 +373,38 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       <Card className="relative overflow-visible bg-white border-2 border-purple-300 shadow-lg">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-gradient-to-br from-purple-300 to-pink-300 rounded-full blur-3xl opacity-30 pointer-events-none" />
         
-        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
-          {archetypeActive && (
-            <Badge 
-              variant="secondary" 
-              className="bg-purple-100 text-purple-700 border-2 border-purple-400"
-            >
-              <Dna className="h-3 w-3 mr-1" />
-              Архетип активен
-            </Badge>
-          )}
-          {isPro ? (
-            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
-              <Crown className="h-3 w-3 mr-1" />
-              PRO - Безлимит
-            </Badge>
-          ) : limitReached ? (
-            <Badge variant="destructive" className="border-2 border-red-400">
-              <Lock className="h-3 w-3 mr-1" />
-              Лимит исчерпан
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="text-purple-600 border-2 border-purple-300">
-              Осталось: {generationLimit?.remaining ?? 1} генерация
-            </Badge>
-          )}
-        </div>
-        
-        <CardHeader>
-          <CardTitle className="text-2xl font-mystic font-semibold text-purple-700">
-            Настройки Стратегии
-          </CardTitle>
+        <CardHeader className="pb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <CardTitle className="text-2xl font-mystic font-semibold text-purple-700">
+              Настройки Стратегии
+            </CardTitle>
+            <div className="flex flex-wrap gap-2">
+              {archetypeActive && (
+                <Badge 
+                  variant="secondary" 
+                  className="bg-purple-100 text-purple-700 border-2 border-purple-400 text-xs"
+                >
+                  <Dna className="h-3 w-3 mr-1" />
+                  Архетип
+                </Badge>
+              )}
+              {isPro ? (
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 text-xs">
+                  <Crown className="h-3 w-3 mr-1" />
+                  PRO
+                </Badge>
+              ) : limitReached ? (
+                <Badge variant="destructive" className="border-2 border-red-400 text-xs">
+                  <Lock className="h-3 w-3 mr-1" />
+                  Лимит
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-purple-600 border-2 border-purple-300 text-xs">
+                  Осталось: {generationLimit?.remaining ?? 1}
+                </Badge>
+              )}
+            </div>
+          </div>
         </CardHeader>
         
         <CardContent>
