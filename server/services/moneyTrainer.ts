@@ -1,6 +1,28 @@
 import OpenAI from "openai";
 import type { SalesTrainerSample } from "@shared/schema";
 
+const OFFER_LABELS: Record<string, string> = {
+  consultation: "Консультация",
+  forecast: "Прогноз на год",
+  compatibility: "Совместимость",
+  natal_chart: "Натальная карта",
+  tarot_spread: "Расклад Таро",
+  marathon: "Марафон",
+  course: "Курс",
+  workshop: "Практикум",
+  masterclass: "Мастер-класс",
+  guide: "Гайд",
+  webinar: "Вебинар",
+  subscription: "Подписка",
+  mentoring: "Наставничество",
+  retreat: "Ретрит",
+};
+
+function getOfferLabel(offerType?: string): string {
+  if (!offerType) return "";
+  return OFFER_LABELS[offerType] || offerType;
+}
+
 const SYSTEM_PROMPT = `Ты — тренер по продажам для эзотерических экспертов (тарологов, астрологов, нумерологов).
 Твоя задача — улучшить черновик ответа эксперта на вопрос клиента так, чтобы:
 
@@ -49,7 +71,7 @@ ${sample.coachFeedback ? `Комментарий тренера: ${sample.coachF
 Вопрос клиента: ${params.clientQuestion}
 ${params.painType ? `Тип боли клиента: ${params.painType}` : ''}
 Черновик ответа эксперта: ${params.expertDraft}
-${params.offerType ? `Желаемое предложение: ${params.offerType}` : ''}
+${params.offerType ? `Желаемое предложение: ${getOfferLabel(params.offerType)}` : ''}
 
 Напиши улучшенную версию ответа, которая закроет клиента на продажу:`;
 

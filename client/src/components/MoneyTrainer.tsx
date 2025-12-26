@@ -26,6 +26,15 @@ const OFFER_TYPES = [
   { value: "compatibility", label: "Совместимость" },
   { value: "natal_chart", label: "Натальная карта" },
   { value: "tarot_spread", label: "Расклад Таро" },
+  { value: "marathon", label: "Марафон" },
+  { value: "course", label: "Курс" },
+  { value: "workshop", label: "Практикум" },
+  { value: "masterclass", label: "Мастер-класс" },
+  { value: "guide", label: "Гайд" },
+  { value: "webinar", label: "Вебинар" },
+  { value: "subscription", label: "Подписка" },
+  { value: "mentoring", label: "Наставничество" },
+  { value: "retreat", label: "Ретрит" },
 ];
 
 export default function MoneyTrainer() {
