@@ -6,7 +6,12 @@ import fs from "fs";
 const app = express();
 const httpServer = createServer(app);
 
-const publicPath = path.resolve(process.cwd(), "dist", "public");
+// In CJS build, __dirname points to dist/ folder
+// public folder is at dist/public (sibling to prod-entry.cjs)
+declare const __dirname: string;
+const publicPath = path.join(__dirname, "public");
+
+console.log(`[prod] __dirname: ${__dirname}`);
 console.log(`[prod] Static files path: ${publicPath}`);
 console.log(`[prod] Path exists: ${fs.existsSync(publicPath)}`);
 if (fs.existsSync(publicPath)) {
@@ -37,12 +42,11 @@ app.get("*", (req, res, next) => {
   }
   
   const indexPath = path.join(publicPath, "index.html");
-  console.log(`[prod] Serving index.html from: ${indexPath}`);
   
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(500).send(`index.html not found at ${indexPath}`);
+    res.status(500).send(`index.html not found at ${indexPath}. __dirname: ${__dirname}`);
   }
 });
 
