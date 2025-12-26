@@ -177,31 +177,6 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
               background: `linear-gradient(135deg, ${displayProfile.visualGuide.colors[0]}40 0%, ${displayProfile.visualGuide.colors[1]}40 100%)`
             }}
           />
-          
-          <div className="absolute top-4 right-4 flex gap-2">
-            {allResults.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-purple-600"
-                onClick={() => setShowHistory(!showHistory)}
-                data-testid="button-show-history"
-              >
-                <History className="h-4 w-4 mr-1" />
-                История ({allResults.length})
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-purple-600"
-              onClick={handleReset}
-              data-testid="button-reset-quiz"
-            >
-              <RotateCcw className="h-4 w-4 mr-1" />
-              Пройти заново
-            </Button>
-          </div>
 
           <CardContent className="relative z-10 p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -267,7 +242,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
               </Card>
             </div>
 
-            <div className="mt-8 text-center">
+            <div className="mt-8 flex flex-col items-center gap-4">
               <Button
                 onClick={handleApply}
                 data-testid="button-apply-archetype"
@@ -276,9 +251,34 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                 <Check className="h-5 w-5 mr-2" />
                 Активировать этот стиль
               </Button>
-              <p className="text-xs text-purple-500 mt-2">
+              <p className="text-xs text-purple-500">
                 Стиль будет применен ко всем будущим генерациям контента
               </p>
+              
+              <div className="flex gap-3 mt-2">
+                {allResults.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-purple-600 border-purple-300"
+                    onClick={() => setShowHistory(!showHistory)}
+                    data-testid="button-show-history"
+                  >
+                    <History className="h-4 w-4 mr-1" />
+                    История ({allResults.length})
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-purple-600 border-purple-300"
+                  onClick={handleReset}
+                  data-testid="button-reset-quiz"
+                >
+                  <RotateCcw className="h-4 w-4 mr-1" />
+                  Пройти заново
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
