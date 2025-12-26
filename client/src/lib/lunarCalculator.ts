@@ -34,6 +34,25 @@ const ZODIAC_SIGNS = [
   { name: "Рыбы", start: 330 },
 ];
 
+const ZODIAC_PREPOSITIONAL: Record<string, string> = {
+  "Овен": "Овне",
+  "Телец": "Тельце",
+  "Близнецы": "Близнецах",
+  "Рак": "Раке",
+  "Лев": "Льве",
+  "Дева": "Деве",
+  "Весы": "Весах",
+  "Скорпион": "Скорпионе",
+  "Стрелец": "Стрельце",
+  "Козерог": "Козероге",
+  "Водолей": "Водолее",
+  "Рыбы": "Рыбах",
+};
+
+function getZodiacPrepositional(sign: string): string {
+  return ZODIAC_PREPOSITIONAL[sign] || sign;
+}
+
 function getMoonEclipticLongitude(date: Date): number {
   const JD = getJulianDate(date);
   const T = (JD - 2451545.0) / 36525;
@@ -343,7 +362,7 @@ export function getMoonDayInfo(date: Date = new Date()): MoonDayInfo {
   return {
     day: lunarData.lunarDay,
     phase: lunarData.phase,
-    zodiac: `Луна в ${lunarData.zodiacSign}`,
+    zodiac: `Луна в ${getZodiacPrepositional(lunarData.zodiacSign)}`,
     ...dayData,
   };
 }
