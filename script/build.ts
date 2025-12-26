@@ -20,6 +20,7 @@ async function buildAll() {
       "process.env.NODE_ENV": '"production"',
     },
     minify: true,
+    external: [],
     logLevel: "info",
   });
 }
