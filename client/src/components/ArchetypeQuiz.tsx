@@ -63,6 +63,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
   const [profile, setProfile] = useState<ArchetypeProfile | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showUnanswered, setShowUnanswered] = useState(false);
+  const [isRetaking, setIsRetaking] = useState(false);
   const { toast } = useToast();
 
   const answeredCount = Object.keys(answers).length;
@@ -133,6 +134,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
       
       setProfile(mockProfile);
       setIsAnalyzing(false);
+      setIsRetaking(false);
       onComplete?.(mockProfile);
     }, 2000);
   };
@@ -140,23 +142,39 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
   const handleReset = () => {
     setAnswers({});
     setProfile(null);
+    setIsRetaking(true);
+    setShowUnanswered(false);
   };
 
+  const displayProfile = profile || (latestResult && !isRetaking ? {
+    topArchetypes: latestResult.archetypeName.split("-"),
+    description: latestResult.archetypeDescription,
+    brandVoice: {
+      tone: "Ваш уникальный стиль коммуникации",
+      keywords: latestResult.recommendations || [],
+    },
+    visualGuide: {
+      colors: latestResult.brandColors || ["#7c3aed", "#1e1b4b", "#fbbf24"],
+      fonts: latestResult.brandFonts?.[0] || "Cormorant Garamond для заголовков, Inter для текста",
+      vibes: "Мистический и глубокий",
+    },
+  } : null);
+
   const handleApply = () => {
-    if (profile) {
-      onApply?.(profile);
-      console.log("Archetype applied:", profile);
+    if (displayProfile) {
+      onApply?.(displayProfile);
+      console.log("Archetype applied:", displayProfile);
     }
   };
 
-  if (profile) {
+  if (displayProfile && !isRetaking) {
     return (
       <section className="fade-in">
         <Card className="relative overflow-visible bg-white border-2 border-purple-300 shadow-lg">
           <div 
             className="absolute inset-0 opacity-10 rounded-lg"
             style={{
-              background: `linear-gradient(135deg, ${profile.visualGuide.colors[0]}40 0%, ${profile.visualGuide.colors[1]}40 100%)`
+              background: `linear-gradient(135deg, ${displayProfile.visualGuide.colors[0]}40 0%, ${displayProfile.visualGuide.colors[1]}40 100%)`
             }}
           />
           
@@ -192,12 +210,12 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                   Ваш стиль
                 </Badge>
                 <h2 className="text-4xl md:text-5xl font-mystic bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-4 font-bold leading-tight">
-                  {profile.topArchetypes.join("-")}
+                  {displayProfile.topArchetypes.join("-")}
                 </h2>
-                <p className="text-purple-600 text-lg mb-6">{profile.description}</p>
+                <p className="text-purple-600 text-lg mb-6">{displayProfile.description}</p>
                 
                 <div className="flex flex-wrap gap-2 mb-6">
-                  {profile.brandVoice.keywords.map((keyword) => (
+                  {displayProfile.brandVoice.keywords.map((keyword) => (
                     <Badge key={keyword} variant="outline" className="bg-pink-50 text-pink-700 border-2 border-pink-300">
                       {keyword}
                     </Badge>
@@ -210,7 +228,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                       Тональность (Tone of Voice)
                     </h4>
                     <p className="text-sm text-purple-600 italic">
-                      {profile.brandVoice.tone}
+                      {displayProfile.brandVoice.tone}
                     </p>
                   </CardContent>
                 </Card>
@@ -227,7 +245,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                   <div>
                     <span className="text-xs text-purple-500 block mb-2">Цвета</span>
                     <div className="flex gap-3">
-                      {profile.visualGuide.colors.map((color) => (
+                      {displayProfile.visualGuide.colors.map((color) => (
                         <div
                           key={color}
                           className="w-12 h-12 rounded-lg shadow-lg ring-2 ring-purple-300"
@@ -239,11 +257,11 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                   </div>
                   <div>
                     <span className="text-xs text-purple-500 block">Шрифты</span>
-                    <span className="text-purple-700 text-sm">{profile.visualGuide.fonts}</span>
+                    <span className="text-purple-700 text-sm">{displayProfile.visualGuide.fonts}</span>
                   </div>
                   <div>
                     <span className="text-xs text-purple-500 block">Атмосфера (Vibe)</span>
-                    <span className="text-purple-700 text-sm">{profile.visualGuide.vibes}</span>
+                    <span className="text-purple-700 text-sm">{displayProfile.visualGuide.vibes}</span>
                   </div>
                 </CardContent>
               </Card>
