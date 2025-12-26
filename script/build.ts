@@ -1,26 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
-
-const allowlist = [
-  "connect-pg-simple",
-  "date-fns",
-  "drizzle-orm",
-  "drizzle-zod",
-  "express",
-  "express-session",
-  "jsonwebtoken",
-  "memorystore",
-  "openai",
-  "pg",
-  "zod",
-  "zod-validation-error",
-  "bcryptjs",
-  "passport",
-  "passport-local",
-  "suncalc",
-  "tesseract.js",
-];
+import { rm } from "fs/promises";
 
 async function buildAll() {
   await rm("dist", { recursive: true, force: true });
@@ -29,13 +9,7 @@ async function buildAll() {
   await viteBuild();
 
   console.log("building server...");
-  const pkg = JSON.parse(await readFile("package.json", "utf-8"));
-  const allDeps = [
-    ...Object.keys(pkg.dependencies || {}),
-    ...Object.keys(pkg.devDependencies || {}),
-  ];
-  const externals = allDeps.filter((dep) => !allowlist.includes(dep));
-
+  
   await esbuild({
     entryPoints: ["server/prod-entry.ts"],
     platform: "node",
@@ -46,7 +20,6 @@ async function buildAll() {
       "process.env.NODE_ENV": '"production"',
     },
     minify: true,
-    external: externals,
     logLevel: "info",
   });
 }
