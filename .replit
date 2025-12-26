@@ -51,6 +51,6 @@ PRODAMUS_URL = "https://Kati-klimovaa.payform.ru"
 
 [deployment]
 build = ["npm", "run", "build"]
-run = ["node", "dist/index.cjs"]
+run = ["node", "dist/prod-entry.cjs"]
 deploymentTarget = "vm"
 ignorePorts = true
