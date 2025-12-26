@@ -1,11 +1,18 @@
 import express from "express";
 import { createServer } from "http";
 import path from "path";
+import fs from "fs";
 
 const app = express();
 const httpServer = createServer(app);
 
 const publicPath = path.resolve(process.cwd(), "dist", "public");
+console.log(`[prod] Static files path: ${publicPath}`);
+console.log(`[prod] Path exists: ${fs.existsSync(publicPath)}`);
+if (fs.existsSync(publicPath)) {
+  console.log(`[prod] Files in public: ${fs.readdirSync(publicPath).join(", ")}`);
+}
+
 let appReady = false;
 
 // Health check routes - respond immediately
@@ -17,7 +24,7 @@ app.get("/__healthcheck", (_req, res) => {
   res.status(200).send("OK");
 });
 
-// Serve static files immediately
+// Serve static files
 app.use(express.static(publicPath));
 
 // SPA fallback - serve index.html for non-API routes
@@ -28,7 +35,15 @@ app.get("*", (req, res, next) => {
     }
     return next();
   }
-  res.sendFile(path.join(publicPath, "index.html"));
+  
+  const indexPath = path.join(publicPath, "index.html");
+  console.log(`[prod] Serving index.html from: ${indexPath}`);
+  
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(500).send(`index.html not found at ${indexPath}`);
+  }
 });
 
 // Start listening
