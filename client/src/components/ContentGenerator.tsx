@@ -12,6 +12,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { ContentStrategy, ContentPost, ArchetypeResult } from "@shared/schema";
 import type { ArchetypeProfile } from "@/components/ArchetypeQuiz";
+import { archetypesData } from "@/lib/archetypes";
 
 interface GenerationLimit {
   allowed: boolean;
@@ -50,7 +51,14 @@ interface GenerationContext {
   goal: ContentGoal;
   niche: string;
   product?: string;
-  archetype?: { name: string; description: string; recommendations: string[] };
+  archetype?: { 
+    name: string; 
+    description: string; 
+    recommendations: string[];
+    triggerWords?: string[];
+    contentStyle?: string[];
+    tone?: string;
+  };
 }
 
 type FormatType = "post" | "carousel" | "reels" | "stories";
@@ -126,7 +134,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       days: DaysCount;
       product?: string;
       strategy?: StrategyType;
-      archetype?: { name: string; description: string; recommendations: string[] };
+      archetype?: { name: string; description: string; recommendations: string[]; triggerWords?: string[]; contentStyle?: string[]; tone?: string };
     }) => {
       const response = await apiRequest("POST", "/api/strategies/generate-ideas", data);
       return response.json();
@@ -155,7 +163,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       idea: string;
       type: string;
       format: FormatType;
-      archetype?: { name: string; description: string; recommendations: string[] };
+      archetype?: { name: string; description: string; recommendations: string[]; triggerWords?: string[]; contentStyle?: string[]; tone?: string };
       dayNum: number; // for state tracking
     }) => {
       const response = await apiRequest("POST", "/api/strategies/generate-format", {
@@ -194,7 +202,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       days: DaysCount;
       product?: string;
       strategy?: StrategyType;
-      archetype?: { name: string; description: string; recommendations: string[] };
+      archetype?: { name: string; description: string; recommendations: string[]; triggerWords?: string[]; contentStyle?: string[]; tone?: string };
     }) => {
       const response = await apiRequest("POST", "/api/strategies/generate", data);
       return response.json();
@@ -343,21 +351,48 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
     setGeneratedFormats({});
     setLoadingFormats({});
     
+    const getArchetypeDataForGeneration = () => {
+      if (!archetypeActive) return undefined;
+      
+      const primaryArchetypeName = archetypeData?.archetypeName?.split('-')[0] || 
+        localArchetypeProfile?.topArchetypes[0];
+      
+      const fullArchetype = primaryArchetypeName 
+        ? Object.values(archetypesData).find(a => a.name === primaryArchetypeName)
+        : undefined;
+      
+      if (archetypeData) {
+        return {
+          name: archetypeData.archetypeName,
+          description: archetypeData.archetypeDescription,
+          recommendations: archetypeData.recommendations || [],
+          triggerWords: fullArchetype?.triggerWords || [],
+          contentStyle: fullArchetype?.contentStyle || [],
+          tone: fullArchetype?.brandVoice.tone || '',
+        };
+      }
+      
+      if (localArchetypeProfile) {
+        return {
+          name: localArchetypeProfile.topArchetypes.join('-'),
+          description: localArchetypeProfile.description,
+          recommendations: localArchetypeProfile.brandVoice.keywords || [],
+          triggerWords: fullArchetype?.triggerWords || [],
+          contentStyle: fullArchetype?.contentStyle || [],
+          tone: localArchetypeProfile.brandVoice.tone || fullArchetype?.brandVoice.tone || '',
+        };
+      }
+      
+      return undefined;
+    };
+
     const requestData = {
       goal,
       niche,
       days,
       product: goal === "sale" ? product : undefined,
       strategy: goal === "sale" ? strategy : undefined,
-      archetype: archetypeActive ? (archetypeData ? {
-        name: archetypeData.archetypeName,
-        description: archetypeData.archetypeDescription,
-        recommendations: archetypeData.recommendations || [],
-      } : localArchetypeProfile ? {
-        name: localArchetypeProfile.topArchetypes.join('-'),
-        description: localArchetypeProfile.description,
-        recommendations: localArchetypeProfile.brandVoice.keywords || [],
-      } : undefined) : undefined,
+      archetype: getArchetypeDataForGeneration(),
     };
     
     onGenerate?.({ goal, niche, days, product: requestData.product, strategy: requestData.strategy });

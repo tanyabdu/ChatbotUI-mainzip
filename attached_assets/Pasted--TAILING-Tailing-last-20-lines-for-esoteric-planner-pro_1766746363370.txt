@@ -1,0 +1,23 @@
+[TAILING] Tailing last 20 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-out-0.log last 20 lines:
+0|esoteric | login 200 in 117ms :: {"message":"Вход выполнен успешно","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmOWJhYzFiOS1jNDE1LTQyYzEtYWFlNS0yMDFhOGMxMWQyYzciLCJpYXQiOjE3NjY3NDU2ODcsImV4cCI6MTc2NzM1MDQ4N30.mU46KfKYZkHNjZYAql_rvGeSD7xrRQdu4r7UFEHP44Y","user":{"id":"f9bac1b9-c415-42c1-aae5-201a8c11d2c7","email":"tanyagusa@bk.ru","firstName":"Анна","lastName":"Иванова","isAdmin":false}}
+0|esoteric | 1:41:27 PM [express] GET /api/auth/user 200 in 12ms :: {"id":"f9bac1b9-c415-42c1-aae5-201a8c11d2c7","email":"tanyagusa@bk.ru","firstName":"Анна","lastName":"Иванова","profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2025-12-24T13:12:04.938Z","subscriptionExpiresAt":"2026-04-22T01:19:49.820Z"}
+0|esoteric | 1:41:28 PM [express] GET /api/auth/access 200 in 12ms :: {"hasAccess":true,"daysLeft":117}
+0|esoteric | 1:41:28 PM [express] GET /api/archetypes/latest 200 in 27ms :: {"id":"38e3a70e-3094-4ff9-8a8e-b92accb8bdf8","userId":"f9bac1b9-c415-42c1-aae5-201a8c11d2c7","archetypeName":"Маг-Мудрец-Бунтарь","archetypeDescription":"Глубокий, трансформационный стиль с нотками провокации. Вы умеете видеть суть и не боитесь говорить правду.","answers":[1,2,1,1,0],"recommendations":["трансформация","глубина","правда","магия","путь"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"createdAt":"2025-12-26T06:20:30.945Z"}
+0|esoteric | 1:45:12 PM [express] GET /api/payments/webhook 200 in 0ms
+0|esoteric | 1:46:12 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | 1:46:21 PM [express] POST /api/auth/login 200 in 171ms :: {"message":"Вход выполнен успешно","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTRhNTcyYi1hZTk4LTQyZTMtODQ2Yy01NzE4Mjg1ZDFkOTIiLCJpYXQiOjE3NjY3NDU5ODEsImV4cCI6MTc2NzM1MDc4MX0.3SEqxOkndBDCFK9UMGnEjxGc1mzpXWusg2EC4YzysYg","user":{"id":"3a4a572b-ae98-42e3-846c-5718285d1d92","email":"tanya.fskate@gmail.com","firstName":"Татьяна ","lastName":"Абдулаева","isAdmin":true}}
+0|esoteric | 1:46:21 PM [express] GET /api/auth/user 200 in 15ms :: {"id":"3a4a572b-ae98-42e3-846c-5718285d1d92","email":"tanya.fskate@gmail.com","firstName":"Татьяна ","lastName":"Абдулаева","profileImageUrl":null,"isAdmin":true,"subscriptionTier":"trial","trialEndsAt":"2025-12-24T05:18:58.747Z","subscriptionExpiresAt":null}
+0|esoteric | 1:46:21 PM [express] GET /api/auth/access 200 in 13ms :: {"hasAccess":true,"daysLeft":-1}
+0|esoteric | 1:46:23 PM [express] GET /api/archetypes/latest 200 in 30ms :: {"id":"c49b3300-b6a3-4abd-8c24-da8e2a0dc4dd","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","archetypeName":"Маг-Мудрец-Бунтарь","archetypeDescription":"Глубокий, трансформационный стиль с нотками провокации. Вы умеете видеть суть и не боитесь говорить правду.","answers":[0,0,2,1,2],"recommendations":["трансформация","глубина","правда","магия","путь"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"createdAt":"2025-12-23T09:34:14.703Z"}
+0|esoteric | 1:46:25 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | [Email] Attempting to send email to tanyagusa@bk.ru, subject: "Сброс пароля - Эзотерический Планировщик"
+0|esoteric | [Email] FROM_EMAIL: klimova@magic-content.ru, API Key exists: true
+0|esoteric | [Email] Sending request to Rusender API...
+0|esoteric | [Email] Rusender response status: 401, body: {"message":"Invalid API key","statusCode":401}
+0|esoteric | 1:46:37 PM [express] POST /api/auth/password-reset/request 200 in 224ms :: {"message":"Если email существует, вам будет отправлена ссылка для сброса пароля"}
+
+/root/.pm2/logs/esoteric-planner-error-0.log last 20 lines:
+0|esoteric | [Email] Rusender API error (401): {"message":"Invalid API key","statusCode":401}
+
+

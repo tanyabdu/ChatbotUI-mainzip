@@ -22,6 +22,9 @@ export interface ContentGenerationInput {
     name: string;
     description: string;
     recommendations: string[];
+    triggerWords?: string[];
+    contentStyle?: string[];
+    tone?: string;
   };
 }
 
@@ -178,9 +181,12 @@ export async function generateContentStrategy(input: ContentGenerationInput): Pr
     ? `\n\nДНК БРЕНДА (ОБЯЗАТЕЛЬНО учитывай в стиле текста!):
 Архетип: ${archetype.name}
 Описание стиля: ${archetype.description}
-Ключевые слова для использования: ${archetype.recommendations.join(", ")}
+${archetype.tone ? `Тональность: ${archetype.tone}` : ''}
+${archetype.triggerWords?.length ? `Слова-триггеры (используй в текстах): ${archetype.triggerWords.slice(0, 10).join(", ")}` : ''}
+${archetype.contentStyle?.length ? `Стиль контента: ${archetype.contentStyle.join("; ")}` : ''}
+Ключевые слова бренда: ${archetype.recommendations.join(", ")}
 
-Пиши в стиле этого архетипа — используй соответствующий тон, настроение и ключевые слова.`
+ВАЖНО: Пиши в стиле архетипа "${archetype.name}". Используй соответствующий тон, слова-триггеры и настроение. Контент должен звучать как будто его писал человек с этим архетипом.`
     : "";
 
   // Principles from "Нейрокопирайтинг" by Kaplunov - natural, human language
@@ -365,6 +371,9 @@ export interface SingleFormatInput {
     name: string;
     description: string;
     recommendations: string[];
+    triggerWords?: string[];
+    contentStyle?: string[];
+    tone?: string;
   };
 }
 
@@ -453,7 +462,14 @@ export async function generateSingleFormat(input: SingleFormatInput): Promise<Fo
   const { goal, niche, product, idea, type, format, archetype } = input;
   
   const archetypeInstruction = archetype 
-    ? `\nАрхетип бренда: "${archetype.name}" — ${archetype.description}. Используй слова: ${archetype.recommendations.join(", ")}`
+    ? `\n\nАРХЕТИП БРЕНДА: "${archetype.name}"
+${archetype.description}
+${archetype.tone ? `Тональность: ${archetype.tone}` : ''}
+${archetype.triggerWords?.length ? `Слова-триггеры (используй в тексте): ${archetype.triggerWords.slice(0, 8).join(", ")}` : ''}
+${archetype.contentStyle?.length ? `Стиль: ${archetype.contentStyle.slice(0, 3).join("; ")}` : ''}
+Ключевые слова: ${archetype.recommendations.join(", ")}
+
+Пиши в стиле этого архетипа!`
     : "";
 
   const writingRules = `

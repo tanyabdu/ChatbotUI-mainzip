@@ -5,52 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Loader2, Check, RotateCcw, Sparkles, Palette, History, AlertCircle } from "lucide-react";
+import { Loader2, Check, RotateCcw, Sparkles, Palette, History } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { ArchetypeResult } from "@shared/schema";
+import { 
+  quizQuestions, 
+  calculateArchetypeResult, 
+  archetypesData,
+  type ArchetypeProfile 
+} from "@/lib/archetypes";
 
-interface Question {
-  q: string;
-  a: string[];
-}
-
-export interface ArchetypeProfile {
-  topArchetypes: string[];
-  description: string;
-  brandVoice: {
-    tone: string;
-    keywords: string[];
-  };
-  visualGuide: {
-    colors: string[];
-    fonts: string;
-    vibes: string;
-  };
-}
-
-const archetypeQuestions: Question[] = [
-  {
-    q: "Что для вас важнее всего в работе с клиентом?",
-    a: ["Дать им структуру и четкий план (Правитель)", "Позаботиться, выслушать и утешить (Заботливый)", "Вдохновить на большие перемены и магию (Маг)", "Показать правду, даже если она жесткая (Бунтарь)"]
-  },
-  {
-    q: "Как вы относитесь к правилам и традициям в эзотерике?",
-    a: ["Чту традиции, но адаптирую их (Мудрец)", "Создаю свои собственные правила (Творец)", "Соблюдаю строго, это база (Правитель)", "Люблю нарушать правила и шокировать (Шут)"]
-  },
-  {
-    q: "Какая фраза лучше всего описывает ваш подход?",
-    a: ["Всё будет так, как ты захочешь (Маг)", "Я знаю, как правильно, и научу тебя (Учитель/Мудрец)", "Давай просто будем собой (Славный малый)", "Мы вместе пройдем этот путь (Герой)"]
-  },
-  {
-    q: "Чего вы больше всего боитесь в профессиональном плане?",
-    a: ["Быть скучным и обычным (Бунтарь)", "Навредить клиенту или дать неверный совет (Заботливый)", "Потерять контроль над ситуацией (Правитель)", "Оказаться некомпетентным (Мудрец)"]
-  },
-  {
-    q: "Какой стиль одежды или визуальный образ вам ближе?",
-    a: ["Строгий, дорогой, статусный (Правитель)", "Мистический, загадочный, мантии (Маг)", "Яркий, необычный, эпатажный (Шут/Бунтарь)", "Уютный, мягкий, натуральный (Заботливый/Славный малый)"]
-  },
-];
+export type { ArchetypeProfile } from "@/lib/archetypes";
 
 interface ArchetypeQuizProps {
   onComplete?: (profile: ArchetypeProfile) => void;
@@ -58,16 +24,17 @@ interface ArchetypeQuizProps {
 }
 
 export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProps) {
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [profile, setProfile] = useState<ArchetypeProfile | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showUnanswered, setShowUnanswered] = useState(false);
   const [isRetaking, setIsRetaking] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
   const { toast } = useToast();
 
   const answeredCount = Object.keys(answers).length;
-  const totalQuestions = archetypeQuestions.length;
+  const totalQuestions = quizQuestions.length;
 
   const { data: latestResult } = useQuery<ArchetypeResult | null>({
     queryKey: ["/api/archetypes/latest"],
@@ -78,7 +45,16 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (data: { archetypeName: string; archetypeDescription: string; answers: number[]; recommendations: string[]; brandColors?: string[]; brandFonts?: string[] }) => {
+    mutationFn: async (data: { 
+      archetypeName: string; 
+      archetypeDescription: string; 
+      answers: number[]; 
+      recommendations: string[]; 
+      brandColors?: string[]; 
+      brandFonts?: string[];
+      contentStyle?: string;
+      triggerWords?: string[];
+    }) => {
       return apiRequest("POST", "/api/archetypes", data);
     },
     onSuccess: () => {
@@ -88,7 +64,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
   });
 
   const handleSubmit = () => {
-    const allAnswered = archetypeQuestions.every((_, idx) => answers[idx]);
+    const allAnswered = quizQuestions.every((_, idx) => answers[idx] !== undefined);
     if (!allAnswered) {
       setShowUnanswered(true);
       const unansweredCount = totalQuestions - answeredCount;
@@ -103,39 +79,30 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
     setShowUnanswered(false);
     setIsAnalyzing(true);
 
-    const answerIndices = archetypeQuestions.map((q, idx) => {
-      const selectedAnswer = answers[idx];
-      return q.a.indexOf(selectedAnswer);
-    });
+    const answerIndices = quizQuestions.map((_, idx) => answers[idx]);
 
     setTimeout(() => {
-      const mockProfile: ArchetypeProfile = {
-        topArchetypes: ["Маг", "Мудрец", "Бунтарь"],
-        description: "Глубокий, трансформационный стиль с нотками провокации. Вы умеете видеть суть и не боитесь говорить правду.",
-        brandVoice: {
-          tone: "Загадочный, но доступный. Мудрый, но не занудный. С легкой ноткой провокации.",
-          keywords: ["трансформация", "глубина", "правда", "магия", "путь"]
-        },
-        visualGuide: {
-          colors: ["#7c3aed", "#1e1b4b", "#fbbf24"],
-          fonts: "Cormorant Garamond для заголовков, Inter для текста",
-          vibes: "Мистический минимализм с золотыми акцентами"
-        }
-      };
+      const calculatedProfile = calculateArchetypeResult(answerIndices);
+      
+      const primaryArchetypeName = calculatedProfile.topArchetypes[0];
+      const primaryArchetype = Object.values(archetypesData).find(a => a.name === primaryArchetypeName);
       
       saveMutation.mutate({
-        archetypeName: mockProfile.topArchetypes.join("-"),
-        archetypeDescription: mockProfile.description,
+        archetypeName: calculatedProfile.topArchetypes.join("-"),
+        archetypeDescription: calculatedProfile.description,
         answers: answerIndices,
-        recommendations: mockProfile.brandVoice.keywords,
-        brandColors: mockProfile.visualGuide.colors,
-        brandFonts: [mockProfile.visualGuide.fonts],
+        recommendations: calculatedProfile.brandVoice.keywords,
+        brandColors: calculatedProfile.visualGuide.colors,
+        brandFonts: [calculatedProfile.visualGuide.fonts],
+        contentStyle: primaryArchetype?.contentStyle.join("; "),
+        triggerWords: primaryArchetype?.triggerWords,
       });
       
-      setProfile(mockProfile);
+      setProfile(calculatedProfile);
       setIsAnalyzing(false);
       setIsRetaking(false);
-      onComplete?.(mockProfile);
+      setIsApplied(false);
+      onComplete?.(calculatedProfile);
     }, 2000);
   };
 
@@ -144,37 +111,53 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
     setProfile(null);
     setIsRetaking(true);
     setShowUnanswered(false);
+    setIsApplied(false);
   };
 
   const displayProfile = profile || (latestResult && !isRetaking ? {
     topArchetypes: latestResult.archetypeName.split("-"),
     description: latestResult.archetypeDescription,
     brandVoice: {
-      tone: "Ваш уникальный стиль коммуникации",
+      tone: (() => {
+        const primaryName = latestResult.archetypeName.split("-")[0];
+        const archetype = Object.values(archetypesData).find(a => a.name === primaryName);
+        return archetype?.brandVoice.tone || "Ваш уникальный стиль коммуникации";
+      })(),
       keywords: latestResult.recommendations || [],
     },
     visualGuide: {
       colors: latestResult.brandColors || ["#7c3aed", "#1e1b4b", "#fbbf24"],
       fonts: latestResult.brandFonts?.[0] || "Cormorant Garamond для заголовков, Inter для текста",
-      vibes: "Мистический и глубокий",
+      vibes: (() => {
+        const primaryName = latestResult.archetypeName.split("-")[0];
+        const archetype = Object.values(archetypesData).find(a => a.name === primaryName);
+        return archetype?.visualGuide.vibes || "Мистический и глубокий";
+      })(),
     },
   } : null);
 
   const handleApply = () => {
     if (displayProfile) {
+      setIsApplied(true);
       onApply?.(displayProfile);
-      console.log("Archetype applied:", displayProfile);
+      toast({
+        title: "Архетип активирован!",
+        description: "Теперь нейросеть будет писать контент в вашем стиле",
+      });
     }
   };
 
   if (displayProfile && !isRetaking) {
+    const primaryArchetypeName = displayProfile.topArchetypes[0];
+    const primaryArchetype = Object.values(archetypesData).find(a => a.name === primaryArchetypeName);
+
     return (
       <section className="fade-in">
         <Card className="relative overflow-visible bg-white border-2 border-purple-300 shadow-lg">
           <div 
             className="absolute inset-0 opacity-10 rounded-lg"
             style={{
-              background: `linear-gradient(135deg, ${displayProfile.visualGuide.colors[0]}40 0%, ${displayProfile.visualGuide.colors[1]}40 100%)`
+              background: `linear-gradient(135deg, ${displayProfile.visualGuide.colors[0]}40 0%, ${displayProfile.visualGuide.colors[1] || displayProfile.visualGuide.colors[0]}40 100%)`
             }}
           />
 
@@ -182,12 +165,12 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
               <div>
                 <Badge variant="secondary" className="mb-4 bg-purple-100 text-purple-700 border-2 border-purple-400 tracking-widest uppercase">
-                  Ваш стиль
+                  {isApplied ? "Активирован" : "Ваш стиль"}
                 </Badge>
-                <h2 className="text-4xl md:text-5xl font-mystic bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-4 font-bold leading-tight">
-                  {displayProfile.topArchetypes.join("-")}
+                <h2 className="text-3xl md:text-4xl font-mystic bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-4 font-bold leading-tight">
+                  {displayProfile.topArchetypes.join(" + ")}
                 </h2>
-                <p className="text-purple-600 text-lg mb-6">{displayProfile.description}</p>
+                <p className="text-purple-600 text-base mb-6">{displayProfile.description}</p>
                 
                 <div className="flex flex-wrap gap-2 mb-6">
                   {displayProfile.brandVoice.keywords.map((keyword) => (
@@ -207,56 +190,106 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                     </p>
                   </CardContent>
                 </Card>
+
+                {primaryArchetype && (
+                  <Card className="bg-purple-50 border-2 border-purple-200 mt-4">
+                    <CardContent className="p-4">
+                      <h4 className="text-purple-700 text-xs uppercase font-bold mb-2">
+                        Слова-триггеры для контента
+                      </h4>
+                      <div className="flex flex-wrap gap-1">
+                        {primaryArchetype.triggerWords.slice(0, 8).map((word) => (
+                          <span key={word} className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded">
+                            {word}
+                          </span>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
-              <Card className="bg-pink-50 border-2 border-pink-300">
-                <CardHeader>
-                  <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
-                    <Palette className="h-5 w-5 text-pink-500" />
-                    Визуальный код
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <span className="text-xs text-purple-500 block mb-2">Цвета</span>
-                    <div className="flex gap-3">
-                      {displayProfile.visualGuide.colors.map((color) => (
-                        <div
-                          key={color}
-                          className="w-12 h-12 rounded-lg shadow-lg ring-2 ring-purple-300"
-                          style={{ backgroundColor: color }}
-                          title={color}
-                        />
-                      ))}
+              <div className="space-y-4">
+                <Card className="bg-pink-50 border-2 border-pink-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-mystic text-purple-700 flex items-center gap-2">
+                      <Palette className="h-5 w-5 text-pink-500" />
+                      Визуальный код
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <span className="text-xs text-purple-500 block mb-2">Цвета</span>
+                      <div className="flex gap-3">
+                        {displayProfile.visualGuide.colors.map((color, idx) => (
+                          <div
+                            key={idx}
+                            className="w-10 h-10 rounded-lg shadow-lg ring-2 ring-purple-300"
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <span className="text-xs text-purple-500 block mb-1">Шрифты</span>
-                    <p className="text-purple-700 text-sm break-words">{displayProfile.visualGuide.fonts}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-purple-500 block">Атмосфера (Vibe)</span>
-                    <span className="text-purple-700 text-sm">{displayProfile.visualGuide.vibes}</span>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div>
+                      <span className="text-xs text-purple-500 block mb-1">Шрифты</span>
+                      <p className="text-purple-700 text-sm break-words">{displayProfile.visualGuide.fonts}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-purple-500 block">Атмосфера</span>
+                      <span className="text-purple-700 text-sm">{displayProfile.visualGuide.vibes}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {primaryArchetype && (
+                  <Card className="bg-green-50 border-2 border-green-300">
+                    <CardContent className="p-4">
+                      <h4 className="text-green-700 text-xs uppercase font-bold mb-2">
+                        Стиль контента
+                      </h4>
+                      <ul className="text-sm text-green-600 space-y-1">
+                        {primaryArchetype.contentStyle.map((style, idx) => (
+                          <li key={idx}>• {style}</li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </div>
 
             <div className="mt-8 flex flex-col items-center gap-4">
               <Button
                 onClick={handleApply}
+                disabled={isApplied}
                 data-testid="button-apply-archetype"
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 font-bold shadow-lg border-2 border-purple-400"
+                className={`${isApplied 
+                  ? 'bg-green-500 hover:bg-green-600' 
+                  : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                } text-white font-bold shadow-lg border-2 ${isApplied ? 'border-green-400' : 'border-purple-400'}`}
               >
-                <Check className="h-5 w-5 mr-2" />
-                Активировать этот стиль
+                {isApplied ? (
+                  <>
+                    <Check className="h-5 w-5 mr-2" />
+                    Стиль активирован
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5 mr-2" />
+                    Активировать этот стиль
+                  </>
+                )}
               </Button>
-              <p className="text-xs text-purple-500">
-                Стиль будет применен ко всем будущим генерациям контента
+              <p className="text-xs text-purple-500 text-center">
+                {isApplied 
+                  ? "Нейросеть теперь пишет контент в вашем стиле" 
+                  : "Стиль будет применён ко всем будущим генерациям контента"
+                }
               </p>
               
               <div className="flex gap-3 mt-2">
-                {allResults.length > 0 && (
+                {allResults.length > 1 && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -280,6 +313,26 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
                 </Button>
               </div>
             </div>
+
+            {showHistory && allResults.length > 1 && (
+              <Card className="mt-6 bg-gray-50 border-2 border-gray-200">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-gray-600">История прохождений</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {allResults.slice(0, 5).map((result, idx) => (
+                      <div key={result.id} className="flex items-center justify-between text-sm">
+                        <span className="text-purple-600">{result.archetypeName}</span>
+                        <span className="text-gray-400 text-xs">
+                          {new Date(result.createdAt || '').toLocaleDateString('ru-RU')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </CardContent>
         </Card>
       </section>
@@ -294,7 +347,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
             ДНК Вашего Личного Бренда
           </CardTitle>
           <p className="text-purple-500">
-            Пройдите диагностику, чтобы нейросеть "заговорила" вашим голосом.
+            Пройдите диагностику, чтобы нейросеть «заговорила» вашим голосом.
           </p>
           <div className="mt-4">
             <Badge variant="outline" className="text-purple-600 border-purple-300">
@@ -304,39 +357,39 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
         </CardHeader>
         
         <CardContent className="max-w-2xl mx-auto space-y-6">
-          {archetypeQuestions.map((question, idx) => {
-            const isUnanswered = showUnanswered && !answers[idx];
+          {quizQuestions.map((question, qIdx) => {
+            const isUnanswered = showUnanswered && answers[qIdx] === undefined;
             return (
-            <Card key={idx} className={`bg-purple-50 border-2 ${isUnanswered ? 'border-red-400 ring-2 ring-red-200' : 'border-purple-200'}`}>
-              <CardContent className="p-6">
-                <h4 className="text-lg text-purple-700 mb-4 font-medium">
-                  {idx + 1}. {question.q}
-                </h4>
-                <RadioGroup
-                  value={answers[idx] || ""}
-                  onValueChange={(value) => setAnswers({ ...answers, [idx]: value })}
-                >
-                  {question.a.map((answer, aIdx) => (
-                    <div
-                      key={aIdx}
-                      className="flex items-center space-x-3 p-3 rounded-lg hover-elevate cursor-pointer bg-white border border-purple-100"
-                    >
-                      <RadioGroupItem
-                        value={answer}
-                        id={`q${idx}-a${aIdx}`}
-                        data-testid={`radio-q${idx}-a${aIdx}`}
-                      />
-                      <Label
-                        htmlFor={`q${idx}-a${aIdx}`}
-                        className="text-purple-600 text-sm cursor-pointer flex-1"
+              <Card key={qIdx} className={`bg-purple-50 border-2 ${isUnanswered ? 'border-red-400 ring-2 ring-red-200' : 'border-purple-200'}`}>
+                <CardContent className="p-6">
+                  <h4 className="text-lg text-purple-700 mb-4 font-medium">
+                    {qIdx + 1}. {question.question}
+                  </h4>
+                  <RadioGroup
+                    value={answers[qIdx]?.toString() || ""}
+                    onValueChange={(value) => setAnswers({ ...answers, [qIdx]: parseInt(value) })}
+                  >
+                    {question.answers.map((answer, aIdx) => (
+                      <div
+                        key={aIdx}
+                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-100 cursor-pointer bg-white border border-purple-100 transition-colors"
                       >
-                        {answer}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </CardContent>
-            </Card>
+                        <RadioGroupItem
+                          value={aIdx.toString()}
+                          id={`q${qIdx}-a${aIdx}`}
+                          data-testid={`radio-q${qIdx}-a${aIdx}`}
+                        />
+                        <Label
+                          htmlFor={`q${qIdx}-a${aIdx}`}
+                          className="text-purple-600 text-sm cursor-pointer flex-1"
+                        >
+                          {answer.text}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </CardContent>
+              </Card>
             );
           })}
 
