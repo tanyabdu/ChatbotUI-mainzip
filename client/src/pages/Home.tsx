@@ -27,6 +27,12 @@ export default function Home() {
 
   const handleTabChange = (tab: TabName) => {
     setActiveTab(tab);
+    setTimeout(() => {
+      const element = document.getElementById('content-section');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   const handleArchetypeApply = (profile: ArchetypeProfile) => {
@@ -46,6 +52,7 @@ export default function Home() {
         <Header />
         <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
         
+        <div id="content-section">
         {!activeTab && <WelcomeSection />}
         
         {activeTab === "generator" && (
@@ -76,6 +83,7 @@ export default function Home() {
         {activeTab === "calendar" && <LunarCalendar />}
         
         {activeTab === "trainer" && <MoneyTrainer />}
+        </div>
       </div>
     </div>
   );
