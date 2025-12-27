@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Loader2, Check, RotateCcw, Sparkles, Palette, History } from "lucide-react";
+import { Loader2, Check, RotateCcw, Sparkles, Palette } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { ArchetypeResult } from "@shared/schema";
@@ -27,7 +27,6 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [profile, setProfile] = useState<ArchetypeProfile | null>(null);
-  const [showHistory, setShowHistory] = useState(false);
   const [showUnanswered, setShowUnanswered] = useState(false);
   const [isRetaking, setIsRetaking] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
@@ -289,18 +288,6 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
               </p>
               
               <div className="flex gap-3 mt-2">
-                {allResults.length > 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-purple-600 border-purple-300"
-                    onClick={() => setShowHistory(!showHistory)}
-                    data-testid="button-show-history"
-                  >
-                    <History className="h-4 w-4 mr-1" />
-                    История ({allResults.length})
-                  </Button>
-                )}
                 <Button
                   variant="outline"
                   size="sm"
@@ -314,25 +301,6 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
               </div>
             </div>
 
-            {showHistory && allResults.length > 1 && (
-              <Card className="mt-6 bg-gray-50 border-2 border-gray-200">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-gray-600">История прохождений</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {allResults.slice(0, 5).map((result, idx) => (
-                      <div key={result.id} className="flex items-center justify-between text-sm">
-                        <span className="text-purple-600">{result.archetypeName}</span>
-                        <span className="text-gray-400 text-xs">
-                          {new Date(result.createdAt || '').toLocaleDateString('ru-RU')}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </CardContent>
         </Card>
       </section>
