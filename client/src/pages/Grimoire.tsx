@@ -120,17 +120,8 @@ export default function Grimoire() {
 
   const activatePromocodeMutation = useMutation({
     mutationFn: async (code: string) => {
-      const response = await fetch("/api/promocode/activate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ code }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Ошибка при активации промокода");
-      }
-      return data;
+      const response = await apiRequest("POST", "/api/promocode/activate", { code });
+      return response.json();
     },
     onSuccess: (data) => {
       toast({
