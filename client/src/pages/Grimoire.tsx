@@ -40,6 +40,12 @@ export default function Grimoire() {
         newSet.delete(id);
       } else {
         newSet.add(id);
+        setTimeout(() => {
+          const element = document.getElementById(`strategy-content-${id}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
       }
       return newSet;
     });
@@ -458,7 +464,7 @@ export default function Grimoire() {
                           </div>
                           
                           {isExpanded && (
-                            <div className="border-t border-purple-200 p-4 space-y-4 bg-white">
+                            <div id={`strategy-content-${strategy.id}`} className="border-t border-purple-200 p-4 space-y-4 bg-white">
                               {strategy.posts.map((post) => {
                                 const activeFormat = getPostFormat(strategy.id, post.day, post);
                                 const formatContent = post[activeFormat];

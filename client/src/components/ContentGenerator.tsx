@@ -146,6 +146,12 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       setLoadingFormats({});
       setIsGenerating(false);
       setError(null);
+      setTimeout(() => {
+        const element = document.getElementById('generated-content-plan');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
       queryClient.invalidateQueries({ queryKey: ["/api/generation-limit"] });
     },
     onError: (err: Error) => {
@@ -609,7 +615,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
 
       {/* Two-step generation: Show ideas with format buttons */}
       {generatedIdeas.length > 0 && (
-        <div className="space-y-6 fade-in">
+        <div id="generated-content-plan" className="space-y-6 fade-in">
           <div className="flex justify-between items-center border-b-2 border-purple-300 pb-4 flex-wrap gap-2">
             <h2 className="text-3xl font-mystic text-purple-700">Ваш Контент-План</h2>
             <div className="flex gap-2 items-center">
