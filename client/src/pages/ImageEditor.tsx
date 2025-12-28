@@ -14,16 +14,15 @@ export default function ImageEditor() {
     queryKey: ["/api/archetypes/latest"],
   });
 
-  const primaryArchetypeName = archetypeResult?.archetypeName?.split("-")[0];
-  const userArchetypeId = primaryArchetypeName 
-    ? getArchetypeIdByName(primaryArchetypeName) 
-    : null;
+  const userArchetypeIds = archetypeResult?.archetypeName
+    ? archetypeResult.archetypeName.split("-").map(name => getArchetypeIdByName(name)).filter((id): id is NonNullable<typeof id> => id !== null)
+    : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <CarouselEditor userArchetype={userArchetypeId} initialText={initialText} />
+        <CarouselEditor userArchetypes={userArchetypeIds} initialText={initialText} />
       </main>
     </div>
   );

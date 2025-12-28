@@ -12,10 +12,10 @@ import { Slide, splitTextToSlides, updateSlide, addSlideAfter, removeSlide } fro
 
 interface CarouselEditorProps {
   initialText?: string;
-  userArchetype?: ArchetypeId | null;
+  userArchetypes?: ArchetypeId[];
 }
 
-export default function CarouselEditor({ initialText = '', userArchetype = null }: CarouselEditorProps) {
+export default function CarouselEditor({ initialText = '', userArchetypes = [] }: CarouselEditorProps) {
   const slideRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [sourceText, setSourceText] = useState(initialText);
   const [slides, setSlides] = useState<Slide[]>(() => splitTextToSlides(initialText));
@@ -32,17 +32,26 @@ export default function CarouselEditor({ initialText = '', userArchetype = null 
   const [textColor, setTextColor] = useState('#ffffff');
   const [padding, setPadding] = useState(40);
 
-  const currentArchetype = userArchetype ? archetypeFontConfigs[userArchetype] : null;
+  const archetypeConfigs = userArchetypes
+    .map(id => archetypeFontConfigs[id])
+    .filter(Boolean);
+  const primaryArchetype = archetypeConfigs[0] || null;
+
+  const recommendedFonts = archetypeConfigs.flatMap(config => [config.headerFont, config.bodyFont]);
+  const uniqueRecommendedFonts = Array.from(new Set(recommendedFonts));
+  
+  const recommendedColors = archetypeConfigs.flatMap(config => config.colors);
+  const uniqueRecommendedColors = Array.from(new Set(recommendedColors));
 
   useEffect(() => {
-    if (currentArchetype) {
-      setTitleFont(currentArchetype.headerFont);
-      setBodyFont(currentArchetype.bodyFont);
-      const bgColor = currentArchetype.colors[0];
+    if (primaryArchetype) {
+      setTitleFont(primaryArchetype.headerFont);
+      setBodyFont(primaryArchetype.bodyFont);
+      const bgColor = primaryArchetype.colors[0];
       const isLight = ['#fef3c7', '#f8fafc', '#fdf2f8', '#ffe4e6', '#e0e7ff', '#f5f5f5'].includes(bgColor);
-      setTextColor(isLight ? currentArchetype.colors[1] || '#1a1a2e' : '#ffffff');
+      setTextColor(isLight ? primaryArchetype.colors[1] || '#1a1a2e' : '#ffffff');
     }
-  }, [currentArchetype]);
+  }, [primaryArchetype]);
 
   useEffect(() => {
     if (initialText) {
@@ -213,9 +222,9 @@ export default function CarouselEditor({ initialText = '', userArchetype = null 
             <div className="flex items-center gap-2 text-purple-800">
               <Sparkles className="h-5 w-5" />
               Редактор карусели
-              {currentArchetype && (
+              {archetypeConfigs.length > 0 && (
                 <span className="text-sm font-normal text-purple-600 ml-2">
-                  Стиль: {currentArchetype.name}
+                  Стиль: {archetypeConfigs.map(c => c.name).join(' + ')}
                 </span>
               )}
             </div>
@@ -320,6 +329,59 @@ export default function CarouselEditor({ initialText = '', userArchetype = null 
                 </div>
               )}
 
+              {uniqueRecommendedFonts.length > 0 && (
+                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="h-4 w-4 text-purple-500" />
+                    <span className="text-sm font-medium text-purple-700">
+                      Шрифты ваших архетипов
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {uniqueRecommendedFonts.map((font, idx) => (
+                      <button
+                        key={font}
+                        onClick={() => idx % 2 === 0 ? setTitleFont(font) : setBodyFont(font)}
+                        className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                          titleFont === font || bodyFont === font
+                            ? 'bg-purple-500 text-white shadow-md'
+                            : 'bg-white border border-purple-200 hover:border-purple-400'
+                        }`}
+                        style={{ fontFamily: font }}
+                      >
+                        {font}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {uniqueRecommendedColors.length > 0 && (
+                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="h-4 w-4 text-purple-500" />
+                    <span className="text-sm font-medium text-purple-700">
+                      Цвета ваших архетипов
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {uniqueRecommendedColors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setTextColor(color)}
+                        className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                          textColor === color
+                            ? 'border-purple-500 scale-110 shadow-lg'
+                            : 'border-gray-300 hover:border-purple-400'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -331,11 +393,22 @@ export default function CarouselEditor({ initialText = '', userArchetype = null 
                     className="w-full p-2 border rounded-lg text-sm"
                     style={{ fontFamily: titleFont }}
                   >
-                    {allFonts.map((f) => (
-                      <option key={f.name} value={f.name} style={{ fontFamily: f.name }}>
-                        {f.name}
-                      </option>
-                    ))}
+                    {uniqueRecommendedFonts.length > 0 && (
+                      <optgroup label="Ваши архетипы">
+                        {uniqueRecommendedFonts.map((font) => (
+                          <option key={font} value={font} style={{ fontFamily: font }}>
+                            {font}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    <optgroup label="Все шрифты">
+                      {allFonts.filter(f => !uniqueRecommendedFonts.includes(f.name)).map((f) => (
+                        <option key={f.name} value={f.name} style={{ fontFamily: f.name }}>
+                          {f.name}
+                        </option>
+                      ))}
+                    </optgroup>
                   </select>
                 </div>
                 <div>
@@ -348,11 +421,22 @@ export default function CarouselEditor({ initialText = '', userArchetype = null 
                     className="w-full p-2 border rounded-lg text-sm"
                     style={{ fontFamily: bodyFont }}
                   >
-                    {allFonts.map((f) => (
-                      <option key={f.name} value={f.name} style={{ fontFamily: f.name }}>
-                        {f.name}
-                      </option>
-                    ))}
+                    {uniqueRecommendedFonts.length > 0 && (
+                      <optgroup label="Ваши архетипы">
+                        {uniqueRecommendedFonts.map((font) => (
+                          <option key={font} value={font} style={{ fontFamily: font }}>
+                            {font}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    <optgroup label="Все шрифты">
+                      {allFonts.filter(f => !uniqueRecommendedFonts.includes(f.name)).map((f) => (
+                        <option key={f.name} value={f.name} style={{ fontFamily: f.name }}>
+                          {f.name}
+                        </option>
+                      ))}
+                    </optgroup>
                   </select>
                 </div>
               </div>

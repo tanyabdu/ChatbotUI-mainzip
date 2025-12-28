@@ -84,9 +84,9 @@ export default function Home() {
         
         {activeTab === "carousel" && (
           <CarouselEditor 
-            userArchetype={archetypeResult?.archetypeName 
-              ? getArchetypeIdByName(archetypeResult.archetypeName.split("-")[0]) 
-              : null} 
+            userArchetypes={archetypeResult?.archetypeName 
+              ? archetypeResult.archetypeName.split("-").map(name => getArchetypeIdByName(name)).filter((id): id is NonNullable<typeof id> => id !== null)
+              : []} 
           />
         )}
         

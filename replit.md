@@ -207,7 +207,8 @@ Preferred communication style: Simple, everyday language.
   - **Slide navigation**: Previous/Next buttons, thumbnail strip
   - **Per-slide editing**: Edit heading and body text for each slide
   - **Add/Remove slides**: Manual control over slide count
-  - **Archetype styling**: Uses logged-in user's archetype fonts/colors (no demo mode)
+  - **Multi-archetype styling**: Uses all 3 user archetypes in priority order (no demo mode)
+  - **Archetype priority**: Primary archetype sets defaults, all 3 shown in recommendations
   - **15 gradient/solid backgrounds** (mystical theme)
   - **24 Google Fonts** (2 per archetype)
   - **Separate font controls**: Title font + Body font
