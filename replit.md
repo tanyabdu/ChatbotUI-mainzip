@@ -195,6 +195,26 @@ Preferred communication style: Simple, everyday language.
   - Payments table stores: userId, orderId, amount, planType, status, prodamusData
   - Deduplication: order_id checked before processing to prevent double-counting
 
+### Post Image Editor (December 2025)
+- **Route**: `/image-editor` - accessible from header for all users
+- **Component**: `PostImageEditor.tsx` with canvas-based preview
+- **Features**:
+  - Text input with live preview
+  - Archetype-based font/color recommendations (auto-fetched for logged-in users)
+  - Demo mode for testing all 12 archetypes without login
+  - 15 gradient/solid backgrounds (mystical theme)
+  - 21 Google Fonts (2 per archetype + core fonts)
+  - Font size, text alignment, padding controls
+  - 3 aspect ratios: 1:1 (square), 4:5 (Instagram), 9:16 (Stories)
+  - PNG export via html2canvas
+- **UX Priority**: 
+  1. First shows "Рекомендовано для вашего архетипа" with user's quiz-based fonts/colors
+  2. Then shows "Другие стили" with all other options
+- **Key Files**:
+  - `client/src/components/PostImageEditor.tsx` - main editor component
+  - `client/src/lib/archetypeFonts.ts` - archetype font/color configs, backgrounds
+  - `client/src/pages/ImageEditor.tsx` - page with archetype fetching
+
 ### Potential Future Integrations
 - **Prepared packages**: OpenAI, Google Generative AI, Stripe, Nodemailer, Multer (file uploads), WebSocket support (ws)
 - **Rate limiting**: express-rate-limit included but not configured

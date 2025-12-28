@@ -30,7 +30,16 @@ export default function PostImageEditor({ initialText = '', userArchetype = null
   const [showAllFonts, setShowAllFonts] = useState(false);
   const [showAllColors, setShowAllColors] = useState(false);
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
   const currentArchetype = demoArchetype ? archetypeFontConfigs[demoArchetype] : null;
+
+  useEffect(() => {
+    if (!isInitialized && userArchetype) {
+      setDemoArchetype(userArchetype);
+      setIsInitialized(true);
+    }
+  }, [userArchetype, isInitialized]);
 
   useEffect(() => {
     if (currentArchetype) {
@@ -38,6 +47,10 @@ export default function PostImageEditor({ initialText = '', userArchetype = null
       setTextColor(currentArchetype.colors[0] === '#ffffff' || currentArchetype.colors[0] === '#f8fafc' ? '#1a1a2e' : '#ffffff');
     }
   }, [currentArchetype]);
+
+  const handleArchetypeChange = (value: string) => {
+    setDemoArchetype(value === 'none' ? null : value as ArchetypeId);
+  };
 
   const getCanvasSize = () => {
     switch (aspectRatio) {
@@ -103,12 +116,12 @@ export default function PostImageEditor({ initialText = '', userArchetype = null
                 <label className="text-sm font-medium text-purple-700 mb-2 block">
                   Демо-режим: выберите архетип
                 </label>
-                <Select value={demoArchetype || ''} onValueChange={(v) => setDemoArchetype(v as ArchetypeId || null)}>
+                <Select value={demoArchetype || 'none'} onValueChange={handleArchetypeChange}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Без архетипа" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Без архетипа</SelectItem>
+                    <SelectItem value="none">Без архетипа</SelectItem>
                     {Object.values(archetypeFontConfigs).map((config) => (
                       <SelectItem key={config.id} value={config.id}>
                         {config.name}

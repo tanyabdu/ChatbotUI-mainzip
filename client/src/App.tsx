@@ -13,6 +13,7 @@ import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import Pricing from "@/pages/Pricing";
+import ImageEditor from "@/pages/ImageEditor";
 import { useAuth } from "@/hooks/useAuth";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/admin" component={() => <ProtectedRoute component={Admin} />} />
       <Route path="/landing" component={Landing} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/image-editor" component={ImageEditor} />
       <Route component={NotFound} />
     </Switch>
   );

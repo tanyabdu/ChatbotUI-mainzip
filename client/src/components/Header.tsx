@@ -1,4 +1,4 @@
-import { Sparkles, LogOut, LogIn, Clock, Settings, CreditCard } from "lucide-react";
+import { Sparkles, LogOut, LogIn, Clock, Settings, CreditCard, ImageIcon } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -72,6 +72,11 @@ export default function Header({
                   </Badge>
                 </Link>
               )}
+              <Button variant="ghost" size="icon" asChild title="Редактор изображений">
+                <Link href="/image-editor">
+                  <ImageIcon className="h-4 w-4 text-purple-600" />
+                </Link>
+              </Button>
               {user?.isAdmin && (
                 <Button variant="ghost" size="icon" asChild data-testid="link-admin">
                   <Link href="/admin">
@@ -100,12 +105,19 @@ export default function Header({
               </Button>
             </>
           ) : (
-            <Button asChild data-testid="button-login" className="bg-gradient-to-r from-purple-500 to-pink-500">
-              <Link href="/login" className="flex items-center gap-2">
-                <LogIn className="h-4 w-4" />
-                <span>Войти</span>
-              </Link>
-            </Button>
+            <>
+              <Button variant="ghost" size="icon" asChild title="Редактор изображений">
+                <Link href="/image-editor">
+                  <ImageIcon className="h-4 w-4 text-purple-600" />
+                </Link>
+              </Button>
+              <Button asChild data-testid="button-login" className="bg-gradient-to-r from-purple-500 to-pink-500">
+                <Link href="/login" className="flex items-center gap-2">
+                  <LogIn className="h-4 w-4" />
+                  <span>Войти</span>
+                </Link>
+              </Button>
+            </>
           )}
         </div>
       </div>

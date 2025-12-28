@@ -155,3 +155,10 @@ export const textColors = [
   "#f59e0b", "#10b981", "#3b82f6", "#ef4444", "#6366f1",
   "#fbbf24", "#34d399", "#f97316", "#8b5cf6", "#14b8a6"
 ];
+
+export function getArchetypeIdByName(name: string): ArchetypeId | null {
+  const found = Object.values(archetypeFontConfigs).find(
+    config => config.name.toLowerCase() === name.toLowerCase()
+  );
+  return found?.id || null;
+}
