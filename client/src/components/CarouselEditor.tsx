@@ -376,8 +376,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
+          <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-6">
+            <div className="space-y-4 order-2 lg:order-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Button
@@ -448,19 +448,19 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               )}
 
               {uniqueRecommendedFonts.length > 0 && (
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                <div className="p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="h-4 w-4 text-purple-500" />
-                    <span className="text-sm font-medium text-purple-700">
+                    <span className="text-xs sm:text-sm font-medium text-purple-700">
                       Шрифты ваших архетипов
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {uniqueRecommendedFonts.map((font, idx) => (
                       <button
                         key={font}
                         onClick={() => idx % 2 === 0 ? setTitleFont(font) : setBodyFont(font)}
-                        className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                        className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm transition-all ${
                           titleFont === font || bodyFont === font
                             ? 'bg-purple-500 text-white shadow-md'
                             : 'bg-white border border-purple-200 hover:border-purple-400'
@@ -475,19 +475,19 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               )}
 
               {uniqueRecommendedColors.length > 0 && (
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                <div className="p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="h-4 w-4 text-purple-500" />
-                    <span className="text-sm font-medium text-purple-700">
+                    <span className="text-xs sm:text-sm font-medium text-purple-700">
                       Цвета ваших архетипов
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {uniqueRecommendedColors.map((color) => (
                       <button
                         key={color}
                         onClick={() => setTextColor(color)}
-                        className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg border-2 transition-all ${
                           textColor === color
                             ? 'border-purple-500 scale-110 shadow-lg'
                             : 'border-gray-300 hover:border-purple-400'
@@ -700,14 +700,14 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 {archetypeBackgrounds.length > 0 && (
                   <div className="mb-3">
                     <div className="text-xs text-purple-600 mb-1">Фоны ваших архетипов:</div>
-                    <div className="grid grid-cols-6 gap-2">
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
                       {archetypeBackgrounds.map((bg) => (
                         <button
                           key={bg.id}
                           onClick={() => handleSlideBackgroundChange(bg.value)}
-                          className={`h-8 rounded border-2 transition-all ${
+                          className={`h-7 sm:h-8 rounded border-2 transition-all ${
                             currentSlide && !getSlideCustomImage(currentSlide) && getSlideBackground(currentSlide) === bg.value
-                              ? 'border-purple-500 scale-110'
+                              ? 'border-purple-500 scale-105'
                               : 'border-gray-300 hover:border-purple-400'
                           }`}
                           style={{ background: bg.value }}
@@ -719,14 +719,14 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 )}
 
                 <div className="text-xs text-gray-500 mb-1">Все фоны:</div>
-                <div className="grid grid-cols-10 gap-2">
+                <div className="grid grid-cols-5 sm:grid-cols-7 lg:grid-cols-10 gap-1.5 sm:gap-2">
                   {backgroundPresets.map((bg) => (
                     <button
                       key={bg.id}
                       onClick={() => handleSlideBackgroundChange(bg.value)}
-                      className={`h-8 rounded border-2 transition-all ${
+                      className={`h-7 sm:h-8 rounded border-2 transition-all ${
                         currentSlide && !getSlideCustomImage(currentSlide) && getSlideBackground(currentSlide) === bg.value
-                          ? 'border-purple-500 scale-110'
+                          ? 'border-purple-500 scale-105'
                           : 'border-gray-300 hover:border-purple-400'
                       }`}
                       style={{ background: bg.value }}
@@ -761,30 +761,37 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={handleExportCurrent}
                   disabled={isExporting}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 text-xs sm:text-sm"
+                  size="sm"
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  Скачать этот слайд
+                  <Download className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Скачать этот слайд</span>
+                  <span className="sm:hidden">Этот слайд</span>
                 </Button>
                 <Button
                   onClick={handleExportAll}
                   disabled={isExporting}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm"
+                  size="sm"
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  {isExporting ? `${exportProgress}%` : `Скачать все (${slides.length})`}
+                  <Download className="h-4 w-4 mr-1 sm:mr-2" />
+                  {isExporting ? `${exportProgress}%` : `Все (${slides.length})`}
                 </Button>
               </div>
             </div>
 
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center order-1 lg:order-2">
               <div className="text-sm text-gray-500 mb-2">Предпросмотр слайда {currentSlideIndex + 1}</div>
-              {currentSlide && renderSlidePreview(currentSlide, true)}
+              <div className="w-full flex justify-center overflow-hidden">
+                <div className="transform scale-75 sm:scale-90 lg:scale-100 origin-top">
+                  {currentSlide && renderSlidePreview(currentSlide, true)}
+                </div>
+              </div>
               
               <div className="mt-4 flex gap-2 overflow-x-auto pb-2 max-w-full">
                 {slides.map((slide, idx) => (
