@@ -209,12 +209,19 @@ Preferred communication style: Simple, everyday language.
   - **Add/Remove slides**: Manual control over slide count
   - **Multi-archetype styling**: Uses all 3 user archetypes in priority order (no demo mode)
   - **Archetype priority**: Primary archetype sets defaults, all 3 shown in recommendations
-  - **15 gradient/solid backgrounds** (mystical theme)
+  - **28 gradient/solid backgrounds** (mystical theme)
   - **24 Google Fonts** (2 per archetype)
   - **Separate font controls**: Title font + Body font
   - **3 aspect ratios**: 1:1 (square), 4:5 (Instagram), 9:16 (Stories)
   - **Export options**: Single slide PNG or batch export all slides
   - **Text import via URL**: `/image-editor?text=<encoded_text>`
+  - **Per-slide backgrounds**: Each slide can have individual background/custom image
+  - **Text position controls**: offsetX/offsetY sliders for fine-tuning text placement
+- **Mobile UX (December 2025)**:
+  - **Accordion sections**: Settings grouped into 4 collapsible sections (Text, Fonts, Colors, Background)
+  - **Touch-friendly**: All buttons min 44px height for easy tapping
+  - **Preview-first layout**: On mobile, preview appears at top, settings below
+  - **"К предпросмотру" button**: Quick scroll to top on mobile
 - **Text Splitting Logic** (`client/src/lib/slideUtils.ts`):
   - First paragraph → Title slide (heading + optional subtext)
   - Subsequent paragraphs → Content slides (subtitle + body)
