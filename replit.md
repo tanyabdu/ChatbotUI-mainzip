@@ -203,10 +203,14 @@ Preferred communication style: Simple, everyday language.
   - Archetype-based font/color recommendations (auto-fetched for logged-in users)
   - Demo mode for testing all 12 archetypes without login
   - 15 gradient/solid backgrounds (mystical theme)
-  - 21 Google Fonts (2 per archetype + core fonts)
+  - 24 Google Fonts (2 per archetype)
   - Font size, text alignment, padding controls
   - 3 aspect ratios: 1:1 (square), 4:5 (Instagram), 9:16 (Stories)
   - PNG export via html2canvas
+- **Sync Logic (Simplified MVP)**:
+  - `isInitialized` flag ensures one-time auto-sync from user's archetype
+  - After initial sync, manual overrides persist without interference
+  - 401 errors for non-logged users are expected behavior (demo mode works)
 - **UX Priority**: 
   1. First shows "Рекомендовано для вашего архетипа" with user's quiz-based fonts/colors
   2. Then shows "Другие стили" with all other options
