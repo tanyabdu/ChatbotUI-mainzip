@@ -222,6 +222,8 @@ Preferred communication style: Simple, everyday language.
   - **Touch-friendly**: All buttons min 44px height for easy tapping
   - **Preview-first layout**: On mobile, preview appears at top, settings below
   - **"К предпросмотру" button**: Quick scroll to top on mobile
+  - **Per-slide imageFit**: Each slide can have "Вместить" (contain) or "Заполнить" (cover) mode for uploaded photos
+  - **Text line breaks**: Newlines in heading/body are preserved with `whiteSpace: pre-line`
 - **Text Splitting Logic** (`client/src/lib/slideUtils.ts`):
   - First paragraph → Title slide (heading + optional subtext)
   - Subsequent paragraphs → Content slides (subtitle + body)
