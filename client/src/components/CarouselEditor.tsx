@@ -103,6 +103,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
   const getSlideBackground = (slide: Slide) => slide.background ?? defaultBackground;
   const getSlideCustomImage = (slide: Slide) => slide.customImage ?? null;
+  const getSlideImageFit = (slide: Slide) => slide.imageFit ?? 'contain';
   const getSlideOffsetX = (slide: Slide) => slide.offsetX ?? 0;
   const getSlideOffsetY = (slide: Slide) => slide.offsetY ?? 0;
 
@@ -261,6 +262,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     
     const slideCustomImage = getSlideCustomImage(slide);
     const slideBackground = getSlideBackground(slide);
+    const slideImageFit = getSlideImageFit(slide);
     const offsetX = getSlideOffsetX(slide);
     const offsetY = getSlideOffsetY(slide);
 
@@ -275,8 +277,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
           width: `${width}px`,
           height: `${height}px`,
           background: slideCustomImage ? `url(${slideCustomImage})` : slideBackground,
-          backgroundSize: 'cover',
+          backgroundSize: slideCustomImage ? slideImageFit : 'cover',
           backgroundPosition: 'center',
+          backgroundColor: slideCustomImage && slideImageFit === 'contain' ? '#1a1a2e' : undefined,
           backgroundRepeat: 'no-repeat',
           padding: `${padding}px`,
           display: 'flex',
@@ -308,6 +311,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 fontWeight: 600,
                 width: '100%',
                 textAlign: textAlign,
+                whiteSpace: 'pre-line',
               }}
             >
               {slide.heading}
@@ -323,6 +327,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 opacity: 0.95,
                 width: '100%',
                 textAlign: textAlign,
+                whiteSpace: 'pre-line',
               }}
             >
               {slide.body}
@@ -659,7 +664,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-4">
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="bg-image-upload" />
                         <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="min-h-[44px] flex items-center gap-1">
                           <Upload className="h-4 w-4" /> Загрузить фото
@@ -670,6 +675,30 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                           </Button>
                         )}
                       </div>
+
+                      {currentSlide && getSlideCustomImage(currentSlide) && (
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Размер фото:</div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setSlides(updateSlide(slides, currentSlide.id, { imageFit: 'contain' }))}
+                              className={`flex-1 min-h-[44px] rounded-lg text-sm ${
+                                getSlideImageFit(currentSlide) === 'contain' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                              }`}
+                            >
+                              Вместить
+                            </button>
+                            <button
+                              onClick={() => setSlides(updateSlide(slides, currentSlide.id, { imageFit: 'cover' }))}
+                              className={`flex-1 min-h-[44px] rounded-lg text-sm ${
+                                getSlideImageFit(currentSlide) === 'cover' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                              }`}
+                            >
+                              Заполнить
+                            </button>
+                          </div>
+                        </div>
+                      )}
 
                       {archetypeBackgrounds.length > 0 && (
                         <div>

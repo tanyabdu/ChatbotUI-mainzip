@@ -5,6 +5,7 @@ export interface Slide {
   body: string;
   background?: string;
   customImage?: string | null;
+  imageFit?: 'cover' | 'contain';
   offsetX?: number;
   offsetY?: number;
 }
