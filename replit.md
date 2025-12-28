@@ -218,7 +218,8 @@ Preferred communication style: Simple, everyday language.
   - First paragraph → Title slide (heading + optional subtext)
   - Subsequent paragraphs → Content slides (subtitle + body)
   - Long paragraphs → Split by sentences (~350 chars max per slide)
-  - Manual markers: Use ### to force slide breaks
+  - Slide markers: Use `---` (preferred) or `###` to force slide breaks
+  - AI prompt in contentGenerator.ts uses `---` format automatically
 - **Integration Points** (all navigate to /image-editor with text):
   - "Голос потока": Button after post generation
   - "Генератор контента": Button under each day's content

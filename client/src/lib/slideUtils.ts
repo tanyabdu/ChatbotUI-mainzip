@@ -20,9 +20,14 @@ export function splitTextToSlides(text: string): Slide[] {
 
   const normalizedText = text.trim().replace(/\r\n/g, '\n');
   
-  let paragraphs = normalizedText.includes('###') 
-    ? normalizedText.split('###').map(p => p.trim()).filter(p => p)
-    : normalizedText.split(/\n\n+/).map(p => p.trim()).filter(p => p);
+  let paragraphs: string[];
+  if (normalizedText.includes('---')) {
+    paragraphs = normalizedText.split('---').map(p => p.trim()).filter(p => p);
+  } else if (normalizedText.includes('###')) {
+    paragraphs = normalizedText.split('###').map(p => p.trim()).filter(p => p);
+  } else {
+    paragraphs = normalizedText.split(/\n\n+/).map(p => p.trim()).filter(p => p);
+  }
 
   if (paragraphs.length === 0) {
     paragraphs = [normalizedText];
