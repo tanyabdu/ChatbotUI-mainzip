@@ -1,7 +1,7 @@
-import { FileText, Dna, Mic, Gem, Moon, DollarSign } from "lucide-react";
+import { FileText, Dna, Mic, Gem, Moon, DollarSign, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export type TabName = "generator" | "archetype" | "voice" | "cases" | "calendar" | "trainer";
+export type TabName = "generator" | "archetype" | "voice" | "cases" | "carousel" | "calendar" | "trainer";
 
 interface NavigationProps {
   activeTab: TabName | null;
@@ -13,6 +13,7 @@ const navItems: { id: TabName; label: string; icon: typeof FileText; hint?: stri
   { id: "generator", label: "Генератор контента", icon: FileText },
   { id: "voice", label: "Голос потока", icon: Mic },
   { id: "cases", label: "Кейсы", icon: Gem },
+  { id: "carousel", label: "Пост карусель", icon: Image },
   { id: "calendar", label: "Лунный календарь", icon: Moon },
   { id: "trainer", label: "Денежный тренажёр", icon: DollarSign },
 ];

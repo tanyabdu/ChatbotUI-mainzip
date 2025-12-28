@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Upload, Eye, Loader2, Rocket, Save, Copy, Palette, X, Search, CheckCircle, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { Upload, Eye, Loader2, Rocket, Save, Copy, Palette, X, Search, CheckCircle, ChevronLeft, ChevronRight, Download, Image } from "lucide-react";
+import { useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { CaseStudy } from "@shared/schema";
 import { createWorker } from "tesseract.js";
@@ -29,6 +30,7 @@ interface CaseData {
 const suggestedTags = ["Деньги", "Отношения", "Здоровье", "Предназначение"];
 
 export default function CasesManager() {
+  const [, setLocation] = useLocation();
   const [reviewText, setReviewText] = useState("");
   const [before, setBefore] = useState("");
   const [action, setAction] = useState("");
@@ -493,6 +495,17 @@ export default function CasesManager() {
                   >
                     <Palette className="h-4 w-4 mr-2" />
                     Макет
+                  </Button>
+                  <Button 
+                    variant="secondary" 
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white border-0"
+                    onClick={() => {
+                      const text = `${generatedCase.generatedHeadlines?.[0] || ''}\n\n"${generatedCase.generatedQuote}"\n\n${generatedCase.generatedBody}`;
+                      setLocation(`/image-editor?text=${encodeURIComponent(text)}`);
+                    }}
+                  >
+                    <Image className="h-4 w-4 mr-2" />
+                    Карусель
                   </Button>
                 </div>
               </CardContent>

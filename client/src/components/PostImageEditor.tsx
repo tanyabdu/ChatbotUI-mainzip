@@ -18,6 +18,10 @@ interface PostImageEditorProps {
 export default function PostImageEditor({ initialText = '', userArchetype = null }: PostImageEditorProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState(initialText || 'Введите ваш текст здесь...');
+  
+  useEffect(() => {
+    setText(initialText || 'Введите ваш текст здесь...');
+  }, [initialText]);
   const [fontSize, setFontSize] = useState(32);
   const [selectedFont, setSelectedFont] = useState('Cormorant Garamond');
   const [textColor, setTextColor] = useState('#ffffff');

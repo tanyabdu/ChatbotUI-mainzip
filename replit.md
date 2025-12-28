@@ -195,8 +195,10 @@ Preferred communication style: Simple, everyday language.
   - Payments table stores: userId, orderId, amount, planType, status, prodamusData
   - Deduplication: order_id checked before processing to prevent double-counting
 
-### Post Image Editor (December 2025)
-- **Route**: `/image-editor` - accessible from header for all users
+### Post Image Editor / Carousel Creator (December 2025)
+- **Routes**:
+  - `/image-editor` - standalone page accessible from header
+  - Main page "Пост карусель" tab (under "Кейсы" in navigation)
 - **Component**: `PostImageEditor.tsx` with canvas-based preview
 - **Features**:
   - Text input with live preview
@@ -207,6 +209,11 @@ Preferred communication style: Simple, everyday language.
   - Font size, text alignment, padding controls
   - 3 aspect ratios: 1:1 (square), 4:5 (Instagram), 9:16 (Stories)
   - PNG export via html2canvas
+  - **Text import via URL**: `/image-editor?text=<encoded_text>`
+- **Integration Points** (all navigate to /image-editor with text):
+  - "Голос потока": Button after post generation
+  - "Генератор контента": Button under each day's content
+  - "Кейсы": Button after case generation
 - **Sync Logic (Simplified MVP)**:
   - `isInitialized` flag ensures one-time auto-sync from user's archetype
   - After initial sync, manual overrides persist without interference
@@ -218,6 +225,7 @@ Preferred communication style: Simple, everyday language.
   - `client/src/components/PostImageEditor.tsx` - main editor component
   - `client/src/lib/archetypeFonts.ts` - archetype font/color configs, backgrounds
   - `client/src/pages/ImageEditor.tsx` - page with archetype fetching
+  - `client/src/components/Navigation.tsx` - "Пост карусель" tab
 
 ### Potential Future Integrations
 - **Prepared packages**: OpenAI, Google Generative AI, Stripe, Nodemailer, Multer (file uploads), WebSocket support (ws)

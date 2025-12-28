@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dna, Loader2, Printer, Coins, Flame, Sparkles, Save, Check, History, Trash2, Lock, Crown, AlertCircle } from "lucide-react";
+import { Dna, Loader2, Printer, Coins, Flame, Sparkles, Save, Check, History, Trash2, Lock, Crown, AlertCircle, Image } from "lucide-react";
+import { useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { ContentStrategy, ContentPost, ArchetypeResult } from "@shared/schema";
@@ -77,6 +78,7 @@ interface ContentGeneratorProps {
 }
 
 export default function ContentGenerator({ archetypeActive = false, archetypeData, localArchetypeProfile, onGenerate }: ContentGeneratorProps) {
+  const [, setLocation] = useLocation();
   const [goal, setGoal] = useState<ContentGoal>("sale");
   const [niche, setNiche] = useState("");
   const [days, setDays] = useState<DaysCount>("today");
@@ -849,6 +851,18 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
                           </Badge>
                         ))}
                       </div>
+                    )}
+                    
+                    {/* Carousel Button */}
+                    {currentContent.content && currentContent.content.trim() && (
+                      <Button
+                        size="sm"
+                        onClick={() => setLocation(`/image-editor?text=${encodeURIComponent(currentContent.content)}`)}
+                        className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
+                      >
+                        <Image className="h-4 w-4 mr-2" />
+                        Создать карусель
+                      </Button>
                     )}
                   </CardContent>
                 </Card>

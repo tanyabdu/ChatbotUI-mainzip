@@ -3,7 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2, AlertCircle } from "lucide-react";
+import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2, AlertCircle, Image } from "lucide-react";
+import { useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { VoicePost } from "@shared/schema";
 
@@ -59,6 +60,7 @@ declare global {
 }
 
 export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRecorderProps) {
+  const [, setLocation] = useLocation();
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
@@ -412,6 +414,13 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
                 )}
               </Button>
             </div>
+            <Button
+              onClick={() => setLocation(`/image-editor?text=${encodeURIComponent(generatedPost)}`)}
+              className="w-full mt-3 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
+            >
+              <Image className="h-4 w-4 mr-2" />
+              Создать карусель
+            </Button>
           </CardContent>
         </Card>
       )}
