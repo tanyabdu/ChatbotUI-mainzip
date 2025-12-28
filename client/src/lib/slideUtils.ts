@@ -21,13 +21,20 @@ export function splitTextToSlides(text: string): Slide[] {
   const normalizedText = text.trim().replace(/\r\n/g, '\n');
   
   let paragraphs: string[];
-  if (normalizedText.includes('---')) {
-    paragraphs = normalizedText.split('---').map(p => p.trim()).filter(p => p);
-  } else if (normalizedText.includes('###')) {
-    paragraphs = normalizedText.split('###').map(p => p.trim()).filter(p => p);
+  
+  // Check for explicit slide delimiters (--- on its own line or surrounded by any text)
+  const hasTripleDash = /(?:^|\n)\s*---\s*(?:\n|$)/.test(normalizedText) || normalizedText.includes('---');
+  const hasHashMarkers = /(?:^|\n)###/.test(normalizedText);
+  
+  if (hasTripleDash) {
+    // Split by --- with optional whitespace around it
+    paragraphs = normalizedText.split(/\s*---\s*/).map(p => p.trim()).filter(p => p);
+  } else if (hasHashMarkers) {
+    paragraphs = normalizedText.split(/\n*###\s*/).map(p => p.trim()).filter(p => p);
   } else {
     paragraphs = normalizedText.split(/\n\n+/).map(p => p.trim()).filter(p => p);
   }
+  
 
   if (paragraphs.length === 0) {
     paragraphs = [normalizedText];

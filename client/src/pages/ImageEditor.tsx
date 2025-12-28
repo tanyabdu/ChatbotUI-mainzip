@@ -8,7 +8,15 @@ import type { ArchetypeResult } from "@shared/schema";
 export default function ImageEditor() {
   const searchString = useSearch();
   const searchParams = new URLSearchParams(searchString);
-  const initialText = searchParams.get("text") || "";
+  const rawText = searchParams.get("text") || "";
+  // Decode the text properly (may be double-encoded)
+  let initialText = rawText;
+  try {
+    initialText = decodeURIComponent(rawText);
+  } catch {
+    initialText = rawText;
+  }
+  
 
   const { data: archetypeResult } = useQuery<ArchetypeResult | null>({
     queryKey: ["/api/archetypes/latest"],

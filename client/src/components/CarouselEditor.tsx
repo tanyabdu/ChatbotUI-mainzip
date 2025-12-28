@@ -1,14 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import html2canvas from 'html2canvas';
-import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw } from 'lucide-react';
+import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { ArchetypeId } from '@/lib/archetypes';
-import { archetypeFontConfigs, allFonts, backgroundPresets } from '@/lib/archetypeFonts';
+import { archetypeFontConfigs, allFonts, backgroundPresets, getArchetypeBackgrounds } from '@/lib/archetypeFonts';
 import { Slide, splitTextToSlides, updateSlide, addSlideAfter, removeSlide } from '@/lib/slideUtils';
+
+type TextAlign = 'left' | 'center' | 'right';
 
 interface CarouselEditorProps {
   initialText?: string;
@@ -25,12 +27,15 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
   const [aspectRatio, setAspectRatio] = useState<'1:1' | '4:5' | '9:16'>('4:5');
   const [background, setBackground] = useState(backgroundPresets[0].value);
+  const [customImage, setCustomImage] = useState<string | null>(null);
   const [titleFont, setTitleFont] = useState('Cormorant Garamond');
   const [bodyFont, setBodyFont] = useState('Inter');
   const [titleSize, setTitleSize] = useState(42);
   const [bodySize, setBodySize] = useState(24);
   const [textColor, setTextColor] = useState('#ffffff');
   const [padding, setPadding] = useState(40);
+  const [textAlign, setTextAlign] = useState<TextAlign>('center');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const archetypeConfigs = userArchetypes
     .map(id => archetypeFontConfigs[id])
@@ -43,15 +48,42 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const recommendedColors = archetypeConfigs.flatMap(config => config.colors);
   const uniqueRecommendedColors = Array.from(new Set(recommendedColors));
 
+  // Get archetype-specific backgrounds
+  const archetypeBackgrounds = userArchetypes.flatMap(id => getArchetypeBackgrounds(id));
+  const allBackgrounds = [...archetypeBackgrounds, ...backgroundPresets];
+
   useEffect(() => {
     if (primaryArchetype) {
       setTitleFont(primaryArchetype.headerFont);
       setBodyFont(primaryArchetype.bodyFont);
+      // Set archetype-based background gradient
+      const archetypeBg = getArchetypeBackgrounds(primaryArchetype.id);
+      if (archetypeBg.length > 0) {
+        setBackground(archetypeBg[0].value);
+      }
       const bgColor = primaryArchetype.colors[0];
       const isLight = ['#fef3c7', '#f8fafc', '#fdf2f8', '#ffe4e6', '#e0e7ff', '#f5f5f5'].includes(bgColor);
       setTextColor(isLight ? primaryArchetype.colors[1] || '#1a1a2e' : '#ffffff');
     }
   }, [primaryArchetype]);
+
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearCustomImage = () => {
+    setCustomImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   useEffect(() => {
     if (initialText) {
@@ -100,9 +132,20 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     }
   };
 
+  // Determine if current background is a solid color (for html2canvas)
+  const getSolidBackgroundColor = (): string | null => {
+    if (customImage) return null; // Custom image, no solid color
+    // Check if it's a solid color (doesn't contain 'gradient' or 'url')
+    if (!background.includes('gradient') && !background.includes('url') && background.startsWith('#')) {
+      return background;
+    }
+    return null;
+  };
+
   const handleExportAll = async () => {
     setIsExporting(true);
     setExportProgress(0);
+    const solidBg = getSolidBackgroundColor();
 
     try {
       for (let i = 0; i < slides.length; i++) {
@@ -115,7 +158,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         const canvas = await html2canvas(slideElement, {
           scale: 2,
           useCORS: true,
-          backgroundColor: null,
+          backgroundColor: solidBg,
         });
 
         const link = document.createElement('a');
@@ -139,11 +182,12 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     if (!slideElement) return;
 
     setIsExporting(true);
+    const solidBg = getSolidBackgroundColor();
     try {
       const canvas = await html2canvas(slideElement, {
         scale: 2,
         useCORS: true,
-        backgroundColor: null,
+        backgroundColor: solidBg,
       });
       const link = document.createElement('a');
       link.download = `slide-${currentSlideIndex + 1}-${Date.now()}.png`;
@@ -159,6 +203,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const renderSlidePreview = (slide: Slide, isMain: boolean = false) => {
     const scale = isMain ? 1 : 0.3;
     const isTitleSlide = slide.type === 'title';
+    const alignItems = textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
 
     return (
       <div
@@ -170,13 +215,16 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         style={{
           width: `${width}px`,
           height: `${height}px`,
-          background: background,
+          background: customImage ? `url(${customImage})` : background,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           padding: `${padding}px`,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: isTitleSlide ? 'center' : 'flex-start',
-          alignItems: 'center',
-          textAlign: 'center',
+          alignItems: alignItems,
+          textAlign: textAlign,
           overflow: 'hidden',
           transform: isMain ? 'none' : `scale(${scale})`,
           transformOrigin: 'top left',
@@ -192,6 +240,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               lineHeight: 1.3,
               marginBottom: slide.body ? '20px' : 0,
               fontWeight: 600,
+              width: '100%',
+              textAlign: textAlign,
             }}
           >
             {slide.heading}
@@ -205,6 +255,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               color: textColor,
               lineHeight: 1.5,
               opacity: 0.95,
+              width: '100%',
+              textAlign: textAlign,
             }}
           >
             {slide.body}
@@ -237,14 +289,14 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
           <div className="space-y-4 mb-6">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Исходный текст (разбивается автоматически по абзацам или ###)
+                Исходный текст (разбивается автоматически по --- или пустым строкам)
               </label>
               <Textarea
                 value={sourceText}
                 onChange={(e) => setSourceText(e.target.value)}
                 rows={4}
                 className="resize-none"
-                placeholder="Вставьте текст поста. Разделяйте слайды пустыми строками или знаком ###"
+                placeholder="Вставьте текст поста. Разделяйте слайды символом --- или пустыми строками"
               />
               <Button
                 variant="outline"
@@ -470,15 +522,100 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Фон
+                  Выравнивание текста
                 </label>
-                <div className="grid grid-cols-8 gap-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setTextAlign('left')}
+                    className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center ${
+                      textAlign === 'left' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    <AlignLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setTextAlign('center')}
+                    className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center ${
+                      textAlign === 'center' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    <AlignCenter className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setTextAlign('right')}
+                    className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center ${
+                      textAlign === 'right' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    <AlignRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Фон {customImage && <span className="text-purple-600">(своё фото)</span>}
+                </label>
+                
+                <div className="flex gap-2 mb-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="bg-image-upload"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-1"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Загрузить фото
+                  </Button>
+                  {customImage && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearCustomImage}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      Убрать фото
+                    </Button>
+                  )}
+                </div>
+
+                {archetypeBackgrounds.length > 0 && (
+                  <div className="mb-3">
+                    <div className="text-xs text-purple-600 mb-1">Фоны ваших архетипов:</div>
+                    <div className="grid grid-cols-6 gap-2">
+                      {archetypeBackgrounds.map((bg) => (
+                        <button
+                          key={bg.id}
+                          onClick={() => { setCustomImage(null); setBackground(bg.value); }}
+                          className={`h-8 rounded border-2 transition-all ${
+                            !customImage && background === bg.value
+                              ? 'border-purple-500 scale-110'
+                              : 'border-gray-300 hover:border-purple-400'
+                          }`}
+                          style={{ background: bg.value }}
+                          title={bg.name}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-xs text-gray-500 mb-1">Все фоны:</div>
+                <div className="grid grid-cols-10 gap-2">
                   {backgroundPresets.map((bg) => (
                     <button
                       key={bg.id}
-                      onClick={() => setBackground(bg.value)}
+                      onClick={() => { setCustomImage(null); setBackground(bg.value); }}
                       className={`h-8 rounded border-2 transition-all ${
-                        background === bg.value
+                        !customImage && background === bg.value
                           ? 'border-purple-500 scale-110'
                           : 'border-gray-300 hover:border-purple-400'
                       }`}

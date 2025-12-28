@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { 
   User, BookOpen, Palette, CreditCard, Sparkles, 
   FileText, Mic, Archive, Wand2, LogOut, Home,
-  Edit2, Check, X, Trash2, Copy, Gift, ChevronDown, ChevronUp, Lock, Loader2
+  Edit2, Check, X, Trash2, Copy, Gift, ChevronDown, ChevronUp, Lock, Loader2, Image
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -513,19 +513,29 @@ export default function Grimoire() {
                                             ))}
                                           </div>
                                         )}
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          onClick={() => {
-                                            const text = formatContent.content + "\n\n" + (formatContent.hashtags?.join(" ") || "");
-                                            navigator.clipboard.writeText(text);
-                                            toast({ title: "Скопировано!", description: "Текст скопирован в буфер обмена" });
-                                          }}
-                                          className="text-purple-600"
-                                        >
-                                          <Copy className="h-4 w-4 mr-1" />
-                                          Копировать
-                                        </Button>
+                                        <div className="flex gap-2 flex-wrap">
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => {
+                                              const text = formatContent.content + "\n\n" + (formatContent.hashtags?.join(" ") || "");
+                                              navigator.clipboard.writeText(text);
+                                              toast({ title: "Скопировано!", description: "Текст скопирован в буфер обмена" });
+                                            }}
+                                            className="text-purple-600"
+                                          >
+                                            <Copy className="h-4 w-4 mr-1" />
+                                            Копировать
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            onClick={() => setLocation(`/image-editor?text=${encodeURIComponent(formatContent.content)}`)}
+                                            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
+                                          >
+                                            <Image className="h-4 w-4 mr-1" />
+                                            Создать карусель
+                                          </Button>
+                                        </div>
                                       </div>
                                     ) : (
                                       <p className="text-gray-400 text-sm italic">Контент для этого формата не был сгенерирован</p>
@@ -568,8 +578,18 @@ export default function Grimoire() {
                               variant="ghost"
                               size="icon"
                               onClick={() => navigator.clipboard.writeText(post.refinedText)}
+                              title="Копировать"
                             >
                               <Copy className="h-4 w-4 text-purple-500" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setLocation(`/image-editor?text=${encodeURIComponent(post.refinedText)}`)}
+                              title="Создать карусель"
+                              className="text-pink-500 hover:text-pink-600"
+                            >
+                              <Image className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"

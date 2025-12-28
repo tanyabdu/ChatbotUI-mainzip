@@ -133,6 +133,7 @@ export const allFonts = [
 ];
 
 export const backgroundPresets = [
+  // Gradients
   { id: "gradient-purple", name: "Мистический", type: "gradient", value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
   { id: "gradient-dark", name: "Тёмная ночь", type: "gradient", value: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" },
   { id: "gradient-rose", name: "Розовый рассвет", type: "gradient", value: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" },
@@ -143,12 +144,54 @@ export const backgroundPresets = [
   { id: "gradient-cosmic", name: "Космос", type: "gradient", value: "linear-gradient(135deg, #0c0c1e 0%, #1a1a3e 30%, #2d1b4e 60%, #1a1a2e 100%)" },
   { id: "gradient-forest", name: "Лесной", type: "gradient", value: "linear-gradient(135deg, #134e5e 0%, #71b280 100%)" },
   { id: "gradient-warm", name: "Тёплый", type: "gradient", value: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)" },
+  { id: "gradient-lavender", name: "Лавандовый", type: "gradient", value: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)" },
+  { id: "gradient-peach", name: "Персиковый", type: "gradient", value: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)" },
+  { id: "gradient-mint", name: "Мятный", type: "gradient", value: "linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)" },
+  { id: "gradient-berry", name: "Ягодный", type: "gradient", value: "linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)" },
+  { id: "gradient-night-sky", name: "Ночное небо", type: "gradient", value: "linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%)" },
+  { id: "gradient-fire", name: "Огненный", type: "gradient", value: "linear-gradient(135deg, #f12711 0%, #f5af19 100%)" },
+  { id: "gradient-royal", name: "Королевский", type: "gradient", value: "linear-gradient(135deg, #141e30 0%, #243b55 100%)" },
+  { id: "gradient-cherry", name: "Вишнёвый", type: "gradient", value: "linear-gradient(135deg, #eb3349 0%, #f45c43 100%)" },
+  // Solids
   { id: "solid-white", name: "Белый", type: "solid", value: "#ffffff" },
   { id: "solid-cream", name: "Кремовый", type: "solid", value: "#fef3c7" },
   { id: "solid-dark", name: "Тёмный", type: "solid", value: "#1a1a2e" },
   { id: "solid-purple", name: "Фиолетовый", type: "solid", value: "#7c3aed" },
   { id: "solid-pink", name: "Розовый", type: "solid", value: "#ec4899" },
+  { id: "solid-blue", name: "Синий", type: "solid", value: "#3b82f6" },
+  { id: "solid-green", name: "Зелёный", type: "solid", value: "#10b981" },
+  { id: "solid-orange", name: "Оранжевый", type: "solid", value: "#f97316" },
+  { id: "solid-red", name: "Красный", type: "solid", value: "#ef4444" },
+  { id: "solid-teal", name: "Бирюзовый", type: "solid", value: "#14b8a6" },
 ];
+
+// Generate archetype-based gradient backgrounds
+export function getArchetypeBackgrounds(archetypeId: ArchetypeId): { id: string; name: string; type: string; value: string }[] {
+  const config = archetypeFontConfigs[archetypeId];
+  if (!config) return [];
+  
+  const [primary, secondary, accent] = config.colors;
+  return [
+    { 
+      id: `archetype-${archetypeId}-main`, 
+      name: `${config.name} основной`, 
+      type: "gradient", 
+      value: `linear-gradient(135deg, ${primary} 0%, ${secondary || primary} 100%)` 
+    },
+    { 
+      id: `archetype-${archetypeId}-accent`, 
+      name: `${config.name} акцент`, 
+      type: "gradient", 
+      value: `linear-gradient(135deg, ${secondary || primary} 0%, ${accent || primary} 100%)` 
+    },
+    { 
+      id: `archetype-${archetypeId}-solid`, 
+      name: `${config.name} сплошной`, 
+      type: "solid", 
+      value: primary 
+    },
+  ];
+}
 
 export const textColors = [
   "#ffffff", "#000000", "#1a1a2e", "#7c3aed", "#ec4899",
