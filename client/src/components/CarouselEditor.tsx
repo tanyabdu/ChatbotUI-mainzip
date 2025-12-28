@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import html2canvas from 'html2canvas';
-import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move } from 'lucide-react';
+import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ArchetypeId } from '@/lib/archetypes';
 import { archetypeFontConfigs, allFonts, backgroundPresets, getArchetypeBackgrounds } from '@/lib/archetypeFonts';
 import { Slide, splitTextToSlides, updateSlide, addSlideAfter, removeSlide } from '@/lib/slideUtils';
@@ -416,357 +417,329 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 </div>
               </div>
 
-              {currentSlide && (
-                <div className="space-y-3 p-4 bg-purple-50 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-medium px-2 py-1 rounded bg-purple-200 text-purple-700">
-                      {currentSlide.type === 'title' ? 'Титульный слайд' : 'Контент'}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">
-                      {currentSlide.type === 'title' ? 'Заголовок' : 'Подзаголовок'}
-                    </label>
-                    <Input
-                      value={currentSlide.heading}
-                      onChange={(e) => handleUpdateSlide('heading', e.target.value)}
-                      placeholder={currentSlide.type === 'title' ? 'Главный заголовок' : 'Подзаголовок слайда'}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">
-                      Текст
-                    </label>
-                    <Textarea
-                      value={currentSlide.body}
-                      onChange={(e) => handleUpdateSlide('body', e.target.value)}
-                      rows={3}
-                      placeholder="Основной текст слайда"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {uniqueRecommendedFonts.length > 0 && (
-                <div className="p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="h-4 w-4 text-purple-500" />
-                    <span className="text-xs sm:text-sm font-medium text-purple-700">
-                      Шрифты ваших архетипов
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {uniqueRecommendedFonts.map((font, idx) => (
-                      <button
-                        key={font}
-                        onClick={() => idx % 2 === 0 ? setTitleFont(font) : setBodyFont(font)}
-                        className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm transition-all ${
-                          titleFont === font || bodyFont === font
-                            ? 'bg-purple-500 text-white shadow-md'
-                            : 'bg-white border border-purple-200 hover:border-purple-400'
-                        }`}
-                        style={{ fontFamily: font }}
-                      >
-                        {font}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {uniqueRecommendedColors.length > 0 && (
-                <div className="p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="h-4 w-4 text-purple-500" />
-                    <span className="text-xs sm:text-sm font-medium text-purple-700">
-                      Цвета ваших архетипов
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {uniqueRecommendedColors.map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setTextColor(color)}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg border-2 transition-all ${
-                          textColor === color
-                            ? 'border-purple-500 scale-110 shadow-lg'
-                            : 'border-gray-300 hover:border-purple-400'
-                        }`}
-                        style={{ backgroundColor: color }}
-                        title={color}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Шрифт заголовка
-                  </label>
-                  <select
-                    value={titleFont}
-                    onChange={(e) => setTitleFont(e.target.value)}
-                    className="w-full p-2 border rounded-lg text-sm"
-                    style={{ fontFamily: titleFont }}
-                  >
-                    {uniqueRecommendedFonts.length > 0 && (
-                      <optgroup label="Ваши архетипы">
-                        {uniqueRecommendedFonts.map((font) => (
-                          <option key={font} value={font} style={{ fontFamily: font }}>
-                            {font}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                    <optgroup label="Все шрифты">
-                      {allFonts.filter(f => !uniqueRecommendedFonts.includes(f.name)).map((f) => (
-                        <option key={f.name} value={f.name} style={{ fontFamily: f.name }}>
-                          {f.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Шрифт текста
-                  </label>
-                  <select
-                    value={bodyFont}
-                    onChange={(e) => setBodyFont(e.target.value)}
-                    className="w-full p-2 border rounded-lg text-sm"
-                    style={{ fontFamily: bodyFont }}
-                  >
-                    {uniqueRecommendedFonts.length > 0 && (
-                      <optgroup label="Ваши архетипы">
-                        {uniqueRecommendedFonts.map((font) => (
-                          <option key={font} value={font} style={{ fontFamily: font }}>
-                            {font}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                    <optgroup label="Все шрифты">
-                      {allFonts.filter(f => !uniqueRecommendedFonts.includes(f.name)).map((f) => (
-                        <option key={f.name} value={f.name} style={{ fontFamily: f.name }}>
-                          {f.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Размер заголовка: {titleSize}px
-                  </label>
-                  <Slider
-                    value={[titleSize]}
-                    onValueChange={([v]) => setTitleSize(v)}
-                    min={24}
-                    max={72}
-                    step={2}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Размер текста: {bodySize}px
-                  </label>
-                  <Slider
-                    value={[bodySize]}
-                    onValueChange={([v]) => setBodySize(v)}
-                    min={14}
-                    max={36}
-                    step={2}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Выравнивание текста
-                </label>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setTextAlign('left')}
-                    className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center ${
-                      textAlign === 'left' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
-                  >
-                    <AlignLeft className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => setTextAlign('center')}
-                    className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center ${
-                      textAlign === 'center' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
-                  >
-                    <AlignCenter className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => setTextAlign('right')}
-                    className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center ${
-                      textAlign === 'right' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
-                  >
-                    <AlignRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                  <Move className="h-4 w-4" />
-                  Позиция текста на слайде
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">
-                      По горизонтали: {currentSlide ? getSlideOffsetX(currentSlide) : 0}px
-                    </label>
-                    <Slider
-                      value={[currentSlide ? getSlideOffsetX(currentSlide) : 0]}
-                      onValueChange={([v]) => handleSlideOffsetChange('offsetX', v)}
-                      min={-100}
-                      max={100}
-                      step={5}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">
-                      По вертикали: {currentSlide ? getSlideOffsetY(currentSlide) : 0}px
-                    </label>
-                    <Slider
-                      value={[currentSlide ? getSlideOffsetY(currentSlide) : 0]}
-                      onValueChange={([v]) => handleSlideOffsetChange('offsetY', v)}
-                      min={-100}
-                      max={100}
-                      step={5}
-                    />
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    handleSlideOffsetChange('offsetX', 0);
-                    handleSlideOffsetChange('offsetY', 0);
-                  }}
-                  className="mt-2 text-xs text-gray-500"
-                >
-                  Сбросить позицию
-                </Button>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Фон слайда {currentSlide && getSlideCustomImage(currentSlide) && <span className="text-purple-600">(своё фото)</span>}
-                </label>
-                
-                <div className="flex gap-2 mb-3">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="bg-image-upload"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-1"
-                  >
-                    <Upload className="h-4 w-4" />
-                    Загрузить фото
-                  </Button>
-                  {currentSlide && getSlideCustomImage(currentSlide) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={clearCustomImage}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      Убрать фото
-                    </Button>
-                  )}
-                </div>
-
-                {archetypeBackgrounds.length > 0 && (
-                  <div className="mb-3">
-                    <div className="text-xs text-purple-600 mb-1">Фоны ваших архетипов:</div>
-                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
-                      {archetypeBackgrounds.map((bg) => (
-                        <button
-                          key={bg.id}
-                          onClick={() => handleSlideBackgroundChange(bg.value)}
-                          className={`h-7 sm:h-8 rounded border-2 transition-all ${
-                            currentSlide && !getSlideCustomImage(currentSlide) && getSlideBackground(currentSlide) === bg.value
-                              ? 'border-purple-500 scale-105'
-                              : 'border-gray-300 hover:border-purple-400'
-                          }`}
-                          style={{ background: bg.value }}
-                          title={bg.name}
-                        />
-                      ))}
+              <Accordion type="multiple" defaultValue={["text"]} className="w-full">
+                <AccordionItem value="text" className="border-purple-200">
+                  <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <Type className="h-4 w-4 text-purple-500" />
+                      Текст слайда
+                      {currentSlide && (
+                        <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-600">
+                          {currentSlide.type === 'title' ? 'Титульный' : 'Контент'}
+                        </span>
+                      )}
                     </div>
-                  </div>
-                )}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    {currentSlide && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700 mb-1 block">
+                            {currentSlide.type === 'title' ? 'Заголовок' : 'Подзаголовок'}
+                          </label>
+                          <Input
+                            value={currentSlide.heading}
+                            onChange={(e) => handleUpdateSlide('heading', e.target.value)}
+                            placeholder={currentSlide.type === 'title' ? 'Главный заголовок' : 'Подзаголовок слайда'}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700 mb-1 block">
+                            Текст
+                          </label>
+                          <Textarea
+                            value={currentSlide.body}
+                            onChange={(e) => handleUpdateSlide('body', e.target.value)}
+                            rows={3}
+                            placeholder="Основной текст слайда"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
 
-                <div className="text-xs text-gray-500 mb-1">Все фоны:</div>
-                <div className="grid grid-cols-5 sm:grid-cols-7 lg:grid-cols-10 gap-1.5 sm:gap-2">
-                  {backgroundPresets.map((bg) => (
-                    <button
-                      key={bg.id}
-                      onClick={() => handleSlideBackgroundChange(bg.value)}
-                      className={`h-7 sm:h-8 rounded border-2 transition-all ${
-                        currentSlide && !getSlideCustomImage(currentSlide) && getSlideBackground(currentSlide) === bg.value
-                          ? 'border-purple-500 scale-105'
-                          : 'border-gray-300 hover:border-purple-400'
-                      }`}
-                      style={{ background: bg.value }}
-                      title={bg.name}
-                    />
-                  ))}
-                </div>
-              </div>
+                <AccordionItem value="fonts" className="border-purple-200">
+                  <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <Type className="h-4 w-4 text-purple-500" />
+                      Шрифты и размеры
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4">
+                      {uniqueRecommendedFonts.length > 0 && (
+                        <div className="p-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="h-4 w-4 text-purple-500" />
+                            <span className="text-xs font-medium text-purple-700">Шрифты архетипов</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {uniqueRecommendedFonts.map((font, idx) => (
+                              <button
+                                key={font}
+                                onClick={() => idx % 2 === 0 ? setTitleFont(font) : setBodyFont(font)}
+                                className={`min-h-[44px] px-3 py-2 rounded-lg text-xs transition-all ${
+                                  titleFont === font || bodyFont === font
+                                    ? 'bg-purple-500 text-white shadow-md'
+                                    : 'bg-white border border-purple-200 hover:border-purple-400'
+                                }`}
+                                style={{ fontFamily: font }}
+                              >
+                                {font}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Формат
-                </label>
-                <div className="flex gap-2">
-                  {([
-                    { value: '1:1', label: 'Квадрат' },
-                    { value: '4:5', label: 'Instagram' },
-                    { value: '9:16', label: 'Stories' },
-                  ] as const).map((ratio) => (
-                    <button
-                      key={ratio.value}
-                      onClick={() => setAspectRatio(ratio.value)}
-                      className={`flex-1 py-2 rounded-lg text-sm ${
-                        aspectRatio === ratio.value
-                          ? 'bg-purple-500 text-white'
-                          : 'bg-gray-100 hover:bg-gray-200'
-                      }`}
-                    >
-                      {ratio.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-medium text-gray-700 mb-1 block">Шрифт заголовка</label>
+                          <select
+                            value={titleFont}
+                            onChange={(e) => setTitleFont(e.target.value)}
+                            className="w-full p-2 border rounded-lg text-sm min-h-[44px]"
+                            style={{ fontFamily: titleFont }}
+                          >
+                            {uniqueRecommendedFonts.length > 0 && (
+                              <optgroup label="Архетипы">
+                                {uniqueRecommendedFonts.map((font) => (
+                                  <option key={font} value={font}>{font}</option>
+                                ))}
+                              </optgroup>
+                            )}
+                            <optgroup label="Все">
+                              {allFonts.filter(f => !uniqueRecommendedFonts.includes(f.name)).map((f) => (
+                                <option key={f.name} value={f.name}>{f.name}</option>
+                              ))}
+                            </optgroup>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-gray-700 mb-1 block">Шрифт текста</label>
+                          <select
+                            value={bodyFont}
+                            onChange={(e) => setBodyFont(e.target.value)}
+                            className="w-full p-2 border rounded-lg text-sm min-h-[44px]"
+                            style={{ fontFamily: bodyFont }}
+                          >
+                            {uniqueRecommendedFonts.length > 0 && (
+                              <optgroup label="Архетипы">
+                                {uniqueRecommendedFonts.map((font) => (
+                                  <option key={font} value={font}>{font}</option>
+                                ))}
+                              </optgroup>
+                            )}
+                            <optgroup label="Все">
+                              {allFonts.filter(f => !uniqueRecommendedFonts.includes(f.name)).map((f) => (
+                                <option key={f.name} value={f.name}>{f.name}</option>
+                              ))}
+                            </optgroup>
+                          </select>
+                        </div>
+                      </div>
 
-              <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-gray-600 mb-1 block">Заголовок: {titleSize}px</label>
+                          <Slider value={[titleSize]} onValueChange={([v]) => setTitleSize(v)} min={24} max={72} step={2} />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-600 mb-1 block">Текст: {bodySize}px</label>
+                          <Slider value={[bodySize]} onValueChange={([v]) => setBodySize(v)} min={14} max={36} step={2} />
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="style" className="border-purple-200">
+                  <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <Palette className="h-4 w-4 text-purple-500" />
+                      Цвета и позиция
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4">
+                      {uniqueRecommendedColors.length > 0 && (
+                        <div className="p-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="h-4 w-4 text-purple-500" />
+                            <span className="text-xs font-medium text-purple-700">Цвета архетипов</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {uniqueRecommendedColors.map((color) => (
+                              <button
+                                key={color}
+                                onClick={() => setTextColor(color)}
+                                className={`w-11 h-11 rounded-lg border-2 transition-all ${
+                                  textColor === color
+                                    ? 'border-purple-500 scale-110 shadow-lg'
+                                    : 'border-gray-300 hover:border-purple-400'
+                                }`}
+                                style={{ backgroundColor: color }}
+                                title={color}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="text-xs font-medium text-gray-700 mb-2 block">Выравнивание</label>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setTextAlign('left')}
+                            className={`flex-1 min-h-[44px] rounded-lg flex items-center justify-center ${
+                              textAlign === 'left' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                            }`}
+                          >
+                            <AlignLeft className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => setTextAlign('center')}
+                            className={`flex-1 min-h-[44px] rounded-lg flex items-center justify-center ${
+                              textAlign === 'center' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                            }`}
+                          >
+                            <AlignCenter className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => setTextAlign('right')}
+                            className={`flex-1 min-h-[44px] rounded-lg flex items-center justify-center ${
+                              textAlign === 'right' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                            }`}
+                          >
+                            <AlignRight className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-medium text-gray-700 mb-2 flex items-center gap-1">
+                          <Move className="h-3 w-3" /> Позиция текста
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">X: {currentSlide ? getSlideOffsetX(currentSlide) : 0}px</label>
+                            <Slider
+                              value={[currentSlide ? getSlideOffsetX(currentSlide) : 0]}
+                              onValueChange={([v]) => handleSlideOffsetChange('offsetX', v)}
+                              min={-100} max={100} step={5}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">Y: {currentSlide ? getSlideOffsetY(currentSlide) : 0}px</label>
+                            <Slider
+                              value={[currentSlide ? getSlideOffsetY(currentSlide) : 0]}
+                              onValueChange={([v]) => handleSlideOffsetChange('offsetY', v)}
+                              min={-100} max={100} step={5}
+                            />
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => { handleSlideOffsetChange('offsetX', 0); handleSlideOffsetChange('offsetY', 0); }} className="mt-1 text-xs text-gray-500 h-8">
+                          Сбросить
+                        </Button>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="background" className="border-purple-200">
+                  <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <Image className="h-4 w-4 text-purple-500" />
+                      Фон и формат
+                      {currentSlide && getSlideCustomImage(currentSlide) && (
+                        <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-600">Фото</span>
+                      )}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4">
+                      <div className="flex gap-2">
+                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="bg-image-upload" />
+                        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="min-h-[44px] flex items-center gap-1">
+                          <Upload className="h-4 w-4" /> Загрузить фото
+                        </Button>
+                        {currentSlide && getSlideCustomImage(currentSlide) && (
+                          <Button variant="outline" size="sm" onClick={clearCustomImage} className="min-h-[44px] text-red-500 hover:text-red-600">
+                            Убрать
+                          </Button>
+                        )}
+                      </div>
+
+                      {archetypeBackgrounds.length > 0 && (
+                        <div>
+                          <div className="text-xs text-purple-600 mb-1">Фоны архетипов:</div>
+                          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                            {archetypeBackgrounds.map((bg) => (
+                              <button
+                                key={bg.id}
+                                onClick={() => handleSlideBackgroundChange(bg.value)}
+                                className={`h-11 rounded border-2 transition-all ${
+                                  currentSlide && !getSlideCustomImage(currentSlide) && getSlideBackground(currentSlide) === bg.value
+                                    ? 'border-purple-500 scale-105' : 'border-gray-300 hover:border-purple-400'
+                                }`}
+                                style={{ background: bg.value }}
+                                title={bg.name}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">Все фоны:</div>
+                        <div className="grid grid-cols-5 sm:grid-cols-7 lg:grid-cols-10 gap-2">
+                          {backgroundPresets.map((bg) => (
+                            <button
+                              key={bg.id}
+                              onClick={() => handleSlideBackgroundChange(bg.value)}
+                              className={`h-11 rounded border-2 transition-all ${
+                                currentSlide && !getSlideCustomImage(currentSlide) && getSlideBackground(currentSlide) === bg.value
+                                  ? 'border-purple-500 scale-105' : 'border-gray-300 hover:border-purple-400'
+                              }`}
+                              style={{ background: bg.value }}
+                              title={bg.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-medium text-gray-700 mb-2 block">Формат</label>
+                        <div className="flex gap-2">
+                          {([
+                            { value: '1:1', label: 'Квадрат' },
+                            { value: '4:5', label: 'Instagram' },
+                            { value: '9:16', label: 'Stories' },
+                          ] as const).map((ratio) => (
+                            <button
+                              key={ratio.value}
+                              onClick={() => setAspectRatio(ratio.value)}
+                              className={`flex-1 min-h-[44px] rounded-lg text-sm ${
+                                aspectRatio === ratio.value ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                              }`}
+                            >
+                              {ratio.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t border-gray-200">
                 <Button
                   onClick={handleExportCurrent}
                   disabled={isExporting}
                   variant="outline"
-                  className="flex-1 text-xs sm:text-sm"
+                  className="flex-1 text-xs sm:text-sm min-h-[44px]"
                   size="sm"
                 >
                   <Download className="h-4 w-4 mr-1 sm:mr-2" />
@@ -776,13 +749,23 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 <Button
                   onClick={handleExportAll}
                   disabled={isExporting}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm"
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm min-h-[44px]"
                   size="sm"
                 >
                   <Download className="h-4 w-4 mr-1 sm:mr-2" />
                   {isExporting ? `${exportProgress}%` : `Все (${slides.length})`}
                 </Button>
               </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="lg:hidden mt-2 text-purple-600 hover:text-purple-700 min-h-[44px]"
+              >
+                <ArrowUp className="h-4 w-4 mr-2" />
+                К предпросмотру
+              </Button>
             </div>
 
             <div className="flex flex-col items-center order-first lg:order-none">
