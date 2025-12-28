@@ -9,7 +9,7 @@ import VoiceRecorder from "@/components/VoiceRecorder";
 import CasesManager from "@/components/CasesManager";
 import LunarCalendar from "@/components/LunarCalendar";
 import MoneyTrainer from "@/components/MoneyTrainer";
-import PostImageEditor from "@/components/PostImageEditor";
+import CarouselEditor from "@/components/CarouselEditor";
 import { getArchetypeIdByName } from "@/lib/archetypeFonts";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -83,7 +83,7 @@ export default function Home() {
         {activeTab === "cases" && <CasesManager />}
         
         {activeTab === "carousel" && (
-          <PostImageEditor 
+          <CarouselEditor 
             userArchetype={archetypeResult?.archetypeName 
               ? getArchetypeIdByName(archetypeResult.archetypeName.split("-")[0]) 
               : null} 

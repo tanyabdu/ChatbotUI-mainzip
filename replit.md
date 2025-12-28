@@ -195,36 +195,39 @@ Preferred communication style: Simple, everyday language.
   - Payments table stores: userId, orderId, amount, planType, status, prodamusData
   - Deduplication: order_id checked before processing to prevent double-counting
 
-### Post Image Editor / Carousel Creator (December 2025)
+### Carousel Editor (December 2025)
 - **Routes**:
   - `/image-editor` - standalone page accessible from header
   - Main page "Пост карусель" tab (under "Кейсы" in navigation)
-- **Component**: `PostImageEditor.tsx` with canvas-based preview
+- **Component**: `CarouselEditor.tsx` - multi-slide carousel generator
 - **Features**:
-  - Text input with live preview
-  - Archetype-based font/color recommendations (auto-fetched for logged-in users)
-  - Demo mode for testing all 12 archetypes without login
-  - 15 gradient/solid backgrounds (mystical theme)
-  - 24 Google Fonts (2 per archetype)
-  - Font size, text alignment, padding controls
-  - 3 aspect ratios: 1:1 (square), 4:5 (Instagram), 9:16 (Stories)
-  - PNG export via html2canvas
+  - **Multi-slide support**: Automatically splits text into 5-20 slides
+  - **Auto-splitting**: By paragraphs (empty lines) or ### markers
+  - **Slide types**: Title slide (large heading) + Content slides (subtitle + body)
+  - **Slide navigation**: Previous/Next buttons, thumbnail strip
+  - **Per-slide editing**: Edit heading and body text for each slide
+  - **Add/Remove slides**: Manual control over slide count
+  - **Archetype styling**: Uses logged-in user's archetype fonts/colors (no demo mode)
+  - **15 gradient/solid backgrounds** (mystical theme)
+  - **24 Google Fonts** (2 per archetype)
+  - **Separate font controls**: Title font + Body font
+  - **3 aspect ratios**: 1:1 (square), 4:5 (Instagram), 9:16 (Stories)
+  - **Export options**: Single slide PNG or batch export all slides
   - **Text import via URL**: `/image-editor?text=<encoded_text>`
+- **Text Splitting Logic** (`client/src/lib/slideUtils.ts`):
+  - First paragraph → Title slide (heading + optional subtext)
+  - Subsequent paragraphs → Content slides (subtitle + body)
+  - Long paragraphs → Split by sentences (~350 chars max per slide)
+  - Manual markers: Use ### to force slide breaks
 - **Integration Points** (all navigate to /image-editor with text):
   - "Голос потока": Button after post generation
   - "Генератор контента": Button under each day's content
   - "Кейсы": Button after case generation
-- **Sync Logic (Simplified MVP)**:
-  - `isInitialized` flag ensures one-time auto-sync from user's archetype
-  - After initial sync, manual overrides persist without interference
-  - 401 errors for non-logged users are expected behavior (demo mode works)
-- **UX Priority**: 
-  1. First shows "Рекомендовано для вашего архетипа" with user's quiz-based fonts/colors
-  2. Then shows "Другие стили" with all other options
 - **Key Files**:
-  - `client/src/components/PostImageEditor.tsx` - main editor component
+  - `client/src/components/CarouselEditor.tsx` - main multi-slide editor
+  - `client/src/lib/slideUtils.ts` - text splitting and slide management
   - `client/src/lib/archetypeFonts.ts` - archetype font/color configs, backgrounds
-  - `client/src/pages/ImageEditor.tsx` - page with archetype fetching
+  - `client/src/pages/ImageEditor.tsx` - page wrapper with archetype fetching
   - `client/src/components/Navigation.tsx` - "Пост карусель" tab
 
 ### Potential Future Integrations
