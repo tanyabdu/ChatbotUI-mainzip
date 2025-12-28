@@ -3,6 +3,10 @@ export interface Slide {
   type: 'title' | 'content';
   heading: string;
   body: string;
+  background?: string;
+  customImage?: string | null;
+  offsetX?: number;
+  offsetY?: number;
 }
 
 const MAX_CHARS_PER_SLIDE = 350;

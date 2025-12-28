@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import html2canvas from 'html2canvas';
-import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload } from 'lucide-react';
+import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +9,28 @@ import { Slider } from '@/components/ui/slider';
 import { ArchetypeId } from '@/lib/archetypes';
 import { archetypeFontConfigs, allFonts, backgroundPresets, getArchetypeBackgrounds } from '@/lib/archetypeFonts';
 import { Slide, splitTextToSlides, updateSlide, addSlideAfter, removeSlide } from '@/lib/slideUtils';
+
+const loadedFonts = new Set<string>();
+
+function loadGoogleFont(fontName: string) {
+  if (typeof document === 'undefined') return;
+  if (loadedFonts.has(fontName) || fontName === 'Georgia' || fontName === 'Impact') return;
+  
+  const formattedName = fontName.replace(/ /g, '+');
+  const linkId = `google-font-${formattedName}`;
+  
+  if (document.getElementById(linkId)) {
+    loadedFonts.add(fontName);
+    return;
+  }
+  
+  const link = document.createElement('link');
+  link.id = linkId;
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${formattedName}:wght@400;600;700&display=swap`;
+  document.head.appendChild(link);
+  loadedFonts.add(fontName);
+}
 
 type TextAlign = 'left' | 'center' | 'right';
 
@@ -26,8 +48,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [exportProgress, setExportProgress] = useState(0);
 
   const [aspectRatio, setAspectRatio] = useState<'1:1' | '4:5' | '9:16'>('4:5');
-  const [background, setBackground] = useState(backgroundPresets[0].value);
-  const [customImage, setCustomImage] = useState<string | null>(null);
+  const [defaultBackground, setDefaultBackground] = useState(backgroundPresets[0].value);
   const [titleFont, setTitleFont] = useState('Cormorant Garamond');
   const [bodyFont, setBodyFont] = useState('Inter');
   const [titleSize, setTitleSize] = useState(42);
@@ -56,10 +77,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     if (primaryArchetype) {
       setTitleFont(primaryArchetype.headerFont);
       setBodyFont(primaryArchetype.bodyFont);
-      // Set archetype-based background gradient
       const archetypeBg = getArchetypeBackgrounds(primaryArchetype.id);
       if (archetypeBg.length > 0) {
-        setBackground(archetypeBg[0].value);
+        setDefaultBackground(archetypeBg[0].value);
       }
       const bgColor = primaryArchetype.colors[0];
       const isLight = ['#fef3c7', '#f8fafc', '#fdf2f8', '#ffe4e6', '#e0e7ff', '#f5f5f5'].includes(bgColor);
@@ -67,19 +87,52 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     }
   }, [primaryArchetype]);
 
+  useEffect(() => {
+    loadGoogleFont(titleFont);
+  }, [titleFont]);
+
+  useEffect(() => {
+    loadGoogleFont(bodyFont);
+  }, [bodyFont]);
+
+  useEffect(() => {
+    allFonts.forEach(f => loadGoogleFont(f.name));
+    uniqueRecommendedFonts.forEach(f => loadGoogleFont(f));
+  }, [uniqueRecommendedFonts]);
+
+  const getSlideBackground = (slide: Slide) => slide.background ?? defaultBackground;
+  const getSlideCustomImage = (slide: Slide) => slide.customImage ?? null;
+  const getSlideOffsetX = (slide: Slide) => slide.offsetX ?? 0;
+  const getSlideOffsetY = (slide: Slide) => slide.offsetY ?? 0;
+
+  const handleSlideBackgroundChange = (value: string) => {
+    if (!currentSlide) return;
+    setSlides(updateSlide(slides, currentSlide.id, { background: value, customImage: null }));
+  };
+
+  const handleSlideCustomImageChange = (imageData: string | null) => {
+    if (!currentSlide) return;
+    setSlides(updateSlide(slides, currentSlide.id, { customImage: imageData }));
+  };
+
+  const handleSlideOffsetChange = (axis: 'offsetX' | 'offsetY', value: number) => {
+    if (!currentSlide) return;
+    setSlides(updateSlide(slides, currentSlide.id, { [axis]: value }));
+  };
+
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setCustomImage(reader.result as string);
+        handleSlideCustomImageChange(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const clearCustomImage = () => {
-    setCustomImage(null);
+    handleSlideCustomImageChange(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -132,12 +185,12 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     }
   };
 
-  // Determine if current background is a solid color (for html2canvas)
-  const getSolidBackgroundColor = (): string | null => {
-    if (customImage) return null; // Custom image, no solid color
-    // Check if it's a solid color (doesn't contain 'gradient' or 'url')
-    if (!background.includes('gradient') && !background.includes('url') && background.startsWith('#')) {
-      return background;
+  const getSolidBackgroundColor = (slide: Slide): string | null => {
+    const customImg = getSlideCustomImage(slide);
+    const bg = getSlideBackground(slide);
+    if (customImg) return null;
+    if (!bg.includes('gradient') && !bg.includes('url') && bg.startsWith('#')) {
+      return bg;
     }
     return null;
   };
@@ -145,7 +198,6 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const handleExportAll = async () => {
     setIsExporting(true);
     setExportProgress(0);
-    const solidBg = getSolidBackgroundColor();
 
     try {
       for (let i = 0; i < slides.length; i++) {
@@ -155,6 +207,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         const slideElement = slideRefs.current.get(slides[i].id);
         if (!slideElement) continue;
 
+        const solidBg = getSolidBackgroundColor(slides[i]);
         const canvas = await html2canvas(slideElement, {
           scale: 2,
           useCORS: true,
@@ -182,7 +235,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     if (!slideElement) return;
 
     setIsExporting(true);
-    const solidBg = getSolidBackgroundColor();
+    const solidBg = getSolidBackgroundColor(currentSlide);
     try {
       const canvas = await html2canvas(slideElement, {
         scale: 2,
@@ -204,6 +257,11 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     const scale = isMain ? 1 : 0.3;
     const isTitleSlide = slide.type === 'title';
     const alignItems = textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
+    
+    const slideCustomImage = getSlideCustomImage(slide);
+    const slideBackground = getSlideBackground(slide);
+    const offsetX = getSlideOffsetX(slide);
+    const offsetY = getSlideOffsetY(slide);
 
     return (
       <div
@@ -215,7 +273,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         style={{
           width: `${width}px`,
           height: `${height}px`,
-          background: customImage ? `url(${customImage})` : background,
+          background: slideCustomImage ? `url(${slideCustomImage})` : slideBackground,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -231,37 +289,45 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         }}
         className={`rounded-lg ${isMain ? 'shadow-xl' : 'shadow-md cursor-pointer hover:ring-2 hover:ring-purple-400'}`}
       >
-        {slide.heading && (
-          <div
-            style={{
-              fontFamily: titleFont,
-              fontSize: isTitleSlide ? `${titleSize}px` : `${titleSize * 0.7}px`,
-              color: textColor,
-              lineHeight: 1.3,
-              marginBottom: slide.body ? '20px' : 0,
-              fontWeight: 600,
-              width: '100%',
-              textAlign: textAlign,
-            }}
-          >
-            {slide.heading}
-          </div>
-        )}
-        {slide.body && (
-          <div
-            style={{
-              fontFamily: bodyFont,
-              fontSize: `${bodySize}px`,
-              color: textColor,
-              lineHeight: 1.5,
-              opacity: 0.95,
-              width: '100%',
-              textAlign: textAlign,
-            }}
-          >
-            {slide.body}
-          </div>
-        )}
+        <div style={{ 
+          transform: `translate(${offsetX}px, ${offsetY}px)`,
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: alignItems,
+        }}>
+          {slide.heading && (
+            <div
+              style={{
+                fontFamily: titleFont,
+                fontSize: isTitleSlide ? `${titleSize}px` : `${titleSize * 0.7}px`,
+                color: textColor,
+                lineHeight: 1.3,
+                marginBottom: slide.body ? '20px' : 0,
+                fontWeight: 600,
+                width: '100%',
+                textAlign: textAlign,
+              }}
+            >
+              {slide.heading}
+            </div>
+          )}
+          {slide.body && (
+            <div
+              style={{
+                fontFamily: bodyFont,
+                fontSize: `${bodySize}px`,
+                color: textColor,
+                lineHeight: 1.5,
+                opacity: 0.95,
+                width: '100%',
+                textAlign: textAlign,
+              }}
+            >
+              {slide.body}
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -553,8 +619,52 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               </div>
 
               <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                  <Move className="h-4 w-4" />
+                  Позиция текста на слайде
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">
+                      По горизонтали: {currentSlide ? getSlideOffsetX(currentSlide) : 0}px
+                    </label>
+                    <Slider
+                      value={[currentSlide ? getSlideOffsetX(currentSlide) : 0]}
+                      onValueChange={([v]) => handleSlideOffsetChange('offsetX', v)}
+                      min={-100}
+                      max={100}
+                      step={5}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">
+                      По вертикали: {currentSlide ? getSlideOffsetY(currentSlide) : 0}px
+                    </label>
+                    <Slider
+                      value={[currentSlide ? getSlideOffsetY(currentSlide) : 0]}
+                      onValueChange={([v]) => handleSlideOffsetChange('offsetY', v)}
+                      min={-100}
+                      max={100}
+                      step={5}
+                    />
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    handleSlideOffsetChange('offsetX', 0);
+                    handleSlideOffsetChange('offsetY', 0);
+                  }}
+                  className="mt-2 text-xs text-gray-500"
+                >
+                  Сбросить позицию
+                </Button>
+              </div>
+
+              <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Фон {customImage && <span className="text-purple-600">(своё фото)</span>}
+                  Фон слайда {currentSlide && getSlideCustomImage(currentSlide) && <span className="text-purple-600">(своё фото)</span>}
                 </label>
                 
                 <div className="flex gap-2 mb-3">
@@ -575,7 +685,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                     <Upload className="h-4 w-4" />
                     Загрузить фото
                   </Button>
-                  {customImage && (
+                  {currentSlide && getSlideCustomImage(currentSlide) && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -594,9 +704,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                       {archetypeBackgrounds.map((bg) => (
                         <button
                           key={bg.id}
-                          onClick={() => { setCustomImage(null); setBackground(bg.value); }}
+                          onClick={() => handleSlideBackgroundChange(bg.value)}
                           className={`h-8 rounded border-2 transition-all ${
-                            !customImage && background === bg.value
+                            currentSlide && !getSlideCustomImage(currentSlide) && getSlideBackground(currentSlide) === bg.value
                               ? 'border-purple-500 scale-110'
                               : 'border-gray-300 hover:border-purple-400'
                           }`}
@@ -613,9 +723,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                   {backgroundPresets.map((bg) => (
                     <button
                       key={bg.id}
-                      onClick={() => { setCustomImage(null); setBackground(bg.value); }}
+                      onClick={() => handleSlideBackgroundChange(bg.value)}
                       className={`h-8 rounded border-2 transition-all ${
-                        !customImage && background === bg.value
+                        currentSlide && !getSlideCustomImage(currentSlide) && getSlideBackground(currentSlide) === bg.value
                           ? 'border-purple-500 scale-110'
                           : 'border-gray-300 hover:border-purple-400'
                       }`}
@@ -690,7 +800,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                       style={{
                         width: `${width}px`,
                         height: `${height}px`,
-                        background: background,
+                        background: getSlideCustomImage(slide) ? `url(${getSlideCustomImage(slide)})` : getSlideBackground(slide),
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
                         padding: `${padding * 0.3}px`,
                         display: 'flex',
                         flexDirection: 'column',
