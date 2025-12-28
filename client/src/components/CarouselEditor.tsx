@@ -376,8 +376,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             </div>
           </div>
 
-          <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-6">
-            <div className="space-y-4 order-2 lg:order-1">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6">
+            <div className="space-y-4 order-last lg:order-none">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Button
@@ -785,7 +785,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               </div>
             </div>
 
-            <div className="flex flex-col items-center order-1 lg:order-2">
+            <div className="flex flex-col items-center order-first lg:order-none">
               <div className="text-sm text-gray-500 mb-2">Предпросмотр слайда {currentSlideIndex + 1}</div>
               <div className="w-full flex justify-center overflow-hidden">
                 <div className="transform scale-75 sm:scale-90 lg:scale-100 origin-top">
