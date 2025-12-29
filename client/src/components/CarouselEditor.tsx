@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import html2canvas from 'html2canvas';
-import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp } from 'lucide-react';
+import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -47,6 +47,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const [aspectRatio, setAspectRatio] = useState<'1:1' | '4:5' | '9:16'>('4:5');
   const [defaultBackground, setDefaultBackground] = useState(backgroundPresets[0].value);
@@ -171,7 +173,17 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     }
   };
 
+  const getExportSize = () => {
+    switch (aspectRatio) {
+      case '1:1': return { width: 1080, height: 1080 };
+      case '4:5': return { width: 1080, height: 1350 };
+      case '9:16': return { width: 1080, height: 1920 };
+      default: return { width: 1080, height: 1350 };
+    }
+  };
+
   const { width, height } = getCanvasSize();
+  const exportSize = getExportSize();
 
   const handleUpdateSlide = (field: 'heading' | 'body', value: string) => {
     if (!currentSlide) return;
@@ -210,25 +222,258 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     });
   });
 
+  const renderSlideForExport = async (slide: Slide, slideIndex: number): Promise<HTMLCanvasElement> => {
+    const { width: expWidth, height: expHeight } = exportSize;
+    const isTitleSlide = slide.type === 'title';
+    const alignItems = textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
+    const slideCustomImage = getSlideCustomImage(slide);
+    const slideBackground = getSlideBackground(slide);
+    const slideImageFit = getSlideImageFit(slide);
+    const offsetX = getSlideOffsetX(slide);
+    const offsetY = getSlideOffsetY(slide);
+    const displayIndex = slideIndex;
+
+    // Scale factor for export (export size / preview size)
+    const scaleFactor = expWidth / width;
+    const scaledTitleSize = titleSize * scaleFactor;
+    const scaledBodySize = bodySize * scaleFactor;
+    const scaledPadding = padding * scaleFactor;
+    const scaledOffsetX = offsetX * scaleFactor;
+    const scaledOffsetY = offsetY * scaleFactor;
+    const scaledLetterSpacing = letterSpacing * scaleFactor;
+
+    // Create hidden container
+    const container = document.createElement('div');
+    container.style.cssText = `
+      position: fixed;
+      left: -9999px;
+      top: 0;
+      width: ${expWidth}px;
+      height: ${expHeight}px;
+      background: ${slideCustomImage ? `url(${slideCustomImage})` : slideBackground};
+      background-size: ${slideCustomImage ? slideImageFit : 'cover'};
+      background-position: center;
+      background-color: ${slideCustomImage && slideImageFit === 'contain' ? '#1a1a2e' : 'transparent'};
+      background-repeat: no-repeat;
+      padding: ${scaledPadding}px;
+      display: flex;
+      flex-direction: column;
+      justify-content: ${isTitleSlide ? 'center' : 'flex-start'};
+      align-items: ${alignItems};
+      text-align: ${textAlign};
+      overflow: hidden;
+      box-sizing: border-box;
+    `;
+
+    // Add overlay pattern if any
+    if (overlayPattern !== 'none') {
+      const overlay = document.createElement('div');
+      const patternBackground = overlayPattern === 'stars' 
+        ? `radial-gradient(2px 2px at 20px 30px, ${textColor}, transparent), radial-gradient(2px 2px at 40px 70px, ${textColor}, transparent), radial-gradient(1px 1px at 90px 40px, ${textColor}, transparent), radial-gradient(2px 2px at 130px 80px, ${textColor}, transparent), radial-gradient(1px 1px at 160px 20px, ${textColor}, transparent), radial-gradient(2px 2px at 200px 50px, ${textColor}, transparent), radial-gradient(1px 1px at 60px 100px, ${textColor}, transparent), radial-gradient(2px 2px at 100px 130px, ${textColor}, transparent), radial-gradient(1px 1px at 180px 120px, ${textColor}, transparent), radial-gradient(2px 2px at 220px 100px, ${textColor}, transparent), radial-gradient(2px 2px at 250px 150px, ${textColor}, transparent), radial-gradient(1px 1px at 30px 180px, ${textColor}, transparent), radial-gradient(2px 2px at 280px 200px, ${textColor}, transparent), radial-gradient(1px 1px at 150px 250px, ${textColor}, transparent), radial-gradient(2px 2px at 70px 220px, ${textColor}, transparent)`
+        : overlayPattern === 'dots'
+        ? `radial-gradient(circle, ${textColor} 1px, transparent 1px)`
+        : overlayPattern === 'lines'
+        ? `repeating-linear-gradient(45deg, transparent, transparent 10px, ${textColor}15 10px, ${textColor}15 20px)`
+        : overlayPattern === 'sparkles'
+        ? 'radial-gradient(3px 3px at 25% 25%, #fbbf24, transparent), radial-gradient(2px 2px at 75% 20%, #fbbf24, transparent), radial-gradient(3px 3px at 50% 80%, #fbbf24, transparent), radial-gradient(2px 2px at 15% 70%, #fbbf24, transparent), radial-gradient(3px 3px at 85% 60%, #fbbf24, transparent), radial-gradient(2px 2px at 40% 45%, #fbbf24, transparent), radial-gradient(3px 3px at 65% 65%, #fbbf24, transparent), radial-gradient(2px 2px at 10% 35%, #fbbf24, transparent), radial-gradient(3px 3px at 90% 85%, #fbbf24, transparent), radial-gradient(2px 2px at 55% 15%, #fbbf24, transparent)'
+        : overlayPattern === 'grid'
+        ? `linear-gradient(${textColor}10 1px, transparent 1px), linear-gradient(90deg, ${textColor}10 1px, transparent 1px)`
+        : overlayPattern === 'waves'
+        ? `repeating-linear-gradient(0deg, transparent, transparent 20px, ${textColor}08 20px, ${textColor}08 40px), repeating-linear-gradient(90deg, transparent, transparent 20px, ${textColor}05 20px, ${textColor}05 40px)`
+        : overlayPattern === 'diamonds'
+        ? `linear-gradient(45deg, ${textColor}10 25%, transparent 25%), linear-gradient(-45deg, ${textColor}10 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${textColor}10 75%), linear-gradient(-45deg, transparent 75%, ${textColor}10 75%)`
+        : overlayPattern === 'circles'
+        ? `radial-gradient(circle at 50% 50%, transparent 20px, ${textColor}08 21px, ${textColor}08 22px, transparent 23px)`
+        : overlayPattern === 'crosses'
+        ? `linear-gradient(${textColor}10 2px, transparent 2px), linear-gradient(90deg, ${textColor}10 2px, transparent 2px), linear-gradient(${textColor}05 1px, transparent 1px), linear-gradient(90deg, ${textColor}05 1px, transparent 1px)`
+        : overlayPattern === 'triangles'
+        ? `linear-gradient(60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(-60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(60deg, transparent 75%, ${textColor}08 75.5%), linear-gradient(-60deg, transparent 75%, ${textColor}08 75.5%)`
+        : overlayPattern === 'hearts'
+        ? `radial-gradient(circle at 50% 40%, ${textColor} 2px, transparent 2px), radial-gradient(circle at 45% 35%, ${textColor} 2px, transparent 2px), radial-gradient(circle at 55% 35%, ${textColor} 2px, transparent 2px)`
+        : overlayPattern === 'moons'
+        ? `radial-gradient(circle at 45% 45%, transparent 8px, ${textColor}15 9px, ${textColor}15 11px, transparent 12px), radial-gradient(circle at 50% 50%, ${textColor}10 8px, transparent 9px)`
+        : 'none';
+      
+      const bgSize = overlayPattern === 'dots' ? '20px 20px' 
+        : overlayPattern === 'grid' ? '30px 30px'
+        : overlayPattern === 'diamonds' ? '40px 40px'
+        : overlayPattern === 'circles' ? '50px 50px'
+        : overlayPattern === 'crosses' ? '25px 25px'
+        : overlayPattern === 'triangles' ? '40px 40px'
+        : overlayPattern === 'hearts' ? '35px 35px'
+        : overlayPattern === 'moons' ? '45px 45px'
+        : 'cover';
+
+      overlay.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        pointer-events: none;
+        opacity: 0.15;
+        background: ${patternBackground};
+        background-size: ${bgSize};
+      `;
+      container.appendChild(overlay);
+    }
+
+    // Content wrapper with offset
+    const contentWrapper = document.createElement('div');
+    contentWrapper.style.cssText = `
+      transform: translate(${scaledOffsetX}px, ${scaledOffsetY}px);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: ${alignItems};
+      z-index: 1;
+    `;
+
+    // Heading
+    if (slide.heading) {
+      const headingEl = document.createElement('div');
+      headingEl.style.cssText = `
+        font-family: '${titleFont}', serif;
+        font-size: ${isTitleSlide ? scaledTitleSize : scaledTitleSize * 0.7}px;
+        color: ${textColor};
+        line-height: ${lineHeight};
+        letter-spacing: ${scaledLetterSpacing}px;
+        margin-bottom: ${slide.body ? '40px' : '0'};
+        font-weight: 600;
+        width: 100%;
+        text-align: ${textAlign};
+        white-space: pre-line;
+      `;
+      headingEl.textContent = slide.heading;
+      contentWrapper.appendChild(headingEl);
+    }
+
+    // Body
+    if (slide.body) {
+      const bodyEl = document.createElement('div');
+      bodyEl.style.cssText = `
+        font-family: '${bodyFont}', sans-serif;
+        font-size: ${scaledBodySize}px;
+        color: ${textColor};
+        line-height: ${lineHeight};
+        letter-spacing: ${scaledLetterSpacing}px;
+        opacity: 0.95;
+        width: 100%;
+        text-align: ${textAlign};
+        white-space: pre-line;
+      `;
+      bodyEl.textContent = slide.body;
+      contentWrapper.appendChild(bodyEl);
+    }
+
+    container.appendChild(contentWrapper);
+
+    // Slide number
+    if (showSlideNumber && slides.length > 1) {
+      const slideNumEl = document.createElement('div');
+      slideNumEl.style.cssText = `
+        position: absolute;
+        top: 24px; right: 24px;
+        font-family: '${bodyFont}', sans-serif;
+        font-size: 28px;
+        color: ${textColor};
+        opacity: 0.7;
+        letter-spacing: 1px;
+      `;
+      slideNumEl.textContent = `${displayIndex + 1}/${slides.length}`;
+      container.appendChild(slideNumEl);
+    }
+
+    // Profile name and swipe arrow
+    if (profileName) {
+      const profileWrapper = document.createElement('div');
+      profileWrapper.style.cssText = `
+        position: absolute;
+        bottom: 24px; left: 50%;
+        transform: translateX(-50%);
+        display: flex; flex-direction: column;
+        align-items: center; gap: 8px;
+      `;
+
+      // Swipe arrow (not on last slide)
+      if (showSwipeArrow && displayIndex < slides.length - 1) {
+        const arrowWrapper = document.createElement('div');
+        arrowWrapper.style.cssText = `display: flex; align-items: center; opacity: 0.5;`;
+        const line = document.createElement('div');
+        line.style.cssText = `width: 120px; height: 4px; background-color: ${textColor};`;
+        const triangle = document.createElement('div');
+        triangle.style.cssText = `
+          width: 0; height: 0;
+          border-top: 10px solid transparent;
+          border-bottom: 10px solid transparent;
+          border-left: 16px solid ${textColor};
+        `;
+        arrowWrapper.appendChild(line);
+        arrowWrapper.appendChild(triangle);
+        profileWrapper.appendChild(arrowWrapper);
+      }
+
+      const profileText = document.createElement('div');
+      profileText.style.cssText = `
+        font-family: '${bodyFont}', sans-serif;
+        font-size: 28px;
+        color: ${textColor};
+        opacity: 0.8;
+        letter-spacing: 1px;
+        display: flex; align-items: center; gap: 8px;
+      `;
+      profileText.textContent = `@${profileName}`;
+      profileWrapper.appendChild(profileText);
+      container.appendChild(profileWrapper);
+    } else if (showSwipeArrow && displayIndex < slides.length - 1) {
+      // Arrow without profile
+      const arrowWrapper = document.createElement('div');
+      arrowWrapper.style.cssText = `
+        position: absolute;
+        bottom: 24px; left: 50%;
+        transform: translateX(-50%);
+        display: flex; align-items: center; opacity: 0.5;
+      `;
+      const line = document.createElement('div');
+      line.style.cssText = `width: 120px; height: 4px; background-color: ${textColor};`;
+      const triangle = document.createElement('div');
+      triangle.style.cssText = `
+        width: 0; height: 0;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 16px solid ${textColor};
+      `;
+      arrowWrapper.appendChild(line);
+      arrowWrapper.appendChild(triangle);
+      container.appendChild(arrowWrapper);
+    }
+
+    document.body.appendChild(container);
+    
+    try {
+      await waitForNextFrame();
+
+      const solidBg = getSolidBackgroundColor(slide);
+      const canvas = await html2canvas(container, {
+        scale: 1,
+        useCORS: true,
+        backgroundColor: solidBg,
+        width: expWidth,
+        height: expHeight,
+      });
+
+      return canvas;
+    } finally {
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
+    }
+  };
+
   const handleExportAll = async () => {
     setIsExporting(true);
     setExportProgress(0);
 
     try {
       for (let i = 0; i < slides.length; i++) {
-        setCurrentSlideIndex(i);
-        await waitForNextFrame();
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        const slideElement = slideRefs.current.get(slides[i].id);
-        if (!slideElement) continue;
-
-        const solidBg = getSolidBackgroundColor(slides[i]);
-        const canvas = await html2canvas(slideElement, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: solidBg,
-        });
+        const canvas = await renderSlideForExport(slides[i], i);
 
         const link = document.createElement('a');
         link.download = `slide-${i + 1}-${Date.now()}.png`;
@@ -246,27 +491,102 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     }
   };
 
-  const handleExportCurrent = async () => {
-    const slideElement = slideRefs.current.get(currentSlide.id);
-    if (!slideElement) return;
+  const canShare = typeof navigator !== 'undefined' && 'share' in navigator && 'canShare' in navigator;
 
+  const handleExportCurrent = async () => {
     setIsExporting(true);
-    const solidBg = getSolidBackgroundColor(currentSlide);
     try {
-      const canvas = await html2canvas(slideElement, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: solidBg,
-      });
+      const canvas = await renderSlideForExport(currentSlide, currentSlideIndex);
+      const blob = await new Promise<Blob | null>((resolve) => 
+        canvas.toBlob((b) => resolve(b), 'image/png')
+      );
+      if (!blob) {
+        console.error('Failed to create blob from canvas');
+        return;
+      }
+      const fileName = `slide-${currentSlideIndex + 1}.png`;
+      
+      // Try Web Share API for mobile
+      if (canShare) {
+        const file = new File([blob], fileName, { type: 'image/png' });
+        const shareData = { files: [file] };
+        if (navigator.canShare(shareData)) {
+          try {
+            await navigator.share(shareData);
+            return;
+          } catch (shareError) {
+            // User cancelled or share failed, fallback to download
+            console.log('Share cancelled, falling back to download');
+          }
+        }
+      }
+      
+      // Fallback to direct download
       const link = document.createElement('a');
-      link.download = `slide-${currentSlideIndex + 1}-${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = fileName;
+      link.href = URL.createObjectURL(blob);
       link.click();
+      URL.revokeObjectURL(link.href);
     } catch (error) {
       console.error('Export failed:', error);
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handleShareCurrent = async () => {
+    if (!canShare) return;
+    
+    setIsExporting(true);
+    try {
+      const canvas = await renderSlideForExport(currentSlide, currentSlideIndex);
+      const blob = await new Promise<Blob | null>((resolve) => 
+        canvas.toBlob((b) => resolve(b), 'image/png')
+      );
+      if (!blob) {
+        console.error('Failed to create blob from canvas');
+        return;
+      }
+      const file = new File([blob], `slide-${currentSlideIndex + 1}.png`, { type: 'image/png' });
+      
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+      }
+    } catch (error) {
+      console.log('Share cancelled or failed');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Touch handlers for swipe navigation
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = null;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    
+    const diff = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0 && currentSlideIndex < slides.length - 1) {
+        // Swipe left - next slide
+        setCurrentSlideIndex(currentSlideIndex + 1);
+      } else if (diff < 0 && currentSlideIndex > 0) {
+        // Swipe right - previous slide
+        setCurrentSlideIndex(currentSlideIndex - 1);
+      }
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
   };
 
   const renderSlidePreview = (slide: Slide, isMain: boolean = false, slideIndex?: number) => {
@@ -1068,26 +1388,41 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 </AccordionItem>
               </Accordion>
 
-              <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t border-gray-200">
-                <Button
-                  onClick={handleExportCurrent}
-                  disabled={isExporting}
-                  variant="outline"
-                  className="flex-1 text-xs sm:text-sm min-h-[44px]"
-                  size="sm"
-                >
-                  <Download className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Скачать этот слайд</span>
-                  <span className="sm:hidden">Этот слайд</span>
-                </Button>
+              <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleExportCurrent}
+                    disabled={isExporting}
+                    variant="outline"
+                    className="flex-1 text-xs sm:text-sm min-h-[44px]"
+                    size="sm"
+                  >
+                    <Download className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Скачать слайд</span>
+                    <span className="sm:hidden">Скачать</span>
+                  </Button>
+                  {canShare && (
+                    <Button
+                      onClick={handleShareCurrent}
+                      disabled={isExporting}
+                      variant="outline"
+                      className="flex-1 text-xs sm:text-sm min-h-[44px]"
+                      size="sm"
+                    >
+                      <Share2 className="h-4 w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Поделиться</span>
+                      <span className="sm:hidden">Поделиться</span>
+                    </Button>
+                  )}
+                </div>
                 <Button
                   onClick={handleExportAll}
                   disabled={isExporting}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm min-h-[44px]"
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm min-h-[44px]"
                   size="sm"
                 >
                   <Download className="h-4 w-4 mr-1 sm:mr-2" />
-                  {isExporting ? `${exportProgress}%` : `Все (${slides.length})`}
+                  {isExporting ? `${exportProgress}%` : `Скачать все слайды (${slides.length})`}
                 </Button>
               </div>
 
@@ -1103,8 +1438,16 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             </div>
 
             <div className="flex flex-col items-center order-first lg:order-none">
-              <div className="text-sm text-gray-500 mb-2">Предпросмотр слайда {currentSlideIndex + 1}</div>
-              <div className="w-full flex justify-center overflow-hidden">
+              <div className="text-sm text-gray-500 mb-2">
+                Предпросмотр слайда {currentSlideIndex + 1}
+                <span className="lg:hidden text-xs text-purple-500 ml-2">(свайп для навигации)</span>
+              </div>
+              <div 
+                className="w-full flex justify-center overflow-hidden touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
                 <div className="transform scale-75 sm:scale-90 lg:scale-100 origin-top">
                   {currentSlide && renderSlidePreview(currentSlide, true)}
                 </div>
@@ -1151,6 +1494,60 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
           </div>
         </CardContent>
       </Card>
+
+      {/* Floating mobile toolbar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-3 z-50">
+        <div className="flex items-center justify-between gap-2 max-w-lg mx-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
+            disabled={currentSlideIndex === 0}
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          
+          <div className="flex-1 text-center text-sm font-medium text-gray-700">
+            {currentSlideIndex + 1} / {slides.length}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
+            disabled={currentSlideIndex === slides.length - 1}
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+          
+          <div className="border-l border-gray-300 h-8 mx-1" />
+          
+          <Button
+            onClick={handleExportCurrent}
+            disabled={isExporting}
+            size="sm"
+            className="min-h-[44px] min-w-[44px] bg-purple-500 hover:bg-purple-600"
+          >
+            <Download className="h-5 w-5" />
+          </Button>
+          
+          {canShare && (
+            <Button
+              onClick={handleShareCurrent}
+              disabled={isExporting}
+              size="sm"
+              className="min-h-[44px] min-w-[44px] bg-pink-500 hover:bg-pink-600"
+            >
+              <Share2 className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
+      </div>
+      
+      {/* Bottom padding for mobile toolbar */}
+      <div className="lg:hidden h-20" />
     </div>
   );
 }
