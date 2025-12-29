@@ -61,7 +61,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [showSlideNumber, setShowSlideNumber] = useState(true);
   const [profileName, setProfileName] = useState('');
   const [profileIcon, setProfileIcon] = useState<'none' | 'instagram' | 'telegram'>('instagram');
-  const [overlayPattern, setOverlayPattern] = useState<'none' | 'stars' | 'dots' | 'lines' | 'sparkles'>('none');
+  const [overlayPattern, setOverlayPattern] = useState<'none' | 'stars' | 'dots' | 'lines' | 'sparkles' | 'grid' | 'waves' | 'diamonds' | 'circles' | 'crosses' | 'triangles' | 'hearts' | 'moons'>('none');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const archetypeConfigs = userArchetypes
@@ -358,17 +358,41 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             right: 0,
             bottom: 0,
             pointerEvents: 'none',
-            opacity: 0.2,
+            opacity: 0.15,
             background: overlayPattern === 'stars' 
-              ? `radial-gradient(2px 2px at 20px 30px, ${textColor}, transparent), radial-gradient(2px 2px at 40px 70px, ${textColor}, transparent), radial-gradient(1px 1px at 90px 40px, ${textColor}, transparent), radial-gradient(2px 2px at 130px 80px, ${textColor}, transparent), radial-gradient(1px 1px at 160px 20px, ${textColor}, transparent), radial-gradient(2px 2px at 200px 50px, ${textColor}, transparent), radial-gradient(1px 1px at 60px 100px, ${textColor}, transparent), radial-gradient(2px 2px at 100px 130px, ${textColor}, transparent), radial-gradient(1px 1px at 180px 120px, ${textColor}, transparent), radial-gradient(2px 2px at 220px 100px, ${textColor}, transparent)`
+              ? `radial-gradient(2px 2px at 20px 30px, ${textColor}, transparent), radial-gradient(2px 2px at 40px 70px, ${textColor}, transparent), radial-gradient(1px 1px at 90px 40px, ${textColor}, transparent), radial-gradient(2px 2px at 130px 80px, ${textColor}, transparent), radial-gradient(1px 1px at 160px 20px, ${textColor}, transparent), radial-gradient(2px 2px at 200px 50px, ${textColor}, transparent), radial-gradient(1px 1px at 60px 100px, ${textColor}, transparent), radial-gradient(2px 2px at 100px 130px, ${textColor}, transparent), radial-gradient(1px 1px at 180px 120px, ${textColor}, transparent), radial-gradient(2px 2px at 220px 100px, ${textColor}, transparent), radial-gradient(2px 2px at 250px 150px, ${textColor}, transparent), radial-gradient(1px 1px at 30px 180px, ${textColor}, transparent), radial-gradient(2px 2px at 280px 200px, ${textColor}, transparent), radial-gradient(1px 1px at 150px 250px, ${textColor}, transparent), radial-gradient(2px 2px at 70px 220px, ${textColor}, transparent)`
               : overlayPattern === 'dots'
               ? `radial-gradient(circle, ${textColor} 1px, transparent 1px)`
               : overlayPattern === 'lines'
               ? `repeating-linear-gradient(45deg, transparent, transparent 10px, ${textColor}15 10px, ${textColor}15 20px)`
               : overlayPattern === 'sparkles'
-              ? 'radial-gradient(3px 3px at 25% 25%, #fbbf24, transparent), radial-gradient(2px 2px at 75% 20%, #fbbf24, transparent), radial-gradient(3px 3px at 50% 80%, #fbbf24, transparent), radial-gradient(2px 2px at 15% 70%, #fbbf24, transparent), radial-gradient(3px 3px at 85% 60%, #fbbf24, transparent)'
+              ? 'radial-gradient(3px 3px at 25% 25%, #fbbf24, transparent), radial-gradient(2px 2px at 75% 20%, #fbbf24, transparent), radial-gradient(3px 3px at 50% 80%, #fbbf24, transparent), radial-gradient(2px 2px at 15% 70%, #fbbf24, transparent), radial-gradient(3px 3px at 85% 60%, #fbbf24, transparent), radial-gradient(2px 2px at 40% 45%, #fbbf24, transparent), radial-gradient(3px 3px at 65% 65%, #fbbf24, transparent), radial-gradient(2px 2px at 10% 35%, #fbbf24, transparent), radial-gradient(3px 3px at 90% 85%, #fbbf24, transparent), radial-gradient(2px 2px at 55% 15%, #fbbf24, transparent)'
+              : overlayPattern === 'grid'
+              ? `linear-gradient(${textColor}10 1px, transparent 1px), linear-gradient(90deg, ${textColor}10 1px, transparent 1px)`
+              : overlayPattern === 'waves'
+              ? `repeating-linear-gradient(0deg, transparent, transparent 20px, ${textColor}08 20px, ${textColor}08 40px), repeating-linear-gradient(90deg, transparent, transparent 20px, ${textColor}05 20px, ${textColor}05 40px)`
+              : overlayPattern === 'diamonds'
+              ? `linear-gradient(45deg, ${textColor}10 25%, transparent 25%), linear-gradient(-45deg, ${textColor}10 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${textColor}10 75%), linear-gradient(-45deg, transparent 75%, ${textColor}10 75%)`
+              : overlayPattern === 'circles'
+              ? `radial-gradient(circle at 50% 50%, transparent 20px, ${textColor}08 21px, ${textColor}08 22px, transparent 23px)`
+              : overlayPattern === 'crosses'
+              ? `linear-gradient(${textColor}10 2px, transparent 2px), linear-gradient(90deg, ${textColor}10 2px, transparent 2px), linear-gradient(${textColor}05 1px, transparent 1px), linear-gradient(90deg, ${textColor}05 1px, transparent 1px)`
+              : overlayPattern === 'triangles'
+              ? `linear-gradient(60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(-60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(60deg, transparent 75%, ${textColor}08 75.5%), linear-gradient(-60deg, transparent 75%, ${textColor}08 75.5%)`
+              : overlayPattern === 'hearts'
+              ? `radial-gradient(circle at 50% 40%, ${textColor} 2px, transparent 2px), radial-gradient(circle at 45% 35%, ${textColor} 2px, transparent 2px), radial-gradient(circle at 55% 35%, ${textColor} 2px, transparent 2px)`
+              : overlayPattern === 'moons'
+              ? `radial-gradient(circle at 45% 45%, transparent 8px, ${textColor}15 9px, ${textColor}15 11px, transparent 12px), radial-gradient(circle at 50% 50%, ${textColor}10 8px, transparent 9px)`
               : 'none',
-            backgroundSize: overlayPattern === 'dots' ? '20px 20px' : 'cover',
+            backgroundSize: overlayPattern === 'dots' ? '20px 20px' 
+              : overlayPattern === 'grid' ? '30px 30px'
+              : overlayPattern === 'diamonds' ? '40px 40px'
+              : overlayPattern === 'circles' ? '50px 50px'
+              : overlayPattern === 'crosses' ? '25px 25px'
+              : overlayPattern === 'triangles' ? '40px 40px'
+              : overlayPattern === 'hearts' ? '35px 35px'
+              : overlayPattern === 'moons' ? '45px 45px'
+              : 'cover',
           }} />
         )}
 
@@ -405,10 +429,10 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               <div style={{
                 color: textColor,
                 opacity: 0.5,
-                fontSize: '18px',
-                letterSpacing: '2px',
+                fontSize: '16px',
+                letterSpacing: '4px',
               }}>
-                ⟶
+                ————⟩
               </div>
             )}
             <div style={{
@@ -445,10 +469,10 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             transform: 'translateX(-50%)',
             color: textColor,
             opacity: 0.5,
-            fontSize: '18px',
-            letterSpacing: '2px',
+            fontSize: '16px',
+            letterSpacing: '4px',
           }}>
-            ⟶
+            ————⟩
           </div>
         )}
       </div>
@@ -935,20 +959,29 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
                       <div>
                         <label className="text-xs font-medium text-gray-700 mb-2 block">Декоративный узор</label>
-                        <div className="grid grid-cols-5 gap-2">
+                        <div className="grid grid-cols-7 gap-1">
                           {([
-                            { value: 'none', label: 'Нет' },
+                            { value: 'none', label: '—' },
                             { value: 'stars', label: '✦' },
-                            { value: 'dots', label: '•••' },
-                            { value: 'lines', label: '///' },
+                            { value: 'dots', label: '•' },
+                            { value: 'lines', label: '/' },
                             { value: 'sparkles', label: '✨' },
+                            { value: 'grid', label: '⊞' },
+                            { value: 'waves', label: '≈' },
+                            { value: 'diamonds', label: '◇' },
+                            { value: 'circles', label: '○' },
+                            { value: 'crosses', label: '+' },
+                            { value: 'triangles', label: '△' },
+                            { value: 'hearts', label: '♡' },
+                            { value: 'moons', label: '☽' },
                           ] as const).map((pattern) => (
                             <button
                               key={pattern.value}
                               onClick={() => setOverlayPattern(pattern.value)}
-                              className={`min-h-[44px] rounded-lg text-sm ${
+                              className={`min-h-[40px] rounded-lg text-base ${
                                 overlayPattern === pattern.value ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
                               }`}
+                              title={pattern.value === 'none' ? 'Без узора' : pattern.value}
                             >
                               {pattern.label}
                             </button>
