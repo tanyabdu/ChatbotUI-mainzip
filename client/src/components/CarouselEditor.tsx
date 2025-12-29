@@ -56,6 +56,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [bodySize, setBodySize] = useState(24);
   const [textColor, setTextColor] = useState('#ffffff');
   const [padding, setPadding] = useState(40);
+  const [letterSpacing, setLetterSpacing] = useState(0);
+  const [lineHeight, setLineHeight] = useState(1.4);
   const [textAlign, setTextAlign] = useState<TextAlign>('center');
   const [showSwipeArrow, setShowSwipeArrow] = useState(true);
   const [showSlideNumber, setShowSlideNumber] = useState(true);
@@ -320,7 +322,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 fontFamily: titleFont,
                 fontSize: isTitleSlide ? `${titleSize}px` : `${titleSize * 0.7}px`,
                 color: textColor,
-                lineHeight: 1.3,
+                lineHeight: lineHeight,
+                letterSpacing: `${letterSpacing}px`,
                 marginBottom: slide.body ? '20px' : 0,
                 fontWeight: 600,
                 width: '100%',
@@ -337,7 +340,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 fontFamily: bodyFont,
                 fontSize: `${bodySize}px`,
                 color: textColor,
-                lineHeight: 1.5,
+                lineHeight: lineHeight,
+                letterSpacing: `${letterSpacing}px`,
                 opacity: 0.95,
                 width: '100%',
                 textAlign: textAlign,
@@ -714,6 +718,14 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                         <div>
                           <label className="text-xs text-gray-600 mb-1 block">Текст: {bodySize}px</label>
                           <Slider value={[bodySize]} onValueChange={([v]) => setBodySize(v)} min={14} max={36} step={2} />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-600 mb-1 block">Межбуквенное: {letterSpacing}px</label>
+                          <Slider value={[letterSpacing]} onValueChange={([v]) => setLetterSpacing(v)} min={-2} max={10} step={0.5} />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-600 mb-1 block">Межстрочное: {lineHeight.toFixed(1)}</label>
+                          <Slider value={[lineHeight]} onValueChange={([v]) => setLineHeight(v)} min={1} max={2.5} step={0.1} />
                         </div>
                       </div>
                     </div>
