@@ -427,12 +427,22 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             {/* Long swipe arrow above profile name (not on last slide) */}
             {showSwipeArrow && displayIndex < slides.length - 1 && (
               <div style={{
-                color: textColor,
+                display: 'flex',
+                alignItems: 'center',
                 opacity: 0.5,
-                fontSize: '16px',
-                letterSpacing: '4px',
               }}>
-                ————⟩
+                <div style={{
+                  width: '60px',
+                  height: '2px',
+                  backgroundColor: textColor,
+                }} />
+                <div style={{
+                  width: 0,
+                  height: 0,
+                  borderTop: '5px solid transparent',
+                  borderBottom: '5px solid transparent',
+                  borderLeft: `8px solid ${textColor}`,
+                }} />
               </div>
             )}
             <div style={{
@@ -467,12 +477,22 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             bottom: '12px',
             left: '50%',
             transform: 'translateX(-50%)',
-            color: textColor,
+            display: 'flex',
+            alignItems: 'center',
             opacity: 0.5,
-            fontSize: '16px',
-            letterSpacing: '4px',
           }}>
-            ————⟩
+            <div style={{
+              width: '60px',
+              height: '2px',
+              backgroundColor: textColor,
+            }} />
+            <div style={{
+              width: 0,
+              height: 0,
+              borderTop: '5px solid transparent',
+              borderBottom: '5px solid transparent',
+              borderLeft: `8px solid ${textColor}`,
+            }} />
           </div>
         )}
       </div>
@@ -961,27 +981,27 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                         <label className="text-xs font-medium text-gray-700 mb-2 block">Декоративный узор</label>
                         <div className="grid grid-cols-7 gap-1">
                           {([
-                            { value: 'none', label: '—' },
-                            { value: 'stars', label: '✦' },
-                            { value: 'dots', label: '•' },
-                            { value: 'lines', label: '/' },
-                            { value: 'sparkles', label: '✨' },
-                            { value: 'grid', label: '⊞' },
-                            { value: 'waves', label: '≈' },
-                            { value: 'diamonds', label: '◇' },
-                            { value: 'circles', label: '○' },
-                            { value: 'crosses', label: '+' },
-                            { value: 'triangles', label: '△' },
-                            { value: 'hearts', label: '♡' },
-                            { value: 'moons', label: '☽' },
+                            { value: 'none', label: 'Нет', title: 'Без узора' },
+                            { value: 'stars', label: '*', title: 'Звезды' },
+                            { value: 'dots', label: '...', title: 'Точки' },
+                            { value: 'lines', label: '///', title: 'Линии' },
+                            { value: 'sparkles', label: 'o', title: 'Искры' },
+                            { value: 'grid', label: '#', title: 'Сетка' },
+                            { value: 'waves', label: '~', title: 'Волны' },
+                            { value: 'diamonds', label: '<>', title: 'Ромбы' },
+                            { value: 'circles', label: 'O', title: 'Круги' },
+                            { value: 'crosses', label: '+', title: 'Кресты' },
+                            { value: 'triangles', label: '^', title: 'Треугольники' },
+                            { value: 'hearts', label: '<3', title: 'Сердечки' },
+                            { value: 'moons', label: 'C', title: 'Луны' },
                           ] as const).map((pattern) => (
                             <button
                               key={pattern.value}
                               onClick={() => setOverlayPattern(pattern.value)}
-                              className={`min-h-[40px] rounded-lg text-base ${
+                              className={`min-h-[40px] rounded-lg text-xs font-mono ${
                                 overlayPattern === pattern.value ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
                               }`}
-                              title={pattern.value === 'none' ? 'Без узора' : pattern.value}
+                              title={pattern.title}
                             >
                               {pattern.label}
                             </button>
@@ -997,7 +1017,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                             onChange={(e) => setShowSwipeArrow(e.target.checked)}
                             className="w-5 h-5 rounded border-purple-300 text-purple-500 focus:ring-purple-500"
                           />
-                          <span className="text-sm">Стрелка ⟶</span>
+                          <span className="text-sm">Стрелка</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
