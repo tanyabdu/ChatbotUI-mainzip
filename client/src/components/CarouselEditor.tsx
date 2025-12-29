@@ -57,6 +57,10 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [textColor, setTextColor] = useState('#ffffff');
   const [padding, setPadding] = useState(40);
   const [textAlign, setTextAlign] = useState<TextAlign>('center');
+  const [showSwipeArrow, setShowSwipeArrow] = useState(true);
+  const [showSlideIndicator, setShowSlideIndicator] = useState(true);
+  const [profileName, setProfileName] = useState('');
+  const [overlayPattern, setOverlayPattern] = useState<'none' | 'stars' | 'dots' | 'lines' | 'sparkles'>('none');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const archetypeConfigs = userArchetypes
@@ -197,6 +201,12 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     return null;
   };
 
+  const waitForNextFrame = () => new Promise<void>(resolve => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+
   const handleExportAll = async () => {
     setIsExporting(true);
     setExportProgress(0);
@@ -204,6 +214,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     try {
       for (let i = 0; i < slides.length; i++) {
         setCurrentSlideIndex(i);
+        await waitForNextFrame();
         await new Promise(resolve => setTimeout(resolve, 100));
         
         const slideElement = slideRefs.current.get(slides[i].id);
@@ -255,10 +266,11 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     }
   };
 
-  const renderSlidePreview = (slide: Slide, isMain: boolean = false) => {
+  const renderSlidePreview = (slide: Slide, isMain: boolean = false, slideIndex?: number) => {
     const scale = isMain ? 1 : 0.3;
     const isTitleSlide = slide.type === 'title';
     const alignItems = textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
+    const displayIndex = slideIndex ?? currentSlideIndex;
     
     const slideCustomImage = getSlideCustomImage(slide);
     const slideBackground = getSlideBackground(slide);
@@ -274,6 +286,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
           }
         }}
         style={{
+          position: 'relative',
           width: `${width}px`,
           height: `${height}px`,
           background: slideCustomImage ? `url(${slideCustomImage})` : slideBackground,
@@ -334,6 +347,87 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             </div>
           )}
         </div>
+
+        {/* Overlay pattern */}
+        {overlayPattern !== 'none' && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            pointerEvents: 'none',
+            opacity: 0.2,
+            background: overlayPattern === 'stars' 
+              ? `radial-gradient(2px 2px at 20px 30px, ${textColor}, transparent), radial-gradient(2px 2px at 40px 70px, ${textColor}, transparent), radial-gradient(1px 1px at 90px 40px, ${textColor}, transparent), radial-gradient(2px 2px at 130px 80px, ${textColor}, transparent), radial-gradient(1px 1px at 160px 20px, ${textColor}, transparent), radial-gradient(2px 2px at 200px 50px, ${textColor}, transparent), radial-gradient(1px 1px at 60px 100px, ${textColor}, transparent), radial-gradient(2px 2px at 100px 130px, ${textColor}, transparent), radial-gradient(1px 1px at 180px 120px, ${textColor}, transparent), radial-gradient(2px 2px at 220px 100px, ${textColor}, transparent)`
+              : overlayPattern === 'dots'
+              ? `radial-gradient(circle, ${textColor} 1px, transparent 1px)`
+              : overlayPattern === 'lines'
+              ? `repeating-linear-gradient(45deg, transparent, transparent 10px, ${textColor}15 10px, ${textColor}15 20px)`
+              : overlayPattern === 'sparkles'
+              ? 'radial-gradient(3px 3px at 25% 25%, #fbbf24, transparent), radial-gradient(2px 2px at 75% 20%, #fbbf24, transparent), radial-gradient(3px 3px at 50% 80%, #fbbf24, transparent), radial-gradient(2px 2px at 15% 70%, #fbbf24, transparent), radial-gradient(3px 3px at 85% 60%, #fbbf24, transparent)'
+              : 'none',
+            backgroundSize: overlayPattern === 'dots' ? '20px 20px' : 'cover',
+          }} />
+        )}
+
+        {/* Profile name at bottom */}
+        {profileName && (
+          <div style={{
+            position: 'absolute',
+            bottom: '12px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontFamily: bodyFont,
+            fontSize: '14px',
+            color: textColor,
+            opacity: 0.7,
+            letterSpacing: '0.5px',
+          }}>
+            @{profileName}
+          </div>
+        )}
+
+        {/* Swipe arrow (not on last slide) */}
+        {showSwipeArrow && displayIndex < slides.length - 1 && (
+          <div style={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: textColor,
+            opacity: 0.6,
+            fontSize: '24px',
+          }}>
+            →
+          </div>
+        )}
+
+        {/* Slide indicator dots */}
+        {showSlideIndicator && slides.length > 1 && (
+          <div style={{
+            position: 'absolute',
+            bottom: profileName ? '36px' : '12px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: '6px',
+          }}>
+            {slides.map((_, idx) => (
+              <div
+                key={idx}
+                style={{
+                  width: idx === displayIndex ? '16px' : '6px',
+                  height: '6px',
+                  borderRadius: '3px',
+                  backgroundColor: textColor,
+                  opacity: idx === displayIndex ? 0.9 : 0.4,
+                  transition: 'all 0.2s',
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -757,6 +851,72 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                             </button>
                           ))}
                         </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="decorations" className="border-purple-200">
+                  <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-purple-500" />
+                      Декор и подпись
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs font-medium text-gray-700 mb-2 block">Имя профиля (внизу слайда)</label>
+                        <Input
+                          value={profileName}
+                          onChange={(e) => setProfileName(e.target.value)}
+                          placeholder="ваш_ник"
+                          className="text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-medium text-gray-700 mb-2 block">Декоративный узор</label>
+                        <div className="grid grid-cols-5 gap-2">
+                          {([
+                            { value: 'none', label: 'Нет' },
+                            { value: 'stars', label: '✦' },
+                            { value: 'dots', label: '•••' },
+                            { value: 'lines', label: '///' },
+                            { value: 'sparkles', label: '✨' },
+                          ] as const).map((pattern) => (
+                            <button
+                              key={pattern.value}
+                              onClick={() => setOverlayPattern(pattern.value)}
+                              className={`min-h-[44px] rounded-lg text-sm ${
+                                overlayPattern === pattern.value ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                              }`}
+                            >
+                              {pattern.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={showSwipeArrow}
+                            onChange={(e) => setShowSwipeArrow(e.target.checked)}
+                            className="w-5 h-5 rounded border-purple-300 text-purple-500 focus:ring-purple-500"
+                          />
+                          <span className="text-sm">Стрелка →</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={showSlideIndicator}
+                            onChange={(e) => setShowSlideIndicator(e.target.checked)}
+                            className="w-5 h-5 rounded border-purple-300 text-purple-500 focus:ring-purple-500"
+                          />
+                          <span className="text-sm">Точки-индикаторы</span>
+                        </label>
                       </div>
                     </div>
                   </AccordionContent>
