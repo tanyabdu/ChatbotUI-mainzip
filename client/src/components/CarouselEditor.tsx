@@ -882,7 +882,29 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                       )}
 
                       <div>
-                        <div className="text-xs text-gray-500 mb-1">Все фоны:</div>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-xs text-gray-500">Все фоны:</div>
+                          {currentSlide && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-xs h-6 text-purple-600 hover:text-purple-700 px-2"
+                              onClick={() => {
+                                const bg = getSlideBackground(currentSlide);
+                                const img = getSlideCustomImage(currentSlide);
+                                const fit = getSlideImageFit(currentSlide);
+                                setSlides(slides.map(s => ({
+                                  ...s,
+                                  background: bg,
+                                  customImage: img,
+                                  imageFit: fit
+                                })));
+                              }}
+                            >
+                              Применить ко всем
+                            </Button>
+                          )}
+                        </div>
                         <div className="grid grid-cols-5 sm:grid-cols-7 lg:grid-cols-10 gap-2">
                           {backgroundPresets.map((bg) => (
                             <button
