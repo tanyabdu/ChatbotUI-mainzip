@@ -667,8 +667,7 @@ export async function registerRoutes(
       const orderNum = req.body.order_num || webhookData.order_num || '';
       
       if (!orderNum) {
-        console.error("Missing order_num in webhook");
-        return res.status(400).json({ error: "Missing order_num" });
+        return res.status(200).json({ status: "ok", message: "Test or health-check request ignored" });
       }
 
       const existingPayment = await storage.getPaymentByOrderId(orderNum);
