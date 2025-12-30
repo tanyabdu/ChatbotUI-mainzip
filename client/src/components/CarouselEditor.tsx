@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useLayoutEffect, ChangeEvent } from 'react';
-import html2canvas from 'html2canvas';
 import JSZip from 'jszip';
 import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
