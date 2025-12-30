@@ -1,0 +1,140 @@
+root@cv5653817:/var/www/magic-content# git pull origin main
+From https://github.com/tanyabdu/ChatbotUI-mainzip
+ * branch            main       -> FETCH_HEAD
+Updating d8c586e..d53da2e
+Fast-forward
+ client/src/components/CarouselEditor.tsx | 229 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----------
+ client/src/lib/slideUtils.ts             |   2 +
+ package-lock.json                        |  95 ++++++++++++++++++++++++++++++
+ package.json                             |   1 +
+ 4 files changed, 297 insertions(+), 30 deletions(-)
+root@cv5653817:/var/www/magic-content# npm run build
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v5.4.20 building for production...
+transforming (4) src/App.tsx
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 120 modules transformed.
+x Build failed in 2.14s
+[vite]: Rollup failed to resolve import "jszip" from "/var/www/magic-content/client/src/components/CarouselEditor.tsx".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteWarn (/var/www/magic-content/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:65854:17)
+    at onwarn (/var/www/magic-content/node_modules/@vitejs/plugin-react/dist/index.js:90:7)
+    at onRollupWarning (/var/www/magic-content/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:65884:5)
+    at onwarn (/var/www/magic-content/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:65549:7)
+    at <anonymous> (/var/www/magic-content/node_modules/rollup/dist/es/shared/node-entry.js:19452:13)
+    at Object.logger (/var/www/magic-content/node_modules/rollup/dist/es/shared/node-entry.js:21178:9)
+    at ModuleLoader.handleInvalidResolvedId (/var/www/magic-content/node_modules/rollup/dist/es/shared/node-entry.js:20067:26)
+    at <anonymous> (/var/www/magic-content/node_modules/rollup/dist/es/shared/node-entry.js:20025:26) {
+  watchFiles: [
+    '/var/www/magic-content/client/index.html',
+    '/var/www/magic-content/client/src/main.tsx',
+    '/var/www/magic-content/package.json',
+    '/var/www/magic-content/node_modules/react-dom/client.js',
+    '/var/www/magic-content/client/src/App.tsx',
+    '/var/www/magic-content/node_modules/react/jsx-runtime.js',
+    '/var/www/magic-content/client/src/index.css',
+    '/var/www/magic-content/client/src/hooks/use-toast.ts',
+    '/var/www/magic-content/client/src/hooks/useAuth.ts',
+    '/var/www/magic-content/client/src/lib/archetypeFonts.ts',
+    '/var/www/magic-content/client/src/lib/archetypes.ts',
+    '/var/www/magic-content/client/src/lib/auth.ts',
+    '/var/www/magic-content/client/src/lib/authUtils.ts',
+    '/var/www/magic-content/client/src/lib/lunarCalculator.ts',
+    '/var/www/magic-content/client/src/lib/lunarData2026.ts',
+    '/var/www/magic-content/client/src/lib/queryClient.ts',
+    '/var/www/magic-content/client/src/lib/slideUtils.ts',
+    '/var/www/magic-content/client/src/lib/utils.ts',
+    '/var/www/magic-content/client/src/components/ArchetypeQuiz.tsx',
+    '/var/www/magic-content/client/src/components/CarouselEditor.tsx',
+    '/var/www/magic-content/client/src/components/CasesManager.tsx',
+    '/var/www/magic-content/client/src/components/ContentGenerator.tsx',
+    '/var/www/magic-content/client/src/components/Header.tsx',
+    '/var/www/magic-content/client/src/components/LoadingOverlay.tsx',
+    '/var/www/magic-content/client/src/components/LunarCalendar.tsx',
+    '/var/www/magic-content/client/src/components/MoneyTrainer.tsx',
+    '/var/www/magic-content/client/src/components/Navigation.tsx',
+    '/var/www/magic-content/client/src/components/VoiceRecorder.tsx',
+    '/var/www/magic-content/client/src/components/WelcomeSection.tsx',
+    '/var/www/magic-content/client/src/hooks/use-mobile.tsx',
+    '/var/www/magic-content/client/src/pages/Admin.tsx',
+    '/var/www/magic-content/client/src/pages/ForgotPassword.tsx',
+    '/var/www/magic-content/client/src/pages/Grimoire.tsx',
+    '/var/www/magic-content/client/src/pages/Home.tsx',
+    '/var/www/magic-content/client/src/pages/ImageEditor.tsx',
+    '/var/www/magic-content/client/src/pages/Landing.tsx',
+    '/var/www/magic-content/client/src/pages/Login.tsx',
+    '/var/www/magic-content/client/src/pages/Pricing.tsx',
+    '/var/www/magic-content/client/src/pages/Register.tsx',
+    '/var/www/magic-content/client/src/pages/ResetPassword.tsx',
+    '/var/www/magic-content/client/src/pages/not-found.tsx',
+    '/var/www/magic-content/client/src/components/examples/ArchetypeQuiz.tsx',
+    '/var/www/magic-content/client/src/components/examples/CasesManager.tsx',
+    '/var/www/magic-content/client/src/components/examples/ContentGenerator.tsx',
+    '/var/www/magic-content/client/src/components/examples/Header.tsx',
+    '/var/www/magic-content/client/src/components/examples/LoadingOverlay.tsx',
+    '/var/www/magic-content/client/src/components/examples/LunarCalendar.tsx',
+    '/var/www/magic-content/client/src/components/examples/Navigation.tsx',
+    '/var/www/magic-content/client/src/components/examples/VoiceRecorder.tsx',
+    '/var/www/magic-content/client/src/components/examples/WelcomeSection.tsx',
+    '/var/www/magic-content/client/src/components/ui/accordion.tsx',
+    '/var/www/magic-content/client/src/components/ui/alert-dialog.tsx',
+    '/var/www/magic-content/client/src/components/ui/alert.tsx',
+    '/var/www/magic-content/client/src/components/ui/aspect-ratio.tsx',
+    '/var/www/magic-content/client/src/components/ui/avatar.tsx',
+    '/var/www/magic-content/client/src/components/ui/badge.tsx',
+    '/var/www/magic-content/client/src/components/ui/breadcrumb.tsx',
+    '/var/www/magic-content/client/src/components/ui/button.tsx',
+    '/var/www/magic-content/client/src/components/ui/calendar.tsx',
+    '/var/www/magic-content/client/src/components/ui/card.tsx',
+    '/var/www/magic-content/client/src/components/ui/carousel.tsx',
+    '/var/www/magic-content/client/src/components/ui/chart.tsx',
+    '/var/www/magic-content/client/src/components/ui/checkbox.tsx',
+    '/var/www/magic-content/client/src/components/ui/collapsible.tsx',
+    '/var/www/magic-content/client/src/components/ui/command.tsx',
+    '/var/www/magic-content/client/src/components/ui/context-menu.tsx',
+    '/var/www/magic-content/client/src/components/ui/dialog.tsx',
+    '/var/www/magic-content/client/src/components/ui/drawer.tsx',
+    '/var/www/magic-content/client/src/components/ui/dropdown-menu.tsx',
+    '/var/www/magic-content/client/src/components/ui/form.tsx',
+    '/var/www/magic-content/client/src/components/ui/hover-card.tsx',
+    '/var/www/magic-content/client/src/components/ui/input-otp.tsx',
+    '/var/www/magic-content/client/src/components/ui/input.tsx',
+    '/var/www/magic-content/client/src/components/ui/label.tsx',
+    '/var/www/magic-content/client/src/components/ui/menubar.tsx',
+    '/var/www/magic-content/client/src/components/ui/navigation-menu.tsx',
+    '/var/www/magic-content/client/src/components/ui/pagination.tsx',
+    '/var/www/magic-content/client/src/components/ui/popover.tsx',
+    '/var/www/magic-content/client/src/components/ui/progress.tsx',
+    '/var/www/magic-content/client/src/components/ui/radio-group.tsx',
+    '/var/www/magic-content/client/src/components/ui/resizable.tsx',
+    '/var/www/magic-content/client/src/components/ui/scroll-area.tsx',
+    '/var/www/magic-content/client/src/components/ui/select.tsx',
+    '/var/www/magic-content/client/src/components/ui/separator.tsx',
+    '/var/www/magic-content/client/src/components/ui/sheet.tsx',
+    '/var/www/magic-content/client/src/components/ui/sidebar.tsx',
+    '/var/www/magic-content/client/src/components/ui/skeleton.tsx',
+    '/var/www/magic-content/client/src/components/ui/slider.tsx',
+    '/var/www/magic-content/client/src/components/ui/switch.tsx',
+    '/var/www/magic-content/client/src/components/ui/table.tsx',
+    '/var/www/magic-content/client/src/components/ui/tabs.tsx',
+    '/var/www/magic-content/client/src/components/ui/textarea.tsx',
+    '/var/www/magic-content/client/src/components/ui/toast.tsx',
+    '/var/www/magic-content/client/src/components/ui/toaster.tsx',
+    '/var/www/magic-content/client/src/components/ui/toggle-group.tsx',
+    '/var/www/magic-content/client/src/components/ui/toggle.tsx',
+    '/var/www/magic-content/client/src/components/ui/tooltip.tsx',
+    '/var/www/magic-content/tailwind.config.ts',
+    '/var/www/magic-content/node_modules/react/cjs/react-jsx-runtime.production.min.js',
+    '/var/www/magic-content/node_modules/react-dom/index.js',
+    ... 77 more items
+  ]
+}
+root@cv5653817:/var/www/magic-content# restart esoteric-planner
+-bash: restart: command not found
+root@cv5653817:/var/www/magic-content# 
