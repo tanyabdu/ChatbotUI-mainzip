@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useLayoutEffect, ChangeEvent } from 'react';
 import html2canvas from 'html2canvas';
+import JSZip from 'jszip';
 import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -859,17 +860,41 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     setExportProgress(0);
 
     try {
+      const zip = new JSZip();
+      const folder = zip.folder('slides');
+      
       for (let i = 0; i < slides.length; i++) {
         const canvas = await renderSlideToCanvas(slides[i], i);
-
-        const link = document.createElement('a');
-        link.download = `slide-${i + 1}-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const fileName = `slide-${String(i + 1).padStart(2, '0')}.png`;
+        
+        let blob = await new Promise<Blob | null>((resolve) => 
+          canvas.toBlob((b) => resolve(b), 'image/png')
+        );
+        
+        if (!blob) {
+          const dataUrl = canvas.toDataURL('image/png');
+          const base64 = dataUrl.split(',')[1];
+          const binaryString = atob(base64);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let j = 0; j < binaryString.length; j++) {
+            bytes[j] = binaryString.charCodeAt(j);
+          }
+          blob = new Blob([bytes], { type: 'image/png' });
+        }
+        
+        if (folder) {
+          folder.file(fileName, blob);
+        }
 
         setExportProgress(Math.round(((i + 1) / slides.length) * 100));
-        await new Promise(resolve => setTimeout(resolve, 300));
       }
+      
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const link = document.createElement('a');
+      link.download = `carousel-${Date.now()}.zip`;
+      link.href = URL.createObjectURL(zipBlob);
+      link.click();
+      URL.revokeObjectURL(link.href);
     } catch (error) {
       console.error('Export failed:', error);
     } finally {
