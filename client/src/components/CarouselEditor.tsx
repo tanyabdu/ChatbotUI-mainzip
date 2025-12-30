@@ -343,327 +343,80 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
   const renderSlideForExport = async (slide: Slide, slideIndex: number): Promise<HTMLCanvasElement> => {
     const { width: expWidth, height: expHeight } = exportSize;
-    const isTitleSlide = slide.type === 'title';
-    const alignItems = textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
-    const slideCustomImage = getSlideCustomImage(slide);
-    const slideBackground = getSlideBackground(slide);
-    const slideImageFit = getSlideImageFit(slide);
-    const offsetX = getSlideOffsetX(slide);
-    const offsetY = getSlideOffsetY(slide);
-    const displayIndex = slideIndex;
-
-    // Scale factor for export (export size / preview size)
-    const scaleFactor = expWidth / width;
-    const scaledTitleSize = titleSize * scaleFactor;
-    const scaledBodySize = bodySize * scaleFactor;
-    const scaledPadding = padding * scaleFactor;
-    const scaledOffsetX = offsetX * scaleFactor;
-    const scaledOffsetY = offsetY * scaleFactor;
-    const scaledLetterSpacing = letterSpacing * scaleFactor;
-
-    // Track images to wait for
-    const imagesToLoad: HTMLImageElement[] = [];
-
-    // Create hidden container - position: relative needed for overlay absolute positioning
-    const container = document.createElement('div');
-    container.style.cssText = `
-      position: fixed;
-      left: -9999px;
-      top: 0;
-      width: ${expWidth}px;
-      height: ${expHeight}px;
-      background: ${slideCustomImage ? `url(${slideCustomImage})` : slideBackground};
-      background-size: ${slideCustomImage ? slideImageFit : 'cover'};
-      background-position: center;
-      background-color: ${slideCustomImage && slideImageFit === 'contain' ? '#1a1a2e' : 'transparent'};
-      background-repeat: no-repeat;
-      padding: ${scaledPadding}px;
-      display: flex;
-      flex-direction: column;
-      justify-content: ${isTitleSlide ? 'center' : 'flex-start'};
-      align-items: ${alignItems};
-      text-align: ${textAlign};
-      overflow: hidden;
-      box-sizing: border-box;
-    `;
     
-    // Create inner wrapper with position: relative for overlay positioning
-    const innerWrapper = document.createElement('div');
-    innerWrapper.style.cssText = `
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: ${isTitleSlide ? 'center' : 'flex-start'};
-      align-items: ${alignItems};
-    `;
-
-    // Add overlay pattern FIRST so it's behind content (html2canvas renders in DOM order)
-    if (overlayPattern !== 'none') {
-      const overlay = document.createElement('div');
-      const s = scaleFactor;
-      const patternBackground = overlayPattern === 'stars' 
-        ? `radial-gradient(${2*s}px ${2*s}px at ${20*s}px ${30*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${40*s}px ${70*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${90*s}px ${40*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${130*s}px ${80*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${160*s}px ${20*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${200*s}px ${50*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${60*s}px ${100*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${100*s}px ${130*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${180*s}px ${120*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${220*s}px ${100*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${250*s}px ${150*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${30*s}px ${180*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${280*s}px ${200*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${150*s}px ${250*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${70*s}px ${220*s}px, ${textColor}, transparent)`
-        : overlayPattern === 'dots'
-        ? `radial-gradient(circle, ${textColor} ${1*s}px, transparent ${1*s}px)`
-        : overlayPattern === 'lines'
-        ? `repeating-linear-gradient(45deg, transparent, transparent ${10*s}px, ${textColor}15 ${10*s}px, ${textColor}15 ${20*s}px)`
-        : overlayPattern === 'sparkles'
-        ? `radial-gradient(${3*s}px ${3*s}px at 25% 25%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 75% 20%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 50% 80%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 15% 70%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 85% 60%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 40% 45%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 65% 65%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 10% 35%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 90% 85%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 55% 15%, #fbbf24, transparent)`
-        : overlayPattern === 'grid'
-        ? `linear-gradient(${textColor}10 ${1*s}px, transparent ${1*s}px), linear-gradient(90deg, ${textColor}10 ${1*s}px, transparent ${1*s}px)`
-        : overlayPattern === 'waves'
-        ? `repeating-linear-gradient(0deg, transparent, transparent ${20*s}px, ${textColor}08 ${20*s}px, ${textColor}08 ${40*s}px), repeating-linear-gradient(90deg, transparent, transparent ${20*s}px, ${textColor}05 ${20*s}px, ${textColor}05 ${40*s}px)`
-        : overlayPattern === 'diamonds'
-        ? `linear-gradient(45deg, ${textColor}10 25%, transparent 25%), linear-gradient(-45deg, ${textColor}10 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${textColor}10 75%), linear-gradient(-45deg, transparent 75%, ${textColor}10 75%)`
-        : overlayPattern === 'circles'
-        ? `radial-gradient(circle at 50% 50%, transparent ${20*s}px, ${textColor}08 ${21*s}px, ${textColor}08 ${22*s}px, transparent ${23*s}px)`
-        : overlayPattern === 'crosses'
-        ? `linear-gradient(${textColor}10 ${2*s}px, transparent ${2*s}px), linear-gradient(90deg, ${textColor}10 ${2*s}px, transparent ${2*s}px), linear-gradient(${textColor}05 ${1*s}px, transparent ${1*s}px), linear-gradient(90deg, ${textColor}05 ${1*s}px, transparent ${1*s}px)`
-        : overlayPattern === 'triangles'
-        ? `linear-gradient(60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(-60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(60deg, transparent 75%, ${textColor}08 75.5%), linear-gradient(-60deg, transparent 75%, ${textColor}08 75.5%)`
-        : overlayPattern === 'hearts'
-        ? `radial-gradient(circle at 50% 40%, ${textColor} ${2*s}px, transparent ${2*s}px), radial-gradient(circle at 45% 35%, ${textColor} ${2*s}px, transparent ${2*s}px), radial-gradient(circle at 55% 35%, ${textColor} ${2*s}px, transparent ${2*s}px)`
-        : overlayPattern === 'moons'
-        ? `radial-gradient(circle at 45% 45%, transparent ${8*s}px, ${textColor}15 ${9*s}px, ${textColor}15 ${11*s}px, transparent ${12*s}px), radial-gradient(circle at 50% 50%, ${textColor}10 ${8*s}px, transparent ${9*s}px)`
-        : 'none';
-      
-      const baseBgSize = overlayPattern === 'dots' ? 20 
-        : overlayPattern === 'grid' ? 30
-        : overlayPattern === 'diamonds' ? 40
-        : overlayPattern === 'circles' ? 50
-        : overlayPattern === 'crosses' ? 25
-        : overlayPattern === 'triangles' ? 40
-        : overlayPattern === 'hearts' ? 35
-        : overlayPattern === 'moons' ? 45
-        : 0;
-      const scaledBgSize = baseBgSize > 0 ? `${baseBgSize * scaleFactor}px ${baseBgSize * scaleFactor}px` : 'cover';
-
-      overlay.style.cssText = `
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        pointer-events: none;
-        opacity: 0.15;
-        background: ${patternBackground};
-        background-size: ${scaledBgSize};
-      `;
-      innerWrapper.appendChild(overlay);
-    }
-
-    // Scaled footer values - match preview sizes (14px font, 12px bottom, 4px gap)
-    const scaledBottom = 12 * scaleFactor;
-    const scaledGap = 4 * scaleFactor;
-    const scaledSlideNumSize = 14 * scaleFactor;
-    const scaledProfileFontSize = 14 * scaleFactor;
-    const scaledIconSize = 14 * scaleFactor;
-    const scaledArrowWidth = 60 * scaleFactor;
-    const scaledArrowHeight = 2 * scaleFactor;
-    const scaledTriangleBorder = 5 * scaleFactor;
-    const scaledTriangleLeft = 8 * scaleFactor;
-
-    // Content wrapper with offset - z-index 10 to be above overlay
-    const contentWrapper = document.createElement('div');
-    contentWrapper.style.cssText = `
-      transform: translate(${scaledOffsetX}px, ${scaledOffsetY}px);
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: ${alignItems};
-      position: relative;
-      z-index: 10;
-    `;
-
-    // Heading
-    if (slide.heading) {
-      const headingEl = document.createElement('div');
-      headingEl.style.cssText = `
-        font-family: '${titleFont}', serif;
-        font-size: ${isTitleSlide ? scaledTitleSize : scaledTitleSize * 0.7}px;
-        color: ${textColor};
-        line-height: ${lineHeight};
-        letter-spacing: ${scaledLetterSpacing}px;
-        margin-bottom: ${slide.body ? '40px' : '0'};
-        font-weight: 600;
-        width: 100%;
-        text-align: ${textAlign};
-        white-space: pre-line;
-      `;
-      headingEl.textContent = slide.heading;
-      contentWrapper.appendChild(headingEl);
-    }
-
-    // Body
-    if (slide.body) {
-      const bodyEl = document.createElement('div');
-      bodyEl.style.cssText = `
-        font-family: '${bodyFont}', sans-serif;
-        font-size: ${scaledBodySize}px;
-        color: ${textColor};
-        line-height: ${lineHeight};
-        letter-spacing: ${scaledLetterSpacing}px;
-        opacity: 0.95;
-        width: 100%;
-        text-align: ${textAlign};
-        white-space: pre-line;
-      `;
-      bodyEl.textContent = slide.body;
-      contentWrapper.appendChild(bodyEl);
-    }
-
-    innerWrapper.appendChild(contentWrapper);
-
-    // Slide number
-    if (showSlideNumber && slides.length > 1) {
-      const slideNumEl = document.createElement('div');
-      slideNumEl.style.cssText = `
-        position: absolute;
-        top: ${scaledBottom}px; right: ${scaledBottom}px;
-        font-family: '${bodyFont}', sans-serif;
-        font-size: ${scaledSlideNumSize}px;
-        color: ${textColor};
-        opacity: 0.7;
-        letter-spacing: ${scaledLetterSpacing}px;
-        z-index: 10;
-      `;
-      slideNumEl.textContent = `${displayIndex + 1}/${slides.length}`;
-      innerWrapper.appendChild(slideNumEl);
-    }
-
-    // Profile name and swipe arrow
-    if (profileName) {
-      const profileWrapper = document.createElement('div');
-      profileWrapper.style.cssText = `
-        position: absolute;
-        bottom: ${scaledBottom}px; left: 50%;
-        transform: translateX(-50%);
-        display: flex; flex-direction: column;
-        align-items: center; gap: ${scaledGap}px;
-        z-index: 10;
-      `;
-
-      // Swipe arrow (not on last slide)
-      if (showSwipeArrow && displayIndex < slides.length - 1) {
-        const arrowWrapper = document.createElement('div');
-        arrowWrapper.style.cssText = `display: flex; align-items: center; opacity: 0.5;`;
-        const line = document.createElement('div');
-        line.style.cssText = `width: ${scaledArrowWidth}px; height: ${scaledArrowHeight}px; background-color: ${textColor};`;
-        const triangle = document.createElement('div');
-        triangle.style.cssText = `
-          width: 0; height: 0;
-          border-top: ${scaledTriangleBorder}px solid transparent;
-          border-bottom: ${scaledTriangleBorder}px solid transparent;
-          border-left: ${scaledTriangleLeft}px solid ${textColor};
-        `;
-        arrowWrapper.appendChild(line);
-        arrowWrapper.appendChild(triangle);
-        profileWrapper.appendChild(arrowWrapper);
-      }
-
-      const profileText = document.createElement('div');
-      profileText.style.cssText = `
-        font-family: '${bodyFont}', sans-serif;
-        font-size: ${scaledProfileFontSize}px;
-        color: ${textColor};
-        opacity: 0.8;
-        letter-spacing: ${scaledLetterSpacing}px;
-        display: flex; align-items: center; gap: ${scaledGap}px;
-        flex-wrap: nowrap; white-space: nowrap;
-      `;
-      
-      // Add social icon if selected - using img with data URI for html2canvas compatibility
-      if (profileIcon === 'instagram') {
-        const iconImg = document.createElement('img');
-        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${textColor}"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
-        iconImg.src = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
-        iconImg.width = scaledIconSize;
-        iconImg.height = scaledIconSize;
-        iconImg.style.opacity = '0.8';
-        profileText.appendChild(iconImg);
-        imagesToLoad.push(iconImg);
-      } else if (profileIcon === 'telegram') {
-        const iconImg = document.createElement('img');
-        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${textColor}"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>`;
-        iconImg.src = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
-        iconImg.width = scaledIconSize;
-        iconImg.height = scaledIconSize;
-        iconImg.style.opacity = '0.8';
-        profileText.appendChild(iconImg);
-        imagesToLoad.push(iconImg);
-      }
-      
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = `@${profileName}`;
-      profileText.appendChild(nameSpan);
-      profileWrapper.appendChild(profileText);
-      innerWrapper.appendChild(profileWrapper);
-    } else if (showSwipeArrow && displayIndex < slides.length - 1) {
-      // Arrow without profile
-      const arrowWrapper = document.createElement('div');
-      arrowWrapper.style.cssText = `
-        position: absolute;
-        bottom: ${scaledBottom}px; left: 50%;
-        transform: translateX(-50%);
-        display: flex; align-items: center; opacity: 0.5;
-        z-index: 10;
-      `;
-      const line = document.createElement('div');
-      line.style.cssText = `width: ${scaledArrowWidth}px; height: ${scaledArrowHeight}px; background-color: ${textColor};`;
-      const triangle = document.createElement('div');
-      triangle.style.cssText = `
-        width: 0; height: 0;
-        border-top: ${scaledTriangleBorder}px solid transparent;
-        border-bottom: ${scaledTriangleBorder}px solid transparent;
-        border-left: ${scaledTriangleLeft}px solid ${textColor};
-      `;
-      arrowWrapper.appendChild(line);
-      arrowWrapper.appendChild(triangle);
-      innerWrapper.appendChild(arrowWrapper);
-    }
-
-    // Add innerWrapper to container
-    container.appendChild(innerWrapper);
-    document.body.appendChild(container);
+    // Get the actual preview DOM element
+    const previewElement = slideRefs.current.get(slide.id);
     
-    try {
-      await waitForNextFrame();
-
-      // Wait for all images (icons) to load before rendering
-      if (imagesToLoad.length > 0) {
-        await Promise.all(imagesToLoad.map(img => 
-          img.decode().catch(() => {
-            // Fallback: wait for complete flag
-            return new Promise<void>(resolve => {
-              if (img.complete) resolve();
-              else img.onload = () => resolve();
-            });
+    if (previewElement) {
+      // NEW APPROACH: Clone the actual preview element and use html2canvas scale
+      // This guarantees 100% match with preview - all CSS gradients, overlays etc. are preserved
+      
+      // Wait for fonts to be ready
+      await document.fonts.ready;
+      
+      // Wait for any images in the preview to load
+      const images = previewElement.querySelectorAll('img');
+      if (images.length > 0) {
+        await Promise.all(Array.from(images).map(img => 
+          img.complete ? Promise.resolve() : new Promise<void>(resolve => {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
           })
         ));
       }
-
+      
+      // Calculate scale factor (export size / preview size)
+      const scaleFactor = expWidth / width;
+      
+      // Get background color for solid backgrounds
       const solidBg = getSolidBackgroundColor(slide);
-      const canvas = await html2canvas(container, {
-        scale: 1,
+      
+      // Use html2canvas with scale parameter to render at export resolution
+      const canvas = await html2canvas(previewElement, {
+        scale: scaleFactor,
         useCORS: true,
         backgroundColor: solidBg,
-        width: expWidth,
-        height: expHeight,
+        width: width,
+        height: height,
+        logging: false,
+        allowTaint: true,
       });
-
+      
       return canvas;
-    } finally {
-      if (document.body.contains(container)) {
-        document.body.removeChild(container);
-      }
     }
+    
+    // Fallback: if preview element not found, create minimal canvas
+    console.warn('Preview element not found for slide', slide.id);
+    const canvas = document.createElement('canvas');
+    canvas.width = expWidth;
+    canvas.height = expHeight;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fillRect(0, 0, expWidth, expHeight);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '48px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Preview not available', expWidth / 2, expHeight / 2);
+    }
+    return canvas;
   };
 
   const handleExportAll = async () => {
     setIsExporting(true);
     setExportProgress(0);
+    
+    const originalIndex = currentSlideIndex;
 
     try {
       for (let i = 0; i < slides.length; i++) {
+        // Switch to this slide to render it in preview
+        setCurrentSlideIndex(i);
+        
+        // Wait for React to render and DOM to update
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await waitForNextFrame();
+        
         const canvas = await renderSlideForExport(slides[i], i);
 
         const link = document.createElement('a');
@@ -672,11 +425,13 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         link.click();
 
         setExportProgress(Math.round(((i + 1) / slides.length) * 100));
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
     } catch (error) {
       console.error('Export failed:', error);
     } finally {
+      // Restore original slide
+      setCurrentSlideIndex(originalIndex);
       setIsExporting(false);
       setExportProgress(0);
     }
