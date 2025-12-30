@@ -163,6 +163,17 @@ export const backgroundPresets = [
   { id: "solid-orange", name: "Оранжевый", type: "solid", value: "#f97316" },
   { id: "solid-red", name: "Красный", type: "solid", value: "#ef4444" },
   { id: "solid-teal", name: "Бирюзовый", type: "solid", value: "#14b8a6" },
+  // Pastels
+  { id: "pastel-beige", name: "Бежевый", type: "solid", value: "#f5f0e6" },
+  { id: "pastel-sand", name: "Песочный", type: "solid", value: "#e8dcc8" },
+  { id: "pastel-gray", name: "Светло-серый", type: "solid", value: "#e5e7eb" },
+  { id: "pastel-smoke", name: "Дымчатый", type: "solid", value: "#d1d5db" },
+  { id: "pastel-dusty-rose", name: "Пыльная роза", type: "solid", value: "#e8c4c4" },
+  { id: "pastel-lavender", name: "Лаванда", type: "solid", value: "#e6e0f0" },
+  { id: "pastel-mint", name: "Мята", type: "solid", value: "#d1f0e0" },
+  { id: "pastel-sky", name: "Небесный", type: "solid", value: "#dbeafe" },
+  { id: "pastel-peach", name: "Персик", type: "solid", value: "#fde8d8" },
+  { id: "pastel-vanilla", name: "Ваниль", type: "solid", value: "#fef9ef" },
 ];
 
 // Generate archetype-based gradient backgrounds
