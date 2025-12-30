@@ -265,60 +265,17 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       box-sizing: border-box;
     `;
 
-    // Add overlay pattern if any
-    if (overlayPattern !== 'none') {
-      const overlay = document.createElement('div');
-      const s = scaleFactor; // shorthand for scaled values
-      const patternBackground = overlayPattern === 'stars' 
-        ? `radial-gradient(${2*s}px ${2*s}px at ${20*s}px ${30*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${40*s}px ${70*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${90*s}px ${40*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${130*s}px ${80*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${160*s}px ${20*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${200*s}px ${50*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${60*s}px ${100*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${100*s}px ${130*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${180*s}px ${120*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${220*s}px ${100*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${250*s}px ${150*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${30*s}px ${180*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${280*s}px ${200*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${150*s}px ${250*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${70*s}px ${220*s}px, ${textColor}, transparent)`
-        : overlayPattern === 'dots'
-        ? `radial-gradient(circle, ${textColor} ${1*s}px, transparent ${1*s}px)`
-        : overlayPattern === 'lines'
-        ? `repeating-linear-gradient(45deg, transparent, transparent ${10*s}px, ${textColor}15 ${10*s}px, ${textColor}15 ${20*s}px)`
-        : overlayPattern === 'sparkles'
-        ? `radial-gradient(${3*s}px ${3*s}px at 25% 25%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 75% 20%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 50% 80%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 15% 70%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 85% 60%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 40% 45%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 65% 65%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 10% 35%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 90% 85%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 55% 15%, #fbbf24, transparent)`
-        : overlayPattern === 'grid'
-        ? `linear-gradient(${textColor}10 ${1*s}px, transparent ${1*s}px), linear-gradient(90deg, ${textColor}10 ${1*s}px, transparent ${1*s}px)`
-        : overlayPattern === 'waves'
-        ? `repeating-linear-gradient(0deg, transparent, transparent ${20*s}px, ${textColor}08 ${20*s}px, ${textColor}08 ${40*s}px), repeating-linear-gradient(90deg, transparent, transparent ${20*s}px, ${textColor}05 ${20*s}px, ${textColor}05 ${40*s}px)`
-        : overlayPattern === 'diamonds'
-        ? `linear-gradient(45deg, ${textColor}10 25%, transparent 25%), linear-gradient(-45deg, ${textColor}10 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${textColor}10 75%), linear-gradient(-45deg, transparent 75%, ${textColor}10 75%)`
-        : overlayPattern === 'circles'
-        ? `radial-gradient(circle at 50% 50%, transparent ${20*s}px, ${textColor}08 ${21*s}px, ${textColor}08 ${22*s}px, transparent ${23*s}px)`
-        : overlayPattern === 'crosses'
-        ? `linear-gradient(${textColor}10 ${2*s}px, transparent ${2*s}px), linear-gradient(90deg, ${textColor}10 ${2*s}px, transparent ${2*s}px), linear-gradient(${textColor}05 ${1*s}px, transparent ${1*s}px), linear-gradient(90deg, ${textColor}05 ${1*s}px, transparent ${1*s}px)`
-        : overlayPattern === 'triangles'
-        ? `linear-gradient(60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(-60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(60deg, transparent 75%, ${textColor}08 75.5%), linear-gradient(-60deg, transparent 75%, ${textColor}08 75.5%)`
-        : overlayPattern === 'hearts'
-        ? `radial-gradient(circle at 50% 40%, ${textColor} ${2*s}px, transparent ${2*s}px), radial-gradient(circle at 45% 35%, ${textColor} ${2*s}px, transparent ${2*s}px), radial-gradient(circle at 55% 35%, ${textColor} ${2*s}px, transparent ${2*s}px)`
-        : overlayPattern === 'moons'
-        ? `radial-gradient(circle at 45% 45%, transparent ${8*s}px, ${textColor}15 ${9*s}px, ${textColor}15 ${11*s}px, transparent ${12*s}px), radial-gradient(circle at 50% 50%, ${textColor}10 ${8*s}px, transparent ${9*s}px)`
-        : 'none';
-      
-      const baseBgSize = overlayPattern === 'dots' ? 20 
-        : overlayPattern === 'grid' ? 30
-        : overlayPattern === 'diamonds' ? 40
-        : overlayPattern === 'circles' ? 50
-        : overlayPattern === 'crosses' ? 25
-        : overlayPattern === 'triangles' ? 40
-        : overlayPattern === 'hearts' ? 35
-        : overlayPattern === 'moons' ? 45
-        : 0;
-      const scaledBgSize = baseBgSize > 0 ? `${baseBgSize * scaleFactor}px ${baseBgSize * scaleFactor}px` : 'cover';
+    // Scaled footer values
+    const scaledBottom = 24 * scaleFactor;
+    const scaledGap = 8 * scaleFactor;
+    const scaledFontSize = 28 * scaleFactor;
+    const scaledIconSize = 28 * scaleFactor;
+    const scaledArrowWidth = 120 * scaleFactor;
+    const scaledArrowHeight = 4 * scaleFactor;
+    const scaledTriangleBorder = 10 * scaleFactor;
+    const scaledTriangleLeft = 16 * scaleFactor;
 
-      overlay.style.cssText = `
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        pointer-events: none;
-        opacity: 0.15;
-        background: ${patternBackground};
-        background-size: ${scaledBgSize};
-        z-index: 2;
-      `;
-      container.appendChild(overlay);
-    }
-
-    // Content wrapper with offset
+    // Content wrapper with offset - z-index 10 to be above overlay
     const contentWrapper = document.createElement('div');
     contentWrapper.style.cssText = `
       transform: translate(${scaledOffsetX}px, ${scaledOffsetY}px);
@@ -326,7 +283,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       display: flex;
       flex-direction: column;
       align-items: ${alignItems};
-      z-index: 1;
+      position: relative;
+      z-index: 10;
     `;
 
     // Heading
@@ -373,12 +331,13 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       const slideNumEl = document.createElement('div');
       slideNumEl.style.cssText = `
         position: absolute;
-        top: 24px; right: 24px;
+        top: ${scaledBottom}px; right: ${scaledBottom}px;
         font-family: '${bodyFont}', sans-serif;
-        font-size: 28px;
+        font-size: ${scaledFontSize}px;
         color: ${textColor};
         opacity: 0.7;
-        letter-spacing: 1px;
+        letter-spacing: ${scaledLetterSpacing}px;
+        z-index: 10;
       `;
       slideNumEl.textContent = `${displayIndex + 1}/${slides.length}`;
       container.appendChild(slideNumEl);
@@ -389,10 +348,11 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       const profileWrapper = document.createElement('div');
       profileWrapper.style.cssText = `
         position: absolute;
-        bottom: 24px; left: 50%;
+        bottom: ${scaledBottom}px; left: 50%;
         transform: translateX(-50%);
         display: flex; flex-direction: column;
-        align-items: center; gap: 8px;
+        align-items: center; gap: ${scaledGap}px;
+        z-index: 10;
       `;
 
       // Swipe arrow (not on last slide)
@@ -400,13 +360,13 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         const arrowWrapper = document.createElement('div');
         arrowWrapper.style.cssText = `display: flex; align-items: center; opacity: 0.5;`;
         const line = document.createElement('div');
-        line.style.cssText = `width: 120px; height: 4px; background-color: ${textColor};`;
+        line.style.cssText = `width: ${scaledArrowWidth}px; height: ${scaledArrowHeight}px; background-color: ${textColor};`;
         const triangle = document.createElement('div');
         triangle.style.cssText = `
           width: 0; height: 0;
-          border-top: 10px solid transparent;
-          border-bottom: 10px solid transparent;
-          border-left: 16px solid ${textColor};
+          border-top: ${scaledTriangleBorder}px solid transparent;
+          border-bottom: ${scaledTriangleBorder}px solid transparent;
+          border-left: ${scaledTriangleLeft}px solid ${textColor};
         `;
         arrowWrapper.appendChild(line);
         arrowWrapper.appendChild(triangle);
@@ -416,18 +376,18 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       const profileText = document.createElement('div');
       profileText.style.cssText = `
         font-family: '${bodyFont}', sans-serif;
-        font-size: 28px;
+        font-size: ${scaledFontSize}px;
         color: ${textColor};
         opacity: 0.8;
-        letter-spacing: 1px;
-        display: flex; align-items: center; gap: 8px;
+        letter-spacing: ${scaledLetterSpacing}px;
+        display: flex; align-items: center; gap: ${scaledGap}px;
       `;
       
       // Add social icon if selected
       if (profileIcon === 'instagram') {
         const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        iconSvg.setAttribute('width', '28');
-        iconSvg.setAttribute('height', '28');
+        iconSvg.setAttribute('width', String(scaledIconSize));
+        iconSvg.setAttribute('height', String(scaledIconSize));
         iconSvg.setAttribute('viewBox', '0 0 24 24');
         iconSvg.setAttribute('fill', textColor);
         iconSvg.style.opacity = '0.8';
@@ -437,8 +397,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         profileText.appendChild(iconSvg);
       } else if (profileIcon === 'telegram') {
         const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        iconSvg.setAttribute('width', '28');
-        iconSvg.setAttribute('height', '28');
+        iconSvg.setAttribute('width', String(scaledIconSize));
+        iconSvg.setAttribute('height', String(scaledIconSize));
         iconSvg.setAttribute('viewBox', '0 0 24 24');
         iconSvg.setAttribute('fill', textColor);
         iconSvg.style.opacity = '0.8';
@@ -458,22 +418,76 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       const arrowWrapper = document.createElement('div');
       arrowWrapper.style.cssText = `
         position: absolute;
-        bottom: 24px; left: 50%;
+        bottom: ${scaledBottom}px; left: 50%;
         transform: translateX(-50%);
         display: flex; align-items: center; opacity: 0.5;
+        z-index: 10;
       `;
       const line = document.createElement('div');
-      line.style.cssText = `width: 120px; height: 4px; background-color: ${textColor};`;
+      line.style.cssText = `width: ${scaledArrowWidth}px; height: ${scaledArrowHeight}px; background-color: ${textColor};`;
       const triangle = document.createElement('div');
       triangle.style.cssText = `
         width: 0; height: 0;
-        border-top: 10px solid transparent;
-        border-bottom: 10px solid transparent;
-        border-left: 16px solid ${textColor};
+        border-top: ${scaledTriangleBorder}px solid transparent;
+        border-bottom: ${scaledTriangleBorder}px solid transparent;
+        border-left: ${scaledTriangleLeft}px solid ${textColor};
       `;
       arrowWrapper.appendChild(line);
       arrowWrapper.appendChild(triangle);
       container.appendChild(arrowWrapper);
+    }
+
+    // Add overlay pattern LAST so it renders on top in html2canvas
+    if (overlayPattern !== 'none') {
+      const overlay = document.createElement('div');
+      const s = scaleFactor;
+      const patternBackground = overlayPattern === 'stars' 
+        ? `radial-gradient(${2*s}px ${2*s}px at ${20*s}px ${30*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${40*s}px ${70*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${90*s}px ${40*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${130*s}px ${80*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${160*s}px ${20*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${200*s}px ${50*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${60*s}px ${100*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${100*s}px ${130*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${180*s}px ${120*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${220*s}px ${100*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${250*s}px ${150*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${30*s}px ${180*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${280*s}px ${200*s}px, ${textColor}, transparent), radial-gradient(${1*s}px ${1*s}px at ${150*s}px ${250*s}px, ${textColor}, transparent), radial-gradient(${2*s}px ${2*s}px at ${70*s}px ${220*s}px, ${textColor}, transparent)`
+        : overlayPattern === 'dots'
+        ? `radial-gradient(circle, ${textColor} ${1*s}px, transparent ${1*s}px)`
+        : overlayPattern === 'lines'
+        ? `repeating-linear-gradient(45deg, transparent, transparent ${10*s}px, ${textColor}15 ${10*s}px, ${textColor}15 ${20*s}px)`
+        : overlayPattern === 'sparkles'
+        ? `radial-gradient(${3*s}px ${3*s}px at 25% 25%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 75% 20%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 50% 80%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 15% 70%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 85% 60%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 40% 45%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 65% 65%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 10% 35%, #fbbf24, transparent), radial-gradient(${3*s}px ${3*s}px at 90% 85%, #fbbf24, transparent), radial-gradient(${2*s}px ${2*s}px at 55% 15%, #fbbf24, transparent)`
+        : overlayPattern === 'grid'
+        ? `linear-gradient(${textColor}10 ${1*s}px, transparent ${1*s}px), linear-gradient(90deg, ${textColor}10 ${1*s}px, transparent ${1*s}px)`
+        : overlayPattern === 'waves'
+        ? `repeating-linear-gradient(0deg, transparent, transparent ${20*s}px, ${textColor}08 ${20*s}px, ${textColor}08 ${40*s}px), repeating-linear-gradient(90deg, transparent, transparent ${20*s}px, ${textColor}05 ${20*s}px, ${textColor}05 ${40*s}px)`
+        : overlayPattern === 'diamonds'
+        ? `linear-gradient(45deg, ${textColor}10 25%, transparent 25%), linear-gradient(-45deg, ${textColor}10 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${textColor}10 75%), linear-gradient(-45deg, transparent 75%, ${textColor}10 75%)`
+        : overlayPattern === 'circles'
+        ? `radial-gradient(circle at 50% 50%, transparent ${20*s}px, ${textColor}08 ${21*s}px, ${textColor}08 ${22*s}px, transparent ${23*s}px)`
+        : overlayPattern === 'crosses'
+        ? `linear-gradient(${textColor}10 ${2*s}px, transparent ${2*s}px), linear-gradient(90deg, ${textColor}10 ${2*s}px, transparent ${2*s}px), linear-gradient(${textColor}05 ${1*s}px, transparent ${1*s}px), linear-gradient(90deg, ${textColor}05 ${1*s}px, transparent ${1*s}px)`
+        : overlayPattern === 'triangles'
+        ? `linear-gradient(60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(-60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(60deg, transparent 75%, ${textColor}08 75.5%), linear-gradient(-60deg, transparent 75%, ${textColor}08 75.5%)`
+        : overlayPattern === 'hearts'
+        ? `radial-gradient(circle at 50% 40%, ${textColor} ${2*s}px, transparent ${2*s}px), radial-gradient(circle at 45% 35%, ${textColor} ${2*s}px, transparent ${2*s}px), radial-gradient(circle at 55% 35%, ${textColor} ${2*s}px, transparent ${2*s}px)`
+        : overlayPattern === 'moons'
+        ? `radial-gradient(circle at 45% 45%, transparent ${8*s}px, ${textColor}15 ${9*s}px, ${textColor}15 ${11*s}px, transparent ${12*s}px), radial-gradient(circle at 50% 50%, ${textColor}10 ${8*s}px, transparent ${9*s}px)`
+        : 'none';
+      
+      const baseBgSize = overlayPattern === 'dots' ? 20 
+        : overlayPattern === 'grid' ? 30
+        : overlayPattern === 'diamonds' ? 40
+        : overlayPattern === 'circles' ? 50
+        : overlayPattern === 'crosses' ? 25
+        : overlayPattern === 'triangles' ? 40
+        : overlayPattern === 'hearts' ? 35
+        : overlayPattern === 'moons' ? 45
+        : 0;
+      const scaledBgSize = baseBgSize > 0 ? `${baseBgSize * scaleFactor}px ${baseBgSize * scaleFactor}px` : 'cover';
+
+      overlay.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        pointer-events: none;
+        opacity: 0.15;
+        background: ${patternBackground};
+        background-size: ${scaledBgSize};
+        z-index: 1;
+      `;
+      container.appendChild(overlay);
     }
 
     document.body.appendChild(container);
