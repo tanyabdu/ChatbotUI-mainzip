@@ -360,7 +360,21 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     });
   };
 
-  const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
+  const measureTextWithSpacing = (ctx: CanvasRenderingContext2D, text: string, letterSpacingPx: number): number => {
+    if (letterSpacingPx <= 0) {
+      return ctx.measureText(text).width;
+    }
+    let totalWidth = 0;
+    for (let i = 0; i < text.length; i++) {
+      totalWidth += ctx.measureText(text[i]).width;
+      if (i < text.length - 1) {
+        totalWidth += letterSpacingPx;
+      }
+    }
+    return totalWidth;
+  };
+  
+  const wrapTextWithSpacing = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number, letterSpacingPx: number): string[] => {
     const lines: string[] = [];
     const paragraphs = text.split('\n');
     
@@ -375,9 +389,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       
       for (const word of words) {
         const testLine = currentLine ? `${currentLine} ${word}` : word;
-        const metrics = ctx.measureText(testLine);
+        const lineWidth = measureTextWithSpacing(ctx, testLine, letterSpacingPx);
         
-        if (metrics.width > maxWidth && currentLine) {
+        if (lineWidth > maxWidth && currentLine) {
           lines.push(currentLine);
           currentLine = word;
         } else {
@@ -398,6 +412,10 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       return gradientStr;
     }
     
+    if (gradientStr.startsWith('rgb')) {
+      return gradientStr;
+    }
+    
     const linearMatch = gradientStr.match(/linear-gradient\((\d+)deg,\s*(.+)\)/);
     if (linearMatch) {
       const angle = parseInt(linearMatch[1]);
@@ -409,12 +427,36 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       
       const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
       const colorPart = linearMatch[2];
-      const colors = colorPart.split(',').map(s => s.trim());
+      const colorStops = colorPart.match(/(#[a-fA-F0-9]{3,6}|rgba?\([^)]+\))\s*(\d+%)?/g) || [];
       
-      colors.forEach((color, i) => {
-        const colorMatch = color.match(/(#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3})/);
+      colorStops.forEach((stopStr, i) => {
+        const colorMatch = stopStr.match(/(#[a-fA-F0-9]{3,6}|rgba?\([^)]+\))/);
+        const percentMatch = stopStr.match(/(\d+)%/);
         if (colorMatch) {
-          gradient.addColorStop(i / Math.max(colors.length - 1, 1), colorMatch[1]);
+          const position = percentMatch 
+            ? parseInt(percentMatch[1]) / 100 
+            : i / Math.max(colorStops.length - 1, 1);
+          gradient.addColorStop(position, colorMatch[1]);
+        }
+      });
+      
+      return gradient;
+    }
+    
+    const radialMatch = gradientStr.match(/radial-gradient\((.+)\)/);
+    if (radialMatch) {
+      const gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w, h)/2);
+      const content = radialMatch[1];
+      const colorStops = content.match(/(#[a-fA-F0-9]{3,6}|rgba?\([^)]+\))\s*(\d+%)?/g) || [];
+      
+      colorStops.forEach((stopStr, i) => {
+        const colorMatch = stopStr.match(/(#[a-fA-F0-9]{3,6}|rgba?\([^)]+\))/);
+        const percentMatch = stopStr.match(/(\d+)%/);
+        if (colorMatch) {
+          const position = percentMatch 
+            ? parseInt(percentMatch[1]) / 100 
+            : i / Math.max(colorStops.length - 1, 1);
+          gradient.addColorStop(position, colorMatch[1]);
         }
       });
       
@@ -422,6 +464,49 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     }
     
     return '#1a1a2e';
+  };
+  
+  const drawTextWithLetterSpacing = (
+    ctx: CanvasRenderingContext2D, 
+    text: string, 
+    x: number, 
+    y: number, 
+    letterSpacingPx: number, 
+    align: 'left' | 'center' | 'right',
+    maxWidth: number
+  ) => {
+    const savedAlign = ctx.textAlign;
+    ctx.textAlign = 'left';
+    
+    if (letterSpacingPx <= 0) {
+      let adjustedX = x;
+      const textWidth = ctx.measureText(text).width;
+      if (align === 'center') {
+        adjustedX = x - textWidth / 2;
+      } else if (align === 'right') {
+        adjustedX = x - textWidth;
+      }
+      ctx.fillText(text, adjustedX, y);
+      ctx.textAlign = savedAlign;
+      return;
+    }
+    
+    const totalWidth = measureTextWithSpacing(ctx, text, letterSpacingPx);
+    
+    let startX = x;
+    if (align === 'center') {
+      startX = x - totalWidth / 2;
+    } else if (align === 'right') {
+      startX = x - totalWidth;
+    }
+    
+    let currentX = startX;
+    for (let i = 0; i < text.length; i++) {
+      ctx.fillText(text[i], currentX, y);
+      currentX += ctx.measureText(text[i]).width + letterSpacingPx;
+    }
+    
+    ctx.textAlign = savedAlign;
   };
 
   const drawOverlayPattern = (ctx: CanvasRenderingContext2D, pattern: string, w: number, h: number, color: string) => {
@@ -661,9 +746,11 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     const contentX = expPadding + offsetX;
     let contentY = expPadding + offsetY;
     const contentWidth = expWidth - expPadding * 2;
+    const expLetterSpacing = letterSpacing * scaleFactor;
     
     if (isTitleSlide) {
-      const headingLines = slide.heading ? wrapText(ctx, slide.heading, contentWidth) : [];
+      ctx.font = `600 ${expTitleSize}px '${titleFont}', serif`;
+      const headingLines = slide.heading ? wrapTextWithSpacing(ctx, slide.heading, contentWidth, expLetterSpacing) : [];
       const totalTextHeight = headingLines.length * expTitleSize * lineHeight + 
                               (slide.body ? expBodySize * lineHeight * 2 : 0);
       contentY = (expHeight - totalTextHeight) / 2 + offsetY;
@@ -673,15 +760,15 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     const textX = textAlign === 'center' ? expWidth / 2 + offsetX : 
                   textAlign === 'right' ? expWidth - expPadding + offsetX : 
                   contentX;
-
+    
     if (slide.heading) {
       ctx.font = `600 ${expTitleSize}px '${titleFont}', serif`;
       ctx.fillStyle = textColor;
-      ctx.letterSpacing = `${letterSpacing * scaleFactor}px`;
       
-      const lines = wrapText(ctx, slide.heading, contentWidth);
+      const lines = wrapTextWithSpacing(ctx, slide.heading, contentWidth, expLetterSpacing);
       lines.forEach((line, i) => {
-        ctx.fillText(line, textX, contentY + (i + 1) * expTitleSize * lineHeight);
+        const y = contentY + (i + 1) * expTitleSize * lineHeight;
+        drawTextWithLetterSpacing(ctx, line, textX, y, expLetterSpacing, textAlign, contentWidth);
       });
       contentY += lines.length * expTitleSize * lineHeight + (slide.body ? 20 * scaleFactor : 0);
     }
@@ -691,9 +778,10 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       ctx.fillStyle = textColor;
       ctx.globalAlpha = 0.95;
       
-      const lines = wrapText(ctx, slide.body, contentWidth);
+      const lines = wrapTextWithSpacing(ctx, slide.body, contentWidth, expLetterSpacing);
       lines.forEach((line, i) => {
-        ctx.fillText(line, textX, contentY + (i + 1) * expBodySize * lineHeight);
+        const y = contentY + (i + 1) * expBodySize * lineHeight;
+        drawTextWithLetterSpacing(ctx, line, textX, y, expLetterSpacing, textAlign, contentWidth);
       });
       ctx.globalAlpha = 1;
     }
