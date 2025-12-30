@@ -123,7 +123,12 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
   const handleSlideCustomImageChange = (imageData: string | null) => {
     if (!currentSlide) return;
-    setSlides(updateSlide(slides, currentSlide.id, { customImage: imageData }));
+    // When uploading new image, set imageFit to 'contain' by default
+    if (imageData) {
+      setSlides(updateSlide(slides, currentSlide.id, { customImage: imageData, imageFit: 'contain' }));
+    } else {
+      setSlides(updateSlide(slides, currentSlide.id, { customImage: imageData }));
+    }
   };
 
   const handleSlideOffsetChange = (axis: 'offsetX' | 'offsetY', value: number) => {
@@ -158,7 +163,24 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   }, [initialText]);
 
   const handleResplit = () => {
-    setSlides(splitTextToSlides(sourceText));
+    // Preserve customImage, imageFit, background, and offsets from existing slides
+    const oldSlides = slides;
+    const newSlides = splitTextToSlides(sourceText);
+    const mergedSlides = newSlides.map((newSlide, idx) => {
+      const oldSlide = oldSlides[idx];
+      if (oldSlide) {
+        return {
+          ...newSlide,
+          customImage: oldSlide.customImage ?? newSlide.customImage,
+          imageFit: oldSlide.imageFit ?? newSlide.imageFit,
+          background: oldSlide.background ?? newSlide.background,
+          offsetX: oldSlide.offsetX ?? newSlide.offsetX,
+          offsetY: oldSlide.offsetY ?? newSlide.offsetY,
+        };
+      }
+      return newSlide;
+    });
+    setSlides(mergedSlides);
     setCurrentSlideIndex(0);
   };
 
