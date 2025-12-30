@@ -134,6 +134,14 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const getSlideImageFit = (slide: Slide) => slide.imageFit ?? 'contain';
   const getSlideOffsetX = (slide: Slide) => slide.offsetX ?? 0;
   const getSlideOffsetY = (slide: Slide) => slide.offsetY ?? 0;
+  const getSlideTitleSize = (slide: Slide) => slide.titleSize ?? titleSize;
+  const getSlideBodySize = (slide: Slide) => slide.bodySize ?? bodySize;
+
+  const baseColors = [
+    '#ffffff', '#000000', '#f5f5f5', '#374151', '#6b7280', '#9ca3af',
+    '#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6',
+    '#8b5cf6', '#ec4899', '#f43f5e', '#1e3a5f', '#2d1b4e', '#1a1a2e'
+  ];
 
   const handleSlideBackgroundChange = (value: string) => {
     // Capture slide ID from ref at call time
@@ -170,6 +178,16 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       const slide = prev.find(s => s.id === slideId);
       if (!slide) return prev;
       return updateSlide(prev, slide.id, { [axis]: value });
+    });
+  };
+
+  const handleSlideSizeChange = (sizeType: 'titleSize' | 'bodySize', value: number | undefined) => {
+    const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    if (!slideId) return;
+    setSlides(prev => {
+      const slide = prev.find(s => s.id === slideId);
+      if (!slide) return prev;
+      return updateSlide(prev, slide.id, { [sizeType]: value });
     });
   };
 
@@ -703,8 +721,10 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     const offsetY = getSlideOffsetY(slide) * scaleFactor;
     
     const expPadding = padding * scaleFactor;
-    const expTitleSize = (isTitleSlide ? titleSize : titleSize * 0.7) * scaleFactor;
-    const expBodySize = bodySize * scaleFactor;
+    const slideTitleSz = getSlideTitleSize(slide);
+    const slideBodySz = getSlideBodySize(slide);
+    const expTitleSize = (isTitleSlide ? slideTitleSz : slideTitleSz * 0.7) * scaleFactor;
+    const expBodySize = slideBodySz * scaleFactor;
 
     await document.fonts.ready;
 
@@ -1067,7 +1087,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             <div
               style={{
                 fontFamily: titleFont,
-                fontSize: isTitleSlide ? `${titleSize}px` : `${titleSize * 0.7}px`,
+                fontSize: isTitleSlide ? `${getSlideTitleSize(slide)}px` : `${getSlideTitleSize(slide) * 0.7}px`,
                 color: textColor,
                 lineHeight: lineHeight,
                 letterSpacing: `${letterSpacing}px`,
@@ -1086,7 +1106,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             <div
               style={{
                 fontFamily: bodyFont,
-                fontSize: `${bodySize}px`,
+                fontSize: `${getSlideBodySize(slide)}px`,
                 color: textColor,
                 lineHeight: lineHeight,
                 letterSpacing: `${letterSpacing}px`,
@@ -1477,6 +1497,46 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                           <Slider value={[lineHeight]} onValueChange={([v]) => setLineHeight(v)} min={1} max={2.5} step={0.1} />
                         </div>
                       </div>
+
+                      <div className="border-t border-purple-100 pt-3 mt-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs font-medium text-gray-700">Размер на этом слайде</label>
+                          {currentSlide && (currentSlide.titleSize || currentSlide.bodySize) && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => { handleSlideSizeChange('titleSize', undefined); handleSlideSizeChange('bodySize', undefined); }}
+                              className="h-6 text-xs text-gray-500"
+                            >
+                              Сбросить
+                            </Button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">
+                              Заголовок: {currentSlide ? getSlideTitleSize(currentSlide) : titleSize}px
+                              {currentSlide?.titleSize && <span className="text-purple-500 ml-1">*</span>}
+                            </label>
+                            <Slider 
+                              value={[currentSlide ? getSlideTitleSize(currentSlide) : titleSize]} 
+                              onValueChange={([v]) => handleSlideSizeChange('titleSize', v)} 
+                              min={24} max={72} step={2} 
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">
+                              Текст: {currentSlide ? getSlideBodySize(currentSlide) : bodySize}px
+                              {currentSlide?.bodySize && <span className="text-purple-500 ml-1">*</span>}
+                            </label>
+                            <Slider 
+                              value={[currentSlide ? getSlideBodySize(currentSlide) : bodySize]} 
+                              onValueChange={([v]) => handleSlideSizeChange('bodySize', v)} 
+                              min={14} max={36} step={2} 
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -1513,6 +1573,25 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                           </div>
                         </div>
                       )}
+
+                      <div>
+                        <label className="text-xs font-medium text-gray-700 mb-2 block">Базовые цвета</label>
+                        <div className="flex flex-wrap gap-2">
+                          {baseColors.map((color) => (
+                            <button
+                              key={color}
+                              onClick={() => setTextColor(color)}
+                              className={`w-9 h-9 rounded-lg border-2 transition-all ${
+                                textColor === color
+                                  ? 'border-purple-500 scale-110 shadow-lg'
+                                  : 'border-gray-300 hover:border-purple-400'
+                              }`}
+                              style={{ backgroundColor: color }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
+                      </div>
 
                       <div>
                         <label className="text-xs font-medium text-gray-700 mb-2 block">Выравнивание</label>

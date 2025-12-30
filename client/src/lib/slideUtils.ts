@@ -8,6 +8,8 @@ export interface Slide {
   imageFit?: 'cover' | 'contain';
   offsetX?: number;
   offsetY?: number;
+  titleSize?: number;
+  bodySize?: number;
 }
 
 const MAX_CHARS_PER_SLIDE = 350;
