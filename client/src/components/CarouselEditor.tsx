@@ -341,274 +341,398 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     });
   });
 
-  const renderSlideForExport = async (slide: Slide, slideIndex: number): Promise<HTMLCanvasElement> => {
+  const parseColor = (hex: string): { r: number; g: number; b: number } => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 255, g: 255, b: 255 };
+  };
+
+  const loadImage = (src: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      const img = document.createElement('img') as HTMLImageElement;
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  };
+
+  const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
+    const lines: string[] = [];
+    const paragraphs = text.split('\n');
+    
+    for (const paragraph of paragraphs) {
+      if (paragraph.trim() === '') {
+        lines.push('');
+        continue;
+      }
+      
+      const words = paragraph.split(' ');
+      let currentLine = '';
+      
+      for (const word of words) {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+    }
+    
+    return lines;
+  };
+
+  const parseGradient = (ctx: CanvasRenderingContext2D, gradientStr: string, w: number, h: number): CanvasGradient | string => {
+    if (gradientStr.startsWith('#')) {
+      return gradientStr;
+    }
+    
+    const linearMatch = gradientStr.match(/linear-gradient\((\d+)deg,\s*(.+)\)/);
+    if (linearMatch) {
+      const angle = parseInt(linearMatch[1]);
+      const rad = (angle - 90) * Math.PI / 180;
+      const x1 = w/2 - Math.cos(rad) * w/2;
+      const y1 = h/2 - Math.sin(rad) * h/2;
+      const x2 = w/2 + Math.cos(rad) * w/2;
+      const y2 = h/2 + Math.sin(rad) * h/2;
+      
+      const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+      const colorPart = linearMatch[2];
+      const colors = colorPart.split(',').map(s => s.trim());
+      
+      colors.forEach((color, i) => {
+        const colorMatch = color.match(/(#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3})/);
+        if (colorMatch) {
+          gradient.addColorStop(i / Math.max(colors.length - 1, 1), colorMatch[1]);
+        }
+      });
+      
+      return gradient;
+    }
+    
+    return '#1a1a2e';
+  };
+
+  const drawOverlayPattern = (ctx: CanvasRenderingContext2D, pattern: string, w: number, h: number, color: string) => {
+    const { r, g, b } = parseColor(color);
+    ctx.globalAlpha = 0.15;
+    
+    if (pattern === 'dots') {
+      const spacing = 54;
+      const radius = 2.7;
+      ctx.fillStyle = color;
+      for (let x = spacing/2; x < w; x += spacing) {
+        for (let y = spacing/2; y < h; y += spacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'stars') {
+      const positions = [
+        [54, 81], [108, 189], [243, 108], [351, 216], [432, 54],
+        [540, 135], [162, 270], [270, 351], [486, 324], [594, 270],
+        [675, 405], [81, 486], [756, 540], [405, 675], [189, 594]
+      ];
+      ctx.fillStyle = color;
+      for (const [x, y] of positions) {
+        if (x < w && y < h) {
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'hearts') {
+      const spacing = 95;
+      ctx.fillStyle = color;
+      for (let x = spacing/2; x < w; x += spacing) {
+        for (let y = spacing/2; y < h; y += spacing) {
+          ctx.beginPath();
+          ctx.arc(x - 4, y - 4, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(x + 4, y - 4, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(x - 9, y - 2);
+          ctx.lineTo(x, y + 8);
+          ctx.lineTo(x + 9, y - 2);
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'sparkles') {
+      const positions = [
+        [0.25, 0.25], [0.75, 0.20], [0.50, 0.80], [0.15, 0.70], [0.85, 0.60],
+        [0.40, 0.45], [0.65, 0.65], [0.10, 0.35], [0.90, 0.85], [0.55, 0.15]
+      ];
+      ctx.fillStyle = '#fbbf24';
+      for (const [px, py] of positions) {
+        const x = px * w;
+        const y = py * h;
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (pattern === 'grid') {
+      const spacing = 81;
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.1)`;
+      ctx.lineWidth = 2.7;
+      for (let x = 0; x < w; x += spacing) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += spacing) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+    } else if (pattern === 'lines') {
+      const spacing = 54;
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.15)`;
+      ctx.lineWidth = 2.7;
+      for (let i = -h; i < w + h; i += spacing) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i + h, h);
+        ctx.stroke();
+      }
+    } else if (pattern === 'circles') {
+      const spacing = 135;
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.08)`;
+      ctx.lineWidth = 2.7;
+      for (let x = spacing/2; x < w; x += spacing) {
+        for (let y = spacing/2; y < h; y += spacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, 54, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+    } else if (pattern === 'diamonds') {
+      const spacing = 108;
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.1)`;
+      for (let x = 0; x < w; x += spacing) {
+        for (let y = 0; y < h; y += spacing) {
+          ctx.beginPath();
+          ctx.moveTo(x + spacing/2, y);
+          ctx.lineTo(x + spacing, y + spacing/2);
+          ctx.lineTo(x + spacing/2, y + spacing);
+          ctx.lineTo(x, y + spacing/2);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'moons') {
+      const spacing = 122;
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.1)`;
+      for (let x = spacing/2; x < w; x += spacing) {
+        for (let y = spacing/2; y < h; y += spacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, 22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.save();
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.beginPath();
+          ctx.arc(x + 8, y - 8, 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+    } else if (pattern === 'crosses') {
+      const spacing = 68;
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.1)`;
+      ctx.lineWidth = 5;
+      for (let x = spacing/2; x < w; x += spacing) {
+        for (let y = spacing/2; y < h; y += spacing) {
+          ctx.beginPath();
+          ctx.moveTo(x - 8, y);
+          ctx.lineTo(x + 8, y);
+          ctx.moveTo(x, y - 8);
+          ctx.lineTo(x, y + 8);
+          ctx.stroke();
+        }
+      }
+    } else if (pattern === 'triangles') {
+      const spacing = 108;
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.08)`;
+      for (let x = 0; x < w; x += spacing) {
+        for (let y = 0; y < h; y += spacing) {
+          ctx.beginPath();
+          ctx.moveTo(x + spacing/2, y);
+          ctx.lineTo(x + spacing, y + spacing);
+          ctx.lineTo(x, y + spacing);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'waves') {
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.08)`;
+      ctx.lineWidth = 2.7;
+      const waveHeight = 20;
+      const waveLength = 60;
+      for (let y = waveHeight; y < h; y += 54) {
+        ctx.beginPath();
+        for (let x = 0; x < w; x += 1) {
+          const yPos = y + Math.sin(x / waveLength * Math.PI * 2) * waveHeight;
+          if (x === 0) ctx.moveTo(x, yPos);
+          else ctx.lineTo(x, yPos);
+        }
+        ctx.stroke();
+      }
+    }
+    
+    ctx.globalAlpha = 1;
+  };
+
+  const renderSlideToCanvas = async (slide: Slide, slideIndex: number): Promise<HTMLCanvasElement> => {
     const { width: expWidth, height: expHeight } = exportSize;
     const scaleFactor = expWidth / width;
     
+    const canvas = document.createElement('canvas');
+    canvas.width = expWidth;
+    canvas.height = expHeight;
+    const ctx = canvas.getContext('2d')!;
+    
     const isTitleSlide = slide.type === 'title';
-    const alignItems = textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
     const slideCustomImage = getSlideCustomImage(slide);
     const slideBackground = getSlideBackground(slide);
     const slideImageFit = getSlideImageFit(slide);
     const offsetX = getSlideOffsetX(slide) * scaleFactor;
     const offsetY = getSlideOffsetY(slide) * scaleFactor;
     
-    // Scaled sizes
     const expPadding = padding * scaleFactor;
     const expTitleSize = (isTitleSlide ? titleSize : titleSize * 0.7) * scaleFactor;
     const expBodySize = bodySize * scaleFactor;
-    const expLetterSpacing = letterSpacing * scaleFactor;
 
-    // Create hidden container with exact export dimensions
-    const container = document.createElement('div');
-    container.style.cssText = `
-      position: fixed;
-      left: -9999px;
-      top: 0;
-      width: ${expWidth}px;
-      height: ${expHeight}px;
-      z-index: -1;
-      pointer-events: none;
-    `;
-    document.body.appendChild(container);
-
-    // Create slide element at exact export size
-    const slideEl = document.createElement('div');
-    slideEl.style.cssText = `
-      position: relative;
-      width: ${expWidth}px;
-      height: ${expHeight}px;
-      background: ${slideCustomImage ? `url(${slideCustomImage})` : slideBackground};
-      background-size: ${slideCustomImage ? slideImageFit : 'cover'};
-      background-position: center;
-      background-repeat: no-repeat;
-      ${slideCustomImage && slideImageFit === 'contain' ? 'background-color: #1a1a2e;' : ''}
-      padding: ${expPadding}px;
-      display: flex;
-      flex-direction: column;
-      justify-content: ${isTitleSlide ? 'center' : 'flex-start'};
-      align-items: ${alignItems};
-      text-align: ${textAlign};
-      overflow: hidden;
-      box-sizing: border-box;
-    `;
-    container.appendChild(slideEl);
-
-    // Content wrapper with offset
-    const contentWrapper = document.createElement('div');
-    contentWrapper.style.cssText = `
-      transform: translate(${offsetX}px, ${offsetY}px);
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: ${alignItems};
-    `;
-    slideEl.appendChild(contentWrapper);
-
-    // Heading
-    if (slide.heading) {
-      const headingEl = document.createElement('div');
-      headingEl.style.cssText = `
-        font-family: '${titleFont}', serif;
-        font-size: ${expTitleSize}px;
-        color: ${textColor};
-        line-height: ${lineHeight};
-        letter-spacing: ${expLetterSpacing}px;
-        margin-bottom: ${slide.body ? 20 * scaleFactor : 0}px;
-        font-weight: 600;
-        width: 100%;
-        text-align: ${textAlign};
-        white-space: pre-line;
-      `;
-      headingEl.textContent = slide.heading;
-      contentWrapper.appendChild(headingEl);
-    }
-
-    // Body
-    if (slide.body) {
-      const bodyEl = document.createElement('div');
-      bodyEl.style.cssText = `
-        font-family: '${bodyFont}', sans-serif;
-        font-size: ${expBodySize}px;
-        color: ${textColor};
-        line-height: ${lineHeight};
-        letter-spacing: ${expLetterSpacing}px;
-        opacity: 0.95;
-        width: 100%;
-        text-align: ${textAlign};
-        white-space: pre-line;
-      `;
-      bodyEl.textContent = slide.body;
-      contentWrapper.appendChild(bodyEl);
-    }
-
-    // Overlay pattern
-    if (overlayPattern !== 'none') {
-      const overlayEl = document.createElement('div');
-      const patternScale = scaleFactor;
-      
-      let bgPattern = '';
-      let bgSize = 'cover';
-      
-      if (overlayPattern === 'stars') {
-        bgPattern = `radial-gradient(${2*patternScale}px ${2*patternScale}px at ${20*patternScale}px ${30*patternScale}px, ${textColor}, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at ${40*patternScale}px ${70*patternScale}px, ${textColor}, transparent), radial-gradient(${1*patternScale}px ${1*patternScale}px at ${90*patternScale}px ${40*patternScale}px, ${textColor}, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at ${130*patternScale}px ${80*patternScale}px, ${textColor}, transparent), radial-gradient(${1*patternScale}px ${1*patternScale}px at ${160*patternScale}px ${20*patternScale}px, ${textColor}, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at ${200*patternScale}px ${50*patternScale}px, ${textColor}, transparent), radial-gradient(${1*patternScale}px ${1*patternScale}px at ${60*patternScale}px ${100*patternScale}px, ${textColor}, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at ${100*patternScale}px ${130*patternScale}px, ${textColor}, transparent), radial-gradient(${1*patternScale}px ${1*patternScale}px at ${180*patternScale}px ${120*patternScale}px, ${textColor}, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at ${220*patternScale}px ${100*patternScale}px, ${textColor}, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at ${250*patternScale}px ${150*patternScale}px, ${textColor}, transparent), radial-gradient(${1*patternScale}px ${1*patternScale}px at ${30*patternScale}px ${180*patternScale}px, ${textColor}, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at ${280*patternScale}px ${200*patternScale}px, ${textColor}, transparent), radial-gradient(${1*patternScale}px ${1*patternScale}px at ${150*patternScale}px ${250*patternScale}px, ${textColor}, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at ${70*patternScale}px ${220*patternScale}px, ${textColor}, transparent)`;
-      } else if (overlayPattern === 'dots') {
-        bgPattern = `radial-gradient(circle, ${textColor} ${1*patternScale}px, transparent ${1*patternScale}px)`;
-        bgSize = `${20*patternScale}px ${20*patternScale}px`;
-      } else if (overlayPattern === 'lines') {
-        bgPattern = `repeating-linear-gradient(45deg, transparent, transparent ${10*patternScale}px, ${textColor}15 ${10*patternScale}px, ${textColor}15 ${20*patternScale}px)`;
-      } else if (overlayPattern === 'sparkles') {
-        bgPattern = `radial-gradient(${3*patternScale}px ${3*patternScale}px at 25% 25%, #fbbf24, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at 75% 20%, #fbbf24, transparent), radial-gradient(${3*patternScale}px ${3*patternScale}px at 50% 80%, #fbbf24, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at 15% 70%, #fbbf24, transparent), radial-gradient(${3*patternScale}px ${3*patternScale}px at 85% 60%, #fbbf24, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at 40% 45%, #fbbf24, transparent), radial-gradient(${3*patternScale}px ${3*patternScale}px at 65% 65%, #fbbf24, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at 10% 35%, #fbbf24, transparent), radial-gradient(${3*patternScale}px ${3*patternScale}px at 90% 85%, #fbbf24, transparent), radial-gradient(${2*patternScale}px ${2*patternScale}px at 55% 15%, #fbbf24, transparent)`;
-      } else if (overlayPattern === 'grid') {
-        bgPattern = `linear-gradient(${textColor}10 ${1*patternScale}px, transparent ${1*patternScale}px), linear-gradient(90deg, ${textColor}10 ${1*patternScale}px, transparent ${1*patternScale}px)`;
-        bgSize = `${30*patternScale}px ${30*patternScale}px`;
-      } else if (overlayPattern === 'waves') {
-        bgPattern = `repeating-linear-gradient(0deg, transparent, transparent ${20*patternScale}px, ${textColor}08 ${20*patternScale}px, ${textColor}08 ${40*patternScale}px), repeating-linear-gradient(90deg, transparent, transparent ${20*patternScale}px, ${textColor}05 ${20*patternScale}px, ${textColor}05 ${40*patternScale}px)`;
-      } else if (overlayPattern === 'diamonds') {
-        bgPattern = `linear-gradient(45deg, ${textColor}10 25%, transparent 25%), linear-gradient(-45deg, ${textColor}10 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${textColor}10 75%), linear-gradient(-45deg, transparent 75%, ${textColor}10 75%)`;
-        bgSize = `${40*patternScale}px ${40*patternScale}px`;
-      } else if (overlayPattern === 'circles') {
-        bgPattern = `radial-gradient(circle at 50% 50%, transparent ${20*patternScale}px, ${textColor}08 ${21*patternScale}px, ${textColor}08 ${22*patternScale}px, transparent ${23*patternScale}px)`;
-        bgSize = `${50*patternScale}px ${50*patternScale}px`;
-      } else if (overlayPattern === 'crosses') {
-        bgPattern = `linear-gradient(${textColor}10 ${2*patternScale}px, transparent ${2*patternScale}px), linear-gradient(90deg, ${textColor}10 ${2*patternScale}px, transparent ${2*patternScale}px), linear-gradient(${textColor}05 ${1*patternScale}px, transparent ${1*patternScale}px), linear-gradient(90deg, ${textColor}05 ${1*patternScale}px, transparent ${1*patternScale}px)`;
-        bgSize = `${25*patternScale}px ${25*patternScale}px`;
-      } else if (overlayPattern === 'triangles') {
-        bgPattern = `linear-gradient(60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(-60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(60deg, transparent 75%, ${textColor}08 75.5%), linear-gradient(-60deg, transparent 75%, ${textColor}08 75.5%)`;
-        bgSize = `${40*patternScale}px ${40*patternScale}px`;
-      } else if (overlayPattern === 'hearts') {
-        bgPattern = `radial-gradient(circle at 50% 40%, ${textColor} ${2*patternScale}px, transparent ${2*patternScale}px), radial-gradient(circle at 45% 35%, ${textColor} ${2*patternScale}px, transparent ${2*patternScale}px), radial-gradient(circle at 55% 35%, ${textColor} ${2*patternScale}px, transparent ${2*patternScale}px)`;
-        bgSize = `${35*patternScale}px ${35*patternScale}px`;
-      } else if (overlayPattern === 'moons') {
-        bgPattern = `radial-gradient(circle at 45% 45%, transparent ${8*patternScale}px, ${textColor}15 ${9*patternScale}px, ${textColor}15 ${11*patternScale}px, transparent ${12*patternScale}px), radial-gradient(circle at 50% 50%, ${textColor}10 ${8*patternScale}px, transparent ${9*patternScale}px)`;
-        bgSize = `${45*patternScale}px ${45*patternScale}px`;
-      }
-      
-      overlayEl.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        pointer-events: none;
-        opacity: 0.15;
-        background: ${bgPattern};
-        background-size: ${bgSize};
-      `;
-      slideEl.appendChild(overlayEl);
-    }
-
-    // Slide number
-    if (showSlideNumber && slides.length > 1) {
-      const numEl = document.createElement('div');
-      numEl.style.cssText = `
-        position: absolute;
-        top: ${12 * scaleFactor}px;
-        right: ${12 * scaleFactor}px;
-        font-family: '${bodyFont}', sans-serif;
-        font-size: ${14 * scaleFactor}px;
-        color: ${textColor};
-        opacity: 0.7;
-        letter-spacing: ${0.5 * scaleFactor}px;
-      `;
-      numEl.textContent = `${slideIndex + 1}/${slides.length}`;
-      slideEl.appendChild(numEl);
-    }
-
-    // Profile name and swipe arrow
-    if (profileName) {
-      const footerEl = document.createElement('div');
-      footerEl.style.cssText = `
-        position: absolute;
-        bottom: ${12 * scaleFactor}px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: ${4 * scaleFactor}px;
-      `;
-
-      if (showSwipeArrow && slideIndex < slides.length - 1) {
-        const arrowWrap = document.createElement('div');
-        arrowWrap.style.cssText = `display: flex; align-items: center; opacity: 0.5;`;
-        const arrowLine = document.createElement('div');
-        arrowLine.style.cssText = `width: ${60 * scaleFactor}px; height: ${2 * scaleFactor}px; background-color: ${textColor};`;
-        const arrowHead = document.createElement('div');
-        arrowHead.style.cssText = `width: 0; height: 0; border-top: ${5 * scaleFactor}px solid transparent; border-bottom: ${5 * scaleFactor}px solid transparent; border-left: ${8 * scaleFactor}px solid ${textColor};`;
-        arrowWrap.appendChild(arrowLine);
-        arrowWrap.appendChild(arrowHead);
-        footerEl.appendChild(arrowWrap);
-      }
-
-      const profileEl = document.createElement('div');
-      profileEl.style.cssText = `
-        font-family: '${bodyFont}', sans-serif;
-        font-size: ${14 * scaleFactor}px;
-        color: ${textColor};
-        opacity: 0.7;
-        letter-spacing: ${0.5 * scaleFactor}px;
-        display: flex;
-        align-items: center;
-        gap: ${4 * scaleFactor}px;
-      `;
-      
-      if (profileIcon === 'instagram') {
-        profileEl.innerHTML = `<svg width="${14 * scaleFactor}" height="${14 * scaleFactor}" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.8;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
-      } else if (profileIcon === 'telegram') {
-        profileEl.innerHTML = `<svg width="${14 * scaleFactor}" height="${14 * scaleFactor}" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.8;"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>`;
-      }
-      profileEl.innerHTML += `@${profileName}`;
-      footerEl.appendChild(profileEl);
-      slideEl.appendChild(footerEl);
-    } else if (showSwipeArrow && slideIndex < slides.length - 1) {
-      const arrowWrap = document.createElement('div');
-      arrowWrap.style.cssText = `
-        position: absolute;
-        bottom: ${12 * scaleFactor}px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        align-items: center;
-        opacity: 0.5;
-      `;
-      const arrowLine = document.createElement('div');
-      arrowLine.style.cssText = `width: ${60 * scaleFactor}px; height: ${2 * scaleFactor}px; background-color: ${textColor};`;
-      const arrowHead = document.createElement('div');
-      arrowHead.style.cssText = `width: 0; height: 0; border-top: ${5 * scaleFactor}px solid transparent; border-bottom: ${5 * scaleFactor}px solid transparent; border-left: ${8 * scaleFactor}px solid ${textColor};`;
-      arrowWrap.appendChild(arrowLine);
-      arrowWrap.appendChild(arrowHead);
-      slideEl.appendChild(arrowWrap);
-    }
-
-    // Wait for fonts and images
     await document.fonts.ready;
-    
+
     if (slideCustomImage) {
-      await new Promise<void>((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-        img.src = slideCustomImage;
-        if (img.complete) resolve();
-      });
+      try {
+        const img = await loadImage(slideCustomImage);
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, expWidth, expHeight);
+        
+        if (slideImageFit === 'contain') {
+          const scale = Math.min(expWidth / img.width, expHeight / img.height);
+          const w = img.width * scale;
+          const h = img.height * scale;
+          const x = (expWidth - w) / 2;
+          const y = (expHeight - h) / 2;
+          ctx.drawImage(img, x, y, w, h);
+        } else {
+          const scale = Math.max(expWidth / img.width, expHeight / img.height);
+          const w = img.width * scale;
+          const h = img.height * scale;
+          const x = (expWidth - w) / 2;
+          const y = (expHeight - h) / 2;
+          ctx.drawImage(img, x, y, w, h);
+        }
+      } catch (e) {
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, expWidth, expHeight);
+      }
+    } else {
+      const bg = parseGradient(ctx, slideBackground, expWidth, expHeight);
+      if (typeof bg === 'string') {
+        ctx.fillStyle = bg;
+      } else {
+        ctx.fillStyle = bg;
+      }
+      ctx.fillRect(0, 0, expWidth, expHeight);
     }
+
+    if (overlayPattern !== 'none') {
+      drawOverlayPattern(ctx, overlayPattern, expWidth, expHeight, textColor);
+    }
+
+    const contentX = expPadding + offsetX;
+    let contentY = expPadding + offsetY;
+    const contentWidth = expWidth - expPadding * 2;
     
-    // Small delay for rendering
-    await new Promise(resolve => setTimeout(resolve, 50));
+    if (isTitleSlide) {
+      const headingLines = slide.heading ? wrapText(ctx, slide.heading, contentWidth) : [];
+      const totalTextHeight = headingLines.length * expTitleSize * lineHeight + 
+                              (slide.body ? expBodySize * lineHeight * 2 : 0);
+      contentY = (expHeight - totalTextHeight) / 2 + offsetY;
+    }
 
-    // Capture with html2canvas - NO SCALE (already at export size)
-    const canvas = await html2canvas(slideEl, {
-      useCORS: true,
-      backgroundColor: null,
-      width: expWidth,
-      height: expHeight,
-      logging: false,
-      allowTaint: true,
-    });
+    ctx.textAlign = textAlign;
+    const textX = textAlign === 'center' ? expWidth / 2 + offsetX : 
+                  textAlign === 'right' ? expWidth - expPadding + offsetX : 
+                  contentX;
 
-    // Cleanup
-    document.body.removeChild(container);
+    if (slide.heading) {
+      ctx.font = `600 ${expTitleSize}px '${titleFont}', serif`;
+      ctx.fillStyle = textColor;
+      ctx.letterSpacing = `${letterSpacing * scaleFactor}px`;
+      
+      const lines = wrapText(ctx, slide.heading, contentWidth);
+      lines.forEach((line, i) => {
+        ctx.fillText(line, textX, contentY + (i + 1) * expTitleSize * lineHeight);
+      });
+      contentY += lines.length * expTitleSize * lineHeight + (slide.body ? 20 * scaleFactor : 0);
+    }
+
+    if (slide.body) {
+      ctx.font = `400 ${expBodySize}px '${bodyFont}', sans-serif`;
+      ctx.fillStyle = textColor;
+      ctx.globalAlpha = 0.95;
+      
+      const lines = wrapText(ctx, slide.body, contentWidth);
+      lines.forEach((line, i) => {
+        ctx.fillText(line, textX, contentY + (i + 1) * expBodySize * lineHeight);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    if (showSlideNumber && slides.length > 1) {
+      ctx.font = `400 ${14 * scaleFactor}px '${bodyFont}', sans-serif`;
+      ctx.fillStyle = textColor;
+      ctx.globalAlpha = 0.7;
+      ctx.textAlign = 'right';
+      ctx.fillText(`${slideIndex + 1}/${slides.length}`, expWidth - 12 * scaleFactor, 12 * scaleFactor + 14 * scaleFactor);
+      ctx.globalAlpha = 1;
+    }
+
+    const footerY = expHeight - 12 * scaleFactor;
+    ctx.textAlign = 'center';
+    
+    if (showSwipeArrow && slideIndex < slides.length - 1) {
+      const arrowY = profileName ? footerY - 24 * scaleFactor : footerY - 8 * scaleFactor;
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = textColor;
+      ctx.fillRect(expWidth/2 - 30 * scaleFactor, arrowY - 1 * scaleFactor, 60 * scaleFactor, 2 * scaleFactor);
+      ctx.beginPath();
+      ctx.moveTo(expWidth/2 + 30 * scaleFactor, arrowY);
+      ctx.lineTo(expWidth/2 + 38 * scaleFactor, arrowY);
+      ctx.lineTo(expWidth/2 + 30 * scaleFactor, arrowY - 5 * scaleFactor);
+      ctx.lineTo(expWidth/2 + 30 * scaleFactor, arrowY + 5 * scaleFactor);
+      ctx.lineTo(expWidth/2 + 38 * scaleFactor, arrowY);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    if (profileName) {
+      ctx.font = `400 ${14 * scaleFactor}px '${bodyFont}', sans-serif`;
+      ctx.fillStyle = textColor;
+      ctx.globalAlpha = 0.7;
+      ctx.textAlign = 'center';
+      ctx.fillText(`@${profileName}`, expWidth/2, footerY);
+      ctx.globalAlpha = 1;
+    }
 
     return canvas;
   };
@@ -619,7 +743,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
     try {
       for (let i = 0; i < slides.length; i++) {
-        const canvas = await renderSlideForExport(slides[i], i);
+        const canvas = await renderSlideToCanvas(slides[i], i);
 
         const link = document.createElement('a');
         link.download = `slide-${i + 1}-${Date.now()}.png`;
@@ -642,7 +766,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const handleExportCurrent = async () => {
     setIsExporting(true);
     try {
-      const canvas = await renderSlideForExport(currentSlide, currentSlideIndex);
+      const canvas = await renderSlideToCanvas(currentSlide, currentSlideIndex);
       const blob = await new Promise<Blob | null>((resolve) => 
         canvas.toBlob((b) => resolve(b), 'image/png')
       );
@@ -685,7 +809,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     
     setIsExporting(true);
     try {
-      const canvas = await renderSlideForExport(currentSlide, currentSlideIndex);
+      const canvas = await renderSlideToCanvas(currentSlide, currentSlideIndex);
       const blob = await new Promise<Blob | null>((resolve) => 
         canvas.toBlob((b) => resolve(b), 'image/png')
       );
