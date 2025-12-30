@@ -364,7 +364,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     // Track images to wait for
     const imagesToLoad: HTMLImageElement[] = [];
 
-    // Create hidden container
+    // Create hidden container - position: relative needed for overlay absolute positioning
     const container = document.createElement('div');
     container.style.cssText = `
       position: fixed;
@@ -385,6 +385,18 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       text-align: ${textAlign};
       overflow: hidden;
       box-sizing: border-box;
+    `;
+    
+    // Create inner wrapper with position: relative for overlay positioning
+    const innerWrapper = document.createElement('div');
+    innerWrapper.style.cssText = `
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: ${isTitleSlide ? 'center' : 'flex-start'};
+      align-items: ${alignItems};
     `;
 
     // Add overlay pattern FIRST so it's behind content (html2canvas renders in DOM order)
@@ -436,19 +448,19 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         background: ${patternBackground};
         background-size: ${scaledBgSize};
       `;
-      container.appendChild(overlay);
+      innerWrapper.appendChild(overlay);
     }
 
-    // Scaled footer values
-    const scaledBottom = 24 * scaleFactor;
-    const scaledGap = 8 * scaleFactor;
-    const scaledSlideNumSize = 24 * scaleFactor;
-    const scaledProfileFontSize = 16 * scaleFactor;
-    const scaledIconSize = 20 * scaleFactor;
-    const scaledArrowWidth = 120 * scaleFactor;
-    const scaledArrowHeight = 4 * scaleFactor;
-    const scaledTriangleBorder = 10 * scaleFactor;
-    const scaledTriangleLeft = 16 * scaleFactor;
+    // Scaled footer values - match preview sizes (14px font, 12px bottom, 4px gap)
+    const scaledBottom = 12 * scaleFactor;
+    const scaledGap = 4 * scaleFactor;
+    const scaledSlideNumSize = 14 * scaleFactor;
+    const scaledProfileFontSize = 14 * scaleFactor;
+    const scaledIconSize = 14 * scaleFactor;
+    const scaledArrowWidth = 60 * scaleFactor;
+    const scaledArrowHeight = 2 * scaleFactor;
+    const scaledTriangleBorder = 5 * scaleFactor;
+    const scaledTriangleLeft = 8 * scaleFactor;
 
     // Content wrapper with offset - z-index 10 to be above overlay
     const contentWrapper = document.createElement('div');
@@ -499,7 +511,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       contentWrapper.appendChild(bodyEl);
     }
 
-    container.appendChild(contentWrapper);
+    innerWrapper.appendChild(contentWrapper);
 
     // Slide number
     if (showSlideNumber && slides.length > 1) {
@@ -515,7 +527,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         z-index: 10;
       `;
       slideNumEl.textContent = `${displayIndex + 1}/${slides.length}`;
-      container.appendChild(slideNumEl);
+      innerWrapper.appendChild(slideNumEl);
     }
 
     // Profile name and swipe arrow
@@ -584,7 +596,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       nameSpan.textContent = `@${profileName}`;
       profileText.appendChild(nameSpan);
       profileWrapper.appendChild(profileText);
-      container.appendChild(profileWrapper);
+      innerWrapper.appendChild(profileWrapper);
     } else if (showSwipeArrow && displayIndex < slides.length - 1) {
       // Arrow without profile
       const arrowWrapper = document.createElement('div');
@@ -606,9 +618,11 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       `;
       arrowWrapper.appendChild(line);
       arrowWrapper.appendChild(triangle);
-      container.appendChild(arrowWrapper);
+      innerWrapper.appendChild(arrowWrapper);
     }
 
+    // Add innerWrapper to container
+    container.appendChild(innerWrapper);
     document.body.appendChild(container);
     
     try {
