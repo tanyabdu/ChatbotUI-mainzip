@@ -79,6 +79,10 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [profileName, setProfileName] = useState('');
   const [profileIcon, setProfileIcon] = useState<'none' | 'instagram' | 'telegram'>('instagram');
   const [overlayPattern, setOverlayPattern] = useState<'none' | 'stars' | 'dots' | 'lines' | 'sparkles' | 'grid' | 'waves' | 'diamonds' | 'circles' | 'crosses' | 'triangles' | 'hearts' | 'moons'>('none');
+  const [textShadowEnabled, setTextShadowEnabled] = useState(false);
+  const [textShadowColor, setTextShadowColor] = useState('rgba(0,0,0,0.5)');
+  const [textShadowBlur, setTextShadowBlur] = useState(8);
+  const [textShadowOffsetY, setTextShadowOffsetY] = useState(4);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Store slideId when user clicks upload button (before file dialog opens)
   const uploadTargetSlideIdRef = useRef<number | null>(null);
@@ -761,6 +765,13 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                   textAlign === 'right' ? expWidth - expPadding + offsetX : 
                   contentX;
     
+    if (textShadowEnabled) {
+      ctx.shadowColor = textShadowColor;
+      ctx.shadowBlur = textShadowBlur * scaleFactor;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = textShadowOffsetY * scaleFactor;
+    }
+    
     if (slide.heading) {
       ctx.font = `600 ${expTitleSize}px '${titleFont}', serif`;
       ctx.fillStyle = textColor;
@@ -785,6 +796,11 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       });
       ctx.globalAlpha = 1;
     }
+    
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 
     if (showSlideNumber && slides.length > 1) {
       ctx.font = `400 ${14 * scaleFactor}px '${bodyFont}', sans-serif`;
@@ -1060,6 +1076,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 width: '100%',
                 textAlign: textAlign,
                 whiteSpace: 'pre-line',
+                textShadow: textShadowEnabled ? `0 ${textShadowOffsetY}px ${textShadowBlur}px ${textShadowColor}` : 'none',
               }}
             >
               {slide.heading}
@@ -1077,6 +1094,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 width: '100%',
                 textAlign: textAlign,
                 whiteSpace: 'pre-line',
+                textShadow: textShadowEnabled ? `0 ${textShadowOffsetY}px ${textShadowBlur}px ${textShadowColor}` : 'none',
               }}
             >
               {slide.body}
@@ -1551,6 +1569,52 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                         <Button variant="ghost" size="sm" onClick={() => { handleSlideOffsetChange('offsetX', 0); handleSlideOffsetChange('offsetY', 0); }} className="mt-1 text-xs text-gray-500 h-8">
                           Сбросить
                         </Button>
+                      </div>
+
+                      <div className="border-t border-purple-100 pt-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="text-xs font-medium text-gray-700">Тень под текстом</label>
+                          <button
+                            onClick={() => setTextShadowEnabled(!textShadowEnabled)}
+                            className={`w-12 h-6 rounded-full transition-colors ${textShadowEnabled ? 'bg-purple-500' : 'bg-gray-300'}`}
+                          >
+                            <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${textShadowEnabled ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                          </button>
+                        </div>
+                        {textShadowEnabled && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-xs text-gray-500 mb-1 block">Размытие: {textShadowBlur}px</label>
+                              <Slider
+                                value={[textShadowBlur]}
+                                onValueChange={([v]) => setTextShadowBlur(v)}
+                                min={0} max={30} step={1}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-gray-500 mb-1 block">Смещение вниз: {textShadowOffsetY}px</label>
+                              <Slider
+                                value={[textShadowOffsetY]}
+                                onValueChange={([v]) => setTextShadowOffsetY(v)}
+                                min={0} max={20} step={1}
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setTextShadowColor('rgba(0,0,0,0.5)')}
+                                className={`flex-1 min-h-[36px] rounded-lg text-xs ${textShadowColor === 'rgba(0,0,0,0.5)' ? 'bg-gray-800 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                              >
+                                Тёмная
+                              </button>
+                              <button
+                                onClick={() => setTextShadowColor('rgba(255,255,255,0.7)')}
+                                className={`flex-1 min-h-[36px] rounded-lg text-xs border ${textShadowColor === 'rgba(255,255,255,0.7)' ? 'bg-white border-purple-500 text-purple-700' : 'bg-white border-gray-300 hover:border-gray-400'}`}
+                              >
+                                Светлая
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </AccordionContent>
