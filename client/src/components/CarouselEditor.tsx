@@ -169,13 +169,24 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        handleSlideCustomImageChange(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    
+    // CRITICAL: Capture slideId BEFORE async FileReader operation
+    // This prevents photo from being applied to wrong slide if user navigates during upload
+    const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    if (!slideId) return;
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const imageData = reader.result as string;
+      // Use captured slideId directly instead of reading from refs
+      setSlides(prev => {
+        const slide = prev.find(s => s.id === slideId);
+        if (!slide) return prev;
+        return updateSlide(prev, slide.id, { customImage: imageData, imageFit: 'contain' });
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   const clearCustomImage = () => {

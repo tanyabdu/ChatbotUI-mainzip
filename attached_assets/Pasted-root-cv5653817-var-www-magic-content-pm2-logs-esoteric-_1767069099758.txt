@@ -1,0 +1,29 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 20
+[TAILING] Tailing last 20 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error-0.log last 20 lines:
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+0|esoteric | Missing order_num in webhook
+
+/root/.pm2/logs/esoteric-planner-out-0.log last 20 lines:
+0|esoteric | нно так — фоновая тревога, ощущение неопределённости, вопросы, которые не давали покоя: «Что меня ждёт?», «Куда двигаться?», «На что обратить внимание?». Она чувствовала, что стоит на пороге важных перемен, но боялась сделать неверный шаг. Эта неуверенность парализовала, мешала строить планы и наслаждаться настоящим моментом. Знакомое состояние, правда?\n\nСДЕЛАЛИ\nМы провели глубокую работу с годовым прогнозом. Я не просто перечислила возможные события, а создала для Ольги подробную карту её года. Мы вместе рассмотрели ключевые сферы жизни через призму карт Таро и астрологических транзитов, выделили периоды силы и моменты, требующие осторожности. Я показала ей не только «что», но и «как» — как лучше действовать в той или иной ситуации, на какие внутренние ресурсы опереться, какие возможности не упустить. Эта работа стала не гаданием, а стратегической сессией по планированию её собственного года.\n\nСТАЛО\nРезультат превзошёл ожидания. Ольга вошла в новый год не с тревогой, а с готовностью и чётким пониманием векторов развития. У неё появился внутренний компас. Она писала мне позже: «Сейчас переслушиваю и вижу, что многое попало». Прогноз сбывался, и это давало ей уверенность двигаться дальше. Она научилась видеть знаки и использовать открывающиеся возможности по максимуму, потому что была к ним готова. Тревога сменилась спокойной уверенностью и осознанными действиями. Да, были и задачи, которые она себе ставила, но даже это стало частью роста — видя свои «недоработки», Ольга получила честную обратную связь от самой жизни и теперь точно знает, над чем работать в следующем цикле.\n\nВЫВОД\nГодовой прогноз — это не про предсказание судьбы. Это про то, чтобы перестать бояться будущего и начать сотрудничать с ним. Это инструмент, который даёт ясность, снимает тревогу и позволяет вам быть архитектором своей жизни, а не пассивным наблюдателем. Если вы, как и Ольга, чувствуете, что стоите на перепутье, если тревога мешает вам строить планы — давайте вместе создадим вашу личную карту года. Вы получите не просто информацию, а стратегию, поддержку и уверенность на все двенадцать месяцев вперёд.","createdAt":"2025-12-21T12:12:06.827Z"}]
+0|esoteric | 7:31:19 AM [express] Server initialization complete
+0|esoteric | 7:31:19 AM [express] serving on port 5000
+
