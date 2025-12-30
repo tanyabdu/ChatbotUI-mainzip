@@ -1135,36 +1135,38 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             background: overlayPattern === 'stars' 
               ? `radial-gradient(2px 2px at 20px 30px, ${textColor}, transparent), radial-gradient(2px 2px at 40px 70px, ${textColor}, transparent), radial-gradient(1px 1px at 90px 40px, ${textColor}, transparent), radial-gradient(2px 2px at 130px 80px, ${textColor}, transparent), radial-gradient(1px 1px at 160px 20px, ${textColor}, transparent), radial-gradient(2px 2px at 200px 50px, ${textColor}, transparent), radial-gradient(1px 1px at 60px 100px, ${textColor}, transparent), radial-gradient(2px 2px at 100px 130px, ${textColor}, transparent), radial-gradient(1px 1px at 180px 120px, ${textColor}, transparent), radial-gradient(2px 2px at 220px 100px, ${textColor}, transparent), radial-gradient(2px 2px at 250px 150px, ${textColor}, transparent), radial-gradient(1px 1px at 30px 180px, ${textColor}, transparent), radial-gradient(2px 2px at 280px 200px, ${textColor}, transparent), radial-gradient(1px 1px at 150px 250px, ${textColor}, transparent), radial-gradient(2px 2px at 70px 220px, ${textColor}, transparent)`
               : overlayPattern === 'dots'
-              ? `radial-gradient(circle, ${textColor} 1px, transparent 1px)`
+              ? `radial-gradient(circle, ${textColor} 2px, transparent 2px)`
               : overlayPattern === 'lines'
-              ? `repeating-linear-gradient(45deg, transparent, transparent 10px, ${textColor}15 10px, ${textColor}15 20px)`
+              ? `repeating-linear-gradient(45deg, transparent, transparent 10px, ${textColor} 10px, ${textColor} 12px)`
               : overlayPattern === 'sparkles'
-              ? 'radial-gradient(3px 3px at 25% 25%, #fbbf24, transparent), radial-gradient(2px 2px at 75% 20%, #fbbf24, transparent), radial-gradient(3px 3px at 50% 80%, #fbbf24, transparent), radial-gradient(2px 2px at 15% 70%, #fbbf24, transparent), radial-gradient(3px 3px at 85% 60%, #fbbf24, transparent), radial-gradient(2px 2px at 40% 45%, #fbbf24, transparent), radial-gradient(3px 3px at 65% 65%, #fbbf24, transparent), radial-gradient(2px 2px at 10% 35%, #fbbf24, transparent), radial-gradient(3px 3px at 90% 85%, #fbbf24, transparent), radial-gradient(2px 2px at 55% 15%, #fbbf24, transparent)'
+              ? 'radial-gradient(4px 4px at 25% 25%, #fbbf24, transparent), radial-gradient(3px 3px at 75% 20%, #fbbf24, transparent), radial-gradient(4px 4px at 50% 80%, #fbbf24, transparent), radial-gradient(3px 3px at 15% 70%, #fbbf24, transparent), radial-gradient(4px 4px at 85% 60%, #fbbf24, transparent), radial-gradient(3px 3px at 40% 45%, #fbbf24, transparent), radial-gradient(4px 4px at 65% 65%, #fbbf24, transparent), radial-gradient(3px 3px at 10% 35%, #fbbf24, transparent), radial-gradient(4px 4px at 90% 85%, #fbbf24, transparent), radial-gradient(3px 3px at 55% 15%, #fbbf24, transparent)'
               : overlayPattern === 'grid'
-              ? `linear-gradient(${textColor}10 1px, transparent 1px), linear-gradient(90deg, ${textColor}10 1px, transparent 1px)`
+              ? `linear-gradient(${textColor} 1px, transparent 1px), linear-gradient(90deg, ${textColor} 1px, transparent 1px)`
               : overlayPattern === 'waves'
-              ? `repeating-linear-gradient(0deg, transparent, transparent 20px, ${textColor}08 20px, ${textColor}08 40px), repeating-linear-gradient(90deg, transparent, transparent 20px, ${textColor}05 20px, ${textColor}05 40px)`
+              ? `repeating-radial-gradient(circle at 0 50%, transparent, transparent 20px, ${textColor} 20px, ${textColor} 22px, transparent 22px, transparent 40px)`
               : overlayPattern === 'diamonds'
-              ? `linear-gradient(45deg, ${textColor}10 25%, transparent 25%), linear-gradient(-45deg, ${textColor}10 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${textColor}10 75%), linear-gradient(-45deg, transparent 75%, ${textColor}10 75%)`
+              ? `linear-gradient(45deg, ${textColor} 25%, transparent 25%), linear-gradient(-45deg, ${textColor} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${textColor} 75%), linear-gradient(-45deg, transparent 75%, ${textColor} 75%)`
               : overlayPattern === 'circles'
-              ? `radial-gradient(circle at 50% 50%, transparent 20px, ${textColor}08 21px, ${textColor}08 22px, transparent 23px)`
+              ? `radial-gradient(circle at 50% 50%, transparent 15px, ${textColor} 16px, ${textColor} 18px, transparent 19px)`
               : overlayPattern === 'crosses'
-              ? `linear-gradient(${textColor}10 2px, transparent 2px), linear-gradient(90deg, ${textColor}10 2px, transparent 2px), linear-gradient(${textColor}05 1px, transparent 1px), linear-gradient(90deg, ${textColor}05 1px, transparent 1px)`
+              ? `linear-gradient(${textColor} 2px, transparent 2px), linear-gradient(90deg, ${textColor} 2px, transparent 2px)`
               : overlayPattern === 'triangles'
-              ? `linear-gradient(60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(-60deg, ${textColor}08 25%, transparent 25.5%), linear-gradient(60deg, transparent 75%, ${textColor}08 75.5%), linear-gradient(-60deg, transparent 75%, ${textColor}08 75.5%)`
+              ? `linear-gradient(60deg, ${textColor} 25%, transparent 25.5%), linear-gradient(-60deg, ${textColor} 25%, transparent 25.5%), linear-gradient(60deg, transparent 75%, ${textColor} 75.5%), linear-gradient(-60deg, transparent 75%, ${textColor} 75.5%)`
               : overlayPattern === 'hearts'
-              ? `radial-gradient(circle at 50% 40%, ${textColor} 2px, transparent 2px), radial-gradient(circle at 45% 35%, ${textColor} 2px, transparent 2px), radial-gradient(circle at 55% 35%, ${textColor} 2px, transparent 2px)`
+              ? `radial-gradient(circle at 30% 30%, ${textColor} 5px, transparent 5px), radial-gradient(circle at 70% 30%, ${textColor} 5px, transparent 5px), linear-gradient(135deg, transparent 45%, ${textColor} 45%, ${textColor} 55%, transparent 55%), linear-gradient(225deg, transparent 45%, ${textColor} 45%, ${textColor} 55%, transparent 55%)`
               : overlayPattern === 'moons'
-              ? `radial-gradient(circle at 45% 45%, transparent 8px, ${textColor}15 9px, ${textColor}15 11px, transparent 12px), radial-gradient(circle at 50% 50%, ${textColor}10 8px, transparent 9px)`
+              ? `radial-gradient(circle at 35% 50%, ${textColor} 10px, transparent 10px), radial-gradient(circle at 55% 50%, transparent 8px, ${textColor} 8px, ${textColor} 11px, transparent 11px)`
               : 'none',
-            backgroundSize: overlayPattern === 'dots' ? '20px 20px' 
-              : overlayPattern === 'grid' ? '30px 30px'
-              : overlayPattern === 'diamonds' ? '40px 40px'
-              : overlayPattern === 'circles' ? '50px 50px'
-              : overlayPattern === 'crosses' ? '25px 25px'
-              : overlayPattern === 'triangles' ? '40px 40px'
-              : overlayPattern === 'hearts' ? '35px 35px'
-              : overlayPattern === 'moons' ? '45px 45px'
+            backgroundSize: overlayPattern === 'dots' ? '25px 25px' 
+              : overlayPattern === 'grid' ? '35px 35px'
+              : overlayPattern === 'diamonds' ? '30px 30px'
+              : overlayPattern === 'circles' ? '60px 60px'
+              : overlayPattern === 'crosses' ? '30px 30px'
+              : overlayPattern === 'triangles' ? '35px 35px'
+              : overlayPattern === 'hearts' ? '40px 40px'
+              : overlayPattern === 'moons' ? '50px 50px'
+              : overlayPattern === 'lines' ? '30px 30px'
+              : overlayPattern === 'waves' ? '80px 80px'
               : 'cover',
           }} />
         )}
