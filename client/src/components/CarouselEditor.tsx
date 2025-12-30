@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, ChangeEvent } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, ChangeEvent } from 'react';
 import html2canvas from 'html2canvas';
 import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,19 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [exportProgress, setExportProgress] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
+  
+  // Refs to hold latest values for use in async closures (FileReader, etc.)
+  const slidesRef = useRef(slides);
+  const currentSlideIndexRef = useRef(currentSlideIndex);
+  
+  // Update refs in useLayoutEffect to ensure they reflect committed state
+  useLayoutEffect(() => {
+    slidesRef.current = slides;
+  }, [slides]);
+  
+  useLayoutEffect(() => {
+    currentSlideIndexRef.current = currentSlideIndex;
+  }, [currentSlideIndex]);
 
   const [aspectRatio, setAspectRatio] = useState<'1:1' | '4:5' | '9:16'>('4:5');
   const [defaultBackground, setDefaultBackground] = useState(backgroundPresets[0].value);
@@ -117,23 +130,41 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const getSlideOffsetY = (slide: Slide) => slide.offsetY ?? 0;
 
   const handleSlideBackgroundChange = (value: string) => {
-    if (!currentSlide) return;
-    setSlides(updateSlide(slides, currentSlide.id, { background: value, customImage: null }));
+    // Capture slide ID from ref at call time
+    const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    if (!slideId) return;
+    setSlides(prev => {
+      const slide = prev.find(s => s.id === slideId);
+      if (!slide) return prev;
+      return updateSlide(prev, slide.id, { background: value, customImage: null });
+    });
   };
 
   const handleSlideCustomImageChange = (imageData: string | null) => {
-    if (!currentSlide) return;
-    // When uploading new image, set imageFit to 'contain' by default
-    if (imageData) {
-      setSlides(updateSlide(slides, currentSlide.id, { customImage: imageData, imageFit: 'contain' }));
-    } else {
-      setSlides(updateSlide(slides, currentSlide.id, { customImage: imageData }));
-    }
+    // Capture slide ID from ref at call time (important for async FileReader)
+    const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    if (!slideId) return;
+    setSlides(prev => {
+      const slide = prev.find(s => s.id === slideId);
+      if (!slide) return prev;
+      // When uploading new image, set imageFit to 'contain' by default
+      if (imageData) {
+        return updateSlide(prev, slide.id, { customImage: imageData, imageFit: 'contain' });
+      } else {
+        return updateSlide(prev, slide.id, { customImage: imageData });
+      }
+    });
   };
 
   const handleSlideOffsetChange = (axis: 'offsetX' | 'offsetY', value: number) => {
-    if (!currentSlide) return;
-    setSlides(updateSlide(slides, currentSlide.id, { [axis]: value }));
+    // Capture slide ID from ref at call time
+    const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    if (!slideId) return;
+    setSlides(prev => {
+      const slide = prev.find(s => s.id === slideId);
+      if (!slide) return prev;
+      return updateSlide(prev, slide.id, { [axis]: value });
+    });
   };
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -161,6 +192,13 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       setCurrentSlideIndex(0);
     }
   }, [initialText]);
+
+  // Auto-correct currentSlideIndex when it goes out of bounds
+  useEffect(() => {
+    if (slides.length > 0 && currentSlideIndex >= slides.length) {
+      setCurrentSlideIndex(slides.length - 1);
+    }
+  }, [slides.length, currentSlideIndex]);
 
   const handleResplit = () => {
     // Preserve customImage, imageFit, background, and offsets by matching slides on content
@@ -236,24 +274,40 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const exportSize = getExportSize();
 
   const handleUpdateSlide = (field: 'heading' | 'body', value: string) => {
-    if (!currentSlide) return;
-    setSlides(updateSlide(slides, currentSlide.id, { [field]: value }));
+    // Capture slide ID from ref for consistency
+    const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    if (!slideId) return;
+    setSlides(prev => {
+      const slide = prev.find(s => s.id === slideId);
+      if (!slide) return prev;
+      return updateSlide(prev, slide.id, { [field]: value });
+    });
   };
 
   const handleAddSlide = () => {
-    if (!currentSlide) return;
-    const newSlides = addSlideAfter(slides, currentSlide.id);
-    setSlides(newSlides);
-    setCurrentSlideIndex(currentSlideIndex + 1);
+    // Capture current slide ID from refs
+    const currentSlideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    if (!currentSlideId) return;
+    
+    setSlides(prev => {
+      const slide = prev.find(s => s.id === currentSlideId);
+      if (!slide) return prev;
+      return addSlideAfter(prev, slide.id);
+    });
+    setCurrentSlideIndex(prev => prev + 1);
   };
 
   const handleRemoveSlide = () => {
-    if (slides.length <= 1) return;
-    const newSlides = removeSlide(slides, currentSlide.id);
-    setSlides(newSlides);
-    if (currentSlideIndex >= newSlides.length) {
-      setCurrentSlideIndex(newSlides.length - 1);
-    }
+    // Capture slide ID from refs
+    const slideIdToRemove = slidesRef.current[currentSlideIndexRef.current]?.id;
+    const currentLength = slidesRef.current.length;
+    if (!slideIdToRemove || currentLength <= 1) return;
+    
+    setSlides(prev => {
+      if (prev.length <= 1) return prev;
+      return removeSlide(prev, slideIdToRemove);
+    });
+    // Index will be auto-corrected by the useEffect if out of bounds
   };
 
   const getSolidBackgroundColor = (slide: Slide): string | null => {
@@ -486,29 +540,24 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         flex-wrap: nowrap; white-space: nowrap;
       `;
       
-      // Add social icon if selected
+      // Add social icon if selected - using img with data URI for html2canvas compatibility
       if (profileIcon === 'instagram') {
-        const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        iconSvg.setAttribute('width', String(scaledIconSize));
-        iconSvg.setAttribute('height', String(scaledIconSize));
-        iconSvg.setAttribute('viewBox', '0 0 24 24');
-        iconSvg.setAttribute('fill', textColor);
-        iconSvg.style.opacity = '0.8';
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z');
-        iconSvg.appendChild(path);
-        profileText.appendChild(iconSvg);
+        const iconImg = document.createElement('img');
+        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${textColor}"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
+        iconImg.src = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+        iconImg.width = scaledIconSize;
+        iconImg.height = scaledIconSize;
+        iconImg.style.opacity = '0.8';
+        profileText.appendChild(iconImg);
       } else if (profileIcon === 'telegram') {
-        const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        iconSvg.setAttribute('width', String(scaledIconSize));
-        iconSvg.setAttribute('height', String(scaledIconSize));
-        iconSvg.setAttribute('viewBox', '0 0 24 24');
-        iconSvg.setAttribute('fill', textColor);
-        iconSvg.style.opacity = '0.8';
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z');
-        iconSvg.appendChild(path);
-        profileText.appendChild(iconSvg);
+        // Use img with data URI for html2canvas compatibility
+        const iconImg = document.createElement('img');
+        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${textColor}"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>`;
+        iconImg.src = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+        iconImg.width = scaledIconSize;
+        iconImg.height = scaledIconSize;
+        iconImg.style.opacity = '0.8';
+        profileText.appendChild(iconImg);
       }
       
       const nameSpan = document.createElement('span');
@@ -1269,7 +1318,15 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                           <div className="text-xs text-gray-500 mb-1">Размер фото:</div>
                           <div className="flex gap-2">
                             <button
-                              onClick={() => setSlides(updateSlide(slides, currentSlide.id, { imageFit: 'contain' }))}
+                              onClick={() => {
+                                const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+                                if (!slideId) return;
+                                setSlides(prev => {
+                                  const slide = prev.find(s => s.id === slideId);
+                                  if (!slide) return prev;
+                                  return updateSlide(prev, slide.id, { imageFit: 'contain' });
+                                });
+                              }}
                               className={`flex-1 min-h-[44px] rounded-lg text-sm ${
                                 getSlideImageFit(currentSlide) === 'contain' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
                               }`}
@@ -1277,7 +1334,15 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                               Вместить
                             </button>
                             <button
-                              onClick={() => setSlides(updateSlide(slides, currentSlide.id, { imageFit: 'cover' }))}
+                              onClick={() => {
+                                const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+                                if (!slideId) return;
+                                setSlides(prev => {
+                                  const slide = prev.find(s => s.id === slideId);
+                                  if (!slide) return prev;
+                                  return updateSlide(prev, slide.id, { imageFit: 'cover' });
+                                });
+                              }}
                               className={`flex-1 min-h-[44px] rounded-lg text-sm ${
                                 getSlideImageFit(currentSlide) === 'cover' ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
                               }`}
@@ -1317,15 +1382,21 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                               size="sm"
                               className="text-xs h-6 text-purple-600 hover:text-purple-700 px-2"
                               onClick={() => {
-                                const bg = getSlideBackground(currentSlide);
-                                const img = getSlideCustomImage(currentSlide);
-                                const fit = getSlideImageFit(currentSlide);
-                                setSlides(slides.map(s => ({
-                                  ...s,
-                                  background: bg,
-                                  customImage: img,
-                                  imageFit: fit
-                                })));
+                                const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+                                if (!slideId) return;
+                                setSlides(prev => {
+                                  const slide = prev.find(s => s.id === slideId);
+                                  if (!slide) return prev;
+                                  const bg = getSlideBackground(slide);
+                                  const img = getSlideCustomImage(slide);
+                                  const fit = getSlideImageFit(slide);
+                                  return prev.map(s => ({
+                                    ...s,
+                                    background: bg,
+                                    customImage: img,
+                                    imageFit: fit
+                                  }));
+                                });
                               }}
                             >
                               Применить ко всем
