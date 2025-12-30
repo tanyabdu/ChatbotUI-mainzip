@@ -748,8 +748,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     touchEndX.current = null;
   };
 
-  const renderSlidePreview = (slide: Slide, isMain: boolean = false, slideIndex?: number) => {
-    const scale = isMain ? 1 : 0.3;
+  const renderSlidePreview = (slide: Slide, isMain: boolean = false, slideIndex?: number, customScale?: number) => {
+    const scale = isMain ? 1 : (customScale ?? 0.2);
     const isTitleSlide = slide.type === 'title';
     const alignItems = textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
     const displayIndex = slideIndex ?? currentSlideIndex;
@@ -1646,32 +1646,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                     className={`flex-shrink-0 cursor-pointer transition-all ${
                       idx === currentSlideIndex ? 'ring-2 ring-purple-500' : ''
                     }`}
-                    style={{ width: width * 0.2, height: height * 0.2 }}
+                    style={{ width: width * 0.2, height: height * 0.2, overflow: 'hidden', borderRadius: '8px' }}
                   >
-                    <div
-                      style={{
-                        width: `${width}px`,
-                        height: `${height}px`,
-                        background: getSlideCustomImage(slide) ? `url(${getSlideCustomImage(slide)})` : getSlideBackground(slide),
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        padding: `${padding * 0.3}px`,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: slide.type === 'title' ? 'center' : 'flex-start',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                        transform: 'scale(0.2)',
-                        transformOrigin: 'top left',
-                        borderRadius: '8px',
-                      }}
-                    >
-                      {slide.heading && (
-                        <div style={{ fontFamily: titleFont, fontSize: `${titleSize}px`, color: textColor, fontWeight: 600 }}>
-                          {slide.heading.substring(0, 30)}
-                        </div>
-                      )}
-                    </div>
+                    {renderSlidePreview(slide, false, idx, 0.2)}
                   </div>
                 ))}
               </div>
