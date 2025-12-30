@@ -80,6 +80,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [profileIcon, setProfileIcon] = useState<'none' | 'instagram' | 'telegram'>('instagram');
   const [overlayPattern, setOverlayPattern] = useState<'none' | 'stars' | 'dots' | 'lines' | 'sparkles' | 'grid' | 'waves' | 'diamonds' | 'circles' | 'crosses' | 'triangles' | 'hearts' | 'moons'>('none');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Store slideId when user clicks upload button (before file dialog opens)
+  const uploadTargetSlideIdRef = useRef<number | null>(null);
 
   const archetypeConfigs = userArchetypes
     .map(id => archetypeFontConfigs[id])
@@ -171,9 +173,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // CRITICAL: Capture slideId BEFORE async FileReader operation
-    // This prevents photo from being applied to wrong slide if user navigates during upload
-    const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    // Use slideId captured when button was clicked (before file dialog opened)
+    // This prevents photo from being applied to wrong slide if user navigates while dialog is open
+    const slideId = uploadTargetSlideIdRef.current;
     if (!slideId) return;
     
     const reader = new FileReader();
@@ -185,6 +187,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         if (!slide) return prev;
         return updateSlide(prev, slide.id, { customImage: imageData, imageFit: 'contain' });
       });
+      // Clear the ref after upload
+      uploadTargetSlideIdRef.current = null;
     };
     reader.readAsDataURL(file);
   };
@@ -1314,7 +1318,11 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                     <div className="space-y-4">
                       <div className="flex flex-wrap gap-2">
                         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="bg-image-upload" />
-                        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="min-h-[44px] flex items-center gap-1">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          // Capture slideId NOW before file dialog opens
+                          uploadTargetSlideIdRef.current = slidesRef.current[currentSlideIndexRef.current]?.id ?? null;
+                          fileInputRef.current?.click();
+                        }} className="min-h-[44px] flex items-center gap-1">
                           <Upload className="h-4 w-4" /> Загрузить фото
                         </Button>
                         {currentSlide && getSlideCustomImage(currentSlide) && (
