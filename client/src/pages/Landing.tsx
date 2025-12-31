@@ -105,7 +105,7 @@ export default function Landing() {
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg px-8"
               data-testid="button-join"
             >
-              <a href="/api/login">
+              <a href="/auth">
                 Начать путешествие
                 <Sparkles className="ml-2 h-5 w-5" />
               </a>
