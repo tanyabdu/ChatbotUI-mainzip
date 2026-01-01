@@ -89,9 +89,41 @@ function fixHashtagsArray(jsonStr: string): string {
   });
 }
 
+// Fix quotes: replace single quotes and Russian quotes with double quotes in JSON
+function fixQuotesInJson(jsonStr: string): string {
+  // Replace Russian quotes « » with standard "
+  let fixed = jsonStr.replace(/[«»]/g, '"');
+  
+  // Replace single quotes used as JSON string delimiters
+  // Pattern: match property values like 'text' or 'text with "nested" quotes'
+  // Be careful not to break apostrophes inside words
+  fixed = fixed.replace(/:\s*'([^']*?)'/g, (match, content) => {
+    // Escape any double quotes inside the content
+    const escaped = content.replace(/"/g, '\\"');
+    return `: "${escaped}"`;
+  });
+  
+  // Also fix array values with single quotes
+  fixed = fixed.replace(/,\s*'([^']*?)'/g, (match, content) => {
+    const escaped = content.replace(/"/g, '\\"');
+    return `, "${escaped}"`;
+  });
+  
+  // Fix opening bracket followed by single quote
+  fixed = fixed.replace(/\[\s*'([^']*?)'/g, (match, content) => {
+    const escaped = content.replace(/"/g, '\\"');
+    return `["${escaped}"`;
+  });
+  
+  return fixed;
+}
+
 function cleanJsonResponse(content: string): string {
   // Remove markdown code blocks if present
   let cleaned = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+  
+  // Fix quotes (single, Russian) to standard double quotes
+  cleaned = fixQuotesInJson(cleaned);
   
   // Fix hashtags arrays specifically
   cleaned = fixHashtagsArray(cleaned);
@@ -617,7 +649,8 @@ export async function generateIdeasOnly(input: ContentGenerationInput): Promise<
 - idea: формулировка про БОЛЬ КЛИЕНТКИ (1-2 предложения)
 - type: тип (Экспертный/Личная история/Продающий/Вовлекающий)
 
-JSON массив: [{"day":1,"idea":"...","type":"..."}]`
+Ответь ТОЛЬКО валидным JSON объектом в формате:
+{"ideas": [{"day":1,"idea":"текст идеи","type":"тип"}]}`
     : `SEED: ${randomSeed}
 Придумай ${days} УНИКАЛЬНЫХ идей для ВОВЛЕКАЮЩЕГО контента.
 Контент ОТ ЛИЦА эзотерика ДЛЯ его потенциальных КЛИЕНТОК.
@@ -637,38 +670,69 @@ JSON массив: [{"day":1,"idea":"...","type":"..."}]`
 - idea: формулировка про БОЛЬ КЛИЕНТКИ (1-2 предложения)
 - type: тип (Экспертный/Личная история/Вовлекающий/Развлекательный)
 
-JSON массив: [{"day":1,"idea":"...","type":"..."}]`;
+Ответь ТОЛЬКО валидным JSON объектом в формате:
+{"ideas": [{"day":1,"idea":"текст идеи","type":"тип"}]}`;
 
-  try {
-    console.log("Generating ideas only...");
-    const startTime = Date.now();
-    
-    const response = await getClient().chat.completions.create({
-      model: "deepseek-chat",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.95,
-      max_tokens: 1500,
-    });
+  const maxRetries = 2;
+  let lastError: any = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Generating ideas only (attempt ${attempt}/${maxRetries})...`);
+      const startTime = Date.now();
+      
+      const response = await getClient().chat.completions.create({
+        model: "deepseek-chat",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.95,
+        max_tokens: 1500,
+        response_format: { type: "json_object" },
+      });
 
-    const elapsed = Date.now() - startTime;
-    console.log(`Ideas generated in ${elapsed}ms`);
+      const elapsed = Date.now() - startTime;
+      console.log(`Ideas generated in ${elapsed}ms`);
 
-    const content = response.choices[0]?.message?.content || "[]";
-    const cleaned = cleanJsonResponse(content);
-    const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
-    
-    if (!jsonMatch) {
-      throw new Error("Invalid response format");
+      const content = response.choices[0]?.message?.content || "{}";
+      console.log("Raw AI response (first 500 chars):", content.substring(0, 500));
+      
+      try {
+        const parsed = JSON.parse(content);
+        
+        // Handle both formats: { ideas: [...] } or direct array [...]
+        if (parsed.ideas && Array.isArray(parsed.ideas)) {
+          return parsed.ideas as ContentIdea[];
+        } else if (Array.isArray(parsed)) {
+          return parsed as ContentIdea[];
+        } else {
+          // Try to find array in response
+          const cleaned = cleanJsonResponse(content);
+          const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]) as ContentIdea[];
+          }
+          throw new Error("No ideas array found in response");
+        }
+      } catch (parseError: any) {
+        console.error("JSON parse error:", parseError.message);
+        console.error("Response content:", content.substring(0, 300));
+        throw new Error(`JSON parse failed: ${parseError.message}`);
+      }
+    } catch (error: any) {
+      lastError = error;
+      console.error(`Ideas generation error (attempt ${attempt}):`, error?.message || error);
+      
+      if (attempt < maxRetries) {
+        console.log("Retrying in 1 second...");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
-    
-    return JSON.parse(jsonMatch[0]) as ContentIdea[];
-  } catch (error: any) {
-    console.error("Ideas generation error:", error?.message || error);
-    throw error;
   }
+  
+  console.error("All retry attempts failed");
+  throw lastError;
 }
 
 // Step 2: Generate single format content (on demand)
