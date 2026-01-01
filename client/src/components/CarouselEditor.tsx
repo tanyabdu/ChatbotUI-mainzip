@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
@@ -41,6 +42,7 @@ interface CarouselEditorProps {
 }
 
 export default function CarouselEditor({ initialText = '', userArchetypes = [] }: CarouselEditorProps) {
+  const { toast } = useToast();
   const slideRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [sourceText, setSourceText] = useState(initialText);
   const [slides, setSlides] = useState<Slide[]>(() => splitTextToSlides(initialText));
@@ -890,6 +892,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     return canvas;
   };
 
+  const canShare = typeof navigator !== 'undefined' && 'share' in navigator && 'canShare' in navigator;
+
   const handleExportAll = async () => {
     setIsExporting(true);
     setExportProgress(0);
@@ -899,46 +903,87 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       const folder = zip.folder('slides');
       
       for (let i = 0; i < slides.length; i++) {
-        const canvas = await renderSlideToCanvas(slides[i], i);
-        const fileName = `slide-${String(i + 1).padStart(2, '0')}.png`;
-        
-        let blob = await new Promise<Blob | null>((resolve) => 
-          canvas.toBlob((b) => resolve(b), 'image/png')
-        );
-        
-        if (!blob) {
-          const dataUrl = canvas.toDataURL('image/png');
-          const base64 = dataUrl.split(',')[1];
-          const binaryString = atob(base64);
-          const bytes = new Uint8Array(binaryString.length);
-          for (let j = 0; j < binaryString.length; j++) {
-            bytes[j] = binaryString.charCodeAt(j);
+        try {
+          const canvas = await renderSlideToCanvas(slides[i], i);
+          const fileName = `slide-${String(i + 1).padStart(2, '0')}.png`;
+          
+          let blob = await new Promise<Blob | null>((resolve) => 
+            canvas.toBlob((b) => resolve(b), 'image/png')
+          );
+          
+          if (!blob) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const base64 = dataUrl.split(',')[1];
+            const binaryString = atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let j = 0; j < binaryString.length; j++) {
+              bytes[j] = binaryString.charCodeAt(j);
+            }
+            blob = new Blob([bytes], { type: 'image/png' });
           }
-          blob = new Blob([bytes], { type: 'image/png' });
-        }
-        
-        if (folder) {
-          folder.file(fileName, blob);
+          
+          if (folder && blob) {
+            folder.file(fileName, blob);
+          }
+        } catch (slideError) {
+          console.error(`Error rendering slide ${i + 1}:`, slideError);
         }
 
         setExportProgress(Math.round(((i + 1) / slides.length) * 100));
       }
       
       const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipFileName = `carousel-${Date.now()}.zip`;
+      
+      // Try Web Share API first (works better on mobile)
+      if (canShare) {
+        const zipFile = new File([zipBlob], zipFileName, { type: 'application/zip' });
+        const shareData = { files: [zipFile] };
+        if (navigator.canShare(shareData)) {
+          try {
+            await navigator.share(shareData);
+            toast({
+              title: "Готово!",
+              description: `${slides.length} слайдов сохранены`,
+            });
+            return;
+          } catch (shareError) {
+            // User cancelled or share failed, try download
+            console.log('Share cancelled, trying download...');
+          }
+        }
+      }
+      
+      // Fallback: create download link
+      const url = URL.createObjectURL(zipBlob);
       const link = document.createElement('a');
-      link.download = `carousel-${Date.now()}.zip`;
-      link.href = URL.createObjectURL(zipBlob);
+      link.href = url;
+      link.download = zipFileName;
+      
+      // For mobile: add link to DOM and click
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(link.href);
+      document.body.removeChild(link);
+      
+      // Cleanup after delay
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      
+      toast({
+        title: "Готово!",
+        description: `${slides.length} слайдов скачаны в ZIP-архив`,
+      });
     } catch (error) {
       console.error('Export failed:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить слайды. Попробуйте ещё раз",
+        variant: "destructive",
+      });
     } finally {
       setIsExporting(false);
       setExportProgress(0);
     }
   };
-
-  const canShare = typeof navigator !== 'undefined' && 'share' in navigator && 'canShare' in navigator;
 
   const handleExportCurrent = async () => {
     setIsExporting(true);
