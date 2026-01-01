@@ -130,6 +130,7 @@ export const archetypeResults = esotericSchema.table("archetype_results", {
   recommendations: jsonb("recommendations").notNull().$type<string[]>(),
   brandColors: jsonb("brand_colors").$type<string[]>(),
   brandFonts: jsonb("brand_fonts").$type<string[]>(),
+  gender: varchar("gender").default("female"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

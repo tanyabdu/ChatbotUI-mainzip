@@ -25,6 +25,7 @@ interface ArchetypeQuizProps {
 
 export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProps) {
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [gender, setGender] = useState<"female" | "male">("female");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [profile, setProfile] = useState<ArchetypeProfile | null>(null);
   const [showUnanswered, setShowUnanswered] = useState(false);
@@ -53,6 +54,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
       brandFonts?: string[];
       contentStyle?: string;
       triggerWords?: string[];
+      gender?: string;
     }) => {
       return apiRequest("POST", "/api/archetypes", data);
     },
@@ -95,6 +97,7 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
         brandFonts: [calculatedProfile.visualGuide.fonts],
         contentStyle: primaryArchetype?.contentStyle.join("; "),
         triggerWords: primaryArchetype?.triggerWords,
+        gender: gender,
       });
       
       setProfile(calculatedProfile);
@@ -325,6 +328,35 @@ export default function ArchetypeQuiz({ onComplete, onApply }: ArchetypeQuizProp
         </CardHeader>
         
         <CardContent className="max-w-2xl mx-auto space-y-6">
+          <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300">
+            <CardContent className="p-6">
+              <h4 className="text-lg text-purple-700 mb-2 font-medium">
+                Укажите ваш пол
+              </h4>
+              <p className="text-sm text-purple-500 mb-4">
+                Это нужно для корректной генерации контента от вашего лица
+              </p>
+              <RadioGroup
+                value={gender}
+                onValueChange={(value) => setGender(value as "female" | "male")}
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2 p-3 rounded-lg bg-white border border-purple-200 hover:bg-purple-100 cursor-pointer flex-1">
+                  <RadioGroupItem value="female" id="gender-female" />
+                  <Label htmlFor="gender-female" className="text-purple-600 cursor-pointer">
+                    Женщина
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-3 rounded-lg bg-white border border-purple-200 hover:bg-purple-100 cursor-pointer flex-1">
+                  <RadioGroupItem value="male" id="gender-male" />
+                  <Label htmlFor="gender-male" className="text-purple-600 cursor-pointer">
+                    Мужчина
+                  </Label>
+                </div>
+              </RadioGroup>
+            </CardContent>
+          </Card>
+
           {quizQuestions.map((question, qIdx) => {
             const isUnanswered = showUnanswered && answers[qIdx] === undefined;
             return (
