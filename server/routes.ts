@@ -121,9 +121,9 @@ export async function registerRoutes(
       
       const daysNumber = days === "today" ? 1 : parseInt(days) || 1;
       
-      // Get user's gender from latest archetype result
+      // Get user's gender from latest archetype result (default to female for new users)
       const latestArchetype = await storage.getLatestArchetypeResult(userId);
-      const gender = (latestArchetype?.gender as "female" | "male") || "female";
+      const gender: "female" | "male" = (latestArchetype?.gender === "male") ? "male" : "female";
       
       console.log("Generating ideas only:", { goal, niche, days: daysNumber, gender });
       
@@ -149,13 +149,21 @@ export async function registerRoutes(
   // Step 2: Generate single format content (on demand)
   app.post("/api/strategies/generate-format", isAuthenticated, async (req: any, res) => {
     try {
-      const { goal, niche, product, idea, type, format, archetype, gender } = req.body;
+      const userId = req.user.id;
+      const { goal, niche, product, idea, type, format, archetype } = req.body;
+      let { gender } = req.body;
       
       if (!goal || !niche || !idea || !type || !format) {
         return res.status(400).json({ error: "Missing required fields" });
       }
       
-      console.log(`Generating ${format} for: ${idea.substring(0, 50)}...`);
+      // Fallback: get gender from user's archetype if not provided
+      if (!gender) {
+        const latestArchetype = await storage.getLatestArchetypeResult(userId);
+        gender = latestArchetype?.gender || "female";
+      }
+      
+      console.log(`Generating ${format} for: ${idea.substring(0, 50)}..., gender: ${gender}`);
       
       const content = await generateSingleFormat({
         goal,
