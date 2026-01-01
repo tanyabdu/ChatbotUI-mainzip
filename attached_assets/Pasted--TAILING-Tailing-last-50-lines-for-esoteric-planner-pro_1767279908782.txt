@@ -1,0 +1,106 @@
+[TAILING] Tailing last 50 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error-0.log last 50 lines:
+0|esoteric | Ideas generation error: Error: JSON parse failed: Expected double-quoted property name in JSON at position 5281
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:613:924)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:717:2584
+0|esoteric | JSON parse error: Unterminated string in JSON at position 5330
+0|esoteric | Response content: {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Почему вы постоянно чувствуете усталость, даже после отдыха? Возможно, это не просто стресс, а родовые программы, которые забирают вашу энергию.",
+0|esoteric |             "type": "Экспертный"
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric |             "day": 2,
+0|esoteric |        
+0|esoteric | Ideas generation error (attempt 2): JSON parse failed: Unterminated string in JSON at position 5330
+0|esoteric | All retry attempts failed
+0|esoteric | Ideas generation error: Error: JSON parse failed: Unterminated string in JSON at position 5330
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:613:924)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:717:2584
+0|esoteric | JSON parse error: Unterminated string in JSON at position 5360
+0|esoteric | Response content: {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Клиентка пришла с вопросом: «Почему я не могу найти работу по душе?» Матрица Судьбы показала, что её родовые программы блокируют её таланты.",
+0|esoteric |             "type": "Личная история"
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric |             "day": 2,
+0|esoteric |        
+0|esoteric | Ideas generation error (attempt 1): JSON parse failed: Unterminated string in JSON at position 5360
+0|esoteric | JSON parse error: Unterminated string in JSON at position 5224
+0|esoteric | Response content: {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Клиентка пришла с вопросом: «Почему я не могу найти работу по душе?» Матрица Судьбы показала, что её блокирует страх повторения сценария матери, которая всю жизнь работала на нелюбимой должности.",
+0|esoteric |             "type": "Личная исто
+0|esoteric | Ideas generation error (attempt 2): JSON parse failed: Unterminated string in JSON at position 5224
+0|esoteric | All retry attempts failed
+0|esoteric | Ideas generation error: Error: JSON parse failed: Unterminated string in JSON at position 5224
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:613:924)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:717:2584
+0|esoteric | carousel JSON parse error: Unexpected token '#', ..."2026год", #запрос", "... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Устала каждый год загадывать одно, а получать другое?\n\n---\n\nЗа 60 минут я покажу, что мешает твоим желаниям сбыться. Карты — это инструмент, который помогает увидеть скрытые препятствия.\n\n---\n\nТвой запрос на 2026: «Почему я снова одна на Новый год?» Карты раскроют, какие ст
+0|esoteric | carousel generation error (attempt 1): JSON parse failed: Unexpected token '#', ..."2026год", #запрос", "... is not valid JSON
+
+/root/.pm2/logs/esoteric-planner-out-0.log last 50 lines:
+0|esoteric | 6:03:06 PM [express] GET /api/generation-limit 200 in 24ms :: {"allowed":true,"remaining":-1}
+0|esoteric | 6:03:06 PM [express] GET /api/strategies 200 in 79ms :: []
+0|esoteric | 6:03:07 PM [express] POST /api/promocode/activate 200 in 88ms :: {"success":true,"message":"Промокод активирован! Добавлено 30 дней","bonusDays":30}
+0|esoteric | 6:03:07 PM [express] GET /api/auth/user 200 in 13ms :: {"id":"a4165f9b-af6b-4aeb-9577-894f2ae2ed59","email":"tkutasova@yandex.ru","firstName":"Татьяна","lastName":"Кутасова","profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-04T14:59:59.315Z","subscriptionExpiresAt":"2026-02-03T14:59:59.315Z"}
+0|esoteric | 6:03:18 PM [express] GET /api/auth/access 200 in 15ms :: {"hasAccess":true,"daysLeft":33}
+0|esoteric | Ideas generated in 45232ms
+0|esoteric | Raw AI response (first 500 chars): {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Клиентка пришла с вопросом: «Почему я не могу найти работу по душе?» Матрица Судьбы показала, что её блокирует страх повторения сценария матери, которая всю жизнь работала на нелюбимой должности.",
+0|esoteric |             "type": "Личная история"
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric |             "day": 2,
+0|esoteric |             "idea": "«Хочу сменить сферу, но не знаю куда». История клиентки, которая после разбора поняла, что её предназначение связано с творчеством,
+0|esoteric | 6:03:24 PM [express] GET /api/generation-limit 200 in 24ms :: {"allowed":true,"remaining":-1}
+0|esoteric | 6:03:24 PM [express] GET /api/trainer/sessions 200 in 24ms :: []
+0|esoteric | Generating ideas only: {
+0|esoteric |   goal: 'engagement',
+0|esoteric |   niche: 'Таролог С каким запросом вы входите в 2026 год',
+0|esoteric |   days: 1,
+0|esoteric |   gender: 'female'
+0|esoteric | }
+0|esoteric | Generating ideas only (attempt 1/2)...
+0|esoteric | Ideas generated in 4750ms
+0|esoteric | Raw AI response (first 500 chars): {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "С каким запросом вы входите в 2026 год: 'Почему я снова одна на Новый год?' или 'Когда наконец найду работу, которая будет приносить и деньги, и радость?' Карты покажут, что мешает вам получить желаемое.",
+0|esoteric |             "type": "Вовлекающий"
+0|esoteric |         }
+0|esoteric |     ]
+0|esoteric | }
+0|esoteric | 6:03:36 PM [express] POST /api/strategies/generate-ideas 200 in 4813ms :: {"ideas":[{"day":1,"idea":"С каким запросом вы входите в 2026 год: 'Почему я снова одна на Новый год?' или 'Когда наконец найду работу, которая будет приносить и деньги, и радость?' Карты покажут, что мешает вам получить желаемое.","type":"Вовлекающий"}],"context":{"goal":"engagement","niche":"Таролог С каким запросом вы входите в 2026 год","archetype":{"name":"Заботливый-Маг-Искатель","description":"Сочувствующий альтруист, желает помогать окружающим. Щедрый спаситель и хранитель, заботится сначала о других — потом о себе. С элементами маг: харизматичный, влиятельный, таинственный, трансформирующий.","recommendations":["забота","поддержка","тепло","помощь","безопасность","трансформация"],"triggerWords":["забота","поддержка","помощь","защита","надёжность","безопасность","тепло","уют","сочувствие","польза"],"contentStyle":["заботливо, неравнодушно","вовлечённость в проблемы аудитории","советы и подборки","поддерживающе и мягко"],"tone":"Тёплый, поддерживающий, заботливый. Как объятие в текстовом формате."},"gender":"female"}}
+0|esoteric | 6:03:37 PM [express] GET /api/generation-limit 304 in 22ms :: {"allowed":true,"remaining":-1}
+0|esoteric | 6:03:37 PM [express] GET /api/trainer/sessions 200 in 25ms :: []
+0|esoteric | Generating carousel for: С каким запросом вы входите в 2026 год: 'Почему я ..., gender: female
+0|esoteric | Generating carousel for idea: С каким запросом вы входите в 2026 год: 'Почему я ... (attempt 1/2)
+0|esoteric | carousel generated in 9712ms
+0|esoteric | Raw carousel response (first 300 chars): {
+0|esoteric |     "content": "Устала каждый год загадывать одно, а получать другое?\n\n---\n\nЗа 60 минут я покажу, что мешает твоим желаниям сбыться. Карты — это инструмент, который помогает увидеть скрытые препятствия.\n\n---\n\nТвой запрос на 2026: «Почему я снова одна на Новый год?» Карты раскроют, какие ст
+0|esoteric | Retrying in 1 second...
+0|esoteric | Generating carousel for idea: С каким запросом вы входите в 2026 год: 'Почему я ... (attempt 2/2)
+0|esoteric | carousel generated in 9224ms
+0|esoteric | Raw carousel response (first 300 chars): {
+0|esoteric |     "content": "Устала каждый год загадывать одно, а получать другое?\n\n---\n\nЯ помогу. За 60 минут разберём твой главный запрос на 2026 год.\n\n---\n\nЧто такое \"запрос\"? Это не просто желание. Это твоя настоящая боль, которую карты увидят сразу.\n\n---\n\nПример: \"Почему я снова одна на Нов
+0|esoteric | 6:04:09 PM [express] POST /api/strategies/generate-format 200 in 19952ms :: {"content":{"content":"Устала каждый год загадывать одно, а получать другое?\n\n---\n\nЯ помогу. За 60 минут разберём твой главный запрос на 2026 год.\n\n---\n\nЧто такое \"запрос\"? Это не просто желание. Это твоя настоящая боль, которую карты увидят сразу.\n\n---\n\nПример: \"Почему я снова одна на Новый год?\" Карты покажут, что мешает — страх или старые шаблоны.\n\n---\n\nИли: \"Когда найду работу с деньгами и радостью?\" Увидим блоки — может, ты недооцениваешь себя.\n\n---\n\nНапиши мне свой запрос в комментариях. Разберём его вместе — с заботой и поддержкой.\n\nСохрани, чтобы не потерять!","hashtags":["#таролог","#2026год","запрос","#поддержка","#помощь","#безопасность","#трансформация"]}}
+0|esoteric | 6:04:34 PM [express] GET /api/archetypes 200 in 86ms :: [{"id":"c5ab16d1-6a2d-457f-bd0a-92ba841f48e5","userId":"24773a2d-c59b-4fcd-a9c2-b892f75d6747","archetypeName":"Заботливый-Маг-Искатель","archetypeDescription":"Сочувствующий альтруист, желает помогать окружающим. Щедрый спаситель и хранитель, заботится сначала о других — потом о себе. С элементами маг: харизматичный, влиятельный, таинственный, трансформирующий.","answers":[1,3,0,1,3,1,1,0],"recommendations":["забота","поддержка","тепло","помощь","безопасность","трансформация"],"brandColors":["#16a34a","#bbf7d0","#fef9c3"],"brandFonts":["Comfortaa для заголовков, Nunito для текста"],"gender":"female","createdAt":"2026-01-01T08:32:03.061Z"}]
+
+
