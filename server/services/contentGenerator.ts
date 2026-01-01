@@ -843,36 +843,64 @@ ${writingRules}
 ИДЕЯ: ${idea}
 ${callToAction}
 
-JSON: {"content": "готовый текст", "hashtags": ["#тег1", "#тег2"]}`;
+Ответь ТОЛЬКО валидным JSON объектом в формате:
+{"content": "готовый текст", "hashtags": ["#тег1", "#тег2"]}`;
 
-  try {
-    console.log(`Generating ${format} for idea: ${idea.substring(0, 50)}...`);
-    const startTime = Date.now();
-    
-    const response = await getClient().chat.completions.create({
-      model: "deepseek-chat",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
-    });
+  const maxRetries = 2;
+  let lastError: any = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Generating ${format} for idea: ${idea.substring(0, 50)}... (attempt ${attempt}/${maxRetries})`);
+      const startTime = Date.now();
+      
+      const response = await getClient().chat.completions.create({
+        model: "deepseek-chat",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+        response_format: { type: "json_object" },
+      });
 
-    const elapsed = Date.now() - startTime;
-    console.log(`${format} generated in ${elapsed}ms`);
+      const elapsed = Date.now() - startTime;
+      console.log(`${format} generated in ${elapsed}ms`);
 
-    const content = response.choices[0]?.message?.content || "{}";
-    const cleaned = cleanJsonResponse(content);
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    
-    if (!jsonMatch) {
-      throw new Error("Invalid response format");
+      const content = response.choices[0]?.message?.content || "{}";
+      console.log(`Raw ${format} response (first 300 chars):`, content.substring(0, 300));
+      
+      try {
+        const parsed = JSON.parse(content);
+        
+        // Ensure we have the expected structure
+        if (parsed.content) {
+          return parsed as FormatContent;
+        } else {
+          // Try to extract from nested structure
+          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]) as FormatContent;
+          }
+          throw new Error("No content field found in response");
+        }
+      } catch (parseError: any) {
+        console.error(`${format} JSON parse error:`, parseError.message);
+        console.error("Response content:", content.substring(0, 300));
+        throw new Error(`JSON parse failed: ${parseError.message}`);
+      }
+    } catch (error: any) {
+      lastError = error;
+      console.error(`${format} generation error (attempt ${attempt}):`, error?.message || error);
+      
+      if (attempt < maxRetries) {
+        console.log("Retrying in 1 second...");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
-    
-    return JSON.parse(jsonMatch[0]) as FormatContent;
-  } catch (error: any) {
-    console.error(`${format} generation error:`, error?.message || error);
-    throw error;
   }
+  
+  console.error(`All ${format} retry attempts failed`);
+  throw lastError;
 }
