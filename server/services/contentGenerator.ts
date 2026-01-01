@@ -688,7 +688,7 @@ export async function generateIdeasOnly(input: ContentGenerationInput): Promise<
           { role: "user", content: userPrompt },
         ],
         temperature: 0.95,
-        max_tokens: 1500,
+        max_tokens: 8000,
         response_format: { type: "json_object" },
       });
 
