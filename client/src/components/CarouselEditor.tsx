@@ -899,8 +899,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     setExportProgress(0);
 
     try {
-      const zip = new JSZip();
-      const folder = zip.folder('slides');
+      // Step 1: Generate all PNG files
+      const pngFiles: File[] = [];
+      const blobs: Blob[] = [];
       
       for (let i = 0; i < slides.length; i++) {
         try {
@@ -922,8 +923,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             blob = new Blob([bytes], { type: 'image/png' });
           }
           
-          if (folder && blob) {
-            folder.file(fileName, blob);
+          if (blob) {
+            blobs.push(blob);
+            pngFiles.push(new File([blob], fileName, { type: 'image/png' }));
           }
         } catch (slideError) {
           console.error(`Error rendering slide ${i + 1}:`, slideError);
@@ -931,41 +933,50 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
         setExportProgress(Math.round(((i + 1) / slides.length) * 100));
       }
-      
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const zipFileName = `carousel-${Date.now()}.zip`;
-      
-      // Try Web Share API first (works better on mobile)
-      if (canShare) {
-        const zipFile = new File([zipBlob], zipFileName, { type: 'application/zip' });
-        const shareData = { files: [zipFile] };
+
+      // Step 2: Try Web Share API with PNG files (saves directly to gallery on mobile!)
+      if (canShare && pngFiles.length > 0) {
+        const shareData = { files: pngFiles };
         if (navigator.canShare(shareData)) {
           try {
             await navigator.share(shareData);
             toast({
               title: "Готово!",
-              description: `${slides.length} слайдов сохранены`,
+              description: `${pngFiles.length} слайдов сохранены в галерею`,
             });
             return;
-          } catch (shareError) {
-            // User cancelled or share failed, try download
-            console.log('Share cancelled, trying download...');
+          } catch (shareError: any) {
+            // User cancelled — that's ok, try ZIP fallback
+            if (shareError?.name !== 'AbortError') {
+              console.log('Share failed, trying ZIP fallback...');
+            }
           }
         }
       }
       
-      // Fallback: create download link
+      // Step 3: Fallback to ZIP (for desktop or if Share API unavailable)
+      const zip = new JSZip();
+      const folder = zip.folder('slides');
+      
+      for (let i = 0; i < blobs.length; i++) {
+        const fileName = `slide-${String(i + 1).padStart(2, '0')}.png`;
+        if (folder) {
+          folder.file(fileName, blobs[i]);
+        }
+      }
+      
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipFileName = `carousel-${Date.now()}.zip`;
+      
       const url = URL.createObjectURL(zipBlob);
       const link = document.createElement('a');
       link.href = url;
       link.download = zipFileName;
       
-      // For mobile: add link to DOM and click
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      // Cleanup after delay
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       
       toast({
