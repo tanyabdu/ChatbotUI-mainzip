@@ -1,0 +1,103 @@
+root@cv5653817:~# pm2 logs esoteric-planner --lines 100 | grep -A5 "Ideas generation error"
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:496:438)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:595:2502
+0|esoteric | Ideas generation error: Unexpected token ''', ..."  "idea": 'Игра "Уга"... is not valid JSON
+0|esoteric | Ideas generation error: SyntaxError: Unexpected token ''', ..."  "idea": 'Игра "Уга"... is not valid JSON
+0|esoteric |     at JSON.parse (<anonymous>)
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:496:487)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:595:2502
+0|esoteric | Ideas generation error: Unexpected token ''', ..."  "idea": 'Год тольк"... is not valid JSON
+0|esoteric | Ideas generation error: SyntaxError: Unexpected token ''', ..."  "idea": 'Год тольк"... is not valid JSON
+0|esoteric |     at JSON.parse (<anonymous>)
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:542:487)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:641:2502
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:542:438)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:641:2502
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:542:438)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:641:2502
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:542:438)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:641:2502
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:542:438)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:641:2502
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:542:438)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:641:2502
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:542:438)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:645:2584
+0|esoteric | Ideas generation error: Unexpected token '«', ..."  "idea": «Угадайте,"... is not valid JSON
+0|esoteric | Ideas generation error: SyntaxError: Unexpected token '«', ..."  "idea": «Угадайте,"... is not valid JSON
+0|esoteric |     at JSON.parse (<anonymous>)
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:542:487)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:645:2584
+0|esoteric | Ideas generation error: Expected ',' or ']' after array element in JSON at position 652
+0|esoteric | Ideas generation error: SyntaxError: Expected ',' or ']' after array element in JSON at position 652
+0|esoteric |     at JSON.parse (<anonymous>)
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:488)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:439)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:439)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:439)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:439)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:439)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:439)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:439)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+0|esoteric | Ideas generation error: Invalid response format
+0|esoteric | Ideas generation error: Error: Invalid response format
+0|esoteric |     at z9 (/var/www/magic-content/dist/index.cjs:611:439)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:714:2584
+
+/root/.pm2/logs/esoteric-planner-out-0.log last 100 lines:
+
