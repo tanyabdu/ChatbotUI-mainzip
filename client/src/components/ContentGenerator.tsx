@@ -52,6 +52,7 @@ interface GenerationContext {
   goal: ContentGoal;
   niche: string;
   product?: string;
+  gender?: "female" | "male";
   archetype?: { 
     name: string; 
     description: string; 
@@ -171,6 +172,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       idea: string;
       type: string;
       format: FormatType;
+      gender?: "female" | "male";
       archetype?: { name: string; description: string; recommendations: string[]; triggerWords?: string[]; contentStyle?: string[]; tone?: string };
       dayNum: number; // for state tracking
     }) => {
@@ -181,6 +183,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
         idea: data.idea,
         type: data.type,
         format: data.format,
+        gender: data.gender,
         archetype: data.archetype,
       });
       const result = await response.json();
@@ -279,6 +282,7 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       idea: idea.idea,
       type: idea.type,
       format: format,
+      gender: generationContext.gender,
       archetype: generationContext.archetype,
       dayNum: idea.day,
     });

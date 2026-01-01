@@ -18,6 +18,7 @@ export interface ContentGenerationInput {
   days: number;
   product?: string;
   strategy?: "general" | "launch";
+  gender?: "female" | "male";
   archetype?: {
     name: string;
     description: string;
@@ -497,6 +498,7 @@ export interface SingleFormatInput {
   idea: string;
   type: string;
   format: "post" | "carousel" | "reels" | "stories";
+  gender?: "female" | "male";
   archetype?: {
     name: string;
     description: string;
@@ -589,7 +591,11 @@ JSON массив: [{"day":1,"idea":"...","type":"..."}]`;
 
 // Step 2: Generate single format content (on demand)
 export async function generateSingleFormat(input: SingleFormatInput): Promise<FormatContent> {
-  const { goal, niche, product, idea, type, format, archetype } = input;
+  const { goal, niche, product, idea, type, format, gender, archetype } = input;
+  
+  const genderInstruction = gender === "male" 
+    ? "\n\nВАЖНО: Пиши от МУЖСКОГО рода. Автор — мужчина. Используй мужские окончания: я сделал, я понял, я рассказал."
+    : "\n\nВАЖНО: Пиши от ЖЕНСКОГО рода. Автор — женщина. Используй женские окончания: я сделала, я поняла, я рассказала.";
   
   const archetypeInstruction = archetype 
     ? `\n\nАРХЕТИП БРЕНДА: "${archetype.name}"
@@ -682,7 +688,7 @@ ${writingRules}
     ? `Мягко подведи к продукту "${product || 'консультация'}". Без давления, через пользу.`
     : "Попроси комментарий, реакцию или сохранение — естественно, не навязчиво.";
 
-  const systemPrompt = `Ты — копирайтер для эзотерических практиков. Пишешь живым языком, как подруга подруге. Никакого официоза.${archetypeInstruction}`;
+  const systemPrompt = `Ты — копирайтер для эзотерических практиков. Пишешь живым языком, как подруга подруге. Никакого официоза.${genderInstruction}${archetypeInstruction}`;
 
   const userPrompt = `${formatInstructions[format]}
 

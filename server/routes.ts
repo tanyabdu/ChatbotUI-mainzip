@@ -121,7 +121,11 @@ export async function registerRoutes(
       
       const daysNumber = days === "today" ? 1 : parseInt(days) || 1;
       
-      console.log("Generating ideas only:", { goal, niche, days: daysNumber });
+      // Get user's gender from latest archetype result
+      const latestArchetype = await storage.getLatestArchetypeResult(userId);
+      const gender = (latestArchetype?.gender as "female" | "male") || "female";
+      
+      console.log("Generating ideas only:", { goal, niche, days: daysNumber, gender });
       
       const ideas = await generateIdeasOnly({
         goal,
@@ -135,7 +139,7 @@ export async function registerRoutes(
       // Increment daily generation count
       await storage.incrementDailyGeneration(userId);
       
-      res.json({ ideas, context: { goal, niche, product, archetype } });
+      res.json({ ideas, context: { goal, niche, product, archetype, gender } });
     } catch (error) {
       console.error("Ideas generation error:", error);
       res.status(500).json({ error: "Ошибка генерации идей. Попробуйте ещё раз." });
@@ -145,7 +149,7 @@ export async function registerRoutes(
   // Step 2: Generate single format content (on demand)
   app.post("/api/strategies/generate-format", isAuthenticated, async (req: any, res) => {
     try {
-      const { goal, niche, product, idea, type, format, archetype } = req.body;
+      const { goal, niche, product, idea, type, format, archetype, gender } = req.body;
       
       if (!goal || !niche || !idea || !type || !format) {
         return res.status(400).json({ error: "Missing required fields" });
@@ -160,6 +164,7 @@ export async function registerRoutes(
         idea,
         type,
         format,
+        gender,
         archetype,
       });
       
