@@ -562,7 +562,7 @@ export async function generateIdeasOnly(input: ContentGenerationInput): Promise<
     "деньги и карьера", 
     "самореализация и предназначение",
     "здоровье и энергия",
-    "семья и родовые программы"
+    "семья и отношения с близкими"
   ];
   // Pick 2-3 random categories for this generation
   const shuffled = randomCategories.sort(() => Math.random() - 0.5);
