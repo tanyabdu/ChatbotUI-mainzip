@@ -893,7 +893,6 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   };
 
   const canShare = typeof navigator !== 'undefined' && 'share' in navigator && 'canShare' in navigator;
-  const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent);
   const isIOS = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
 
   const handleExportAll = async () => {
@@ -936,7 +935,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         setExportProgress(Math.round(((i + 1) / slides.length) * 100));
       }
 
-      // Step 2a: iOS - use Web Share API (works great with multiple files)
+      // Step 2: iOS - use Web Share API (works great with multiple files)
       if (isIOS && canShare && pngFiles.length > 0) {
         const shareData = { files: pngFiles };
         if (navigator.canShare(shareData)) {
@@ -949,39 +948,15 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             return;
           } catch (shareError: any) {
             if (shareError?.name !== 'AbortError') {
-              console.log('Share failed, trying download fallback...');
+              console.log('Share failed, trying ZIP fallback...');
             } else {
               return; // User cancelled
             }
           }
         }
       }
-
-      // Step 2b: Android - download files directly to Downloads folder
-      if (isAndroid && blobs.length > 0) {
-        for (let i = 0; i < blobs.length; i++) {
-          const fileName = `slide-${String(i + 1).padStart(2, '0')}.png`;
-          const url = URL.createObjectURL(blobs[i]);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = fileName;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          // Small delay between downloads to ensure all files are saved
-          await new Promise(resolve => setTimeout(resolve, 300));
-          URL.revokeObjectURL(url);
-        }
-        
-        toast({
-          title: "Готово!",
-          description: `${blobs.length} слайдов скачаны в папку Загрузки`,
-        });
-        return;
-      }
       
-      // Step 3: Fallback to ZIP (for desktop)
+      // Step 3: ZIP for Android and desktop
       const zip = new JSZip();
       const folder = zip.folder('slides');
       
