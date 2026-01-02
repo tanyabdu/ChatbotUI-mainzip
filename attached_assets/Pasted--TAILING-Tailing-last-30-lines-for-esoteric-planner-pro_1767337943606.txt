@@ -1,0 +1,41 @@
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error-0.log last 30 lines:
+0|esoteric |   column: undefined,
+0|esoteric |   dataType: undefined,
+0|esoteric |   constraint: 'promocode_usages_user_id_fkey',
+0|esoteric |   file: 'ri_triggers.c',
+0|esoteric |   line: '2799',
+0|esoteric |   routine: 'ri_ReportViolation'
+0|esoteric | }
+0|esoteric | Error deleting user: error: update or delete on table "users" violates foreign key constraint "promocode_usages_user_id_fkey" on table "promocode_usages"
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async sv.deleteUser (/var/www/magic-content/dist/index.cjs:70:36660)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:717:9902 {
+0|esoteric |   length: 361,
+0|esoteric |   severity: 'ERROR',
+0|esoteric |   code: '23503',
+0|esoteric |   detail: 'Key (id)=(9d2905de-a605-4472-8305-fb0effd92f8f) is still referenced from table "promocode_usages".',
+0|esoteric |   hint: undefined,
+0|esoteric |   position: undefined,
+0|esoteric |   internalPosition: undefined,
+0|esoteric |   internalQuery: undefined,
+0|esoteric |   where: undefined,
+0|esoteric |   schema: 'esoteric_planner',
+0|esoteric |   table: 'promocode_usages',
+0|esoteric |   column: undefined,
+0|esoteric |   dataType: undefined,
+0|esoteric |   constraint: 'promocode_usages_user_id_fkey',
+0|esoteric |   file: 'ri_triggers.c',
+0|esoteric |   line: '2799',
+0|esoteric |   routine: 'ri_ReportViolation'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out-0.log last 30 lines:
+0|esoteric | generationsLimit":50,"dailyGenerationsUsed":3,"lastGenerationDate":"2025-12-28","lastLoginAt":"2025-12-28T05:33:22.459Z","isAdmin":true,"createdAt":"2025-12-23T04:36:51.893Z","updatedAt":"2025-12-28T07:48:52.321Z"},{"id":"4bb89dc5-2953-4ecf-95cb-17d4200c29a9","email":"davidblackglock001@gmail.com","passwordHash":"$2b$10$ddP6cUAAReWA845RtuItvOzSW0d8B3OvpNo1gmAM4pEvm9RkI80sm","firstName":"Мистер","lastName":"Хуйкин ","profileImageUrl":null,"nickname":null,"emailVerifiedAt":null,"subscriptionTier":"trial","subscriptionExpiresAt":null,"trialEndsAt":"2025-12-24T14:27:04.397Z","generationsUsed":1,"generationsLimit":50,"dailyGenerationsUsed":1,"lastGenerationDate":"2025-12-21","lastLoginAt":"2025-12-21T14:29:28.333Z","isAdmin":false,"createdAt":"2025-12-21T17:27:04.475Z","updatedAt":"2025-12-21T14:35:22.121Z"},{"id":"f9bac1b9-c415-42c1-aae5-201a8c11d2c7","email":"tanyagusa@bk.ru","passwordHash":"$2b$10$JeGQGAhMVDdsrRmql3/OvuKDiJiy/nRGNn51zlh1/khzJvrVc0NDq","firstName":"Анна","lastName":"Иванова","profileImageUrl":null,"nickname":null,"emailVerifiedAt":null,"subscriptionTier":"monthly","subscriptionExpiresAt":"2026-06-21T01:19:49.820Z","trialEndsAt":"2025-12-24T13:12:04.938Z","generationsUsed":14,"generationsLimit":50,"dailyGenerationsUsed":5,"lastGenerationDate":"2025-12-26","lastLoginAt":"2026-01-01T02:40:57.856Z","isAdmin":false,"createdAt":"2025-12-21T16:12:05.029Z","updatedAt":"2026-01-01T02:40:57.856Z"},{"id":"cf869871-8838-434a-bb8f-543620a5670d","email":"K9180766010@yandex.ru","passwordHash":"$2b$10$WK02nMzdSCqyidsQvVeGeeJgzXi3ZtpJUxswJOFZQSEUI/QpLtmqm","firstName":"Екатерина","lastName":"Екатерина","profileImageUrl":null,"nickname":null,"emailVerifiedAt":null,"subscriptionTier":"trial","subscriptionExpiresAt":null,"trialEndsAt":"2025-12-24T12:37:53.663Z","generationsUsed":2,"generationsLimit":50,"dailyGenerationsUsed":1,"lastGenerationDate":"2025-12-23","lastLoginAt":"2025-12-21T12:38:18.426Z","isAdmin":false,"createdAt":"2025-12-21T15:37:53.741Z","updatedAt":"2025-12-23T12:47:55.174Z"},{"id":"3a4a572b-ae98-42e3-846c-5718285d1d92","email":"tanya.fskate@gmail.com","passwordHash":"$2b$10$/w4h0kkKfn.ISwvrHoJmlOQRM/G3kaJRMOgLc1ffNt6eO0oJSbjSW","firstName":"Татьяна ","lastName":"Абдулаева","profileImageUrl":null,"nickname":null,"emailVerifiedAt":null,"subscriptionTier":"trial","subscriptionExpiresAt":null,"trialEndsAt":"2025-12-24T05:18:58.747Z","generationsUsed":40,"generationsLimit":50,"dailyGenerationsUsed":18,"lastGenerationDate":"2026-01-01","lastLoginAt":"2026-01-01T14:43:28.430Z","isAdmin":true,"createdAt":"2025-12-21T08:18:58.832Z","updatedAt":"2026-01-01T15:13:43.727Z"}]
+0|esoteric | 10:12:07 AM [express] DELETE /api/admin/users/9d2905de-a605-4472-8305-fb0effd92f8f 500 in 116ms :: {"error":"Failed to delete user"}
+0|esoteric | 10:12:13 AM [express] POST /api/archetypes 201 in 87ms :: {"id":"589fb1bd-41b4-450b-ae37-d91c64acf42f","userId":"59fa46be-a79d-4649-a9ae-7c8ef3be0997","archetypeName":"Маг-Искатель-Герой","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами искатель: свободолюбивый, независимый, авантюрный, любознательный.","answers":[2,1,0,0,3,1,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","свобода"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-02T10:12:13.060Z"}
+0|esoteric | 10:12:13 AM [express] GET /api/archetypes 200 in 24ms :: [{"id":"589fb1bd-41b4-450b-ae37-d91c64acf42f","userId":"59fa46be-a79d-4649-a9ae-7c8ef3be0997","archetypeName":"Маг-Искатель-Герой","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами искатель: свободолюбивый, независимый, авантюрный, любознательный.","answers":[2,1,0,0,3,1,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","свобода"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-02T10:12:13.060Z"}]
+0|esoteric | 10:12:13 AM [express] GET /api/archetypes/latest 200 in 24ms :: {"id":"589fb1bd-41b4-450b-ae37-d91c64acf42f","userId":"59fa46be-a79d-4649-a9ae-7c8ef3be0997","archetypeName":"Маг-Искатель-Герой","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами искатель: свободолюбивый, независимый, авантюрный, любознательный.","answers":[2,1,0,0,3,1,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","свобода"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-02T10:12:13.060Z"}
+
+

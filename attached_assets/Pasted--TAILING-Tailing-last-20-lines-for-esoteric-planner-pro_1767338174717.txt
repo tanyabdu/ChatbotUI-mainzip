@@ -1,0 +1,38 @@
+[TAILING] Tailing last 20 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error-0.log last 20 lines:
+0|esoteric |     at async sv.deleteUser (/var/www/magic-content/dist/index.cjs:70:36660)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:717:9902 {
+0|esoteric |   length: 386,
+0|esoteric |   severity: 'ERROR',
+0|esoteric |   code: '23503',
+0|esoteric |   detail: 'Key (id)=(696e1167-e5aa-4f72-9aac-df9bc64b171d) is still referenced from table "password_reset_tokens".',
+0|esoteric |   hint: undefined,
+0|esoteric |   position: undefined,
+0|esoteric |   internalPosition: undefined,
+0|esoteric |   internalQuery: undefined,
+0|esoteric |   where: undefined,
+0|esoteric |   schema: 'esoteric_planner',
+0|esoteric |   table: 'password_reset_tokens',
+0|esoteric |   column: undefined,
+0|esoteric |   dataType: undefined,
+0|esoteric |   constraint: 'password_reset_tokens_user_id_fkey',
+0|esoteric |   file: 'ri_triggers.c',
+0|esoteric |   line: '2799',
+0|esoteric |   routine: 'ri_ReportViolation'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out-0.log last 20 lines:
+0|esoteric | аризматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами искатель: свободолюбивый, независимый, авантюрный, любознательный.","answers":[2,1,0,0,3,1,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","свобода"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-02T10:12:13.060Z"}
+0|esoteric | 10:14:14 AM [express] GET /api/auth/user 304 in 18ms :: {"id":"59fa46be-a79d-4649-a9ae-7c8ef3be0997","email":"Basharovalilia85@gmail.com","firstName":"Лилия","lastName":"Аскарова","profileImageUrl":null,"isAdmin":false,"subscriptionTier":"trial","trialEndsAt":"2026-01-04T13:17:19.050Z","subscriptionExpiresAt":null}
+0|esoteric | 10:14:14 AM [express] GET /api/archetypes/latest 304 in 26ms :: {"id":"589fb1bd-41b4-450b-ae37-d91c64acf42f","userId":"59fa46be-a79d-4649-a9ae-7c8ef3be0997","archetypeName":"Маг-Искатель-Герой","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами искатель: свободолюбивый, независимый, авантюрный, любознательный.","answers":[2,1,0,0,3,1,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","свобода"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-02T10:12:13.060Z"}
+0|esoteric | 10:14:14 AM [express] GET /api/auth/access 304 in 13ms :: {"hasAccess":true,"daysLeft":3}
+0|esoteric | 10:14:22 AM [express] GET /api/generation-limit 200 in 24ms :: {"allowed":true,"remaining":-1}
+0|esoteric | 10:14:22 AM [express] GET /api/strategies 200 in 118ms :: []
+0|esoteric | 10:15:05 AM [express] GET /api/auth/user 304 in 86ms :: {"id":"0e3d2fbc-2924-4fea-8f4d-cf92a7b2253e","email":"romashinaelena1985@mail.ru","firstName":"Елена","lastName":"Ивановна","profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-04T03:23:36.717Z","subscriptionExpiresAt":"2026-02-03T03:23:36.717Z"}
+0|esoteric | 10:15:06 AM [express] GET /api/auth/access 200 in 14ms :: {"hasAccess":true,"daysLeft":32}
+0|esoteric | 10:15:06 AM [express] GET /api/archetypes/latest 200 in 78ms :: {"id":"85934ace-8184-48d9-ba75-aac19eabaf63","userId":"0e3d2fbc-2924-4fea-8f4d-cf92a7b2253e","archetypeName":"Мудрец-Маг-Простодушный","archetypeDescription":"Эксперт с хорошей интуицией. Умеет анализировать и структурировать информацию, находить решения сложных задач. Стремится к истине и глубокому пониманию. С элементами маг: харизматичный, влиятельный, таинственный, трансформирующий.","answers":[3,0,0,1,0,1,0,1],"recommendations":["знания","анализ","система","понимание","истина","трансформация"],"brandColors":["#1e3a5f","#94a3b8","#f8fafc"],"brandFonts":["Merriweather для заголовков, Roboto для текста"],"gender":"female","createdAt":"2026-01-01T06:28:23.268Z"}
+0|esoteric | 10:15:08 AM [express] GET /api/voice-posts 304 in 25ms :: []
+
+0|esoteric-planner  | Generating ideas only: { goal: 'sale', niche: 'Нумеролог', days: 3, gender: 'female' }
+0|esoteric-planner  | Generating ideas only (attempt 1/2)...
+
