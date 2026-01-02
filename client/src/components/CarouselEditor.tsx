@@ -1772,14 +1772,24 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                   <AccordionContent>
                     <div className="space-y-4">
                       <div className="flex flex-wrap gap-2">
-                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="bg-image-upload" />
-                        <Button variant="outline" size="sm" onClick={() => {
-                          // Capture slideId NOW before file dialog opens
-                          uploadTargetSlideIdRef.current = slidesRef.current[currentSlideIndexRef.current]?.id ?? null;
-                          fileInputRef.current?.click();
-                        }} className="min-h-[44px] flex items-center gap-1">
+                        <input 
+                          ref={fileInputRef} 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleImageUpload} 
+                          className="sr-only" 
+                          id="bg-image-upload" 
+                          onClick={() => {
+                            // Capture slideId NOW before file dialog opens
+                            uploadTargetSlideIdRef.current = slidesRef.current[currentSlideIndexRef.current]?.id ?? null;
+                          }}
+                        />
+                        <label 
+                          htmlFor="bg-image-upload" 
+                          className="min-h-[44px] px-3 flex items-center gap-1 text-sm border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md cursor-pointer"
+                        >
                           <Upload className="h-4 w-4" /> Загрузить фото
-                        </Button>
+                        </label>
                         {currentSlide && getSlideCustomImage(currentSlide) && (
                           <Button variant="outline" size="sm" onClick={clearCustomImage} className="min-h-[44px] text-red-500 hover:text-red-600">
                             Убрать
