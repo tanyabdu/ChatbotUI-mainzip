@@ -111,7 +111,11 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error("Speech recognition error:", event.error);
       if (event.error === "not-allowed") {
-        setError("Микрофон не разрешён. Пожалуйста, разрешите доступ к микрофону в настройках браузера.");
+        setError("Микрофон не разрешён. Разрешите доступ к микрофону в настройках браузера или телефона.");
+      } else if (event.error === "network") {
+        setError("Нет связи с сервером распознавания речи. Проверьте интернет-соединение и отключите VPN если используете.");
+      } else if (event.error === "audio-capture") {
+        setError("Не удалось получить доступ к микрофону. На iPhone: Настройки → Safari → Микрофон → Разрешить. Или закройте другие приложения, использующие микрофон.");
       } else if (event.error === "no-speech") {
         if (isRecordingRef.current) {
           try {
@@ -123,8 +127,10 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
         return;
       } else if (event.error === "aborted") {
         return;
+      } else if (event.error === "service-not-allowed") {
+        setError("Распознавание речи недоступно. Попробуйте другой браузер (Chrome, Safari).");
       } else {
-        setError(`Ошибка распознавания: ${event.error}`);
+        setError(`Ошибка распознавания: ${event.error}. Попробуйте обновить страницу.`);
       }
       setIsRecording(false);
       isRecordingRef.current = false;

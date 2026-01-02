@@ -1,0 +1,66 @@
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error-0.log last 30 lines:
+0|esoteric |   file: 'ri_triggers.c',
+0|esoteric |   line: '2799',
+0|esoteric |   routine: 'ri_ReportViolation'
+0|esoteric | }
+0|esoteric | reels JSON parse error: Unexpected token '#', ..."#деньги", #родовыепр"... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Хук: Устала, что деньги утекают, как вода? Я знаю причину.\nОснова: Это не просто невезение. Это родовые программы — шаблоны поведения, которые мы перенимаем от семьи. Они создают финансовый потолок. Например, если в роду говорили «деньги — зло», ты подсознательно их отталкиваешь. 
+0|esoteric | reels generation error (attempt 1): JSON parse failed: Unexpected token '#', ..."#деньги", #родовыепр"... is not valid JSON
+0|esoteric | reels JSON parse error: Unexpected token '#', ..."#деньги", #родовыепр"... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Хук: Устала, что деньги утекают, как вода? Я поняла почему. Основа: Это родовые программы. Простыми словами — шаблоны денежного поведения, которые мы переняли от родителей. Они создают финансовый потолок. Например, если в роду говорили «деньги — зло», подсознательно ты их отталкива
+0|esoteric | reels generation error (attempt 2): JSON parse failed: Unexpected token '#', ..."#деньги", #родовыепр"... is not valid JSON
+0|esoteric | All reels retry attempts failed
+0|esoteric | Format generation error: Error: JSON parse failed: Unexpected token '#', ..."#деньги", #родовыепр"... is not valid JSON
+0|esoteric |     at V9 (/var/www/magic-content/dist/index.cjs:698:929)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:717:3454
+0|esoteric | carousel JSON parse error: Unexpected token '#', ..."азнаний", #истина", "... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Устала от работы, которая не приносит радости?\n---\nЗнаю это чувство. Ко мне пришла клиентка с таким же вопросом. Её анализ показал: Число Судьбы 5.\n---\nЧисло Судьбы — это ключ к твоему предназначению. Рассчитывается по дате рождения. Моя система раскрыла её истину.\n---\nЦифра 
+0|esoteric | carousel generation error (attempt 1): JSON parse failed: Unexpected token '#', ..."азнаний", #истина", "... is not valid JSON
+0|esoteric | carousel JSON parse error: Unexpected token '#', ..."#знания", #истина", "... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Устала от работы, которая не приносит радости?\n---\nЯ тоже так жила. Сидела на скучной должности и думала: «Это всё?»\n---\nПока не узнала своё Число Судьбы. Это нумерологический анализ твоего потенциала. Просто по дате рождения.\n---\nУ меня была цифра 5 — знак свободы. А я годам
+0|esoteric | carousel generation error (attempt 2): JSON parse failed: Unexpected token '#', ..."#знания", #истина", "... is not valid JSON
+0|esoteric | All carousel retry attempts failed
+0|esoteric | Format generation error: Error: JSON parse failed: Unexpected token '#', ..."#знания", #истина", "... is not valid JSON
+0|esoteric |     at V9 (/var/www/magic-content/dist/index.cjs:698:929)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:717:3454
+
+/root/.pm2/logs/esoteric-planner-out-0.log last 30 lines:
+0|esoteric | 11:11:10 AM [express] GET /api/strategies 304 in 25ms :: []
+0|esoteric | Generating ideas only: { goal: 'sale', niche: 'Таролог, практик', days: 1, gender: 'female' }
+0|esoteric | Generating ideas only (attempt 1/2)...
+0|esoteric | 11:11:30 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | Ideas generated in 4623ms
+0|esoteric | Raw AI response (first 500 chars): {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Клиентка пришла с жалобой: 'Не могу найти работу по душе, всё валится из рук, а энергии нет даже на простые дела'. Диагностика показала, что её энергия блокируется старыми обидами, которые она до сих пор носит в себе.",
+0|esoteric |             "type": "Личная история"
+0|esoteric |         }
+0|esoteric |     ]
+0|esoteric | }
+0|esoteric | 11:11:31 AM [express] POST /api/strategies/generate-ideas 200 in 4687ms :: {"ideas":[{"day":1,"idea":"Клиентка пришла с жалобой: 'Не могу найти работу по душе, всё валится из рук, а энергии нет даже на простые дела'. Диагностика показала, что её энергия блокируется старыми обидами, которые она до сих пор носит в себе.","type":"Личная история"}],"context":{"goal":"sale","niche":"Таролог, практик","product":"Диагностика негативных воздействий ","gender":"female"}}
+0|esoteric | 11:11:31 AM [express] GET /api/generation-limit 304 in 24ms :: {"allowed":true,"remaining":-1}
+0|esoteric | Generating ideas only: { goal: 'engagement', niche: 'Астролог ', days: 1, gender: 'female' }
+0|esoteric | Generating ideas only (attempt 1/2)...
+0|esoteric | Ideas generated in 3758ms
+0|esoteric | Raw AI response (first 500 chars): {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Почему ты просыпаешься в 3 часа ночи и не можешь уснуть? Астрология показывает, как планеты влияют на твой сон и энергию.",
+0|esoteric |             "type": "Экспертный"
+0|esoteric |         }
+0|esoteric |     ]
+0|esoteric | }
+0|esoteric | 11:11:46 AM [express] POST /api/strategies/generate-ideas 200 in 3827ms :: {"ideas":[{"day":1,"idea":"Почему ты просыпаешься в 3 часа ночи и не можешь уснуть? Астрология показывает, как планеты влияют на твой сон и энергию.","type":"Экспертный"}],"context":{"goal":"engagement","niche":"Астролог ","archetype":{"name":"Славный малый-Мудрец-Герой","description":"Компанейский, общительный, «свой в доску». Транслирует общность с окружающими, простоту, добродушность. Эдакий хороший сосед. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","recommendations":["дружба","вместе","простота","поддержка","свои","знания"],"triggerWords":["друзья","доброта","надёжность","мы вместе","простой","свой","душевный","честность","товарищество","равноправие"],"contentStyle":["позитивно и открыто","бесхитростно и по-настоящему","трансляция ценностей дружбы","чувство принадлежности"],"tone":"Дружелюбный, простой, тёплый. Как разговор с хорошим другом."},"gender":"female"}}
+0|esoteric | 11:11:46 AM [express] GET /api/generation-limit 304 in 25ms :: {"allowed":true,"remaining":-1}
+
+
