@@ -800,7 +800,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       
       const lines = wrapTextWithSpacing(ctx, slide.heading, contentWidth, expLetterSpacing);
       lines.forEach((line, i) => {
-        const y = contentY + (i + 1) * expTitleSize * lineHeight;
+        const y = contentY + i * expTitleSize * lineHeight + expTitleSize * 0.85;
         drawTextWithLetterSpacing(ctx, line, textX, y, expLetterSpacing, textAlign, contentWidth);
       });
       contentY += lines.length * expTitleSize * lineHeight + (slide.body ? 20 * scaleFactor : 0);
@@ -813,7 +813,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       
       const lines = wrapTextWithSpacing(ctx, slide.body, contentWidth, expLetterSpacing);
       lines.forEach((line, i) => {
-        const y = contentY + (i + 1) * expBodySize * lineHeight;
+        const y = contentY + i * expBodySize * lineHeight + expBodySize * 0.85;
         drawTextWithLetterSpacing(ctx, line, textX, y, expLetterSpacing, textAlign, contentWidth);
       });
       ctx.globalAlpha = 1;
