@@ -774,12 +774,38 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     const contentWidth = expWidth - expPadding * 2;
     const expLetterSpacing = letterSpacing * scaleFactor;
     
+    // Calculate reserved footer height
+    let footerReservedHeight = 12 * scaleFactor; // base bottom margin
+    if (profileName) {
+      footerReservedHeight += 20 * scaleFactor; // username height
+    }
+    if (showSwipeArrow && slideIndex < slides.length - 1) {
+      footerReservedHeight += profileName ? 24 * scaleFactor : 16 * scaleFactor; // arrow height
+    }
+    footerReservedHeight += 16 * scaleFactor; // safety margin between text and footer
+    
+    const availableHeight = expHeight - expPadding - footerReservedHeight;
+    
     if (isTitleSlide) {
       ctx.font = `600 ${expTitleSize}px '${titleFont}', serif`;
       const headingLines = slide.heading ? wrapTextWithSpacing(ctx, slide.heading, contentWidth, expLetterSpacing) : [];
-      const totalTextHeight = headingLines.length * expTitleSize * lineHeight + 
-                              (slide.body ? expBodySize * lineHeight * 2 : 0);
-      contentY = (expHeight - totalTextHeight) / 2 + offsetY;
+      
+      // Calculate body lines for proper centering
+      ctx.font = `400 ${expBodySize}px '${bodyFont}', sans-serif`;
+      const bodyLines = slide.body ? wrapTextWithSpacing(ctx, slide.body, contentWidth, expLetterSpacing) : [];
+      
+      const headingHeight = headingLines.length * expTitleSize * lineHeight;
+      const bodyHeight = bodyLines.length * expBodySize * lineHeight;
+      const gapHeight = slide.body ? 20 * scaleFactor : 0;
+      const totalTextHeight = headingHeight + gapHeight + bodyHeight;
+      
+      // Center within available area (respecting footer)
+      contentY = expPadding + (availableHeight - totalTextHeight) / 2 + offsetY;
+      
+      // Ensure content doesn't go above padding
+      if (contentY < expPadding + offsetY) {
+        contentY = expPadding + offsetY;
+      }
     }
 
     ctx.textAlign = textAlign;
