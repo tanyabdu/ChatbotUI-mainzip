@@ -794,9 +794,15 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       ctx.font = `400 ${expBodySize}px '${bodyFont}', sans-serif`;
       const bodyLines = slide.body ? wrapTextWithSpacing(ctx, slide.body, contentWidth, expLetterSpacing) : [];
       
-      const headingHeight = headingLines.length * expTitleSize * lineHeight;
-      const bodyHeight = bodyLines.length * expBodySize * lineHeight;
-      const gapHeight = slide.body ? 20 * scaleFactor : 0;
+      // Real block height accounts for baseline offset (0.85) used in rendering
+      // Formula: (n-1) * fontSize * lineHeight + fontSize (first baseline at 0.85, rest at lineHeight intervals)
+      const headingHeight = headingLines.length > 0 
+        ? (headingLines.length - 1) * expTitleSize * lineHeight + expTitleSize 
+        : 0;
+      const bodyHeight = bodyLines.length > 0 
+        ? (bodyLines.length - 1) * expBodySize * lineHeight + expBodySize 
+        : 0;
+      const gapHeight = slide.body && headingLines.length > 0 ? 20 * scaleFactor : 0;
       const totalTextHeight = headingHeight + gapHeight + bodyHeight;
       
       // Center within available area (respecting footer)
@@ -829,7 +835,11 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         const y = contentY + i * expTitleSize * lineHeight + expTitleSize * 0.85;
         drawTextWithLetterSpacing(ctx, line, textX, y, expLetterSpacing, textAlign, contentWidth);
       });
-      contentY += lines.length * expTitleSize * lineHeight + (slide.body ? 20 * scaleFactor : 0);
+      // Use consistent height formula: (n-1) * fontSize * lineHeight + fontSize
+      const headingBlockHeight = lines.length > 0 
+        ? (lines.length - 1) * expTitleSize * lineHeight + expTitleSize 
+        : 0;
+      contentY += headingBlockHeight + (slide.body ? 20 * scaleFactor : 0);
     }
 
     if (slide.body) {
