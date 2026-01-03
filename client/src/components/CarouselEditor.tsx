@@ -892,7 +892,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     return canvas;
   };
 
-  const canShare = typeof navigator !== 'undefined' && 'share' in navigator && 'canShare' in navigator;
+  const isMobile = typeof navigator !== 'undefined' && /iphone|ipad|ipod|android/i.test(navigator.userAgent);
+  const canShare = typeof navigator !== 'undefined' && 'share' in navigator && 'canShare' in navigator && isMobile;
   const isIOS = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
 
   const handleExportAll = async () => {
