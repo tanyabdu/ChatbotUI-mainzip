@@ -895,6 +895,44 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const isMobile = typeof navigator !== 'undefined' && /iphone|ipad|ipod|android/i.test(navigator.userAgent);
   const canShare = typeof navigator !== 'undefined' && 'share' in navigator && 'canShare' in navigator && isMobile;
   const isIOS = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const supportsFilePicker = typeof window !== 'undefined' && 'showSaveFilePicker' in window;
+
+  const saveFileWithPicker = async (blob: Blob, suggestedName: string, fileType: string): Promise<'saved' | 'cancelled' | 'unsupported' | 'error'> => {
+    if (!supportsFilePicker) return 'unsupported';
+    
+    try {
+      const options = {
+        suggestedName,
+        types: [{
+          description: fileType === 'image/png' ? 'PNG Image' : 'ZIP Archive',
+          accept: { [fileType]: fileType === 'image/png' ? ['.png'] : ['.zip'] }
+        }]
+      };
+      
+      const handle = await (window as any).showSaveFilePicker(options);
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return 'saved';
+    } catch (error: any) {
+      if (error?.name === 'AbortError') {
+        return 'cancelled';
+      }
+      console.error('File picker failed:', error);
+      return 'error';
+    }
+  };
+
+  const downloadViaLink = (blob: Blob, fileName: string) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
 
   const handleExportAll = async () => {
     setIsExporting(true);
@@ -971,20 +1009,27 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const zipFileName = `carousel-${Date.now()}.zip`;
       
-      const url = URL.createObjectURL(zipBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = zipFileName;
+      // Desktop: File System Access API (Chrome/Edge) - opens "Save As" dialog
+      if (!isMobile && supportsFilePicker) {
+        const result = await saveFileWithPicker(zipBlob, zipFileName, 'application/zip');
+        if (result === 'saved') {
+          toast({
+            title: "Готово!",
+            description: `${slides.length} слайдов сохранены`,
+          });
+          return;
+        }
+        if (result === 'cancelled') {
+          return;
+        }
+      }
       
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      // Fallback: direct download via link (for Firefox/Safari or if picker failed)
+      downloadViaLink(zipBlob, zipFileName);
       
       toast({
         title: "Готово!",
-        description: `${slides.length} слайдов скачаны в ZIP-архив`,
+        description: `${slides.length} слайдов скачаны в папку Загрузки`,
       });
     } catch (error) {
       console.error('Export failed:', error);
@@ -1008,33 +1053,64 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       );
       if (!blob) {
         console.error('Failed to create blob from canvas');
+        toast({
+          title: "Ошибка",
+          description: "Не удалось создать изображение",
+          variant: "destructive",
+        });
         return;
       }
       const fileName = `slide-${currentSlideIndex + 1}.png`;
       
-      // Try Web Share API for mobile
-      if (canShare) {
+      // Mobile: Web Share API
+      if (isMobile && canShare) {
         const file = new File([blob], fileName, { type: 'image/png' });
         const shareData = { files: [file] };
         if (navigator.canShare(shareData)) {
           try {
             await navigator.share(shareData);
+            toast({
+              title: "Готово!",
+              description: "Слайд сохранён",
+            });
             return;
-          } catch (shareError) {
-            // User cancelled or share failed, fallback to download
-            console.log('Share cancelled, falling back to download');
+          } catch (shareError: any) {
+            if (shareError?.name === 'AbortError') {
+              return;
+            }
+            console.log('Share failed, falling back to download');
           }
         }
       }
       
-      // Fallback to direct download
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(link.href);
+      // Desktop: File System Access API (Chrome/Edge) - opens "Save As" dialog
+      if (!isMobile && supportsFilePicker) {
+        const result = await saveFileWithPicker(blob, fileName, 'image/png');
+        if (result === 'saved') {
+          toast({
+            title: "Готово!",
+            description: "Слайд сохранён",
+          });
+          return;
+        }
+        if (result === 'cancelled') {
+          return;
+        }
+      }
+      
+      // Fallback: direct download via link (for Firefox/Safari or if picker failed)
+      downloadViaLink(blob, fileName);
+      toast({
+        title: "Готово!",
+        description: "Слайд скачан в папку Загрузки",
+      });
     } catch (error) {
       console.error('Export failed:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить слайд. Попробуйте ещё раз",
+        variant: "destructive",
+      });
     } finally {
       setIsExporting(false);
     }
