@@ -786,24 +786,75 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     
     const availableHeight = expHeight - expPadding - footerReservedHeight;
     
+    // Variables for adaptive body sizing (used in title slides)
+    let adaptiveBodySize = expBodySize;
+    let adaptiveBodyLines: string[] = [];
+    
     if (isTitleSlide) {
       ctx.font = `600 ${expTitleSize}px '${titleFont}', serif`;
       const headingLines = slide.heading ? wrapTextWithSpacing(ctx, slide.heading, contentWidth, expLetterSpacing) : [];
       
-      // Calculate body lines for proper centering
-      ctx.font = `400 ${expBodySize}px '${bodyFont}', sans-serif`;
-      const bodyLines = slide.body ? wrapTextWithSpacing(ctx, slide.body, contentWidth, expLetterSpacing) : [];
-      
       // Real block height accounts for baseline offset (0.85) used in rendering
-      // Formula: (n-1) * fontSize * lineHeight + fontSize (first baseline at 0.85, rest at lineHeight intervals)
       const headingHeight = headingLines.length > 0 
         ? (headingLines.length - 1) * expTitleSize * lineHeight + expTitleSize 
         : 0;
-      const bodyHeight = bodyLines.length > 0 
-        ? (bodyLines.length - 1) * expBodySize * lineHeight + expBodySize 
-        : 0;
       const gapHeight = slide.body && headingLines.length > 0 ? 20 * scaleFactor : 0;
-      const totalTextHeight = headingHeight + gapHeight + bodyHeight;
+      
+      // Calculate available height for body text
+      const availableForBody = availableHeight - headingHeight - gapHeight;
+      
+      // Adaptive body sizing: reduce font size if text doesn't fit
+      const minBodySize = 14 * scaleFactor;
+      adaptiveBodySize = expBodySize;
+      
+      if (slide.body && availableForBody > 0) {
+        // Try progressively smaller font sizes until text fits
+        while (adaptiveBodySize >= minBodySize) {
+          ctx.font = `400 ${adaptiveBodySize}px '${bodyFont}', sans-serif`;
+          adaptiveBodyLines = wrapTextWithSpacing(ctx, slide.body, contentWidth, expLetterSpacing);
+          
+          const bodyHeight = adaptiveBodyLines.length > 0 
+            ? (adaptiveBodyLines.length - 1) * adaptiveBodySize * lineHeight + adaptiveBodySize 
+            : 0;
+          
+          if (bodyHeight <= availableForBody) {
+            break; // Text fits!
+          }
+          
+          // Reduce font size by 2px and try again
+          adaptiveBodySize -= 2 * scaleFactor;
+        }
+        
+        // If still doesn't fit at minimum size, truncate lines
+        if (adaptiveBodySize < minBodySize) {
+          adaptiveBodySize = minBodySize;
+          ctx.font = `400 ${adaptiveBodySize}px '${bodyFont}', sans-serif`;
+          adaptiveBodyLines = wrapTextWithSpacing(ctx, slide.body, contentWidth, expLetterSpacing);
+          
+          // Calculate max lines that fit
+          const singleLineHeight = adaptiveBodySize * lineHeight;
+          const maxLines = Math.floor((availableForBody + adaptiveBodySize * (lineHeight - 1)) / singleLineHeight);
+          
+          if (maxLines <= 0) {
+            // No space for body text at all - skip it
+            adaptiveBodyLines = [];
+          } else if (adaptiveBodyLines.length > maxLines) {
+            adaptiveBodyLines = adaptiveBodyLines.slice(0, maxLines);
+            // Add ellipsis to last line
+            adaptiveBodyLines[maxLines - 1] = adaptiveBodyLines[maxLines - 1].replace(/\s*$/, '…');
+          }
+        }
+      } else if (slide.body && availableForBody <= 0) {
+        // No space for body at all when heading is too large
+        adaptiveBodyLines = [];
+      }
+      
+      const bodyHeight = adaptiveBodyLines.length > 0 
+        ? (adaptiveBodyLines.length - 1) * adaptiveBodySize * lineHeight + adaptiveBodySize 
+        : 0;
+      // Only add gap if body will actually be rendered
+      const effectiveGap = adaptiveBodyLines.length > 0 ? gapHeight : 0;
+      const totalTextHeight = headingHeight + effectiveGap + bodyHeight;
       
       // Center within available area (respecting footer)
       contentY = expPadding + (availableHeight - totalTextHeight) / 2 + offsetY;
@@ -839,17 +890,29 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       const headingBlockHeight = lines.length > 0 
         ? (lines.length - 1) * expTitleSize * lineHeight + expTitleSize 
         : 0;
-      contentY += headingBlockHeight + (slide.body ? 20 * scaleFactor : 0);
+      // For title slides, only add gap if body will actually be rendered (adaptiveBodyLines not empty)
+      const shouldAddGap = isTitleSlide 
+        ? (slide.body && adaptiveBodyLines.length > 0)
+        : slide.body;
+      contentY += headingBlockHeight + (shouldAddGap ? 20 * scaleFactor : 0);
     }
 
-    if (slide.body) {
-      ctx.font = `400 ${expBodySize}px '${bodyFont}', sans-serif`;
+    // Determine if body should be rendered
+    const shouldRenderBody = isTitleSlide 
+      ? (slide.body && adaptiveBodyLines.length > 0)  // Title slides: only if adaptive lines exist
+      : !!slide.body;  // Content slides: always if body exists
+
+    if (shouldRenderBody) {
+      // For title slides, use adaptive sizing; for content slides, use standard sizing
+      const actualBodySize = isTitleSlide ? adaptiveBodySize : expBodySize;
+      const lines = isTitleSlide ? adaptiveBodyLines : wrapTextWithSpacing(ctx, slide.body!, contentWidth, expLetterSpacing);
+      
+      ctx.font = `400 ${actualBodySize}px '${bodyFont}', sans-serif`;
       ctx.fillStyle = textColor;
       ctx.globalAlpha = 0.95;
       
-      const lines = wrapTextWithSpacing(ctx, slide.body, contentWidth, expLetterSpacing);
       lines.forEach((line, i) => {
-        const y = contentY + i * expBodySize * lineHeight + expBodySize * 0.85;
+        const y = contentY + i * actualBodySize * lineHeight + actualBodySize * 0.85;
         drawTextWithLetterSpacing(ctx, line, textX, y, expLetterSpacing, textAlign, contentWidth);
       });
       ctx.globalAlpha = 1;
