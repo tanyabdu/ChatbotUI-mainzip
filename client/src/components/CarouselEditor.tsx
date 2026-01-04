@@ -905,11 +905,14 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     if (shouldRenderBody) {
       // For title slides, use adaptive sizing; for content slides, use standard sizing
       const actualBodySize = isTitleSlide ? adaptiveBodySize : expBodySize;
-      const lines = isTitleSlide ? adaptiveBodyLines : wrapTextWithSpacing(ctx, slide.body!, contentWidth, expLetterSpacing);
       
+      // IMPORTANT: Set font BEFORE wrapTextWithSpacing so text measurement is correct
       ctx.font = `400 ${actualBodySize}px '${bodyFont}', sans-serif`;
       ctx.fillStyle = textColor;
       ctx.globalAlpha = 0.95;
+      
+      // For title slides use pre-calculated lines; for content slides calculate now (with correct font set)
+      const lines = isTitleSlide ? adaptiveBodyLines : wrapTextWithSpacing(ctx, slide.body!, contentWidth, expLetterSpacing);
       
       lines.forEach((line, i) => {
         const y = contentY + i * actualBodySize * lineHeight + actualBodySize * 0.85;
