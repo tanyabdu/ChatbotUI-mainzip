@@ -162,7 +162,7 @@ Preferred communication style: Simple, everyday language.
 - **Pricing Page**: `/pricing` route displays subscription plans with features comparison
 - **Admin Management**: `/admin` route for extending trials and assigning subscriptions
 
-### Content Generator Two-Step Generation (December 2025)
+### Content Generator Two-Step Generation (Updated January 2026)
 - **Step 1**: Fast generation of ideas only (10-20 seconds)
   - API: POST `/api/strategies/generate-ideas`
   - Returns: array of `{ day, idea, type }` + context for step 2
@@ -170,16 +170,23 @@ Preferred communication style: Simple, everyday language.
   - API: POST `/api/strategies/generate-format`
   - Generates single format when user clicks button
   - Formats: Post, Carousel, Reels, Stories
-- **UI Flow**:
-  1. User submits form → ideas appear quickly
-  2. User clicks format button → that format generates
-  3. Green checkmark shows which formats are ready
-  4. Content displayed only after generation
-- **State management**:
-  - `generatedIdeas`: array of ContentIdea
-  - `generationContext`: saved params for format generation
-  - `generatedFormats`: Record<"day-format", FormatContent>
-  - `loadingFormats`: Record<"day-format", boolean>
+- **Marketing Warmup Structure** (January 2026):
+  - Days 1-3: Introduction + audience pain points
+  - Days 4-6: Expert content (checklists, how-to, tips)
+  - Days 7-9: Objection handling ("too expensive", "won't work for me", "no time")
+  - Days 10-12: Social proof (case studies, testimonials)
+  - Days 13-14: Sales + deadline urgency
+- **Objection Closing**: 8 common objections with closing strategies
+  - "дорого/нет денег" - show cost of inaction, daily price breakdown
+  - "не сработает у меня" - diverse client examples
+  - "нет времени" - minimal time investment shown
+  - "надо подумать", "особая ситуация", "уже пробовала" etc.
+- **Presentation Formats**: 10 different formats rotated automatically
+  - Personal story, Checklist, Case study, FAQ, Myths vs reality
+  - Step-by-step guide, Before/After, Letter to past self, Error analysis, Behind the scenes
+- **Post Length**: 1000-1500 characters minimum (5-7 paragraphs)
+- **Generation Settings**: temperature=1.0, max_tokens=4000
+- **Key file**: `server/services/contentGenerator.ts`
 
 ### Payment Integration (December 2025)
 - **Prodamus**: Russian payment gateway integrated in test mode
