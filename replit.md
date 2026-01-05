@@ -195,6 +195,18 @@ Preferred communication style: Simple, everyday language.
   - Payments table stores: userId, orderId, amount, planType, status, prodamusData
   - Deduplication: order_id checked before processing to prevent double-counting
 
+### Case Visual Export (January 2026)
+- **Canvas-based rendering**: Replaced html2canvas with native canvas for reliable export on all devices
+- **User archetype styles**: First template uses user's archetype fonts (headerFont, bodyFont)
+- **Templates**: 4 preset backgrounds (user archetype style, dark night, pink dawn, gold)
+- **Canvas size**: 1080x1350 (4:5 aspect ratio for Instagram)
+- **Features**:
+  - Gradient parsing with hex color support
+  - Text wrapping for headlines and quotes
+  - БЫЛО/СДЕЛАЛИ/СТАЛО boxes at bottom
+  - Preview/export parity guaranteed
+- **Key files**: `client/src/components/CasesManager.tsx`
+
 ### Carousel Editor (December 2025)
 - **Routes**:
   - `/image-editor` - standalone page accessible from header
