@@ -49,6 +49,8 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
+  const previewRenderIdRef = useRef(0);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
   
@@ -130,6 +132,46 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     allFonts.forEach(f => loadGoogleFont(f.name));
     uniqueRecommendedFonts.forEach(f => loadGoogleFont(f));
   }, [uniqueRecommendedFonts]);
+
+  // Render canvas preview when slide or settings change
+  useEffect(() => {
+    const currentSlide = slides[currentSlideIndex];
+    if (!currentSlide) {
+      setPreviewImageUrl('');
+      return;
+    }
+    
+    const renderId = ++previewRenderIdRef.current;
+    
+    const renderPreview = async () => {
+      try {
+        await document.fonts.ready;
+        // Small delay to ensure fonts are rendered
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Check if this render is still current
+        if (renderId !== previewRenderIdRef.current) return;
+        
+        const canvas = await renderSlideToCanvas(currentSlide, currentSlideIndex);
+        
+        // Check again after async operation
+        if (renderId !== previewRenderIdRef.current) return;
+        
+        const dataUrl = canvas.toDataURL('image/png');
+        setPreviewImageUrl(dataUrl);
+      } catch (e) {
+        console.error('Preview render error:', e);
+      }
+    };
+    
+    renderPreview();
+  }, [
+    slides, currentSlideIndex, aspectRatio, defaultBackground,
+    titleFont, bodyFont, titleSize, bodySize, textColor, padding,
+    letterSpacing, lineHeight, textAlign, showSwipeArrow, showSlideNumber,
+    profileName, profileIcon, overlayPattern, textShadowEnabled,
+    textShadowColor, textShadowBlur, textShadowOffsetY
+  ]);
 
   const getSlideBackground = (slide: Slide) => slide.background ?? defaultBackground;
   const getSlideCustomImage = (slide: Slide) => slide.customImage ?? null;
@@ -2277,8 +2319,28 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
               >
-                <div className="transform scale-75 sm:scale-90 lg:scale-100 origin-top" key={currentSlide?.id}>
-                  {currentSlide && renderSlidePreview(currentSlide, true)}
+                <div 
+                  className="origin-top rounded-lg shadow-xl overflow-hidden transform scale-75 sm:scale-90 lg:scale-100"
+                  style={{
+                    width: `${width}px`,
+                    height: `${height}px`,
+                  }}
+                  key={currentSlide?.id}
+                >
+                  {previewImageUrl ? (
+                    <img 
+                      src={previewImageUrl} 
+                      alt="Preview" 
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <div 
+                      className="w-full h-full flex items-center justify-center bg-gray-100"
+                      style={{ width: `${width}px`, height: `${height}px` }}
+                    >
+                      <span className="text-gray-400">Загрузка...</span>
+                    </div>
+                  )}
                 </div>
               </div>
               
