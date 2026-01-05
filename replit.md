@@ -156,7 +156,7 @@ Preferred communication style: Simple, everyday language.
 - **connect-pg-simple**: PostgreSQL session store for Express
 
 ### Subscription System
-- **Tiers**: trial (3 days free), monthly (990₽/month), yearly (3990₽/year)
+- **Tiers**: trial (3 days free), monthly (1690₽/month), yearly (5475₽/year)
 - **Access Control**: `hasActiveAccess()` validates trial or paid subscription
 - **Generation Limits**: All users have unlimited access
 - **Pricing Page**: `/pricing` route displays subscription plans with features comparison

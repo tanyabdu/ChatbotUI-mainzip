@@ -145,7 +145,7 @@ export default function Pricing() {
             </CardHeader>
             <CardContent className="text-center">
               <div className="my-6">
-                <span className="text-5xl font-bold text-purple-800">990</span>
+                <span className="text-5xl font-bold text-purple-800">1690</span>
                 <span className="text-xl text-purple-600">₽</span>
                 <p className="text-sm text-purple-500 mt-1">в месяц</p>
               </div>
@@ -193,12 +193,12 @@ export default function Pricing() {
             </CardHeader>
             <CardContent className="text-center">
               <div className="my-6">
-                <span className="text-5xl font-bold text-purple-800">3990</span>
+                <span className="text-5xl font-bold text-purple-800">5475</span>
                 <span className="text-xl text-purple-600">₽</span>
                 <p className="text-sm text-purple-500 mt-1">в год</p>
                 <div className="mt-2 text-sm">
-                  <span className="line-through text-gray-400">11 880₽</span>
-                  <span className="text-green-600 font-medium ml-2">Экономия 7 890₽</span>
+                  <span className="line-through text-gray-400">20 280₽</span>
+                  <span className="text-green-600 font-medium ml-2">Экономия 14 805₽</span>
                 </div>
               </div>
               

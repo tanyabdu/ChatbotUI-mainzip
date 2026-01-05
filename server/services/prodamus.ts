@@ -102,7 +102,7 @@ export interface CreatePaymentLinkResult {
 export function createPaymentLink(params: CreatePaymentLinkParams): CreatePaymentLinkResult {
   const { orderId, customerEmail, customerPhone, planType, userId, baseUrl } = params;
 
-  const price = planType === 'monthly' ? '990.00' : '3990.00';
+  const price = planType === 'monthly' ? '1690.00' : '5475.00';
   const productName = planType === 'monthly' 
     ? 'Подписка Месяц' 
     : 'Подписка Год';

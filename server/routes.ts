@@ -652,7 +652,7 @@ export async function registerRoutes(
         baseUrl
       });
 
-      const price = planType === 'monthly' ? '990.00' : '3990.00';
+      const price = planType === 'monthly' ? '1690.00' : '5475.00';
       await storage.recordPayment({
         userId,
         orderId: shortOrderId,

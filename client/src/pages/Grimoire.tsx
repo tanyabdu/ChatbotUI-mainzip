@@ -854,7 +854,7 @@ export default function Grimoire() {
                 <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                   <SubscriptionTier
                     name="Месячный"
-                    price="990 ₽/мес"
+                    price="1690 ₽/мес"
                     features={[
                       "Генератор контент-стратегий",
                       "Квиз архетипов бренда",
@@ -868,11 +868,11 @@ export default function Grimoire() {
                   />
                   <SubscriptionTier
                     name="Годовой"
-                    price="3990 ₽/год"
+                    price="5475 ₽/год"
                     features={[
                       "Все функции месячного тарифа",
-                      "Экономия 7 890₽ в год",
-                      "Выгоднее на 66%",
+                      "Экономия 14 805₽ в год",
+                      "Выгоднее на 73%",
                     ]}
                     current={isActiveYearly}
                     badge="Выгодно"
