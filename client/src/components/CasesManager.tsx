@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Upload, Eye, Loader2, Rocket, Save, Copy, Palette, X, Search, CheckCircle, ChevronLeft, ChevronRight, Download, Image } from "lucide-react";
 import { useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { CaseStudy } from "@shared/schema";
+import type { CaseStudy, ArchetypeResult } from "@shared/schema";
 import { createWorker } from "tesseract.js";
-import html2canvas from "html2canvas";
+import { archetypeFontConfigs, backgroundPresets } from "@/lib/archetypeFonts";
+import type { ArchetypeId } from "@/lib/archetypes";
 
 interface CaseData {
   id?: string;
@@ -50,24 +51,217 @@ export default function CasesManager() {
   const [viewingCase, setViewingCase] = useState<CaseStudy | null>(null);
   const [currentTemplate, setCurrentTemplate] = useState(0);
   const [isSavingImage, setIsSavingImage] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const previewRenderIdRef = useRef(0);
+
+  const { data: archetypeResult } = useQuery<ArchetypeResult>({
+    queryKey: ["/api/archetypes/latest"],
+  });
+
+  const archetypeNameToId: Record<string, ArchetypeId> = {
+    "Маг": "mag", "Простодушный": "prostodushny", "Мудрец": "mudrets",
+    "Искатель": "iskatel", "Славный малый": "slavny_maly", "Герой": "geroy",
+    "Бунтарь": "buntar", "Влюблённый": "vlyublyonny", "Шут": "shut",
+    "Заботливый": "zabotlivy", "Творец": "tvorets", "Правитель": "pravitel"
+  };
+  const primaryArchetype = archetypeResult?.archetypeName 
+    ? archetypeNameToId[archetypeResult.archetypeName] || "mag" 
+    : "mag";
+  const archetypeConfig = archetypeFontConfigs[primaryArchetype];
 
   const templates = [
-    { name: "Мистика", bg: "bg-gradient-to-br from-purple-900 to-slate-900", text: "text-white", accent: "text-purple-100", boxBg: "bg-white/10", boxAccent: "bg-primary/30 border-primary/50 text-purple-200" },
-    { name: "Золото", bg: "bg-gradient-to-br from-amber-900 to-slate-900", text: "text-amber-100", accent: "text-amber-200", boxBg: "bg-amber-500/20", boxAccent: "bg-amber-500/30 border-amber-400/50 text-amber-200" },
-    { name: "Океан", bg: "bg-gradient-to-br from-cyan-800 to-slate-900", text: "text-cyan-100", accent: "text-cyan-200", boxBg: "bg-cyan-500/20", boxAccent: "bg-cyan-500/30 border-cyan-400/50 text-cyan-200" },
-    { name: "Роза", bg: "bg-gradient-to-br from-rose-800 to-slate-900", text: "text-rose-100", accent: "text-rose-200", boxBg: "bg-rose-500/20", boxAccent: "bg-rose-500/30 border-rose-400/50 text-rose-200" },
+    { 
+      name: archetypeConfig?.name || "Ваш стиль", 
+      background: backgroundPresets.find(b => b.id === "gradient-purple")?.value || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      headerFont: archetypeConfig?.headerFont || "Cormorant Garamond",
+      bodyFont: archetypeConfig?.bodyFont || "Inter",
+      textColor: "#ffffff",
+      accentColor: archetypeConfig?.colors?.[2] || "#fbbf24",
+      boxBg: "rgba(255,255,255,0.1)",
+      boxAccentBg: archetypeConfig?.colors?.[0] || "#7c3aed"
+    },
+    { 
+      name: "Тёмная ночь", 
+      background: backgroundPresets.find(b => b.id === "gradient-dark")?.value || "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+      headerFont: archetypeConfig?.headerFont || "Cormorant Garamond",
+      bodyFont: archetypeConfig?.bodyFont || "Inter",
+      textColor: "#ffffff",
+      accentColor: "#a78bfa",
+      boxBg: "rgba(255,255,255,0.1)",
+      boxAccentBg: "#6366f1"
+    },
+    { 
+      name: "Розовый рассвет", 
+      background: backgroundPresets.find(b => b.id === "gradient-rose")?.value || "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+      headerFont: archetypeConfig?.headerFont || "Cormorant Garamond",
+      bodyFont: archetypeConfig?.bodyFont || "Inter",
+      textColor: "#ffffff",
+      accentColor: "#fef3c7",
+      boxBg: "rgba(255,255,255,0.15)",
+      boxAccentBg: "#be185d"
+    },
+    { 
+      name: "Золотой", 
+      background: backgroundPresets.find(b => b.id === "gradient-gold")?.value || "linear-gradient(135deg, #f7971e 0%, #ffd200 100%)",
+      headerFont: archetypeConfig?.headerFont || "Cormorant Garamond",
+      bodyFont: archetypeConfig?.bodyFont || "Inter",
+      textColor: "#78350f",
+      accentColor: "#451a03",
+      boxBg: "rgba(255,255,255,0.2)",
+      boxAccentBg: "#d97706"
+    },
   ];
 
+  const renderCaseToCanvas = useCallback(async (
+    caseData: CaseData,
+    template: typeof templates[0]
+  ): Promise<HTMLCanvasElement> => {
+    const width = 1080;
+    const height = 1350;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d")!;
+
+    await document.fonts.ready;
+
+    if (template.background.startsWith("linear-gradient")) {
+      const gradientMatch = template.background.match(/linear-gradient\(([\d.]+)deg,\s*(.+)\)/);
+      if (gradientMatch) {
+        const angle = parseFloat(gradientMatch[1]) || 135;
+        const stopsString = gradientMatch[2];
+        const stopRegex = /(#[a-fA-F0-9]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-zA-Z]+)\s*([\d.]+%)?/g;
+        const stops: { color: string; pos: number | null }[] = [];
+        let match;
+        while ((match = stopRegex.exec(stopsString)) !== null) {
+          stops.push({
+            color: match[1],
+            pos: match[2] ? parseFloat(match[2]) / 100 : null
+          });
+        }
+        if (stops.length >= 2) {
+          const rad = (angle - 90) * (Math.PI / 180);
+          const x0 = width / 2 - Math.cos(rad) * width;
+          const y0 = height / 2 - Math.sin(rad) * height;
+          const x1 = width / 2 + Math.cos(rad) * width;
+          const y1 = height / 2 + Math.sin(rad) * height;
+          const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+          stops.forEach((stop, idx) => {
+            const pos = stop.pos !== null ? stop.pos : (idx / (stops.length - 1));
+            gradient.addColorStop(Math.max(0, Math.min(1, pos)), stop.color);
+          });
+          ctx.fillStyle = gradient;
+        } else {
+          ctx.fillStyle = stops[0]?.color || "#667eea";
+        }
+      }
+    } else {
+      ctx.fillStyle = template.background;
+    }
+    ctx.fillRect(0, 0, width, height);
+
+    const padding = 60;
+    const contentWidth = width - padding * 2;
+
+    ctx.fillStyle = template.textColor;
+    ctx.font = `bold 52px "${template.headerFont}", serif`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+
+    const headline = caseData.generatedHeadlines?.[0] || "";
+    const headlineLines = wrapText(ctx, headline, contentWidth);
+    let y = padding + 40;
+    headlineLines.forEach(line => {
+      ctx.fillText(line, padding, y);
+      y += 62;
+    });
+
+    y += 30;
+    ctx.fillStyle = template.accentColor;
+    ctx.font = `italic 36px "${template.bodyFont}", sans-serif`;
+    const quote = `"${caseData.generatedQuote || ""}"`;
+    const quoteLines = wrapText(ctx, quote, contentWidth);
+    quoteLines.forEach(line => {
+      ctx.fillText(line, padding, y);
+      y += 44;
+    });
+
+    const boxHeight = 180;
+    const boxY = height - padding - boxHeight;
+    const boxWidth = (contentWidth - 20) / 3;
+    const boxRadius = 12;
+
+    const boxes = [
+      { label: "БЫЛО", value: caseData.before, bg: template.boxBg },
+      { label: "СДЕЛАЛИ", value: caseData.action, bg: template.boxBg },
+      { label: "СТАЛО", value: caseData.after, bg: template.boxAccentBg }
+    ];
+
+    boxes.forEach((box, idx) => {
+      const boxX = padding + idx * (boxWidth + 10);
+      ctx.fillStyle = box.bg;
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxWidth, boxHeight, boxRadius);
+      ctx.fill();
+
+      ctx.fillStyle = template.textColor;
+      ctx.font = `bold 24px "${template.bodyFont}", sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fillText(box.label, boxX + boxWidth / 2, boxY + 25);
+
+      ctx.font = `bold 28px "${template.bodyFont}", sans-serif`;
+      const valueLines = wrapText(ctx, box.value || "", boxWidth - 20);
+      let valueY = boxY + 70;
+      valueLines.slice(0, 3).forEach(line => {
+        ctx.fillText(line, boxX + boxWidth / 2, valueY);
+        valueY += 34;
+      });
+    });
+
+    return canvas;
+  }, []);
+
+  function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    return lines;
+  }
+
+  useEffect(() => {
+    if (!generatedCase || !showVisualModal) return;
+
+    const renderId = ++previewRenderIdRef.current;
+    const template = templates[currentTemplate];
+
+    renderCaseToCanvas(generatedCase, template).then(canvas => {
+      if (renderId !== previewRenderIdRef.current) return;
+      setPreviewImageUrl(canvas.toDataURL("image/png"));
+    });
+  }, [generatedCase, currentTemplate, showVisualModal, templates, renderCaseToCanvas]);
+
   const handleSaveImage = useCallback(async () => {
-    if (!visualRef.current) return;
+    if (!generatedCase) return;
     setIsSavingImage(true);
     try {
-      const canvas = await html2canvas(visualRef.current, {
-        backgroundColor: null,
-        scale: 2,
-      });
+      const template = templates[currentTemplate];
+      const canvas = await renderCaseToCanvas(generatedCase, template);
       const link = document.createElement("a");
-      link.download = `case-${templates[currentTemplate].name}-${Date.now()}.png`;
+      link.download = `case-${template.name}-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (error) {
@@ -75,7 +269,7 @@ export default function CasesManager() {
     } finally {
       setIsSavingImage(false);
     }
-  }, [currentTemplate]);
+  }, [currentTemplate, generatedCase, templates, renderCaseToCanvas]);
 
   const nextTemplate = () => setCurrentTemplate((prev) => (prev + 1) % templates.length);
   const prevTemplate = () => setCurrentTemplate((prev) => (prev - 1 + templates.length) % templates.length);
@@ -613,32 +807,18 @@ export default function CasesManager() {
                 >
                   <ChevronRight className="h-5 w-5" />
                 </Button>
-                <div
-                  ref={visualRef}
-                  className={`${templates[currentTemplate].bg} p-6 rounded-xl aspect-[4/5] flex flex-col justify-between relative overflow-hidden border border-primary/30 mx-6`}
-                >
-                  <div className="relative z-10">
-                    <h2 className={`text-xl font-bold ${templates[currentTemplate].text} mb-4`}>
-                      {generatedCase.generatedHeadlines?.[0]}
-                    </h2>
-                    <p className={`text-lg ${templates[currentTemplate].accent} italic`}>
-                      "{generatedCase.generatedQuote}"
-                    </p>
-                  </div>
-                  <div className="relative z-10 mt-4 grid grid-cols-3 gap-2 text-xs text-center">
-                    <div className={`${templates[currentTemplate].boxBg} p-2 rounded backdrop-blur-sm ${templates[currentTemplate].text}`}>
-                      БЫЛО<br />
-                      <span className="font-bold">{generatedCase.before}</span>
+                <div className="mx-6 rounded-xl overflow-hidden shadow-lg aspect-[4/5]">
+                  {previewImageUrl ? (
+                    <img 
+                      src={previewImageUrl} 
+                      alt="Предпросмотр макета" 
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
                     </div>
-                    <div className={`${templates[currentTemplate].boxBg} p-2 rounded backdrop-blur-sm ${templates[currentTemplate].text}`}>
-                      СДЕЛАЛИ<br />
-                      <span className="font-bold">{generatedCase.action}</span>
-                    </div>
-                    <div className={`${templates[currentTemplate].boxAccent} p-2 rounded border backdrop-blur-sm`}>
-                      СТАЛО<br />
-                      <span className="font-bold">{generatedCase.after}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
               <div className="flex justify-center gap-2 mt-2">
