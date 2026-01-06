@@ -676,6 +676,19 @@ export async function registerRoutes(
     try {
       console.log("Received payment webhook:", JSON.stringify(req.body, null, 2));
 
+      // SECURITY: Verify webhook signature
+      const signature = req.body.signature;
+      if (!signature) {
+        console.error("Payment webhook rejected: missing signature");
+        return res.status(400).json({ error: "Missing signature" });
+      }
+
+      const isValidSignature = verifyWebhookSignature(req.body, signature);
+      if (!isValidSignature) {
+        console.error("Payment webhook rejected: invalid signature");
+        return res.status(403).json({ error: "Invalid signature" });
+      }
+
       const webhookData = parseWebhookData(req.body);
       const orderNum = req.body.order_num || webhookData.order_num || '';
       
@@ -701,6 +714,26 @@ export async function registerRoutes(
         const userId = existingPayment.userId;
         const planType = existingPayment.planType as 'monthly' | 'yearly';
 
+        // SECURITY: Verify payment amount matches expected price
+        const expectedPrice = planType === 'monthly' ? 1690 : 5475;
+        const paidAmount = parseFloat(webhookData.sum) || 0;
+        
+        // Allow small tolerance for payment gateway fees (1%)
+        const minAcceptable = expectedPrice * 0.99;
+        
+        if (paidAmount < minAcceptable) {
+          console.error(`Payment amount mismatch for order ${orderNum}: expected ${expectedPrice}, got ${paidAmount}`);
+          await storage.updatePaymentStatus(orderNum, 'failed', { 
+            ...req.body, 
+            error: `Amount mismatch: expected ${expectedPrice}, got ${paidAmount}` 
+          });
+          return res.status(400).json({ 
+            error: "Payment amount does not match expected price",
+            expected: expectedPrice,
+            received: paidAmount
+          });
+        }
+
         await storage.updatePaymentStatus(orderNum, 'success', req.body);
 
         const daysToAdd = planType === 'yearly' ? 365 : 30;
@@ -721,7 +754,7 @@ export async function registerRoutes(
           subscriptionExpiresAt: newExpiresAt
         });
 
-        console.log(`Payment successful for user ${userId}, plan: ${planType}, expires: ${newExpiresAt}`);
+        console.log(`Payment successful for user ${userId}, plan: ${planType}, amount: ${paidAmount}, expires: ${newExpiresAt}`);
       }
 
       res.json({ success: true });
