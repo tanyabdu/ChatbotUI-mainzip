@@ -12,13 +12,14 @@ declare module "http" {
 export async function initializeApp(httpServer: Server, app: Express): Promise<void> {
   app.use(
     express.json({
+      limit: '2mb',
       verify: (req, _res, buf) => {
         req.rawBody = buf;
       },
     }),
   );
 
-  app.use(express.urlencoded({ extended: false }));
+  app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
   app.use((req, res, next) => {
     const start = Date.now();

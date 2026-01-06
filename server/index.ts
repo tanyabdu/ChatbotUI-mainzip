@@ -12,13 +12,14 @@ declare module "http" {
 
 app.use(
   express.json({
+    limit: '2mb',
     verify: (req, _res, buf) => {
       req.rawBody = buf;
     },
   }),
 );
 
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
 // Health check endpoints - respond immediately for deployment health checks
 // Must be defined before any middleware that might slow down responses
