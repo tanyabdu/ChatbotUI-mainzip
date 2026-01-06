@@ -1,22 +1,8 @@
 # Esoteric Content Planner
 
-## Project Structure (Updated December 2025)
-
-Project files are now in the **root directory** (not in ChatbotUI-main subdirectory).
-- `client/` - React frontend with Vite
-- `server/` - Express backend
-- `shared/` - Shared types and schemas
-- `dist/` - Production build output
-- `script/` - Build scripts
-
-## Deployment Commands
-- **Build**: `npm install` (triggers postinstall → npm run build automatically)
-- **Run**: `npm start`
-- **Type**: Reserved VM
-
 ## Overview
 
-The Esoteric Content Planner is a mystical-themed marketing and content planning web application designed for spiritual and esoteric practitioners. It provides tools for content strategy generation, archetype-based branding analysis, voice-to-text content creation, case study management, and lunar calendar insights. The application combines spiritual aesthetics with modern web development practices to create an immersive planning experience.
+The Esoteric Content Planner is a mystical-themed web application designed for spiritual and esoteric practitioners. It offers tools for content strategy, archetype-based branding, voice-to-text content creation, case study management, and lunar calendar insights. The project aims to blend spiritual aesthetics with modern web development to provide an immersive planning experience.
 
 ## User Preferences
 
@@ -24,243 +10,46 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
+### Frontend
 
-**Framework & Build System**
-- React 18 with TypeScript for type-safe component development
-- Vite as the build tool and development server for fast HMR (Hot Module Replacement)
-- Wouter for lightweight client-side routing instead of React Router
-- Path aliases configured for clean imports (`@/`, `@shared/`, `@assets/`)
+- **Framework**: React 18 with TypeScript.
+- **Build**: Vite for fast HMR.
+- **Routing**: Wouter for lightweight client-side routing.
+- **UI Components**: Shadcn UI with Radix UI primitives, styled using Tailwind CSS. Features a mystical design theme with purple/pink accents, dark mode, and custom fonts (Cormorant Garamond, Inter).
+- **State Management**: TanStack Query for server state, React hooks for local component state.
+- **Project Structure**: Feature-based components (ArchetypeQuiz, ContentGenerator, VoiceRecorder, CasesManager, LunarCalendar) and reusable UI components.
 
-**UI Component System**
-- Shadcn UI component library with Radix UI primitives for accessible, unstyled components
-- Custom styling system using Tailwind CSS with design tokens defined in CSS variables
-- Mystical design theme with purple/pink gradient accents and dark mode support
-- Custom fonts: Cormorant Garamond (serif, mystical headers) and Inter (sans-serif, body text)
+### Backend
 
-**State Management**
-- TanStack Query (React Query) for server state management and caching
-- Local component state with React hooks for UI interactions
-- Custom query client configuration with disabled refetching to reduce unnecessary API calls
+- **Framework**: Express.js with Node.js and TypeScript.
+- **API**: RESTful API with JSON format, Zod validation, and custom logging middleware.
+- **Authentication**: Custom JWT-based authentication with `bcryptjs` for password hashing. Email-based registration with auto-generated passwords.
+- **Admin Authorization**: `requireAdmin` middleware for role-based access.
 
-**Component Structure**
-- Feature-based components (ArchetypeQuiz, ContentGenerator, VoiceRecorder, CasesManager, LunarCalendar)
-- Reusable UI components from Shadcn library (Button, Card, Dialog, etc.)
-- Example components for documentation/testing purposes
+### Data Storage
 
-### Backend Architecture
-
-**Server Framework**
-- Express.js for HTTP server and REST API routing
-- Node.js with native HTTP server wrapped by Express
-- TypeScript throughout for type safety
-- Custom logging middleware for request tracking
-
-**API Design**
-- RESTful API endpoints organized by resource type
-- Routes defined in `server/routes.ts` with controller logic inline
-- Standard HTTP methods (GET, POST, DELETE) for CRUD operations
-- JSON request/response format with Zod validation
-
-**Data Access Layer**
-- Storage abstraction interface (`IStorage`) for testability and flexibility
-- `DatabaseStorage` class implements storage interface using Drizzle ORM
-- Direct database queries without additional repository pattern
-
-### Data Storage Solutions
-
-**Database**
-- PostgreSQL as the primary relational database
-- Drizzle ORM for type-safe database queries and schema management
-- Connection pooling via `pg` (node-postgres) library
-- Schema-first approach with TypeScript types generated from Drizzle schemas
-
-**Schema Design**
-- Users table for authentication (username/password)
-- Content strategies table with JSONB for flexible post data
-- Archetype results table storing quiz outcomes and branding profiles
-- Voice posts table for transcribed and generated content
-- Case studies table with searchable fields and tags
-- All tables use UUID primary keys generated via `gen_random_uuid()`
-
-**Migrations**
-- Drizzle Kit for schema migrations managed via `drizzle.config.ts`
-- Migration files stored in `/migrations` directory
-- Push-based deployment with `db:push` script for schema changes
-
-### Authentication & Authorization
-
-**Current Implementation**
-- Custom JWT-based authentication with 7-day token expiration
-- Tokens stored in localStorage, sent via Authorization header (Bearer token)
-- bcryptjs for password hashing
-- Email-based registration with auto-generated passwords sent via Rusender API
-
-**Key Endpoints**
-- POST `/api/auth/register` - Register with email, get password via email
-- POST `/api/auth/login` - Login with email/password, receive JWT token
-- GET `/api/auth/user` - Get current user info (requires auth)
-- POST `/api/auth/forgot-password` - Reset password via email
-
-**Admin Authorization**
-- `requireAdmin` middleware checks `req.user.id` and verifies `isAdmin` flag in database
-- Admin endpoints: `/api/admin/stats`, `/api/admin/users`, `/api/admin/users/:id`
+- **Database**: PostgreSQL with Drizzle ORM for type-safe queries and schema management.
+- **Schema**: Tables for users, content strategies (JSONB), archetype results, voice posts, and case studies, all using UUID primary keys.
+- **Migrations**: Drizzle Kit for schema migrations.
 
 ### Build & Deployment
 
-**Build Process**
-- Custom build script (`script/build.ts`) using esbuild and Vite
-- Client built with Vite to `dist/public` directory
-- Server bundled with esbuild to `dist/index.cjs` (CommonJS output)
-- Selective dependency bundling (allowlist) to optimize cold start performance
-- Static file serving from built client in production
+- **Build Process**: Custom script using esbuild (server) and Vite (client).
+- **Environment**: Differentiates between development (Vite dev server) and production (Express serving static files).
 
-**Development vs Production**
-- Development: Vite dev server with HMR and middleware mode
-- Production: Express serves pre-built static files from dist/public
-- Environment-based behavior via `NODE_ENV` variable
+### Key Features
+
+- **Subscription System**: Offers trial, monthly, and yearly tiers with access control and unlimited generation limits.
+- **Content Generator**: Two-step generation process for ideas and specific formats (Post, Carousel, Reels, Stories). Incorporates a "Marketing Warmup Structure" and "Objection Closing" strategies.
+- **Case Visual Export**: Canvas-based rendering for exporting case studies as images (1080x1350 aspect ratio), utilizing user's archetype fonts and preset backgrounds.
+- **Carousel Editor**: Multi-slide generator with auto-splitting text, per-slide editing, multi-archetype styling, various backgrounds, Google Fonts, aspect ratio controls, and export options. Optimized for mobile UX.
 
 ## External Dependencies
 
-### Third-Party UI Libraries
-- **Radix UI**: Comprehensive set of unstyled, accessible component primitives (Accordion, Dialog, Dropdown, Select, Toast, Tooltip, etc.)
-- **Shadcn UI**: Pre-configured Radix components with Tailwind styling
-- **Lucide React**: Icon library for consistent iconography
-- **Embla Carousel**: Carousel/slider functionality
-- **CMDK**: Command palette component
-
-### Styling & Design
-- **Tailwind CSS**: Utility-first CSS framework with custom theme configuration
-- **class-variance-authority (CVA)**: Component variant management
-- **clsx & tailwind-merge**: Conditional class name utilities
-
-### Data Fetching & Validation
-- **TanStack Query**: Server state management, caching, and synchronization
-- **Zod**: Runtime type validation and schema definition
-- **drizzle-zod**: Integration between Drizzle ORM and Zod for automatic schema validation
-- **@hookform/resolvers**: Form validation resolver for React Hook Form (dependency present)
-
-### Date & Time
-- **date-fns**: Date manipulation and formatting library
-- **suncalc**: Astronomical calculations for moon phases, illumination, and positions
-
-### Development Tools
-- **Replit plugins**: Runtime error modal, cartographer (development mapping), dev banner
-- **tsx**: TypeScript execution for development and build scripts
-- **Vite plugins**: React support, error overlays, development utilities
-
-### Database & ORM
-- **PostgreSQL**: Relational database (via `DATABASE_URL` environment variable)
-- **Drizzle ORM**: Type-safe SQL query builder
-- **pg (node-postgres)**: PostgreSQL client for Node.js
-- **connect-pg-simple**: PostgreSQL session store for Express
-
-### Subscription System
-- **Tiers**: trial (3 days free), monthly (1690₽/month), yearly (5475₽/year)
-- **Access Control**: `hasActiveAccess()` validates trial or paid subscription
-- **Generation Limits**: All users have unlimited access
-- **Pricing Page**: `/pricing` route displays subscription plans with features comparison
-- **Admin Management**: `/admin` route for extending trials and assigning subscriptions
-
-### Content Generator Two-Step Generation (Updated January 2026)
-- **Step 1**: Fast generation of ideas only (10-20 seconds)
-  - API: POST `/api/strategies/generate-ideas`
-  - Returns: array of `{ day, idea, type }` + context for step 2
-- **Step 2**: On-demand format generation (20-40 seconds each)
-  - API: POST `/api/strategies/generate-format`
-  - Generates single format when user clicks button
-  - Formats: Post, Carousel, Reels, Stories
-- **Marketing Warmup Structure** (January 2026):
-  - Days 1-3: Introduction + audience pain points
-  - Days 4-6: Expert content (checklists, how-to, tips)
-  - Days 7-9: Objection handling ("too expensive", "won't work for me", "no time")
-  - Days 10-12: Social proof (case studies, testimonials)
-  - Days 13-14: Sales + deadline urgency
-- **Objection Closing**: 8 common objections with closing strategies
-  - "дорого/нет денег" - show cost of inaction, daily price breakdown
-  - "не сработает у меня" - diverse client examples
-  - "нет времени" - minimal time investment shown
-  - "надо подумать", "особая ситуация", "уже пробовала" etc.
-- **Presentation Formats**: 10 different formats rotated automatically
-  - Personal story, Checklist, Case study, FAQ, Myths vs reality
-  - Step-by-step guide, Before/After, Letter to past self, Error analysis, Behind the scenes
-- **Post Length**: 1000-1500 characters minimum (5-7 paragraphs)
-- **Generation Settings**: temperature=1.0, max_tokens=4000
-- **Key file**: `server/services/contentGenerator.ts`
-
-### Payment Integration (December 2025)
-- **Prodamus**: Russian payment gateway integrated in test mode
-  - Payment URL: https://Kati-klimovaa.payform.ru
-  - Environment variables: `PRODAMUS_URL`, `PRODAMUS_SECRET_KEY`
-  - Signature: HMAC-SHA256 with recursive JSON sorting
-  - API Endpoints:
-    - POST `/api/payments/create-link` - Generate payment URL for user
-    - POST `/api/payments/webhook` - Receive payment notifications from Prodamus
-    - GET `/api/payments/history` - User's payment history
-  - Webhook URL for Prodamus: `https://<domain>/api/payments/webhook`
-  - Custom params passed: `_param_user_id`, `_param_plan_type` (monthly/yearly)
-  - Payments table stores: userId, orderId, amount, planType, status, prodamusData
-  - Deduplication: order_id checked before processing to prevent double-counting
-
-### Case Visual Export (January 2026)
-- **Canvas-based rendering**: Replaced html2canvas with native canvas for reliable export on all devices
-- **User archetype styles**: First template uses user's archetype fonts (headerFont, bodyFont)
-- **Templates**: 4 preset backgrounds (user archetype style, dark night, pink dawn, gold)
-- **Canvas size**: 1080x1350 (4:5 aspect ratio for Instagram)
-- **Features**:
-  - Gradient parsing with hex color support
-  - Text wrapping for headlines and quotes
-  - БЫЛО/СДЕЛАЛИ/СТАЛО boxes at bottom
-  - Preview/export parity guaranteed
-- **Key files**: `client/src/components/CasesManager.tsx`
-
-### Carousel Editor (December 2025)
-- **Routes**:
-  - `/image-editor` - standalone page accessible from header
-  - Main page "Пост карусель" tab (under "Кейсы" in navigation)
-- **Component**: `CarouselEditor.tsx` - multi-slide carousel generator
-- **Features**:
-  - **Multi-slide support**: Automatically splits text into 5-20 slides
-  - **Auto-splitting**: By paragraphs (empty lines) or ### markers
-  - **Slide types**: Title slide (large heading) + Content slides (subtitle + body)
-  - **Slide navigation**: Previous/Next buttons, thumbnail strip
-  - **Per-slide editing**: Edit heading and body text for each slide
-  - **Add/Remove slides**: Manual control over slide count
-  - **Multi-archetype styling**: Uses all 3 user archetypes in priority order (no demo mode)
-  - **Archetype priority**: Primary archetype sets defaults, all 3 shown in recommendations
-  - **28 gradient/solid backgrounds** (mystical theme)
-  - **24 Google Fonts** (2 per archetype)
-  - **Separate font controls**: Title font + Body font
-  - **3 aspect ratios**: 1:1 (square), 4:5 (Instagram), 9:16 (Stories)
-  - **Export options**: Single slide PNG or batch export all slides
-  - **Text import via URL**: `/image-editor?text=<encoded_text>`
-  - **Per-slide backgrounds**: Each slide can have individual background/custom image
-  - **Text position controls**: offsetX/offsetY sliders for fine-tuning text placement
-- **Mobile UX (December 2025)**:
-  - **Accordion sections**: Settings grouped into 4 collapsible sections (Text, Fonts, Colors, Background)
-  - **Touch-friendly**: All buttons min 44px height for easy tapping
-  - **Preview-first layout**: On mobile, preview appears at top, settings below
-  - **"К предпросмотру" button**: Quick scroll to top on mobile
-  - **Per-slide imageFit**: Each slide can have "Вместить" (contain) or "Заполнить" (cover) mode for uploaded photos
-  - **Text line breaks**: Newlines in heading/body are preserved with `whiteSpace: pre-line`
-- **Text Splitting Logic** (`client/src/lib/slideUtils.ts`):
-  - First paragraph → Title slide (heading + optional subtext)
-  - Subsequent paragraphs → Content slides (subtitle + body)
-  - Long paragraphs → Split by sentences (~350 chars max per slide)
-  - Slide markers: Use `---` (preferred) or `###` to force slide breaks
-  - AI prompt in contentGenerator.ts uses `---` format automatically
-- **Integration Points** (all navigate to /image-editor with text):
-  - "Голос потока": Button after post generation
-  - "Генератор контента": Button under each day's content
-  - "Кейсы": Button after case generation
-- **Key Files**:
-  - `client/src/components/CarouselEditor.tsx` - main multi-slide editor
-  - `client/src/lib/slideUtils.ts` - text splitting and slide management
-  - `client/src/lib/archetypeFonts.ts` - archetype font/color configs, backgrounds
-  - `client/src/pages/ImageEditor.tsx` - page wrapper with archetype fetching
-  - `client/src/components/Navigation.tsx` - "Пост карусель" tab
-
-### Potential Future Integrations
-- **Prepared packages**: OpenAI, Google Generative AI, Stripe, Nodemailer, Multer (file uploads), WebSocket support (ws)
-- **Rate limiting**: express-rate-limit included but not configured
-- **Excel support**: xlsx package for potential data import/export
+- **UI Libraries**: Radix UI, Shadcn UI, Lucide React, Embla Carousel, CMDK.
+- **Styling**: Tailwind CSS, `class-variance-authority`, `clsx`, `tailwind-merge`.
+- **Data Handling**: TanStack Query, Zod, `drizzle-zod`, `@hookform/resolvers`.
+- **Date & Time**: `date-fns`, `suncalc`.
+- **Development Tools**: Replit plugins, `tsx`.
+- **Database**: PostgreSQL, Drizzle ORM, `pg`, `connect-pg-simple`.
+- **Payment Integration**: Prodamus (Russian payment gateway) for subscriptions, with HMAC-SHA256 signature verification and amount validation.
