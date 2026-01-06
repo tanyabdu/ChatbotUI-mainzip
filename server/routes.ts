@@ -1,7 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContentStrategySchema, insertArchetypeResultSchema, insertVoicePostSchema, insertCaseStudySchema, insertSalesTrainerSampleSchema } from "@shared/schema";
+import { 
+  insertContentStrategySchema, insertArchetypeResultSchema, insertVoicePostSchema, 
+  insertCaseStudySchema, insertSalesTrainerSampleSchema,
+  InsertContentStrategy, InsertArchetypeResult, InsertCaseStudy, InsertSalesTrainerSample
+} from "@shared/schema";
 import { setupAuth, isAuthenticated, requireAdmin } from "./auth";
 import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
@@ -187,16 +191,26 @@ export async function registerRoutes(
     try {
       const userId = req.user.id;
       
-      // Check generation limit (don't check for saving, only for generating)
-      const parsed = insertContentStrategySchema.safeParse({ ...req.body, userId });
-      if (!parsed.success) {
-        return res.status(400).json({ error: parsed.error.message });
-      }
-      const strategy = await storage.createContentStrategy(parsed.data);
+      console.log("Saving strategy for user:", userId);
       
+      // Validate with Zod schema (days is auto-coerced to number)
+      const parsed = insertContentStrategySchema.safeParse({ 
+        ...req.body, 
+        userId
+      });
+      
+      if (!parsed.success) {
+        console.error("Strategy validation failed:", parsed.error.flatten());
+        return res.status(400).json({ error: "Ошибка валидации данных" });
+      }
+      
+      const strategy = await storage.createContentStrategy(parsed.data as InsertContentStrategy);
+      
+      console.log("Strategy saved successfully:", strategy.id);
       res.status(201).json(strategy);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create strategy" });
+    } catch (error: any) {
+      console.error("Strategy save error:", error);
+      res.status(500).json({ error: error.message || "Ошибка сохранения стратегии" });
     }
   });
 
@@ -238,7 +252,7 @@ export async function registerRoutes(
       if (!parsed.success) {
         return res.status(400).json({ error: parsed.error.message });
       }
-      const result = await storage.createArchetypeResult(parsed.data);
+      const result = await storage.createArchetypeResult(parsed.data as InsertArchetypeResult);
       res.status(201).json(result);
     } catch (error) {
       res.status(500).json({ error: "Failed to save archetype result" });
@@ -340,7 +354,7 @@ export async function registerRoutes(
       if (!parsed.success) {
         return res.status(400).json({ error: parsed.error.message });
       }
-      const caseStudy = await storage.createCaseStudy(parsed.data);
+      const caseStudy = await storage.createCaseStudy(parsed.data as InsertCaseStudy);
       res.status(201).json(caseStudy);
     } catch (error) {
       res.status(500).json({ error: "Failed to create case study" });
@@ -501,7 +515,7 @@ export async function registerRoutes(
       if (!parsed.success) {
         return res.status(400).json({ error: parsed.error.message });
       }
-      const sample = await storage.createSalesTrainerSample(parsed.data);
+      const sample = await storage.createSalesTrainerSample(parsed.data as InsertSalesTrainerSample);
       res.status(201).json(sample);
     } catch (error) {
       res.status(500).json({ error: "Failed to create training sample" });

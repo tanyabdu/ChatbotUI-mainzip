@@ -113,12 +113,41 @@ export interface ContentPost {
   stories: FormatContent;
 }
 
-export const insertContentStrategySchema = createInsertSchema(contentStrategies).omit({
+// Zod schemas for JSONB validation - flexible to match frontend payloads
+const formatContentSchema = z.object({
+  content: z.string(),
+  hashtags: z.union([z.array(z.string()), z.string(), z.null()]).transform(val => {
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string' && val.trim()) return val.split(',').map(s => s.trim());
+    return [];
+  }),
+});
+
+const contentPostSchema = z.object({
+  day: z.number(),
+  idea: z.string(),
+  type: z.string(),
+  post: formatContentSchema,
+  carousel: formatContentSchema,
+  reels: formatContentSchema,
+  stories: formatContentSchema,
+});
+
+export const insertContentStrategySchema = createInsertSchema(contentStrategies, {
+  posts: z.array(contentPostSchema),
+  days: z.union([z.number(), z.string()]).transform(val => {
+    if (typeof val === 'string') {
+      if (val === 'today') return 1;
+      return parseInt(val) || 7;
+    }
+    return val;
+  }),
+}).omit({
   id: true,
   createdAt: true,
 });
 
-export type InsertContentStrategy = z.infer<typeof insertContentStrategySchema>;
+export type InsertContentStrategy = typeof contentStrategies.$inferInsert;
 export type ContentStrategy = typeof contentStrategies.$inferSelect;
 
 export const archetypeResults = esotericSchema.table("archetype_results", {
@@ -134,12 +163,17 @@ export const archetypeResults = esotericSchema.table("archetype_results", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertArchetypeResultSchema = createInsertSchema(archetypeResults).omit({
+export const insertArchetypeResultSchema = createInsertSchema(archetypeResults, {
+  answers: z.array(z.number()),
+  recommendations: z.array(z.string()),
+  brandColors: z.array(z.string()).optional().nullable(),
+  brandFonts: z.array(z.string()).optional().nullable(),
+}).omit({
   id: true,
   createdAt: true,
 });
 
-export type InsertArchetypeResult = z.infer<typeof insertArchetypeResultSchema>;
+export type InsertArchetypeResult = typeof archetypeResults.$inferInsert;
 export type ArchetypeResult = typeof archetypeResults.$inferSelect;
 
 export const voicePosts = esotericSchema.table("voice_posts", {
@@ -156,7 +190,7 @@ export const insertVoicePostSchema = createInsertSchema(voicePosts).omit({
   createdAt: true,
 });
 
-export type InsertVoicePost = z.infer<typeof insertVoicePostSchema>;
+export type InsertVoicePost = typeof voicePosts.$inferInsert;
 export type VoicePost = typeof voicePosts.$inferSelect;
 
 export const caseStudies = esotericSchema.table("case_studies", {
@@ -173,12 +207,15 @@ export const caseStudies = esotericSchema.table("case_studies", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertCaseStudySchema = createInsertSchema(caseStudies).omit({
+export const insertCaseStudySchema = createInsertSchema(caseStudies, {
+  tags: z.array(z.string()),
+  generatedHeadlines: z.array(z.string()).optional().nullable(),
+}).omit({
   id: true,
   createdAt: true,
 });
 
-export type InsertCaseStudy = z.infer<typeof insertCaseStudySchema>;
+export type InsertCaseStudy = typeof caseStudies.$inferInsert;
 export type CaseStudy = typeof caseStudies.$inferSelect;
 
 export const salesTrainerSamples = esotericSchema.table("sales_trainer_samples", {
@@ -192,12 +229,14 @@ export const salesTrainerSamples = esotericSchema.table("sales_trainer_samples",
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertSalesTrainerSampleSchema = createInsertSchema(salesTrainerSamples).omit({
+export const insertSalesTrainerSampleSchema = createInsertSchema(salesTrainerSamples, {
+  tags: z.array(z.string()).optional().nullable(),
+}).omit({
   id: true,
   createdAt: true,
 });
 
-export type InsertSalesTrainerSample = z.infer<typeof insertSalesTrainerSampleSchema>;
+export type InsertSalesTrainerSample = typeof salesTrainerSamples.$inferInsert;
 export type SalesTrainerSample = typeof salesTrainerSamples.$inferSelect;
 
 export const salesTrainerSessions = esotericSchema.table("sales_trainer_sessions", {
@@ -216,5 +255,5 @@ export const insertSalesTrainerSessionSchema = createInsertSchema(salesTrainerSe
   createdAt: true,
 });
 
-export type InsertSalesTrainerSession = z.infer<typeof insertSalesTrainerSessionSchema>;
+export type InsertSalesTrainerSession = typeof salesTrainerSessions.$inferInsert;
 export type SalesTrainerSession = typeof salesTrainerSessions.$inferSelect;
