@@ -117,6 +117,17 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
       queryClient.invalidateQueries({ queryKey: ["/api/strategies"] });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+      toast({
+        title: "Сохранено в Гримуар!",
+        description: "Ваш контент-план успешно сохранён",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Ошибка сохранения",
+        description: error.message || "Не удалось сохранить. Попробуйте ещё раз.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -741,6 +752,18 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
                               </Badge>
                             ))}
                           </div>
+                        )}
+                        
+                        {/* Carousel Button */}
+                        {formatContent.content && formatContent.content.trim() && (
+                          <Button
+                            size="sm"
+                            onClick={() => setLocation(`/image-editor?text=${encodeURIComponent(formatContent.content)}`)}
+                            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
+                          >
+                            <Image className="h-4 w-4 mr-2" />
+                            Создать карусель
+                          </Button>
                         )}
                       </>
                     ) : (
