@@ -40,11 +40,14 @@ function getTokenFromRequest(req: any): string | null {
 export async function setupAuth(app: Express) {
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const { email, firstName, lastName } = req.body;
+      const { email: rawEmail, firstName, lastName } = req.body;
       
-      if (!email || !email.includes("@")) {
+      if (!rawEmail || !rawEmail.includes("@")) {
         return res.status(400).json({ message: "Введите корректный email" });
       }
+      
+      // Normalize email to handle iOS keyboard quirks (invisible spaces, Unicode differences)
+      const email = rawEmail.toString().trim().toLowerCase().normalize('NFKC');
       
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
@@ -80,11 +83,15 @@ export async function setupAuth(app: Express) {
   
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email: rawEmail, password: rawPassword } = req.body;
       
-      if (!email || !password) {
+      if (!rawEmail || !rawPassword) {
         return res.status(400).json({ message: "Введите email и пароль" });
       }
+      
+      // Normalize inputs to handle iOS keyboard quirks (invisible spaces, Unicode differences)
+      const email = rawEmail.toString().trim().toLowerCase().normalize('NFKC');
+      const password = rawPassword.toString().normalize('NFKC');
       
       const user = await storage.getUserByEmail(email);
       if (!user || !user.passwordHash) {
@@ -123,11 +130,14 @@ export async function setupAuth(app: Express) {
   
   app.post("/api/auth/password-reset/request", async (req, res) => {
     try {
-      const { email } = req.body;
+      const { email: rawEmail } = req.body;
       
-      if (!email) {
+      if (!rawEmail) {
         return res.status(400).json({ message: "Введите email" });
       }
+      
+      // Normalize email
+      const email = rawEmail.toString().trim().toLowerCase().normalize('NFKC');
       
       const user = await storage.getUserByEmail(email);
       if (!user) {
@@ -158,11 +168,15 @@ export async function setupAuth(app: Express) {
   
   app.post("/api/auth/password-reset/confirm", async (req, res) => {
     try {
-      const { email, token, newPassword } = req.body;
+      const { email: rawEmail, token, newPassword: rawNewPassword } = req.body;
       
-      if (!email || !token || !newPassword) {
+      if (!rawEmail || !token || !rawNewPassword) {
         return res.status(400).json({ message: "Заполните все поля" });
       }
+      
+      // Normalize inputs
+      const email = rawEmail.toString().trim().toLowerCase().normalize('NFKC');
+      const newPassword = rawNewPassword.toString().normalize('NFKC');
       
       if (newPassword.length < 6) {
         return res.status(400).json({ message: "Пароль должен быть не менее 6 символов" });
@@ -253,11 +267,15 @@ export async function setupAuth(app: Express) {
         return res.status(401).json({ message: "Unauthorized" });
       }
       
-      const { currentPassword, newPassword } = req.body;
+      const { currentPassword: rawCurrentPassword, newPassword: rawNewPassword } = req.body;
       
-      if (!currentPassword || !newPassword) {
+      if (!rawCurrentPassword || !rawNewPassword) {
         return res.status(400).json({ message: "Заполните все поля" });
       }
+      
+      // Normalize passwords
+      const currentPassword = rawCurrentPassword.toString().normalize('NFKC');
+      const newPassword = rawNewPassword.toString().normalize('NFKC');
       
       if (newPassword.length < 6) {
         return res.status(400).json({ message: "Новый пароль должен быть не менее 6 символов" });
