@@ -2031,18 +2031,23 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                           accept="image/*" 
                           onChange={handleImageUpload} 
                           className="sr-only" 
-                          id="bg-image-upload" 
                         />
-                        <label 
-                          htmlFor="bg-image-upload" 
-                          className="min-h-[44px] px-3 flex items-center gap-1 text-sm border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md cursor-pointer"
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="min-h-[44px] px-3 flex items-center gap-1 text-sm"
                           onClick={() => {
-                            // Capture slideId NOW before file dialog opens (moved to label for Android compatibility)
+                            // Capture slideId NOW before file dialog opens
                             uploadTargetSlideIdRef.current = slidesRef.current[currentSlideIndexRef.current]?.id ?? null;
+                            // Clear input value to allow re-selecting same file
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = '';
+                              fileInputRef.current.click();
+                            }
                           }}
                         >
                           <Upload className="h-4 w-4" /> Загрузить фото
-                        </label>
+                        </Button>
                         {currentSlide && getSlideCustomImage(currentSlide) && (
                           <Button variant="outline" size="sm" onClick={clearCustomImage} className="min-h-[44px] text-red-500 hover:text-red-600">
                             Убрать
