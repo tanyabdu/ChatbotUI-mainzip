@@ -239,25 +239,55 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
     
     // Use slideId captured when button was clicked (before file dialog opened)
     // This prevents photo from being applied to wrong slide if user navigates while dialog is open
     const slideId = uploadTargetSlideIdRef.current;
-    if (!slideId) return;
+    if (!slideId) {
+      console.error('No slideId captured - fallback to current slide');
+      // Fallback: use current slide if ref wasn't set (Android issue)
+      const fallbackSlideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+      if (!fallbackSlideId) {
+        toast({
+          title: "Ошибка загрузки",
+          description: "Не удалось определить слайд. Попробуйте ещё раз.",
+          variant: "destructive",
+        });
+        return;
+      }
+      uploadTargetSlideIdRef.current = fallbackSlideId;
+    }
+    
+    const targetSlideId = uploadTargetSlideIdRef.current!;
     
     const reader = new FileReader();
-    reader.onloadend = () => {
+    
+    reader.onload = () => {
       const imageData = reader.result as string;
       // Use captured slideId directly instead of reading from refs
       setSlides(prev => {
-        const slide = prev.find(s => s.id === slideId);
+        const slide = prev.find(s => s.id === targetSlideId);
         if (!slide) return prev;
         return updateSlide(prev, slide.id, { customImage: imageData, imageFit: 'contain' });
       });
       // Clear the ref after upload
       uploadTargetSlideIdRef.current = null;
     };
+    
+    reader.onerror = () => {
+      console.error('FileReader error:', reader.error);
+      toast({
+        title: "Ошибка загрузки",
+        description: "Не удалось загрузить изображение. Попробуйте другой файл.",
+        variant: "destructive",
+      });
+      uploadTargetSlideIdRef.current = null;
+    };
+    
     reader.readAsDataURL(file);
   };
 
@@ -2002,14 +2032,14 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                           onChange={handleImageUpload} 
                           className="sr-only" 
                           id="bg-image-upload" 
-                          onClick={() => {
-                            // Capture slideId NOW before file dialog opens
-                            uploadTargetSlideIdRef.current = slidesRef.current[currentSlideIndexRef.current]?.id ?? null;
-                          }}
                         />
                         <label 
                           htmlFor="bg-image-upload" 
                           className="min-h-[44px] px-3 flex items-center gap-1 text-sm border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md cursor-pointer"
+                          onClick={() => {
+                            // Capture slideId NOW before file dialog opens (moved to label for Android compatibility)
+                            uploadTargetSlideIdRef.current = slidesRef.current[currentSlideIndexRef.current]?.id ?? null;
+                          }}
                         >
                           <Upload className="h-4 w-4" /> Загрузить фото
                         </label>
