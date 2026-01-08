@@ -133,7 +133,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     uniqueRecommendedFonts.forEach(f => loadGoogleFont(f));
   }, [uniqueRecommendedFonts]);
 
-  // Render canvas preview when slide or settings change
+  // Render canvas preview when slide or settings change (debounced for mobile performance)
   useEffect(() => {
     const currentSlide = slides[currentSlideIndex];
     if (!currentSlide) {
@@ -164,7 +164,9 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       }
     };
     
-    renderPreview();
+    // Debounce preview rendering to prevent freezing during text editing
+    const timeoutId = setTimeout(renderPreview, 300);
+    return () => clearTimeout(timeoutId);
   }, [
     slides, currentSlideIndex, aspectRatio, defaultBackground,
     titleFont, bodyFont, titleSize, bodySize, textColor, padding,
