@@ -673,8 +673,40 @@ export interface SingleFormatInput {
   };
 }
 
+// Content types for single-day generation - separated by goal
+const SINGLE_DAY_SALE_TYPES = [
+  { type: "Экспертный", description: "полезный совет, чеклист, инструкция — покажи компетентность без продажи" },
+  { type: "Закрытие возражения", description: "работа с сомнением 'дорого/не сработает/нет времени'" },
+  { type: "Кейс", description: "история клиента с результатом 'было/стало'" },
+  { type: "Знакомство", description: "личная история, покажи что понимаешь боль аудитории" },
+  { type: "Продающий", description: "мягкий рассказ о продукте через пользу, без давления" },
+];
+
+const SINGLE_DAY_ENGAGEMENT_TYPES = [
+  { type: "Экспертный", description: "полезные советы, чеклисты, инструкции" },
+  { type: "Личная история", description: "откровения, опыт, история трансформации" },
+  { type: "Вовлекающий", description: "вопросы аудитории, опросы, обсуждения" },
+  { type: "Развлекательный", description: "лёгкий контент, юмор, мемы по теме ниши" },
+];
+
 // Marketing funnel structure for product launch warmup
-function getWarmupStructure(days: number): string {
+function getWarmupStructure(days: number, goal?: "sale" | "engagement"): string {
+  // Special handling for 1 day - random content type based on goal
+  if (days === 1) {
+    const types = goal === "sale" ? SINGLE_DAY_SALE_TYPES : SINGLE_DAY_ENGAGEMENT_TYPES;
+    const randomType = types[Math.floor(Math.random() * types.length)];
+    return `
+═══════════════════════════════════════
+📅 ЗАДАНИЕ НА СЕГОДНЯ (1 ДЕНЬ):
+═══════════════════════════════════════
+Создай ТОЛЬКО 1 пост на сегодня!
+
+🎯 ТИП КОНТЕНТА: ${randomType.type}
+📝 Описание: ${randomType.description}
+
+⚠️ ВАЖНО: Создай ровно 1 идею для 1 дня. НЕ создавай контент на несколько дней!`;
+  }
+  
   if (days <= 7) {
     return `
 ═══════════════════════════════════════
@@ -757,7 +789,7 @@ export async function generateIdeasOnly(input: ContentGenerationInput): Promise<
   const randomSeed = Math.floor(Math.random() * 1000000);
   
   // Get warmup structure based on days
-  const warmupStructure = getWarmupStructure(days);
+  const warmupStructure = getWarmupStructure(days, goal);
   
   // Select random objections to close
   const shuffledObjections = [...COMMON_OBJECTIONS].sort(() => Math.random() - 0.5);
