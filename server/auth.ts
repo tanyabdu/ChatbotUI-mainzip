@@ -1,29 +1,68 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import rateLimit from "express-rate-limit";
 import type { Express, RequestHandler } from "express";
 import { storage } from "./storage";
 import { sendWelcomeEmail, sendPasswordResetEmail } from "./services/email";
 
-const JWT_SECRET = process.env.SESSION_SECRET || "your-secret-key-change-in-production";
+// SECURITY: Rate limiters to prevent brute force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Max 10 login attempts per 15 minutes per IP
+  message: { message: "Слишком много попыток входа. Попробуйте через 15 минут." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // Max 5 registrations per hour per IP
+  message: { message: "Слишком много регистраций. Попробуйте через час." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // Max 5 password reset requests per hour per IP
+  message: { message: "Слишком много запросов на сброс пароля. Попробуйте через час." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// SECURITY: JWT secret must be set in environment - no fallback allowed
+const JWT_SECRET = process.env.SESSION_SECRET;
+if (!JWT_SECRET) {
+  console.error("CRITICAL: SESSION_SECRET environment variable is not set!");
+  console.error("Generate a strong secret: openssl rand -base64 32");
+  // In production, this should throw and prevent startup
+  // For development, we allow a fallback with warning
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET must be set in production");
+  }
+}
+const EFFECTIVE_JWT_SECRET = JWT_SECRET || "dev-only-secret-change-in-production";
 const JWT_EXPIRES_IN = "7d";
 
+// SECURITY: Use cryptographically secure random password generation
 function generatePassword(length: number = 12): string {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+  const randomBytes = crypto.randomBytes(length);
   let password = "";
   for (let i = 0; i < length; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+    password += chars.charAt(randomBytes[i] % chars.length);
   }
   return password;
 }
 
 function generateToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign({ userId }, EFFECTIVE_JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
 function verifyToken(token: string): { userId: string } | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as { userId: string };
+    return jwt.verify(token, EFFECTIVE_JWT_SECRET) as { userId: string };
   } catch {
     return null;
   }
@@ -38,7 +77,7 @@ function getTokenFromRequest(req: any): string | null {
 }
 
 export async function setupAuth(app: Express) {
-  app.post("/api/auth/register", async (req, res) => {
+  app.post("/api/auth/register", registerLimiter, async (req, res) => {
     try {
       const { email: rawEmail, firstName, lastName } = req.body;
       
@@ -81,7 +120,7 @@ export async function setupAuth(app: Express) {
     }
   });
   
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", authLimiter, async (req, res) => {
     try {
       const { email: rawEmail, password: rawPassword } = req.body;
       
@@ -128,7 +167,7 @@ export async function setupAuth(app: Express) {
     res.json({ message: "Выход выполнен успешно" });
   });
   
-  app.post("/api/auth/password-reset/request", async (req, res) => {
+  app.post("/api/auth/password-reset/request", passwordResetLimiter, async (req, res) => {
     try {
       const { email: rawEmail } = req.body;
       
@@ -166,7 +205,7 @@ export async function setupAuth(app: Express) {
     }
   });
   
-  app.post("/api/auth/password-reset/confirm", async (req, res) => {
+  app.post("/api/auth/password-reset/confirm", authLimiter, async (req, res) => {
     try {
       const { email: rawEmail, token, newPassword: rawNewPassword } = req.body;
       
@@ -254,7 +293,7 @@ export async function setupAuth(app: Express) {
     res.json(accessStatus);
   });
 
-  app.post("/api/auth/change-password", async (req, res) => {
+  app.post("/api/auth/change-password", authLimiter, async (req, res) => {
     try {
       const token = getTokenFromRequest(req);
       
