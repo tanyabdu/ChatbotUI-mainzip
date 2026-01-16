@@ -692,8 +692,8 @@ export async function registerRoutes(
       console.log("Headers:", JSON.stringify(req.headers, null, 2));
       console.log("Body:", JSON.stringify(req.body, null, 2));
 
-      // Signature verification - optional but logged
-      const signature = req.body.signature;
+      // Signature verification - read from 'Sign' header per Prodamus docs
+      const signature = req.headers['sign'] as string | undefined;
       if (signature) {
         const isValidSignature = verifyWebhookSignature(req.body, signature);
         if (!isValidSignature) {
@@ -702,7 +702,7 @@ export async function registerRoutes(
           console.log("Payment webhook: signature verified successfully");
         }
       } else {
-        console.warn("Payment webhook: no signature provided (Prodamus may not be configured to send signatures)");
+        console.warn("Payment webhook: no signature in headers (check Prodamus secret key configuration)");
       }
 
       const webhookData = parseWebhookData(req.body);
