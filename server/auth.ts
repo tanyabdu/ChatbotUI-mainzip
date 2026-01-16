@@ -43,7 +43,7 @@ if (!JWT_SECRET) {
   }
 }
 const EFFECTIVE_JWT_SECRET = JWT_SECRET || "dev-only-secret-change-in-production";
-const JWT_EXPIRES_IN = "7d";
+const JWT_EXPIRES_IN = "30d"; // Token valid for 30 days
 
 // SECURITY: Use cryptographically secure random password generation
 function generatePassword(length: number = 12): string {
