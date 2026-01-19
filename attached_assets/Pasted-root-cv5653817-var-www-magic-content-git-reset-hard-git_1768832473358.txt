@@ -1,0 +1,74 @@
+root@cv5653817:/var/www/magic-content# git reset --hard && git clean -fd && git pull && npm run build && pm2 restart esoteric-planner
+HEAD is now at 6c18f8c Update webhook signature verification to use correct header
+Removing .env
+Removing dist/public/assets/index-B5-9wBWF.js
+Removing dist/public/assets/index-DagNHBKj.css
+Removing dist/public/assets/ui-DKupQhe4.js
+Removing dist/public/assets/vendor--0RGCJ5T.js
+Removing logs/
+Removing node_modules/
+Updating 6c18f8c..058f68e
+Fast-forward
+ ...TAILING-Tailing-last-10-lines-for-esoteric-planner-pro_1768820535482.txt |  74 ++++
+ ...TAILING-Tailing-last-15-lines-for-esoteric-planner-pro_1768820230107.txt |  38 +++
+ ...TAILING-Tailing-last-20-lines-for-esoteric-planner-pro_1768819830973.txt |  46 +++
+ ...TAILING-Tailing-last-30-lines-for-esoteric-planner-pro_1768828946060.txt | 262 ++++++++++++++
+ ...TAILING-Tailing-last-5-lines-for-esoteric-planner-proc_1768820967402.txt |  76 +++++
+ ...TAILING-Tailing-last-5-lines-for-esoteric-planner-proc_1768821008733.txt | 157 +++++++++
+ ...root-pm2-logs-esoteric-planner-error-log-last-10-lines_1768818728424.txt | 168 +++++++++
+ ...root-pm2-logs-esoteric-planner-error-log-last-10-lines_1768821929890.txt | 382 +++++++++++++++++++++
+ ...-esoteric-at-Object-onceWrapper-node-events-638-28-0-e_1768818586345.txt | 134 ++++++++
+ ...-esoteric-cause-Error-Connection-terminated-unexpected_1768818041115.txt | 301 ++++++++++++++++
+ ...m2-logs-esoteric-planner-lines-5-PM2-Applying-action-r_1768821326497.txt | 150 ++++++++
+ ...oot-cv5653817-var-www-magic-content-nano-var-www-magic_1768820661376.txt |  28 ++
+ ...oot-cv5653817-var-www-magic-content-pm2-logs-esoteric-_1768819378339.txt |  67 ++++
+ ...oot-cv5653817-var-www-magic-content-pm2-logs-esoteric-_1768829048755.txt |  55 +++
+ ...\320\260\320\275\320\260_2026-01-19_\320\262_18.23.12_1768818196171.png" | Bin 0 -> 456204 bytes
+ ...\320\260\320\275\320\260_2026-01-19_\320\262_18.42.08_1768819329932.png" | Bin 0 -> 405159 bytes
+ ...\320\260\320\275\320\260_2026-01-19_\320\262_19.10.26_1768821030728.png" | Bin 0 -> 550743 bytes
+ ...\320\260\320\275\320\260_2026-01-19_\320\262_21.21.53_1768828917044.png" | Bin 0 -> 838658 bytes
+ ...\320\260\320\275\320\260_2026-01-19_\320\262_21.23.38_1768829023071.png" | Bin 0 -> 732300 bytes
+ ...60_2026\342\200\22401\342\200\22419_\320\262_21.40.09_1768830026900.png" | Bin 0 -> 548507 bytes
+ dist/index.cjs                                                              | 664 +++++++++++++++++++++++++-----------
+ dist/public/assets/index-B5-9wBWF.js                                        | 450 ++++++++++++++++++++++++
+ dist/public/assets/index-Cs09j8i-.css                                       |   1 -
+ dist/public/assets/index-DagNHBKj.css                                       |   1 +
+ dist/public/assets/index-ZV9iarpI.js                                        | 405 ----------------------
+ dist/public/assets/{ui-BhiQObNK.js => ui-DKupQhe4.js}                       |   2 +-
+ dist/public/assets/{vendor-4ldeB94U.js => vendor--0RGCJ5T.js}               |   6 +-
+ dist/public/index.html                                                      |  10 +-
+ server/db.ts                                                                |  21 +-
+ server/index.ts                                                             |   1 +
+ 30 files changed, 2889 insertions(+), 610 deletions(-)
+ create mode 100644 attached_assets/Pasted--TAILING-Tailing-last-10-lines-for-esoteric-planner-pro_1768820535482.txt
+ create mode 100644 attached_assets/Pasted--TAILING-Tailing-last-15-lines-for-esoteric-planner-pro_1768820230107.txt
+ create mode 100644 attached_assets/Pasted--TAILING-Tailing-last-20-lines-for-esoteric-planner-pro_1768819830973.txt
+ create mode 100644 attached_assets/Pasted--TAILING-Tailing-last-30-lines-for-esoteric-planner-pro_1768828946060.txt
+ create mode 100644 attached_assets/Pasted--TAILING-Tailing-last-5-lines-for-esoteric-planner-proc_1768820967402.txt
+ create mode 100644 attached_assets/Pasted--TAILING-Tailing-last-5-lines-for-esoteric-planner-proc_1768821008733.txt
+ create mode 100644 attached_assets/Pasted--root-pm2-logs-esoteric-planner-error-log-last-10-lines_1768818728424.txt
+ create mode 100644 attached_assets/Pasted--root-pm2-logs-esoteric-planner-error-log-last-10-lines_1768821929890.txt
+ create mode 100644 attached_assets/Pasted-0-esoteric-at-Object-onceWrapper-node-events-638-28-0-e_1768818586345.txt
+ create mode 100644 attached_assets/Pasted-0-esoteric-cause-Error-Connection-terminated-unexpected_1768818041115.txt
+ create mode 100644 attached_assets/Pasted-pm2-logs-esoteric-planner-lines-5-PM2-Applying-action-r_1768821326497.txt
+ create mode 100644 attached_assets/Pasted-root-cv5653817-var-www-magic-content-nano-var-www-magic_1768820661376.txt
+ create mode 100644 attached_assets/Pasted-root-cv5653817-var-www-magic-content-pm2-logs-esoteric-_1768819378339.txt
+ create mode 100644 attached_assets/Pasted-root-cv5653817-var-www-magic-content-pm2-logs-esoteric-_1768829048755.txt
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026-01-19_\320\262_18.23.12_1768818196171.png"
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026-01-19_\320\262_18.42.08_1768819329932.png"
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026-01-19_\320\262_19.10.26_1768821030728.png"
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026-01-19_\320\262_21.21.53_1768828917044.png"
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026-01-19_\320\262_21.23.38_1768829023071.png"
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026\342\200\22401\342\200\22419_\320\262_21.40.09_1768830026900.png"
+ create mode 100644 dist/public/assets/index-B5-9wBWF.js
+ delete mode 100644 dist/public/assets/index-Cs09j8i-.css
+ create mode 100644 dist/public/assets/index-DagNHBKj.css
+ delete mode 100644 dist/public/assets/index-ZV9iarpI.js
+ rename dist/public/assets/{ui-BhiQObNK.js => ui-DKupQhe4.js} (99%)
+ rename dist/public/assets/{vendor-4ldeB94U.js => vendor--0RGCJ5T.js} (99%)
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+sh: 1: tsx: not found
+root@cv5653817:/var/www/magic-content# 
