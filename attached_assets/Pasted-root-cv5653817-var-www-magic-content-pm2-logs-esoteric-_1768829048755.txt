@@ -1,0 +1,55 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 50 --err
+[TAILING] Tailing last 50 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 50 lines:
+0|esoteric | Voice post generation error: Error: DEEPSEEK_API_KEY не настроен
+0|esoteric |     at Bte (/var/www/magic-content/dist/index.cjs:757:36952)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:776:6517
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric | it: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users. See https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/ for more information.
+0|esoteric |     at Object.xForwardedForHeader (/var/www/magic-content/dist/index.cjs:80:74985)
+0|esoteric |     at BY.r.<computed> [as xForwardedForHeader] (/var/www/magic-content/dist/index.cjs:80:79979)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:80:81471)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:80:82614
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:80:82328 {
+0|esoteric |   code: 'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/'
+0|esoteric | }
+0|esoteric | Ideas generation error (attempt 1): Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+0|esoteric | Ideas generation error (attempt 2): Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+0|esoteric | All retry attempts failed
+0|esoteric | Ideas generation error: L [Error]: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+0|esoteric |     at new X (/var/www/magic-content/dist/index.cjs:157:54189)
+0|esoteric |     at U1 (/var/www/magic-content/dist/index.cjs:257:35)
+0|esoteric |     at Z9 (/var/www/magic-content/dist/index.cjs:644:275)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:776:2586
+0|esoteric | it: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users. See https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/ for more information.
+0|esoteric |     at Object.xForwardedForHeader (/var/www/magic-content/dist/index.cjs:80:74985)
+0|esoteric |     at BY.r.<computed> [as xForwardedForHeader] (/var/www/magic-content/dist/index.cjs:80:79979)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:80:81471)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:80:82614
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:80:82328 {
+0|esoteric |   code: 'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/'
+0|esoteric | }
+0|esoteric | Ideas generation error (attempt 1): Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+0|esoteric | Ideas generation error (attempt 2): Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+0|esoteric | All retry attempts failed
+0|esoteric | Ideas generation error: L [Error]: Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.
+0|esoteric |     at new X (/var/www/magic-content/dist/index.cjs:157:54189)
+0|esoteric |     at U1 (/var/www/magic-content/dist/index.cjs:257:35)
+0|esoteric |     at Z9 (/var/www/magic-content/dist/index.cjs:644:275)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:776:2586
+0|esoteric | CRITICAL: SESSION_SECRET environment variable is not set!
+0|esoteric | Generate a strong secret: openssl rand -base64 32
+0|esoteric | Error: SESSION_SECRET must be set in production
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:144:10954
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:776:17595
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:776:19341
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:776:19307
+
+

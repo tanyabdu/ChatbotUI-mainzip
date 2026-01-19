@@ -1,0 +1,67 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 30
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric |     at RQ (/var/www/magic-content/dist/index.cjs:70:31658)
+0|esoteric |     at NQ (/var/www/magic-content/dist/index.cjs:70:31951)
+0|esoteric |     at Object.get (/var/www/magic-content/dist/index.cjs:70:32080)
+0|esoteric |     at sv.getUserByEmail (/var/www/magic-content/dist/index.cjs:70:32266)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:144:3758
+0|esoteric |     at Ys.handle_request (/var/www/magic-content/dist/index.cjs:38:3174)
+0|esoteric |     at u (/var/www/magic-content/dist/index.cjs:38:5256)
+0|esoteric |     at ea.dispatch (/var/www/magic-content/dist/index.cjs:38:5055)
+0|esoteric |     at Ys.handle_request (/var/www/magic-content/dist/index.cjs:38:3174)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:38:7936
+0|esoteric | CRITICAL: SESSION_SECRET environment variable is not set!
+0|esoteric | Generate a strong secret: openssl rand -base64 32
+0|esoteric | Error: SESSION_SECRET must be set in production
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:144:10954
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:776:17595
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:776:19341
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:776:19307
+0|esoteric | CRITICAL: SESSION_SECRET environment variable is not set!
+0|esoteric | Generate a strong secret: openssl rand -base64 32
+0|esoteric | Error: SESSION_SECRET must be set in production
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:144:10954
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:776:17595
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:776:19341
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:776:19307
+
+/root/.pm2/logs/esoteric-planner-out.log last 30 lines:
+0|esoteric | 1:35:32 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 1ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 1ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 1ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 0ms
+0|esoteric | 1:35:33 PM [express] GET /api/auth/user 404 in 1ms
+0|esoteric | 1:38:07 PM [express] GET /api/generation-limit 404 in 0ms
+0|esoteric | 1:38:07 PM [express] GET /api/strategies 404 in 1ms
+0|esoteric | 1:41:21 PM [express] serving on port 5000
+0|esoteric | 1:41:21 PM [express] POST /api/strategies/generate-ideas 404 in 3ms
+0|esoteric | 1:41:32 PM [express] POST /api/auth/login 404 in 1ms
+0|esoteric | 1:41:43 PM [express] POST /api/auth/register 404 in 0ms
+
+

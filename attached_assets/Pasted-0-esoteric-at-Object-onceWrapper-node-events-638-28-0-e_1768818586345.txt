@@ -1,0 +1,134 @@
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155674)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Login error: Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUserByEmail (/var/www/magic-content/dist/index.cjs:70:32258)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:2708 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155674)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out-0.log last 20 lines:
+0|esoteric | 1:29:33 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:33 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 1:29:34 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:35 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:36 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:37 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:38 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 1:29:39 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+^C
+root@cv5653817:/var/www/magic-content# 

@@ -18,11 +18,26 @@ function createPool(): pg.Pool {
 
   const connectionString = `postgresql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
 
-  return new pg.Pool({
+  const pool = new pg.Pool({
     connectionString,
-    connectionTimeoutMillis: 5000,
-    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 60000,
+    max: 10,
+    min: 2,
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000,
+    ssl: { rejectUnauthorized: false },
   });
+
+  pool.on('error', (err) => {
+    console.error('Database pool error:', err.message);
+  });
+
+  pool.on('connect', () => {
+    console.log('New database connection established');
+  });
+
+  return pool;
 }
 
 export function getDb(): NodePgDatabase<typeof schema> {

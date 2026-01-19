@@ -1,0 +1,28 @@
+root@cv5653817:/var/www/magic-content# nano /var/www/magic-content/ecosystem.config.cjs
+root@cv5653817:/var/www/magic-content# pm2 restart ecosystem.config.cjs
+pm2 logs esoteric-planner --lines 5
+[PM2] Applying action restartProcessId on app [esoteric-planner](ids: [ 0 ])
+[PM2] [esoteric-planner](0) ✓
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ esoteric-planner   │ fork     │ 5    │ online    │ 0%       │ 18.9mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+[TAILING] Tailing last 5 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 5 lines:
+0|esoteric |     at Ev.query (/var/www/magic-content/dist/index.cjs:70:18710)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:28841
+0|esoteric |     at Object.startActiveSpan (/var/www/magic-content/dist/index.cjs:63:9606)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:28677
+0|esoteric |     at Object.startActiveSpan (/var/www/magic-content/dist/index.cjs:63:9606)
+
+/root/.pm2/logs/esoteric-planner-out.log last 5 lines:
+0|esoteric | 2:03:46 PM [express] POST /api/auth/login 500 in 1ms :: {"message":"Ошибка при входе"}
+0|esoteric | 2:03:53 PM [express] POST /api/auth/login 429 in 1ms :: {"message":"Слишком много попыток входа. Попробуйте через 15 минут."}
+0|esoteric | 2:03:58 PM [express] POST /api/auth/login 429 in 1ms :: {"message":"Слишком много попыток входа. Попробуйте через 15 минут."}
+0|esoteric | 2:04:02 PM [express] POST /api/auth/login 429 in 1ms :: {"message":"Слишком много попыток входа. Попробуйте через 15 минут."}
+0|esoteric | 2:04:05 PM [express] POST /api/auth/login 429 in 0ms :: {"message":"Слишком много попыток входа. Попробуйте через 15 минут."}
+
+0|esoteric-planner  | 2:04:10 PM [express] Server initialization complete
+0|esoteric-planner  | 2:04:10 PM [express] serving on port 5000
+
