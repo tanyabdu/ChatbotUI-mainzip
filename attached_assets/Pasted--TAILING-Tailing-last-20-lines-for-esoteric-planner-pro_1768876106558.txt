@@ -1,0 +1,43 @@
+[TAILING] Tailing last 20 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 20 lines:
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155674)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUser (/var/www/magic-content/dist/index.cjs:70:32403)
+0|esoteric |     at async pe (/var/www/magic-content/dist/index.cjs:144:11227) {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155674)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+
+^C
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 10
+[TAILING] Tailing last 10 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 10 lines:
+0|esoteric |     at async jv.getUser (/var/www/magic-content/dist/index.cjs:70:32403)
+0|esoteric |     at async pe (/var/www/magic-content/dist/index.cjs:144:11227) {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155674)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 10 lines:
+0|esoteric | /strategies/generate-ideas 200 in 5750ms :: {"ideas":[{"day":1,"idea":"Тема: 'Как понять, что пора к регреессологу: 3 неочевидных признака'. Вызываем эмоцию лёгкого удивления и любопытства, показывая, что проблемы могут скрываться в неожиданных местах. Подаём в формате чеклиста с юмористическими примерами из жизни, чтобы развлечь и заинтересовать аудиторию.","type":"Развлекательный"}],"context":{"goal":"engagement","niche":"регреессолог","archetype":{"name":"Мудрец-Влюблённый-Простодушный","description":"Эксперт с хорошей интуицией. Умеет анализировать и структурировать информацию, находить решения сложных задач. Стремится к истине и глубокому пониманию. С элементами влюблённый: чувственный, эмоциональный, эстетичный, страстный.","recommendations":["знания","анализ","система","понимание","истина","красота"],"triggerWords":["анализ","система","знания","эксперт","истина","интеллект","исследование","технология","логика","доказательства"],"contentStyle":["экспертно через знания","интеллектуально","с призывом к обсуждениям","образовательно"],"tone":"Экспертный, вдумчивый, структурированный. Объясняет сложное простым языком."},"gender":"female"}}
+0|esoteric | 5:25:12 AM [express] GET /api/generation-limit 304 in 26ms :: {"allowed":true,"remaining":-1}
+
+

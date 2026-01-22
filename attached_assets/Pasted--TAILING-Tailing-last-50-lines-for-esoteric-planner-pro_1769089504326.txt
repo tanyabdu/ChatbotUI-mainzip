@@ -1,0 +1,53 @@
+[TAILING] Tailing last 50 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 50 lines:
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155674)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Database pool error: read ETIMEDOUT
+0|esoteric | Database pool error: read ETIMEDOUT
+0|esoteric | Database pool error: read ETIMEDOUT
+0|esoteric | post JSON parse error: Unexpected token '#', ..."ормация", #развитиес"... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Знаешь это чувство, когда после мощного энергетического сеанса или глубокой медитации ты летаешь на крыльях, а через неделю снова чувствуешь себя выжатой как лимон? Как будто вся магия испарилась, и ты стоишь на том же месте.\n\nЯ помню свою клиентку, которая приходила ко мне раз в
+0|esoteric | post generation error (attempt 1): JSON parse failed: Unexpected token '#', ..."ормация", #развитиес"... is not valid JSON
+0|esoteric | Database pool error: terminating connection due to idle-session timeout
+0|esoteric | Database pool error: terminating connection due to idle-session timeout
+0|esoteric | Database pool error: read ETIMEDOUT
+0|esoteric | Database pool error: read ETIMEDOUT
+0|esoteric | Database pool error: terminating connection due to idle-session timeout
+0|esoteric | post JSON parse error: Unexpected token '#', ..."ормация", #развитиес"... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Знаешь это чувство, когда неделями копишь теорию о магии и энергии, а на практике всё равно остаёшься на том же месте? Как будто читаешь рецепты волшебного зелья, но никогда не зажигаешь котел.\n\nКо мне пришла девушка — назовём её Алисой. Три года она изучала всё подряд: книги по 
+0|esoteric | post generation error (attempt 1): JSON parse failed: Unexpected token '#', ..."ормация", #развитиес"... is not valid JSON
+0|esoteric | Database pool error: terminating connection due to idle-session timeout
+0|esoteric | Database pool error: terminating connection due to idle-session timeout
+0|esoteric | post JSON parse error: Unexpected token '#', ..."ртытаро", #системазн"... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Знаешь это чувство, когда смотришь на себя в зеркало и думаешь: 'А кто я на самом деле?' Не та, кем меня видят другие, а моя глубинная суть, которую иногда и сама не до конца понимаю.\n\nЯ часто слышу от клиенток: 'Мне кажется, я такая разная в разных ситуациях — на работе одна, с 
+0|esoteric | post generation error (attempt 1): JSON parse failed: Unexpected token '#', ..."ртытаро", #системазн"... is not valid JSON
+0|esoteric | post JSON parse error: Unexpected token '#', ..."инаовбе", #исследова"... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Знаешь это чувство, когда смотришь на себя в зеркало и не можешь одним словом описать, кто ты на самом деле?\n\nЯ помню, как сама долго искала ответ на этот вопрос. Перебирала разные слова: «ответственная», «мечтательная», «практичная» — но всё это были лишь кусочки пазла. Пока одн
+0|esoteric | post generation error (attempt 2): JSON parse failed: Unexpected token '#', ..."инаовбе", #исследова"... is not valid JSON
+0|esoteric | All post retry attempts failed
+0|esoteric | Format generation error: Error: JSON parse failed: Unexpected token '#', ..."инаовбе", #исследова"... is not valid JSON
+0|esoteric |     at Y9 (/var/www/magic-content/dist/index.cjs:757:943)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:776:3456
+0|esoteric | post JSON parse error: Unexpected token '#', ..."емаТаро", #"истинаос"... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Знаешь это чувство, когда смотришь на себя в зеркало и думаешь: 'А кто я на самом деле?' Не та, кем меня видят другие, а моя самая настоящая суть.\n\nВот ко мне недавно пришла девушка — умница, карьеристка, всё у неё вроде бы идеально. Но в разговоре она призналась: 'Я как будто иг
+0|esoteric | post generation error (attempt 1): JSON parse failed: Unexpected token '#', ..."емаТаро", #"истинаос"... is not valid JSON
+0|esoteric | post JSON parse error: Unexpected token '#', ..."ртытаро", #системный"... is not valid JSON
+0|esoteric | Response content: {
+0|esoteric |     "content": "Знаешь, какая карта Таро описывает тебя лучше всего? Не ту, которую ты хочешь видеть, а ту, что на самом деле отражает твой характер — со всеми его гранями и противоречиями.\n\nЯ часто вижу, как клиентки приходят с вопросом: «Какая я карта?» — и ждут простого ответа. Одна девушка, 
+0|esoteric | post generation error (attempt 2): JSON parse failed: Unexpected token '#', ..."ртытаро", #системный"... is not valid JSON
+0|esoteric | All post retry attempts failed
+0|esoteric | Format generation error: Error: JSON parse failed: Unexpected token '#', ..."ртытаро", #системный"... is not valid JSON
+0|esoteric |     at Y9 (/var/www/magic-content/dist/index.cjs:757:943)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:776:3456
+0|esoteric | Database pool error: read ETIMEDOUT
+0|esoteric | Database pool error: read ETIMEDOUT
+
