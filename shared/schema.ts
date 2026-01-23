@@ -100,7 +100,7 @@ export const contentStrategies = esotericSchema.table("content_strategies", {
 
 export interface FormatContent {
   content: string;
-  hashtags: string[];
+  hashtags?: string[];
 }
 
 export interface ContentPost {
@@ -116,7 +116,7 @@ export interface ContentPost {
 // Zod schemas for JSONB validation - flexible to match frontend payloads
 const formatContentSchema = z.object({
   content: z.string(),
-  hashtags: z.union([z.array(z.string()), z.string(), z.null()]).transform(val => {
+  hashtags: z.union([z.array(z.string()), z.string(), z.null()]).optional().transform(val => {
     if (Array.isArray(val)) return val;
     if (typeof val === 'string' && val.trim()) return val.split(',').map(s => s.trim());
     return [];
