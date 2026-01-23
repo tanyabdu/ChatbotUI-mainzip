@@ -30,6 +30,7 @@ export interface IStorage {
   getContentStrategies(userId: string): Promise<ContentStrategy[]>;
   getContentStrategy(id: string, userId: string): Promise<ContentStrategy | undefined>;
   createContentStrategy(strategy: InsertContentStrategy): Promise<ContentStrategy>;
+  updateContentStrategyPosts(id: string, userId: string, posts: any[]): Promise<ContentStrategy | undefined>;
   deleteContentStrategy(id: string, userId: string): Promise<void>;
   
   // Archetype Results
@@ -250,6 +251,14 @@ export class DatabaseStorage implements IStorage {
     await db.delete(contentStrategies).where(
       and(eq(contentStrategies.id, id), eq(contentStrategies.userId, userId))
     );
+  }
+
+  async updateContentStrategyPosts(id: string, userId: string, posts: any[]): Promise<ContentStrategy | undefined> {
+    const [updated] = await db.update(contentStrategies)
+      .set({ posts })
+      .where(and(eq(contentStrategies.id, id), eq(contentStrategies.userId, userId)))
+      .returning();
+    return updated;
   }
 
   // Archetype Results

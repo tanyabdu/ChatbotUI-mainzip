@@ -108,6 +108,27 @@ export default function Grimoire() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/strategies"] }),
   });
 
+  const [generatingFormat, setGeneratingFormat] = useState<string | null>(null);
+
+  const generateFormatMutation = useMutation({
+    mutationFn: async ({ strategyId, postDay, format }: { strategyId: string; postDay: number; format: string }) => {
+      return apiRequest("POST", `/api/strategies/${strategyId}/generate-format`, { postDay, format });
+    },
+    onMutate: ({ strategyId, postDay, format }) => {
+      setGeneratingFormat(`${strategyId}-${postDay}-${format}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/strategies"] });
+      toast({ title: "Готово!", description: "Контент успешно сгенерирован" });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Ошибка", description: "Не удалось сгенерировать контент", variant: "destructive" });
+    },
+    onSettled: () => {
+      setGeneratingFormat(null);
+    },
+  });
+
   const deleteVoicePostMutation = useMutation({
     mutationFn: async (id: string) => apiRequest("DELETE", `/api/voice-posts/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/voice-posts"] }),
@@ -479,13 +500,12 @@ export default function Grimoire() {
                                             size="sm"
                                             variant={activeFormat === format ? "default" : "outline"}
                                             onClick={() => setPostFormat(strategy.id, post.day, format)}
-                                            disabled={!hasFormatContent}
                                             className={
                                               activeFormat === format
                                                 ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
                                                 : hasFormatContent
                                                   ? "border-green-400 text-green-700 bg-green-50"
-                                                  : "border-gray-300 text-gray-400"
+                                                  : "border-orange-300 text-orange-600 bg-orange-50"
                                             }
                                           >
                                             {format === "post" ? "Пост" : 
@@ -493,6 +513,9 @@ export default function Grimoire() {
                                              format === "reels" ? "Reels" : "Stories"}
                                             {hasFormatContent && activeFormat !== format && (
                                               <Check className="h-3 w-3 ml-1" />
+                                            )}
+                                            {!hasFormatContent && activeFormat !== format && (
+                                              <Wand2 className="h-3 w-3 ml-1" />
                                             )}
                                           </Button>
                                         );
@@ -538,7 +561,33 @@ export default function Grimoire() {
                                         </div>
                                       </div>
                                     ) : (
-                                      <p className="text-gray-400 text-sm italic">Контент для этого формата не был сгенерирован</p>
+                                      <div className="space-y-3">
+                                        <p className="text-gray-400 text-sm italic">Контент для этого формата не был сгенерирован</p>
+                                        <Button
+                                          size="sm"
+                                          onClick={() => generateFormatMutation.mutate({ 
+                                            strategyId: strategy.id, 
+                                            postDay: post.day, 
+                                            format: activeFormat 
+                                          })}
+                                          disabled={generatingFormat === `${strategy.id}-${post.day}-${activeFormat}`}
+                                          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                                        >
+                                          {generatingFormat === `${strategy.id}-${post.day}-${activeFormat}` ? (
+                                            <>
+                                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                              Генерирую...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Wand2 className="h-4 w-4 mr-1" />
+                                              Сгенерировать {activeFormat === "post" ? "пост" : 
+                                                activeFormat === "carousel" ? "карусель" :
+                                                activeFormat === "reels" ? "Reels" : "Stories"}
+                                            </>
+                                          )}
+                                        </Button>
+                                      </div>
                                     )}
                                   </div>
                                 );

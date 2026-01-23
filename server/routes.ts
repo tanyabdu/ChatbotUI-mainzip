@@ -224,6 +224,75 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/strategies/:id/generate-format", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const strategyId = req.params.id;
+      const { postDay, format } = req.body;
+
+      const parsedDay = typeof postDay === 'number' ? postDay : parseInt(postDay);
+      if (!Number.isFinite(parsedDay) || parsedDay < 1) {
+        return res.status(400).json({ error: "Invalid postDay" });
+      }
+
+      const allowedFormats = ["post", "carousel", "reels", "stories"];
+      if (!format || !allowedFormats.includes(format)) {
+        return res.status(400).json({ error: "Invalid format" });
+      }
+
+      const canGenerate = await storage.canGenerateStrategy(userId);
+      if (!canGenerate.allowed) {
+        return res.status(403).json({ error: canGenerate.reason || "Лимит генераций исчерпан" });
+      }
+
+      const strategy = await storage.getContentStrategy(strategyId, userId);
+      if (!strategy) {
+        return res.status(404).json({ error: "Strategy not found" });
+      }
+
+      const posts = strategy.posts as any[];
+      const postIndex = posts.findIndex((p: any) => p.day === parsedDay);
+      if (postIndex === -1) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      const post = posts[postIndex];
+      const latestArchetype = await storage.getLatestArchetypeResult(userId);
+      const gender = latestArchetype?.gender || "female";
+
+      console.log(`Generating ${format} for strategy ${strategyId}, day ${parsedDay}`);
+
+      await storage.incrementDailyGeneration(userId);
+
+      const content = await generateSingleFormat({
+        goal: strategy.goal as "sale" | "engagement",
+        niche: strategy.topic,
+        product: undefined,
+        idea: post.idea,
+        type: post.type,
+        format,
+        gender: gender as "female" | "male",
+        archetype: latestArchetype ? {
+          name: latestArchetype.archetypeName,
+          description: latestArchetype.archetypeDescription || "",
+          recommendations: latestArchetype.recommendations || [],
+        } : undefined,
+      });
+
+      posts[postIndex][format] = content;
+
+      const updated = await storage.updateContentStrategyPosts(strategyId, userId, posts);
+      if (!updated) {
+        return res.status(500).json({ error: "Failed to update strategy" });
+      }
+
+      res.json({ content, strategy: updated });
+    } catch (error: any) {
+      console.error("Strategy format generation error:", error);
+      res.status(500).json({ error: "Ошибка генерации контента. Попробуйте ещё раз." });
+    }
+  });
+
   // Archetype Results (protected routes)
   app.get("/api/archetypes", isAuthenticated, async (req: any, res) => {
     try {
