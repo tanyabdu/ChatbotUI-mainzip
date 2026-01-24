@@ -1,0 +1,133 @@
+[TAILING] Tailing last 100 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 100 lines:
+0|esoteric | Database pool error: terminating connection due to idle-session timeout
+0|esoteric | Database pool error: read ETIMEDOUT
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUser (/var/www/magic-content/dist/index.cjs:70:32403)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:7520 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUser (/var/www/magic-content/dist/index.cjs:70:32403)
+0|esoteric |     at async ue (/var/www/magic-content/dist/index.cjs:144:11227) {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUser (/var/www/magic-content/dist/index.cjs:70:32403)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:7520 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUser (/var/www/magic-content/dist/index.cjs:70:32403)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:7520 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Login error: Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUserByEmail (/var/www/magic-content/dist/index.cjs:70:32488)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:2708 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Login error: Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUserByEmail (/var/www/magic-content/dist/index.cjs:70:32488)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:2708 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async jv.getUser (/var/www/magic-content/dist/index.cjs:70:32403)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:7520 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at yv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at yv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 100 lines:
+0|esoteric | юбимый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый ритуал конечно же мой самый любимый ритуал конечно же мой самый любимый ритуал Я конечно же мой самый любимый ритуал Я написала конечно же мой самый любимый ритуал Я написала   точек        подбор курантов   а а я      положила положила монетку     под под порог под порог под порог под порог под порог под порог с под порог с под порог с под порог с определёнными под порог с определёнными словами      зарядила зарядила зарядила зарядила зарядила свой зарядила свой талисман     цели цели на цели на цели на цели на цели на 2026 цели на 2026    вы вы делали вы делали вы делали вы делали вы делали новогоднюю вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь Какие вы делали новогоднюю ночь Какие ритуалы     вы вы свои вы свои цели вы свои цели вы свои цели Как вы свои цели Как вы свои цели Как Ваше вы свои цели Как Ваше настроение вы свои цели Как ваше настроение вы свои цели Как ваше настроение вы свои цели Как Ваше настроение вы свои цели Как ваше настроение вы свои цели Как ваше настроение делитесь вы свои цели Как ваше настроение делитесь в комментариях ","refinedText":"Какие ритуалы я сделала в новогоднюю ночь?\n\nКонечно же, мой самый любимый ритуал — я написала 12 желаний под бой курантов. А ещё я положила монетку под порог с определёнными словами, зарядила свой талисман и поставила цели на 2026 год.\n\nЭто волшебное время, когда пространство особенно тонкое, а намерения — сильные.\n\nА вы делали что-то особенное в новогоднюю ночь? Какие ритуалы провели? Как ваше настроение и какие цели поставили?\n\nДелитесь в комментариях — вдохновим друг друга на чудесный год!\n\n#НовогодниеРитуалы #МагияНовогоГода #ЗагадываниеЖеланий #Эзотерика #Цели2026 #НовогодняяНочь #Традиции","tone":"вдохновляющий","createdAt":"2026-01-01T20:23:02.733Z"}]
+0|esoteric | Generating ideas only: { goal: 'sale', niche: 'Строительство ', days: 3, gender: 'female' }
+0|esoteric | Generating ideas only (attempt 1/2)...
+0|esoteric | Ideas generated in 13147ms
+0|esoteric | Raw AI response (first 500 chars): {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Расскажу личную историю о том, как в моей собственной бане пластиковое ведро расплавилось от высокой температуры, вызвав пожар и отравление угарным газом. Покажу, что понимаю боль владельцев бань, которые экономят на мелочах, рискуя здоровьем и имуществом. Формат: эмоциональное письмо себе прошлой с элементами разбора ошибок.",
+0|esoteric |             "type": "ЗНАКОМСТВО/БОЛЬ"
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric |             "day": 2,
+0|esoteric |             "idea":
+0|esoteric | 11:57:24 AM [express] POST /api/auth/login 500 in 10001ms :: {"message":"Ошибка при входе"}
+0|esoteric | 11:57:37 AM [express] POST /api/auth/login 500 in 10003ms :: {"message":"Ошибка при входе"}
+0|esoteric | 11:57:58 AM [express] POST /api/strategies/generate-ideas 200 in 130266ms :: {"ideas":[{"day":1,"idea":"Расскажу личную историю о том, как в моей собственной бане пластиковое ведро расплавилось от высокой температуры, вызвав пожар и отравление угарным газом. Покажу, что понимаю боль владельцев бань, которые экономят на мелочах, рискуя здоровьем и имуществом. Формат: эмоциональное письмо себе прошлой с элементами разбора ошибок.","type":"ЗНАКОМСТВО/БОЛЬ"},{"day":2,"idea":"Дам чеклист из 5 пунктов по выбору безопасных материалов для банной утвари, объясняя почему пластик опасен, а нержавейка или дерево — нет. Покажу экспертность через знание температурных режимов и химических реакций. Формат: экспертный чеклист с пояснениями.","type":"ЭКСПЕРТНЫЙ"},{"day":3,"idea":"Закрою возражение 'дорого/нет денег', сравнив цену металлического ведра (500-1000 руб.) со стоимостью ремонта после пожара (от 50 000 руб.) или лечения от отравления. Объясню, что это не трата, а инвестиция в безопасность. Формат: разбор кейса с расчётами затрат.","type":"ЗАКРЫТИЕ ВОЗРАЖЕНИЯ"}],"context":{"goal":"sale","niche":"Строительство ","product":"Не используйте в бане пластиковые ведра , вот что бывает из-за халатности хозяев в бане ","archetype":{"name":"Маг-Мудрец-Славный малый","description":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"triggerWords":["трансформация","магия","мистика","волшебство","чудо","преображение","перерождение","инсайт","активация","интуиция","метафизика","глубина","видение"],"contentStyle":["глубоко, многомерно, мистически","завораживающе","процессы на глубинном уровне","медитативно"],"tone":"Загадочный, глубокий, трансформационный. Говорит о невидимых процессах и скрытых силах."},"gender":"female"}}
+0|esoteric | 12:03:15 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | 12:03:32 PM [express] GET /api/auth/user 200 in 15ms :: {"id":"a5ca858d-b509-4be3-bc64-8cda94e20e4a","email":"myrsik99@yandex.ru","firstName":"Мария","lastName":null,"profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-04T13:44:41.536Z","subscriptionExpiresAt":"2026-02-04T09:47:52.506Z"}
+0|esoteric | 12:03:32 PM [express] GET /api/archetypes/latest 304 in 29ms :: {"id":"72ee8ccd-3a2b-46d5-81f3-6e3a1ce36094","userId":"a5ca858d-b509-4be3-bc64-8cda94e20e4a","archetypeName":"Маг-Мудрец-Заботливый","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","answers":[2,0,0,1,3,1,0,1],"recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-01T16:50:16.365Z"}
+0|esoteric | New database connection established
+0|esoteric | 12:03:32 PM [express] GET /api/auth/access 304 in 106ms :: {"hasAccess":true,"daysLeft":12}
+0|esoteric | 12:03:47 PM [express] GET /api/voice-posts 304 in 30ms :: [{"id":"025f640b-de27-442b-85a0-332fa2212a63","userId":"a5ca858d-b509-4be3-bc64-8cda94e20e4a","originalText":"   Какие Какие Какие ритуалы Какие ритуалы Какие ритуалы я Какие ритуалы я Какие ритуалы я Какие ритуалы я Какие ритуалы я Какие ритуалы я сделала Какие ритуалы я сделала Какие ритуалы я сделала в Какие ритуалы я сделала в Какие ритуалы я сделала в новогоднюю ночь   конечно конечно же конечно же конечно же конечно же мой конечно же мой самый конечно же мой самый конечно же мой самый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый ритуал конечно же мой самый любимый ритуал конечно же мой самый любимый ритуал Я конечно же мой самый любимый ритуал Я написала конечно же мой самый любимый ритуал Я написала   точек        подбор курантов   а а я      положила положила монетку     под под порог под порог под порог под порог под порог под порог с под порог с под порог с под порог с определёнными под порог с определёнными словами      зарядила зарядила зарядила зарядила зарядила свой зарядила свой талисман     цели цели на цели на цели на цели на цели на 2026 цели на 2026    вы вы делали вы делали вы делали вы делали вы делали новогоднюю вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь Какие вы делали новогоднюю ночь Какие ритуалы     вы вы свои вы свои цели вы свои цели вы свои цели Как вы свои цели Как вы свои цели Как Ваше вы свои цели Как Ваше настроение вы свои цели Как ваше настроение вы свои цели Как ваше настроение вы свои цели Как Ваше настроение вы свои цели Как ваше настроение вы свои цели Как ваше настроение делитесь вы свои цели Как ваше настроение делитесь в комментариях ","refinedText":"Какие ритуалы я сделала в новогоднюю ночь?\n\nКонечно же, мой самый любимый ритуал — я написала 12 желаний под бой курантов. А ещё я положила монетку под порог с определёнными словами, зарядила свой талисман и поставила цели на 2026 год.\n\nЭто волшебное время, когда пространство особенно тонкое, а намерения — сильные.\n\nА вы делали что-то особенное в новогоднюю ночь? Какие ритуалы провели? Как ваше настроение и какие цели поставили?\n\nДелитесь в комментариях — вдохновим друг друга на чудесный год!\n\n#НовогодниеРитуалы #МагияНовогоГода #ЗагадываниеЖеланий #Эзотерика #Цели2026 #НовогодняяНочь #Традиции","tone":"вдохновляющий","createdAt":"2026-01-01T20:23:02.733Z"}]
+0|esoteric | 12:04:25 PM [express] GET /api/auth/user 304 in 15ms :: {"id":"a5ca858d-b509-4be3-bc64-8cda94e20e4a","email":"myrsik99@yandex.ru","firstName":"Мария","lastName":null,"profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-04T13:44:41.536Z","subscriptionExpiresAt":"2026-02-04T09:47:52.506Z"}
+0|esoteric | 12:04:25 PM [express] GET /api/auth/access 304 in 15ms :: {"hasAccess":true,"daysLeft":12}
+0|esoteric | 12:04:25 PM [express] GET /api/archetypes/latest 304 in 29ms :: {"id":"72ee8ccd-3a2b-46d5-81f3-6e3a1ce36094","userId":"a5ca858d-b509-4be3-bc64-8cda94e20e4a","archetypeName":"Маг-Мудрец-Заботливый","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","answers":[2,0,0,1,3,1,0,1],"recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-01T16:50:16.365Z"}
+0|esoteric | 12:04:27 PM [express] GET /api/voice-posts 304 in 27ms :: [{"id":"025f640b-de27-442b-85a0-332fa2212a63","userId":"a5ca858d-b509-4be3-bc64-8cda94e20e4a","originalText":"   Какие Какие Какие ритуалы Какие ритуалы Какие ритуалы я Какие ритуалы я Какие ритуалы я Какие ритуалы я Какие ритуалы я Какие ритуалы я сделала Какие ритуалы я сделала Какие ритуалы я сделала в Какие ритуалы я сделала в Какие ритуалы я сделала в новогоднюю ночь   конечно конечно же конечно же конечно же конечно же мой конечно же мой самый конечно же мой самый конечно же мой самый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый конечно же мой самый любимый ритуал конечно же мой самый любимый ритуал конечно же мой самый любимый ритуал Я конечно же мой самый любимый ритуал Я написала конечно же мой самый любимый ритуал Я написала   точек        подбор курантов   а а я      положила положила монетку     под под порог под порог под порог под порог под порог под порог с под порог с под порог с под порог с определёнными под порог с определёнными словами      зарядила зарядила зарядила зарядила зарядила свой зарядила свой талисман     цели цели на цели на цели на цели на цели на 2026 цели на 2026    вы вы делали вы делали вы делали вы делали вы делали новогоднюю вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь вы делали новогоднюю ночь Какие вы делали новогоднюю ночь Какие ритуалы     вы вы свои вы свои цели вы свои цели вы свои цели Как вы свои цели Как вы свои цели Как Ваше вы свои цели Как Ваше настроение вы свои цели Как ваше настроение вы свои цели Как ваше настроение вы свои цели Как Ваше настроение вы свои цели Как ваше настроение вы свои цели Как ваше настроение делитесь вы свои цели Как ваше настроение делитесь в комментариях ","refinedText":"Какие ритуалы я сделала в новогоднюю ночь?\n\nКонечно же, мой самый любимый ритуал — я написала 12 желаний под бой курантов. А ещё я положила монетку под порог с определёнными словами, зарядила свой талисман и поставила цели на 2026 год.\n\nЭто волшебное время, когда пространство особенно тонкое, а намерения — сильные.\n\nА вы делали что-то особенное в новогоднюю ночь? Какие ритуалы провели? Как ваше настроение и какие цели поставили?\n\nДелитесь в комментариях — вдохновим друг друга на чудесный год!\n\n#НовогодниеРитуалы #МагияНовогоГода #ЗагадываниеЖеланий #Эзотерика #Цели2026 #НовогодняяНочь #Традиции","tone":"вдохновляющий","createdAt":"2026-01-01T20:23:02.733Z"}]
+
+
