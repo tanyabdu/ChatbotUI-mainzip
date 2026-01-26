@@ -1,4 +1,66 @@
 import https from "https";
+import { spawn } from "child_process";
+import { randomUUID } from "crypto";
+import { writeFileSync, readFileSync, unlinkSync, existsSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
+
+async function convertToOgg(audioBuffer: Buffer, mimeType: string): Promise<Buffer> {
+  const inputExt = mimeType.includes("webm") ? "webm" : 
+                   mimeType.includes("mp4") ? "mp4" :
+                   mimeType.includes("mpeg") ? "mp3" :
+                   mimeType.includes("wav") ? "wav" :
+                   mimeType.includes("ogg") ? "ogg" : "webm";
+  
+  if (inputExt === "ogg") {
+    return audioBuffer;
+  }
+
+  const tempId = randomUUID();
+  const inputPath = join(tmpdir(), `input_${tempId}.${inputExt}`);
+  const outputPath = join(tmpdir(), `output_${tempId}.ogg`);
+
+  try {
+    writeFileSync(inputPath, audioBuffer);
+
+    await new Promise<void>((resolve, reject) => {
+      const ffmpeg = spawn("ffmpeg", [
+        "-i", inputPath,
+        "-vn",
+        "-c:a", "libopus",
+        "-b:a", "48k",
+        "-ar", "48000",
+        "-ac", "1",
+        "-y",
+        outputPath
+      ]);
+
+      let stderr = "";
+      ffmpeg.stderr.on("data", (data) => {
+        stderr += data.toString();
+      });
+
+      ffmpeg.on("close", (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          console.error("FFmpeg error:", stderr);
+          reject(new Error(`FFmpeg завершился с кодом ${code}`));
+        }
+      });
+
+      ffmpeg.on("error", (err) => {
+        reject(new Error(`Не удалось запустить FFmpeg: ${err.message}`));
+      });
+    });
+
+    const outputBuffer = readFileSync(outputPath);
+    return outputBuffer;
+  } finally {
+    if (existsSync(inputPath)) unlinkSync(inputPath);
+    if (existsSync(outputPath)) unlinkSync(outputPath);
+  }
+}
 
 export async function transcribeAudio(audioBuffer: Buffer, mimeType: string): Promise<string> {
   const apiKey = process.env.YANDEX_SPEECHKIT_API_KEY;
@@ -12,20 +74,15 @@ export async function transcribeAudio(audioBuffer: Buffer, mimeType: string): Pr
     throw new Error("YANDEX_FOLDER_ID не настроен");
   }
 
-  const format = mimeType.includes("webm") ? "oggopus" : 
-                 mimeType.includes("ogg") ? "oggopus" :
-                 mimeType.includes("mp3") ? "mp3" :
-                 mimeType.includes("wav") ? "lpcm" : "oggopus";
+  console.log(`Converting audio from ${mimeType} to OGG Opus...`);
+  const oggBuffer = await convertToOgg(audioBuffer, mimeType);
+  console.log(`Conversion complete. OGG size: ${oggBuffer.length} bytes`);
 
   const params = new URLSearchParams({
     folderId: folderId,
     lang: "ru-RU",
-    format: format,
+    format: "oggopus",
   });
-
-  if (format === "lpcm") {
-    params.append("sampleRateHertz", "48000");
-  }
 
   const url = `https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?${params.toString()}`;
 
@@ -35,7 +92,7 @@ export async function transcribeAudio(audioBuffer: Buffer, mimeType: string): Pr
       headers: {
         "Authorization": `Api-Key ${apiKey}`,
         "Content-Type": "application/octet-stream",
-        "Content-Length": audioBuffer.length,
+        "Content-Length": oggBuffer.length,
       },
     }, (res) => {
       let data = "";
@@ -54,6 +111,7 @@ export async function transcribeAudio(audioBuffer: Buffer, mimeType: string): Pr
             return;
           }
           
+          console.log("Transcription successful:", response.result);
           resolve(response.result || "");
         } catch (e) {
           console.error("Failed to parse Yandex response:", data);
@@ -67,7 +125,7 @@ export async function transcribeAudio(audioBuffer: Buffer, mimeType: string): Pr
       reject(new Error(`Ошибка подключения к Yandex SpeechKit: ${error.message}`));
     });
 
-    req.write(audioBuffer);
+    req.write(oggBuffer);
     req.end();
   });
 }
