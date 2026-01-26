@@ -1,0 +1,29 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 20
+[TAILING] Tailing last 20 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 20 lines:
+0|esoteric |   code: undefined,
+0|esoteric |   param: undefined,
+0|esoteric |   type: undefined,
+0|esoteric |   cause: TypeError: fetch failed
+0|esoteric |       at node:internal/deps/undici/undici:14900:13
+0|esoteric |       at async J.fetchWithTimeout (/var/www/magic-content/dist/index.cjs:168:5313)
+0|esoteric |       at async J.makeRequest (/var/www/magic-content/dist/index.cjs:168:2856)
+0|esoteric |       at async Lq (/var/www/magic-content/dist/index.cjs:756:37130)
+0|esoteric |       at async /var/www/magic-content/dist/index.cjs:775:8010 {
+0|esoteric |     [cause]: Error: read ECONNRESET
+0|esoteric |         at TLSWrap.onStreamRead (node:internal/stream_base_commons:218:20) {
+0|esoteric |       errno: -104,
+0|esoteric |       code: 'ECONNRESET',
+0|esoteric |       syscall: 'read'
+0|esoteric |     }
+0|esoteric |   }
+0|esoteric | }
+0|esoteric | Transcription error: Error: Ошибка транскрипции: Connection error.
+0|esoteric |     at Lq (/var/www/magic-content/dist/index.cjs:756:37271)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:775:8010
+
+/root/.pm2/logs/esoteric-planner-out.log last 20 lines:
+0|esoteric | �нужно», как принято, как было у наших родителей. Но при этом не понимаем, что на самом деле мы этого не хотим. Что наше истинное желание и состояние — абсолютно другое.\n\nВ этом году я выбираю себя.\n\nА что выберете вы? Что для вас значит «услышать себя» в канун нового цикла?\n\nСегодня вас ждёт расклад от меня: «Какие шаги мне нужно предпринять для реализации моего самого заветного желания?»\n\nПоздравляю вас с наступающим! Это Танюшка в Матрице, всех люблю.\n\n#НовыйГодНаБали #ГодКолесаФортуны #УслышатьСебя #НовыйГодБезПравил #ЗаветноеЖелание #Эзотерика #МатрицаСудьбы","tone":"вдохновляющий","createdAt":"2025-12-30T04:27:04.052Z"},{"id":"975118be-bde6-47e0-993c-7f9884223533","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","originalText":"Ситуацию Вышла замуж за лет старше 2026 г. для дифф учитывая как вы провели 25-й год я уверен что вам захочется послать всех очень далеко и очень надолго запереться дома и делать что-то что в общем-то не одобряется с разными ","refinedText":"**Замуж в 2026? А что, если захочется всех послать и запереться дома?**\n\nСитуация «выхожу замуж за человека значительно старше» в 2026 году — это не просто событие в календаре. Это финальный аккорд целого периода вашей жизни.\n\nГод 2025-й станет для вас мощным трансформатором. Проживая его, вы будете проходить через глубокие внутренние изменения. И к его завершению может возникнуть очень конкретное и сильное желание:\n\n👉 Отправить всех и вся очень далеко.\n👉 Надолго запереться в своем пространстве.\n👉 И наконец-то заняться тем, что по душе, даже если это «в общем-то не одобряется».\n\nЭто не каприз, а естественная потребность в перезагрузке. Ваша душа будет стремиться к автономности, к созданию своих правил, к тишине после, возможно, шумного периода.\n\nБрак в 2026 может стать либо продолжением этого побега в поисках покоя, либо его антиподом — выходом в новое, но уже на своих условиях. Всё зависит от того, как вы проживете этот внутренкий бунт 2025 года.\n\n**Готовы ли вы услышать свои истинные, даже «неудобные» желания? И что они говорят вам о вашем будущем?**\n\n#НумерологияСудьбы #2026Год #КармическиеОтношения #Трансформация #ЛичныеГраницы #ВнутреннийГолос #ЖизненныеЦиклы","tone":"вдохновляющий","createdAt":"2025-12-28T09:51:41.827Z"}]
+0|esoteric | 10:11:27 AM [express] POST /api/voice-posts/transcribe 500 in 46747ms :: {"error":"Ошибка транскрипции: Connection error."}
+
+
