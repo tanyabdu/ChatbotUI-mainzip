@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2, AlertCircle, Image } from "lucide-react";
 import { useLocation } from "wouter";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import type { VoicePost } from "@shared/schema";
 
 interface VoiceRecorderProps {
@@ -13,57 +13,41 @@ interface VoiceRecorderProps {
   onGeneratePost?: (transcript: string) => void;
 }
 
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-  resultIndex: number;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-  message: string;
-}
-
-interface SpeechRecognitionResult {
-  isFinal: boolean;
-  [index: number]: SpeechRecognitionAlternative;
-}
-
-interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
-}
-
-interface SpeechRecognitionResultList {
-  length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-  onstart: (() => void) | null;
-  start(): void;
-  stop(): void;
-  abort(): void;
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition: new () => SpeechRecognition;
-    webkitSpeechRecognition: new () => SpeechRecognition;
+function checkMediaRecorderSupport(): { supported: boolean; mimeType: string | null } {
+  if (typeof window === "undefined") {
+    return { supported: false, mimeType: null };
   }
+  
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    return { supported: false, mimeType: null };
+  }
+  
+  if (typeof MediaRecorder === "undefined") {
+    return { supported: false, mimeType: null };
+  }
+  
+  const mimeTypes = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4",
+    "audio/ogg;codecs=opus",
+    "audio/ogg",
+  ];
+  
+  for (const mimeType of mimeTypes) {
+    if (MediaRecorder.isTypeSupported(mimeType)) {
+      return { supported: true, mimeType };
+    }
+  }
+  
+  return { supported: true, mimeType: null };
 }
 
 export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRecorderProps) {
   const [, setLocation] = useLocation();
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [interimTranscript, setInterimTranscript] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState("");
   const [copied, setCopied] = useState(false);
@@ -71,89 +55,15 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSupported, setIsSupported] = useState(true);
+  const [supportedMimeType, setSupportedMimeType] = useState<string | null>(null);
   
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const isRecordingRef = useRef(false);
-  const transcriptRef = useRef("");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) {
-      setIsSupported(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognitionAPI();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = "ru-RU";
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = "";
-      let interim = "";
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          finalTranscript += result[0].transcript + " ";
-        } else {
-          interim += result[0].transcript;
-        }
-      }
-
-      if (finalTranscript) {
-        transcriptRef.current += finalTranscript;
-        setTranscript(transcriptRef.current);
-      }
-      setInterimTranscript(interim);
-    };
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error("Speech recognition error:", event.error);
-      if (event.error === "not-allowed") {
-        setError("Микрофон не разрешён. Разрешите доступ к микрофону в настройках браузера или телефона.");
-      } else if (event.error === "network") {
-        setError("Нет связи с сервером распознавания речи. Проверьте интернет-соединение и отключите VPN если используете.");
-      } else if (event.error === "audio-capture") {
-        setError("Не удалось получить доступ к микрофону. На iPhone: Настройки → Safari → Микрофон → Разрешить. Или закройте другие приложения, использующие микрофон.");
-      } else if (event.error === "no-speech") {
-        if (isRecordingRef.current) {
-          try {
-            recognition.start();
-          } catch (e) {
-            console.log("Restarting after no-speech");
-          }
-        }
-        return;
-      } else if (event.error === "aborted") {
-        return;
-      } else if (event.error === "service-not-allowed") {
-        setError("Распознавание речи недоступно. Попробуйте другой браузер (Chrome, Safari).");
-      } else {
-        setError(`Ошибка распознавания: ${event.error}. Попробуйте обновить страницу.`);
-      }
-      setIsRecording(false);
-      isRecordingRef.current = false;
-    };
-
-    recognition.onend = () => {
-      if (isRecordingRef.current) {
-        try {
-          recognition.start();
-        } catch (e) {
-          console.log("Could not restart recognition");
-        }
-      }
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      if (recognitionRef.current) {
-        isRecordingRef.current = false;
-        recognitionRef.current.abort();
-      }
-    };
+    const { supported, mimeType } = checkMediaRecorderSupport();
+    setIsSupported(supported);
+    setSupportedMimeType(mimeType);
   }, []);
 
   const { data: savedPosts = [], isLoading: isLoadingPosts } = useQuery<VoicePost[]>({
@@ -162,7 +72,14 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
 
   const saveMutation = useMutation({
     mutationFn: async (data: { originalText: string; refinedText: string; tone: string }) => {
-      return apiRequest("POST", "/api/voice-posts", data);
+      const response = await fetch("/api/voice-posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to save");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/voice-posts"] });
@@ -173,16 +90,58 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest("DELETE", `/api/voice-posts/${id}`);
+      const response = await fetch(`/api/voice-posts/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to delete");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/voice-posts"] });
     },
   });
 
+  const transcribeMutation = useMutation({
+    mutationFn: async (audioBlob: Blob) => {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "recording.webm");
+      
+      const response = await fetch("/api/voice-posts/transcribe", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Ошибка транскрипции");
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setTranscript(data.transcript);
+      setIsTranscribing(false);
+      onTranscript?.(data.transcript);
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+      setIsTranscribing(false);
+    },
+  });
+
   const generatePostMutation = useMutation({
     mutationFn: async (text: string) => {
-      const response = await apiRequest("POST", "/api/voice-posts/generate", { transcript: text });
+      const response = await fetch("/api/voice-posts/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ transcript: text }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Ошибка генерации");
+      }
       return response.json();
     },
     onSuccess: (data) => {
@@ -195,41 +154,69 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
     },
   });
 
-  const startRecording = useCallback(() => {
+  const startRecording = useCallback(async () => {
     setError(null);
     setTranscript("");
-    setInterimTranscript("");
     setGeneratedPost("");
     setSaved(false);
-    transcriptRef.current = "";
-    
-    if (recognitionRef.current) {
+    chunksRef.current = [];
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      const options: MediaRecorderOptions = {};
+      if (supportedMimeType) {
+        options.mimeType = supportedMimeType;
+      }
+      
+      let mediaRecorder: MediaRecorder;
       try {
-        isRecordingRef.current = true;
-        setIsRecording(true);
-        recognitionRef.current.start();
+        mediaRecorder = new MediaRecorder(stream, options);
       } catch (e) {
-        setError("Не удалось запустить распознавание речи. Попробуйте обновить страницу.");
-        setIsRecording(false);
-        isRecordingRef.current = false;
+        mediaRecorder = new MediaRecorder(stream);
+      }
+      
+      const actualMimeType = mediaRecorder.mimeType || "audio/webm";
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(track => track.stop());
+        
+        if (chunksRef.current.length > 0) {
+          const audioBlob = new Blob(chunksRef.current, { type: actualMimeType });
+          setIsTranscribing(true);
+          transcribeMutation.mutate(audioBlob);
+        }
+      };
+      
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start(1000);
+      setIsRecording(true);
+    } catch (err: any) {
+      console.error("Error starting recording:", err);
+      if (err.name === "NotAllowedError") {
+        setError("Микрофон не разрешён. Разрешите доступ к микрофону в настройках браузера.");
+      } else if (err.name === "NotFoundError") {
+        setError("Микрофон не найден. Подключите микрофон и попробуйте снова.");
+      } else if (err.name === "NotSupportedError") {
+        setError("Формат записи не поддерживается вашим браузером.");
+      } else {
+        setError("Не удалось запустить запись. Проверьте доступ к микрофону.");
       }
     }
-  }, []);
+  }, [transcribeMutation, supportedMimeType]);
 
   const stopRecording = useCallback(() => {
-    isRecordingRef.current = false;
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
     setIsRecording(false);
-    setInterimTranscript("");
-    
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-    
-    const finalText = transcriptRef.current.trim();
-    if (finalText) {
-      onTranscript?.(finalText);
-    }
-  }, [onTranscript]);
+  }, []);
 
   const toggleRecording = useCallback(() => {
     if (isRecording) {
@@ -260,8 +247,6 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const displayTranscript = transcript + interimTranscript;
-
   if (!isSupported) {
     return (
       <section className="fade-in max-w-2xl mx-auto">
@@ -270,8 +255,8 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
             <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
             <h3 className="text-xl font-mystic text-purple-700 mb-2">Браузер не поддерживается</h3>
             <p className="text-purple-600">
-              Ваш браузер не поддерживает распознавание речи. 
-              Пожалуйста, используйте Google Chrome или Microsoft Edge для этой функции.
+              Ваш браузер не поддерживает запись аудио. 
+              Пожалуйста, используйте современный браузер (Chrome, Safari, Firefox, Edge).
             </p>
           </CardContent>
         </Card>
@@ -305,45 +290,44 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
           <div className="text-center">
             <button
               onClick={toggleRecording}
+              disabled={isTranscribing}
               data-testid="button-record"
               className={`
                 w-24 h-24 rounded-full shadow-xl flex items-center justify-center transition-all transform 
-                focus:outline-none mx-auto ring-4 ring-card
+                focus:outline-none mx-auto ring-4 ring-card disabled:opacity-50
                 ${isRecording 
                   ? "bg-red-500 recording-pulse" 
                   : "bg-gradient-to-br from-red-500 to-pink-600 hover:scale-105"
                 }
               `}
             >
-              {isRecording ? (
+              {isTranscribing ? (
+                <Loader2 className="h-10 w-10 text-white animate-spin" />
+              ) : isRecording ? (
                 <Square className="h-10 w-10 text-white" />
               ) : (
                 <Mic className="h-10 w-10 text-white" />
               )}
             </button>
             <p className="text-sm text-muted-foreground mt-4">
-              {isRecording ? "Запись... Нажмите для остановки" : "Нажмите для записи"}
+              {isTranscribing 
+                ? "Распознаю речь..." 
+                : isRecording 
+                  ? "Запись... Нажмите для остановки" 
+                  : "Нажмите для записи"}
             </p>
           </div>
 
-          {(displayTranscript || isRecording) && (
+          {transcript && !isRecording && !isTranscribing && (
             <div className="text-left fade-in">
-              <label className="text-xs text-purple-600 mb-1 block">
-                {isRecording ? "Распознавание речи..." : "Текст:"}
-              </label>
+              <label className="text-xs text-purple-600 mb-1 block">Текст:</label>
               <div className="bg-purple-50 p-4 rounded-lg text-purple-700 text-sm min-h-[80px] max-h-32 overflow-y-auto border-2 border-purple-200">
                 {transcript}
-                {interimTranscript && (
-                  <span className="text-purple-400">{interimTranscript}</span>
-                )}
-                {isRecording && !displayTranscript && (
-                  <span className="text-purple-400">Говорите...</span>
-                )}
               </div>
             </div>
           )}
 
-          {transcript && !isRecording && !generatedPost && (
+          {transcript && !isRecording && !isTranscribing && !generatedPost && (
             <Button
               onClick={handleGeneratePost}
               disabled={isGenerating}

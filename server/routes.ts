@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
 import { storage } from "./storage";
 import { 
   insertContentStrategySchema, insertArchetypeResultSchema, insertVoicePostSchema, 
@@ -11,6 +12,12 @@ import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
 import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
 import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
+import { transcribeAudio } from "./services/whisperTranscription";
+
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 }
+});
 
 export async function registerRoutes(
   httpServer: Server,
@@ -360,6 +367,22 @@ export async function registerRoutes(
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete voice post" });
+    }
+  });
+
+  app.post("/api/voice-posts/transcribe", isAuthenticated, upload.single("audio"), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Audio file is required" });
+      }
+
+      const mimeType = req.file.mimetype || "audio/webm";
+      const transcript = await transcribeAudio(req.file.buffer, mimeType);
+      
+      res.json({ transcript });
+    } catch (error: any) {
+      console.error("Transcription error:", error);
+      res.status(500).json({ error: error.message || "Failed to transcribe audio" });
     }
   });
 
