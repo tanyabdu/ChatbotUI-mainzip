@@ -1,0 +1,37 @@
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [esoteric-planner](ids: [ 0 ])
+[PM2] [esoteric-planner](0) ✓
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ esoteric-planner   │ fork     │ 22   │ online    │ 0%       │ 14.4mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 20
+[TAILING] Tailing last 20 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 20 lines:
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+
+/root/.pm2/logs/esoteric-planner-out.log last 20 lines:
+0|esoteric | �е и финансовым и в любом потому что если вы можете регулярно ходить на тренировки вы все можете делать регулярно в своей жизни а от этого расти это вебинар у меня был на прошлой неделе формула идеального новогоднего продукта в закрепе есть информация ссылка А отзывы там повыше если можно полистать если у меня такая штука есть я о ней не говорю потому что там всегда как правило все занято на надолго вперед и я беру только 2 человека в месяц потому что у меня очень большая занятость вот но и здесь тоже важно понимать чтобы вы понимали то есть я всегда тогда девочек доношу кого я беру это такое сопровождение по телеграму по контенту любая в целом субсидия да телеграм инстаграм не важно инстаграм Обещанной федерации не сидим там в общем здесь очень важно понимать что это такой формат когда вы делаете под моим руководством да не я делаю за вас ааа вы делаете привет мои хорошие выложила вам пост у нас сегодня финальный день марафона там будут разыгрываться просто суперские подарки я бы честное слово сама участвовала но мне блин служебное положение не позволяет там девчонки свои консультации разыгрывают я между прочим у некоторых у 3 из них покупала консультацию Среди них там и ренатрициолог там ааа ну в общем вы поняли очень очень классные эксперты реально судебные и крутейшие подарки у вас есть возможность поучаствовать поэтому если вы еще не там то переходите это полностью бесплатно вы можете посмотреть все материалы все эфиры девчонок которые были в марафоне забрать их подарки там офигенные подарки там можно на одних подарков уже очень круто изменить свою жизнь поэтому не знаю чего вы ждете Но если вы еще не там то добавляйтесь классный вопрос отвечу тоже потому что мне нравятся такие классные вопросы на самом деле вот тьфу тьфу тьфу как говорится я человек не суеверный но поплевать можно потому что в мою сторону вообще очень очень немного негатива недовольный клиент у меня было за всего за всю мою практику только 1 раз и тула мы с ней просто не сошлись в подходах она ждала от меня какой то битвы экстрасенсов и я ей вроде бы Просто да потому что я не экстрасенс и бабка гадалка но она привыкла немножечко"}
+0|esoteric | 11:58:04 AM [express] POST /api/voice-posts/generate 401 in 1ms :: {"message":"Unauthorized"}
+
+
