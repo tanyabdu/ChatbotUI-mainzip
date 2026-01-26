@@ -31,9 +31,15 @@ async function convertToOgg(audioBuffer: Buffer, mimeType: string): Promise<Buff
         "-b:a", "48k",
         "-ar", "48000",
         "-ac", "1",
+        "-t", "180",
         "-y",
         outputPath
       ]);
+
+      const timeout = setTimeout(() => {
+        ffmpeg.kill("SIGKILL");
+        reject(new Error("Конвертация аудио превысила лимит времени (60 сек)"));
+      }, 60000);
 
       let stderr = "";
       ffmpeg.stderr.on("data", (data) => {
@@ -41,6 +47,7 @@ async function convertToOgg(audioBuffer: Buffer, mimeType: string): Promise<Buff
       });
 
       ffmpeg.on("close", (code) => {
+        clearTimeout(timeout);
         if (code === 0) {
           resolve();
         } else {
@@ -50,6 +57,7 @@ async function convertToOgg(audioBuffer: Buffer, mimeType: string): Promise<Buff
       });
 
       ffmpeg.on("error", (err) => {
+        clearTimeout(timeout);
         reject(new Error(`Не удалось запустить FFmpeg: ${err.message}`));
       });
     });
