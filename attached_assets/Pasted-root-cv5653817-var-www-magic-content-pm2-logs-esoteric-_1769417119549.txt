@@ -1,0 +1,80 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 30
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at I1.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 30 lines:
+0|esoteric | ильное желание:\n\n👉 Отправить всех и вся очень далеко.\n👉 Надолго запереться в своем пространстве.\n👉 И наконец-то заняться тем, что по душе, даже если это «в общем-то не одобряется».\n\nЭто не каприз, а естественная потребность в перезагрузке. Ваша душа будет стремиться к автономности, к созданию своих правил, к тишине после, возможно, шумного периода.\n\nБрак в 2026 может стать либо продолжением этого побега в поисках покоя, либо его антиподом — выходом в новое, но уже на своих условиях. Всё зависит от того, как вы проживете этот внутренкий бунт 2025 года.\n\n**Готовы ли вы услышать свои истинные, даже «неудобные» желания? И что они говорят вам о вашем будущем?**\n\n#НумерологияСудьбы #2026Год #КармическиеОтношения #Трансформация #ЛичныеГраницы #ВнутреннийГолос #ЖизненныеЦиклы","tone":"вдохновляющий","createdAt":"2025-12-28T09:51:41.827Z"}]
+0|esoteric | Converting audio from audio/webm to OGG Opus...
+0|esoteric | Conversion complete.
+0|esoteric | Audio duration: 122.6 seconds, file size: 770045 bytes
+0|esoteric | Split into 5 chunk(s)
+0|esoteric | Transcribing chunk 1/5 (153124 bytes)...
+0|esoteric | Transcribing chunk 2/5 (166233 bytes)...
+0|esoteric | Transcribing chunk 3/5 (158422 bytes)...
+0|esoteric | Transcribing chunk 4/5 (156581 bytes)...
+0|esoteric | Transcribing chunk 5/5 (132605 bytes)...
+0|esoteric | Transcription successful: Девочка вы прикалываетесь что ли в смысле рано я гоню что я поздно это делаю надо было раньше а вы м...
+0|esoteric | 11:43:22 AM [express] POST /api/voice-posts/transcribe 200 in 15373ms :: {"transcript":"Девочка вы прикалываетесь что ли в смысле рано я гоню что я поздно это делаю надо было раньше а вы мне говорите рано сегодня 23 октября 25 мы с вами проведем вебинар и дальше вы пойдете готовить свои продукты аа если я бы сделала это даже неделю позже бы вы уже девочки не успели этот поток объясняю почему если вы думаете что вы будете продавать новогодний прогноз в декабре вас сильно разочарую девочки в декабре людей уже не Меня не интересуют ваши прогнозы их уже интересует где им к пятигорке на стол вкусненькой да шампусика просеки себе это тоже вкусненькое прикупить и у них уже просто нету денежек на наши прогнозы потому что в декабре вся зарплата вы сами это знаете прекрасно уходит на что на подарки деткам на подарки мужьям на подарки родственникам на красивый вкусный стол и уже людям не до ваших прогнозов а вот в ноябре а вот в ноябре девочки вы просто подумайте вдумайтесь да немножко головку включаем мы с вами Угу Максимально такой поганый месяц по погоде люди хотят каких то перемен они хотят уже чтобы этот год скорее закончился и начался новый классный прекрасный великолепный интересный год и тут им как раз нужны вы чтобы вы помогли им этот год начать правильно подвести итоги понять каких энергиях этот год происходит да они в декабре в декабре уже им будет не до вас вот что я лично я купила у психолога я была Я купила какой то глубокий очень классный трансформационный предновогодний марафон марафон с практиками с подведением итогов с изъявлением с якорением моих каких то достижений да с какими то может быть медитациями может быть с какой то трансформационной игрой да либо с но если вы будете думать не из метода чтобы психолог а из того как вы можете закрыть вот эти запросы клиентов перед новым годом и если вы будете думать короче я хочу пойти на солнце Я ходила в магнит именно там я покупаю себе вот это вот на перекус детская из села тут мало калорий тут одни углеводы и господи она короче без сахара и я это ем ну чтобы себе личную энергию взыскать мнение об этом очень приятно ааа магнит возле дома все уже мы знаем друг друга и"}
+0|esoteric | 11:43:26 AM [express] POST /api/voice-posts/generate 401 in 1ms :: {"message":"Unauthorized"}
+
+0|esoteric-planner  | 11:44:07 AM [express] POST /api/voice-posts/generate 401 in 1ms :: {"message":"Unauthorized"}
+^C
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 20
+[TAILING] Tailing last 20 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 20 lines:
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 20 lines:
+0|esoteric | /transcribe 200 in 15373ms :: {"transcript":"Девочка вы прикалываетесь что ли в смысле рано я гоню что я поздно это делаю надо было раньше а вы мне говорите рано сегодня 23 октября 25 мы с вами проведем вебинар и дальше вы пойдете готовить свои продукты аа если я бы сделала это даже неделю позже бы вы уже девочки не успели этот поток объясняю почему если вы думаете что вы будете продавать новогодний прогноз в декабре вас сильно разочарую девочки в декабре людей уже не Меня не интересуют ваши прогнозы их уже интересует где им к пятигорке на стол вкусненькой да шампусика просеки себе это тоже вкусненькое прикупить и у них уже просто нету денежек на наши прогнозы потому что в декабре вся зарплата вы сами это знаете прекрасно уходит на что на подарки деткам на подарки мужьям на подарки родственникам на красивый вкусный стол и уже людям не до ваших прогнозов а вот в ноябре а вот в ноябре девочки вы просто подумайте вдумайтесь да немножко головку включаем мы с вами Угу Максимально такой поганый месяц по погоде люди хотят каких то перемен они хотят уже чтобы этот год скорее закончился и начался новый классный прекрасный великолепный интересный год и тут им как раз нужны вы чтобы вы помогли им этот год начать правильно подвести итоги понять каких энергиях этот год происходит да они в декабре в декабре уже им будет не до вас вот что я лично я купила у психолога я была Я купила какой то глубокий очень классный трансформационный предновогодний марафон марафон с практиками с подведением итогов с изъявлением с якорением моих каких то достижений да с какими то может быть медитациями может быть с какой то трансформационной игрой да либо с но если вы будете думать не из метода чтобы психолог а из того как вы можете закрыть вот эти запросы клиентов перед новым годом и если вы будете думать короче я хочу пойти на солнце Я ходила в магнит именно там я покупаю себе вот это вот на перекус детская из села тут мало калорий тут одни углеводы и господи она короче без сахара и я это ем ну чтобы себе личную энергию взыскать мнение об этом очень приятно ааа магнит возле дома все уже мы знаем друг друга и"}
+0|esoteric | 11:43:26 AM [express] POST /api/voice-posts/generate 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 11:44:07 AM [express] POST /api/voice-posts/generate 401 in 1ms :: {"message":"Unauthorized"}
+
