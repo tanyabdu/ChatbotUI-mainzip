@@ -1870,56 +1870,6 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                           </div>
                         </div>
 
-                        {/* Per-slide text color */}
-                        <div className="mt-4 pt-3 border-t border-purple-100">
-                          <div className="flex items-center justify-between mb-2">
-                            <label className="text-xs font-medium text-gray-700">
-                              Цвет текста на этом слайде
-                              {currentSlide?.textColor && <span className="text-purple-500 ml-1">*</span>}
-                            </label>
-                            {currentSlide?.textColor && (
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => handleSlideTextColorChange('')}
-                                className="h-6 text-xs text-gray-500"
-                              >
-                                Сбросить
-                              </Button>
-                            )}
-                          </div>
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {[...baseColors.slice(0, 8), ...uniqueRecommendedColors.slice(0, 4)].map((color) => (
-                              <button
-                                key={`slide-${color}`}
-                                onClick={() => handleSlideTextColorChange(color)}
-                                className={`w-7 h-7 rounded-lg border-2 transition-all ${
-                                  (currentSlide ? getSlideTextColor(currentSlide) : textColor) === color
-                                    ? 'border-purple-500 scale-110 shadow-lg'
-                                    : 'border-gray-300 hover:border-purple-400'
-                                }`}
-                                style={{ backgroundColor: color }}
-                                title={color}
-                              />
-                            ))}
-                            <input
-                              type="color"
-                              value={currentSlide ? getSlideTextColor(currentSlide) : textColor}
-                              onChange={(e) => handleSlideTextColorChange(e.target.value)}
-                              className="w-7 h-7 rounded-lg border-2 border-gray-300 cursor-pointer"
-                              title="Выбрать цвет"
-                            />
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={applyTextColorToAllSlides}
-                            className="w-full text-xs h-8 border-purple-200 text-purple-700 hover:bg-purple-50"
-                          >
-                            <Palette className="h-3 w-3 mr-1" />
-                            Применить цвет ко всем слайдам
-                          </Button>
-                        </div>
                       </div>
                     </div>
                   </AccordionContent>
@@ -1929,44 +1879,61 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                   <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
                     <div className="flex items-center gap-2">
                       <Palette className="h-4 w-4 text-purple-500" />
-                      Цвета и позиция
+                      Цвет текста и позиция
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-4">
-                      {uniqueRecommendedColors.length > 0 && (
-                        <div className="p-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="h-4 w-4 text-purple-500" />
-                            <span className="text-xs font-medium text-purple-700">Цвета архетипов</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {uniqueRecommendedColors.map((color) => (
-                              <button
-                                key={color}
-                                onClick={() => setTextColor(color)}
-                                className={`w-11 h-11 rounded-lg border-2 transition-all ${
-                                  textColor === color
-                                    ? 'border-purple-500 scale-110 shadow-lg'
-                                    : 'border-gray-300 hover:border-purple-400'
-                                }`}
-                                style={{ backgroundColor: color }}
-                                title={color}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
+                      {/* Unified color section */}
                       <div>
-                        <label className="text-xs font-medium text-gray-700 mb-2 block">Базовые цвета (для всех)</label>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs font-medium text-gray-700">
+                            Цвет текста
+                            {currentSlide?.textColor && <span className="text-purple-500 ml-1">*</span>}
+                          </label>
+                          {currentSlide?.textColor && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleSlideTextColorChange('')}
+                              className="h-6 text-xs text-gray-500"
+                            >
+                              По умолчанию
+                            </Button>
+                          )}
+                        </div>
+                        
+                        {uniqueRecommendedColors.length > 0 && (
+                          <div className="p-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 mb-3">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Sparkles className="h-4 w-4 text-purple-500" />
+                              <span className="text-xs font-medium text-purple-700">Цвета архетипов</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {uniqueRecommendedColors.map((color) => (
+                                <button
+                                  key={color}
+                                  onClick={() => handleSlideTextColorChange(color)}
+                                  className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                                    (currentSlide ? getSlideTextColor(currentSlide) : textColor) === color
+                                      ? 'border-purple-500 scale-110 shadow-lg'
+                                      : 'border-gray-300 hover:border-purple-400'
+                                  }`}
+                                  style={{ backgroundColor: color }}
+                                  title={color}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap gap-2 mb-3">
                           {baseColors.map((color) => (
                             <button
                               key={color}
-                              onClick={() => setTextColor(color)}
-                              className={`w-9 h-9 rounded-lg border-2 transition-all ${
-                                textColor === color
+                              onClick={() => handleSlideTextColorChange(color)}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                (currentSlide ? getSlideTextColor(currentSlide) : textColor) === color
                                   ? 'border-purple-500 scale-110 shadow-lg'
                                   : 'border-gray-300 hover:border-purple-400'
                               }`}
@@ -1974,7 +1941,24 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                               title={color}
                             />
                           ))}
+                          <input
+                            type="color"
+                            value={currentSlide ? getSlideTextColor(currentSlide) : textColor}
+                            onChange={(e) => handleSlideTextColorChange(e.target.value)}
+                            className="w-8 h-8 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            title="Выбрать цвет"
+                          />
                         </div>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={applyTextColorToAllSlides}
+                          className="w-full text-xs h-9 border-purple-200 text-purple-700 hover:bg-purple-50"
+                        >
+                          <Palette className="h-3 w-3 mr-1" />
+                          Применить ко всем слайдам
+                        </Button>
                       </div>
 
                       <div>
