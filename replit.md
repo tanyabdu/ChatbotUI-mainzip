@@ -53,3 +53,4 @@ Preferred communication style: Simple, everyday language.
 - **Development Tools**: Replit plugins, `tsx`.
 - **Database**: PostgreSQL, Drizzle ORM, `pg`, `connect-pg-simple`.
 - **Payment Integration**: Prodamus (Russian payment gateway) for subscriptions, with HMAC-SHA256 signature verification and amount validation.
+- **Voice Transcription**: OpenAI Whisper API for server-side audio transcription (replaces browser Web Speech API for better cross-browser support).
