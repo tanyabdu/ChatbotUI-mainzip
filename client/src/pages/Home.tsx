@@ -10,6 +10,7 @@ import CasesManager from "@/components/CasesManager";
 import LunarCalendar from "@/components/LunarCalendar";
 import MoneyTrainer from "@/components/MoneyTrainer";
 import CarouselEditor from "@/components/CarouselEditor";
+import ContentAlchemy from "@/components/ContentAlchemy";
 import { getArchetypeIdByName } from "@/lib/archetypeFonts";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -93,6 +94,8 @@ export default function Home() {
         {activeTab === "calendar" && <LunarCalendar />}
         
         {activeTab === "trainer" && <MoneyTrainer />}
+        
+        {activeTab === "alchemy" && <ContentAlchemy />}
         </div>
       </div>
     </div>

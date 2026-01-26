@@ -1,16 +1,18 @@
-import { FileText, Dna, Mic, Gem, Moon, DollarSign, Image } from "lucide-react";
+import { FileText, Dna, Mic, Gem, Moon, DollarSign, Image, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-export type TabName = "generator" | "archetype" | "voice" | "cases" | "carousel" | "calendar" | "trainer";
+export type TabName = "generator" | "archetype" | "voice" | "cases" | "carousel" | "calendar" | "trainer" | "alchemy";
 
 interface NavigationProps {
   activeTab: TabName | null;
   onTabChange: (tab: TabName) => void;
 }
 
-const navItems: { id: TabName; label: string; icon: typeof FileText; hint?: string }[] = [
+const navItems: { id: TabName; label: string; icon: typeof FileText; hint?: string; badge?: string }[] = [
   { id: "archetype", label: "Архетип стратегии", icon: Dna, hint: "Пройдите тест, чтобы генератор учитывал ваш стиль" },
   { id: "generator", label: "Генератор контента", icon: FileText },
+  { id: "alchemy", label: "Алхимия контента", icon: Sparkles, badge: "Тест" },
   { id: "voice", label: "Голос потока", icon: Mic },
   { id: "cases", label: "Кейсы", icon: Gem },
   { id: "carousel", label: "Пост карусель", icon: Image },
@@ -41,6 +43,11 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
             >
               <Icon className="h-4 w-4 mr-2" />
               <span className="text-sm sm:text-base">{item.label}</span>
+              {item.badge && (
+                <Badge variant="outline" className="ml-2 text-xs bg-amber-50 text-amber-700 border-amber-300">
+                  {item.badge}
+                </Badge>
+              )}
             </Button>
             {item.hint && (
               <p className="text-xs text-purple-500 text-center mt-1 opacity-75">{item.hint}</p>

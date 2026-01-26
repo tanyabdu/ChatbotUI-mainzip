@@ -9,9 +9,11 @@ import {
   type PasswordResetToken, type InsertPasswordResetToken,
   type Promocode, type InsertPromocode,
   type Payment,
+  type ContentAlchemyPlan, type InsertContentAlchemyPlan,
+  type GrimoireTopic, type InsertGrimoireTopic,
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
   salesTrainerSamples, salesTrainerSessions, passwordResetTokens,
-  promocodes, promocodeUsages, payments
+  promocodes, promocodeUsages, payments, contentAlchemyPlans, grimoireTopics
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, ilike, or, and, isNull, gt, sql } from "drizzle-orm";
@@ -82,6 +84,17 @@ export interface IStorage {
   getPaymentHistory(userId: string): Promise<Payment[]>;
   getPaymentByOrderId(orderId: string): Promise<Payment | undefined>;
   updatePaymentStatus(orderId: string, status: string, prodamusData?: any): Promise<void>;
+  
+  // Content Alchemy
+  getContentAlchemyPlans(userId: string): Promise<ContentAlchemyPlan[]>;
+  createContentAlchemyPlan(plan: InsertContentAlchemyPlan): Promise<ContentAlchemyPlan>;
+  
+  // Grimoire Topics
+  getGrimoireTopics(userId: string): Promise<GrimoireTopic[]>;
+  getGrimoireTopic(id: string, userId: string): Promise<GrimoireTopic | undefined>;
+  createGrimoireTopic(topic: InsertGrimoireTopic): Promise<GrimoireTopic>;
+  updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined>;
+  deleteGrimoireTopic(id: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -634,6 +647,41 @@ export class DatabaseStorage implements IStorage {
         WHERE order_id = ${orderId}
       `);
     }
+  }
+
+  async getContentAlchemyPlans(userId: string): Promise<ContentAlchemyPlan[]> {
+    return db.select().from(contentAlchemyPlans).where(eq(contentAlchemyPlans.userId, userId)).orderBy(desc(contentAlchemyPlans.createdAt));
+  }
+
+  async createContentAlchemyPlan(plan: InsertContentAlchemyPlan): Promise<ContentAlchemyPlan> {
+    const [created] = await db.insert(contentAlchemyPlans).values(plan).returning();
+    return created;
+  }
+
+  async getGrimoireTopics(userId: string): Promise<GrimoireTopic[]> {
+    return db.select().from(grimoireTopics).where(eq(grimoireTopics.userId, userId)).orderBy(grimoireTopics.day);
+  }
+
+  async getGrimoireTopic(id: string, userId: string): Promise<GrimoireTopic | undefined> {
+    const [topic] = await db.select().from(grimoireTopics).where(and(eq(grimoireTopics.id, id), eq(grimoireTopics.userId, userId)));
+    return topic;
+  }
+
+  async createGrimoireTopic(topic: InsertGrimoireTopic): Promise<GrimoireTopic> {
+    const [created] = await db.insert(grimoireTopics).values(topic).returning();
+    return created;
+  }
+
+  async updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined> {
+    const [updated] = await db.update(grimoireTopics)
+      .set({ ...data, updatedAt: new Date() })
+      .where(and(eq(grimoireTopics.id, id), eq(grimoireTopics.userId, userId)))
+      .returning();
+    return updated;
+  }
+
+  async deleteGrimoireTopic(id: string, userId: string): Promise<void> {
+    await db.delete(grimoireTopics).where(and(eq(grimoireTopics.id, id), eq(grimoireTopics.userId, userId)));
   }
 }
 

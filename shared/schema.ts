@@ -257,3 +257,71 @@ export const insertSalesTrainerSessionSchema = createInsertSchema(salesTrainerSe
 
 export type InsertSalesTrainerSession = typeof salesTrainerSessions.$inferInsert;
 export type SalesTrainerSession = typeof salesTrainerSessions.$inferSelect;
+
+// Content Alchemy - Алхимия контента
+export const contentAlchemyPlans = esotericSchema.table("content_alchemy_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  name: varchar("name").notNull(),
+  daysCount: integer("days_count").notNull(),
+  contentType: varchar("content_type").notNull(), // продающий, экспертный, прогревающий
+  warmupTarget: text("warmup_target").notNull(), // к чему греем
+  topics: jsonb("topics").notNull().$type<AlchemyTopic[]>(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export interface AlchemyTopic {
+  day: number;
+  topic: string;
+  description: string;
+}
+
+export const insertContentAlchemyPlanSchema = createInsertSchema(contentAlchemyPlans, {
+  topics: z.array(z.object({
+    day: z.number(),
+    topic: z.string(),
+    description: z.string(),
+  })),
+}).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertContentAlchemyPlan = typeof contentAlchemyPlans.$inferInsert;
+export type ContentAlchemyPlan = typeof contentAlchemyPlans.$inferSelect;
+
+// Grimoire Topics - Темы в гримуаре
+export const grimoireTopics = esotericSchema.table("grimoire_topics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  planId: varchar("plan_id").references(() => contentAlchemyPlans.id),
+  day: integer("day").notNull(),
+  topic: text("topic").notNull(),
+  description: text("description"),
+  status: varchar("status").notNull().default("new"), // new, in_progress, completed
+  questions: jsonb("questions").$type<string[]>(),
+  answers: jsonb("answers").$type<GrimoireAnswer[]>(),
+  generatedPost: text("generated_post"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export interface GrimoireAnswer {
+  question: string;
+  answer: string;
+}
+
+export const insertGrimoireTopicSchema = createInsertSchema(grimoireTopics, {
+  questions: z.array(z.string()).optional().nullable(),
+  answers: z.array(z.object({
+    question: z.string(),
+    answer: z.string(),
+  })).optional().nullable(),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertGrimoireTopic = typeof grimoireTopics.$inferInsert;
+export type GrimoireTopic = typeof grimoireTopics.$inferSelect;

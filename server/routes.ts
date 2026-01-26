@@ -13,6 +13,7 @@ import { generateCase, cleanOcrText } from "./services/caseGenerator";
 import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
 import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
 import { transcribeAudio } from "./services/yandexSpeechKit";
+import { generateContentPlan, generateQuestions, generatePostFromAnswers } from "./services/contentAlchemy";
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -881,6 +882,135 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Get payment history error:", error);
       res.status(500).json({ error: "Ошибка при получении истории платежей" });
+    }
+  });
+
+  // Content Alchemy - Generate content plan
+  app.post("/api/content-alchemy/generate-plan", isAuthenticated, async (req: any, res) => {
+    try {
+      const { daysCount, contentType, warmupTarget } = req.body;
+      
+      if (!daysCount || !contentType || !warmupTarget) {
+        return res.status(400).json({ error: "Заполните все поля" });
+      }
+
+      const topics = await generateContentPlan(daysCount, contentType, warmupTarget);
+      res.json({ topics });
+    } catch (error: any) {
+      console.error("Generate content plan error:", error);
+      res.status(500).json({ error: error.message || "Ошибка генерации плана" });
+    }
+  });
+
+  // Content Alchemy Plans CRUD
+  app.get("/api/content-alchemy-plans", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const plans = await storage.getContentAlchemyPlans(userId);
+      res.json(plans);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch plans" });
+    }
+  });
+
+  app.post("/api/content-alchemy-plans", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { name, daysCount, contentType, warmupTarget, topics } = req.body;
+
+      const plan = await storage.createContentAlchemyPlan({
+        userId,
+        name,
+        daysCount,
+        contentType,
+        warmupTarget,
+        topics,
+      });
+
+      for (const topic of topics) {
+        await storage.createGrimoireTopic({
+          userId,
+          planId: plan.id,
+          day: topic.day,
+          topic: topic.topic,
+          description: topic.description,
+          status: "new",
+        });
+      }
+
+      res.json(plan);
+    } catch (error: any) {
+      console.error("Create content alchemy plan error:", error);
+      res.status(500).json({ error: error.message || "Ошибка сохранения плана" });
+    }
+  });
+
+  // Grimoire Topics CRUD
+  app.get("/api/grimoire-topics", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const topics = await storage.getGrimoireTopics(userId);
+      res.json(topics);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch grimoire topics" });
+    }
+  });
+
+  app.post("/api/grimoire-topics/:id/generate-questions", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const topic = await storage.getGrimoireTopic(req.params.id, userId);
+      
+      if (!topic) {
+        return res.status(404).json({ error: "Тема не найдена" });
+      }
+
+      const questions = await generateQuestions(topic.topic, topic.description || "");
+      
+      await storage.updateGrimoireTopic(topic.id, userId, {
+        questions,
+        status: "in_progress",
+      });
+
+      res.json({ questions });
+    } catch (error: any) {
+      console.error("Generate questions error:", error);
+      res.status(500).json({ error: error.message || "Ошибка генерации вопросов" });
+    }
+  });
+
+  app.post("/api/grimoire-topics/:id/generate-post", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { answers } = req.body;
+      const topic = await storage.getGrimoireTopic(req.params.id, userId);
+      
+      if (!topic) {
+        return res.status(404).json({ error: "Тема не найдена" });
+      }
+
+      const post = await generatePostFromAnswers(topic.topic, answers);
+      
+      await storage.updateGrimoireTopic(topic.id, userId, {
+        answers,
+        generatedPost: post,
+        status: "completed",
+      });
+
+      res.json({ post });
+    } catch (error: any) {
+      console.error("Generate post error:", error);
+      res.status(500).json({ error: error.message || "Ошибка генерации поста" });
+    }
+  });
+
+  app.delete("/api/grimoire-topics/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      await storage.deleteGrimoireTopic(req.params.id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete topic" });
     }
   });
 
