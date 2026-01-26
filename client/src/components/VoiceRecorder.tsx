@@ -135,7 +135,7 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
 
   const generatePostMutation = useMutation({
     mutationFn: async (text: string) => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       const response = await fetch("/api/voice-posts/generate", {
         method: "POST",
         headers: { 
