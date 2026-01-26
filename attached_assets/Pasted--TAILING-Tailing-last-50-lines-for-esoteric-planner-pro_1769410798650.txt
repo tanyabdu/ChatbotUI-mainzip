@@ -1,0 +1,74 @@
+[TAILING] Tailing last 50 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 50 lines:
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async Dv.getUser (/var/www/magic-content/dist/index.cjs:70:32919)
+0|esoteric |     at async ue (/var/www/magic-content/dist/index.cjs:144:11235) {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at bv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at bv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async Dv.getUser (/var/www/magic-content/dist/index.cjs:70:32919)
+0|esoteric |     at async ue (/var/www/magic-content/dist/index.cjs:144:11235) {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at bv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at bv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async Dv.getUser (/var/www/magic-content/dist/index.cjs:70:32919)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:7524 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at bv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at bv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+
+/root/.pm2/logs/esoteric-planner-out.log last 50 lines:
+0|esoteric |  селедки под шубой, без оливье, без моего любимого просекко и без единой головной боли.\n\nРазмышляю о том, как пройдёт самая разная ночь года.\n\nВстречаю Новый год на волшебном острове Бали, с которым у меня абсолютно свои отношения. В планах — обменяться подарочками, сходить на вкусный ужин, посмотреть «Очень странные дела» и улечься в кровать. А утром 1 января отправиться гулять. Может быть, шопиться, отдыхать и наслаждаться этой жизнью.\n\nГод Колеса Фортуны. Я считаю невероятно важным навык — услышать себя и понять, как ты хочешь. Потому что год будет на высоких скоростях, будет наполнен насыщенными, иногда неожиданными событиями. И градус этих событий зависит напрямую от нас. От нашего состояния, от нашей внутренней наполненности.\n\nОт этого состояния, на самом деле, зависит абсолютно всё:\n- Наши доходы\n- Наши отношения\n- Наша экспертность\n\nНевероятно важно, как я уже сказала, услышать себя и понять, чего ты хочешь в эту новогоднюю ночь. Хотя бы начиная с этой новогодней ночи. Потому что очень часто мы проживаем период праздников так, как «нужно», как принято, как было у наших родителей. Но при этом не понимаем, что на самом деле мы этого не хотим. Что наше истинное желание и состояние — абсолютно другое.\n\nВ этом году я выбираю себя.\n\nА что выберете вы? Что для вас значит «услышать себя» в канун нового цикла?\n\nСегодня вас ждёт расклад от меня: «Какие шаги мне нужно предпринять для реализации моего самого заветного желания?»\n\nПоздравляю вас с наступающим! Это Танюшка в Матрице, всех люблю.\n\n#НовыйГодНаБали #ГодКолесаФортуны #УслышатьСебя #НовыйГодБезПравил #ЗаветноеЖелание #Эзотерика #МатрицаСудьбы","tone":"вдохновляющий","createdAt":"2025-12-30T04:27:04.052Z"},{"id":"975118be-bde6-47e0-993c-7f9884223533","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","originalText":"Ситуацию Вышла замуж за лет старше 2026 г. для дифф учитывая как вы провели 25-й год я уверен что вам захочется послать всех очень далеко и очень надолго запереться дома и делать что-то что в общем-то не одобряется с разными ","refinedText":"**Замуж в 2026? А что, если захочется всех послать и запереться дома?**\n\nСитуация «выхожу замуж за человека значительно старше» в 2026 году — это не просто событие в календаре. Это финальный аккорд целого периода вашей жизни.\n\nГод 2025-й станет для вас мощным трансформатором. Проживая его, вы будете проходить через глубокие внутренние изменения. И к его завершению может возникнуть очень конкретное и сильное желание:\n\n👉 Отправить всех и вся очень далеко.\n👉 Надолго запереться в своем пространстве.\n👉 И наконец-то заняться тем, что по душе, даже если это «в общем-то не одобряется».\n\nЭто не каприз, а естественная потребность в перезагрузке. Ваша душа будет стремиться к автономности, к созданию своих правил, к тишине после, возможно, шумного периода.\n\nБрак в 2026 может стать либо продолжением этого побега в поисках покоя, либо его антиподом — выходом в новое, но уже на своих условиях. Всё зависит от того, как вы проживете этот внутренкий бунт 2025 года.\n\n**Готовы ли вы услышать свои истинные, даже «неудобные» желания? И что они говорят вам о вашем будущем?**\n\n#НумерологияСудьбы #2026Год #КармическиеОтношения #Трансформация #ЛичныеГраницы #ВнутреннийГолос #ЖизненныеЦиклы","tone":"вдохновляющий","createdAt":"2025-12-28T09:51:41.827Z"}]
+0|esoteric | Payment link created for user 3a4a572b-ae98-42e3-846c-5718285d1d92, plan: monthly, order: ESP-260126-NH78, baseUrl: https://magic-content1.ru
+0|esoteric | 9:59:19 AM [express] POST /api/payments/create-link 200 in 43ms :: {"paymentUrl":"https://Kati-klimovaa.payform.ru?order_id=ESP-260126-NH78&customer_email=tanya.fskate%40gmail.com&products%5B0%5D%5Bname%5D=%D0%9F%D0%BE%D0%B4%D0%BF%D0%B8%D1%81%D0%BA%D0%B0+%D0%9C%D0%B5%D1%81%D1%8F%D1%86&products%5B0%5D%5Bprice%5D=1690.00&products%5B0%5D%5Bquantity%5D=1&products%5B0%5D%5Bsku%5D=order_3a4a572b-ae98-42e3-846c-5718285d1d92_1769410759871%7C3a4a572b-ae98-42e3-846c-5718285d1d92%7Cmonthly&do=pay&urlReturn=https%3A%2F%2Fmagic-content1.ru%2Fpricing%3Fpayment%3Dsuccess&urlSuccess=https%3A%2F%2Fmagic-content1.ru%2Fpricing%3Fpayment%3Dsuccess&urlNotification=https%3A%2F%2Fmagic-content1.ru%2Fapi%2Fpayments%2Fwebhook&customer_extra=%D0%AD%D0%B7%D0%BE%D1%82%D0%B5%D1%80%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9+%D0%9F%D0%BB%D0%B0%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D1%89%D0%B8%D0%BA+%28%D0%BC%D0%B5%D1%81%D1%8F%D1%86%29","orderId":"ESP-260126-NH78"}
+0|esoteric | 9:59:29 AM [express] GET /api/generation-limit 200 in 30ms :: {"allowed":true,"remaining":-1}
+0|esoteric | Generating ideas only: { goal: 'engagement', niche: 'астролог', days: 1, gender: 'female' }
+0|esoteric | Generating ideas only (attempt 1/2)...
+0|esoteric | Ideas generated in 6094ms
+0|esoteric | Raw AI response (first 500 chars): {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Тема: 'Какой аспект вашей натальной карты вызывает у вас больше всего вопросов?' Этот пост побуждает аудиторию задуматься о своих астрологических картах, вызывая любопытство и желание поделиться опытом. Формат подачи: вопрос в сторис или посте с вариантами ответов (например, аспекты планет, дома, знаки) для обсуждения в комментариях.",
+0|esoteric |             "type": "Вовлекающий"
+0|esoteric |         }
+0|esoteric |     ]
+0|esoteric | }
+0|esoteric | 9:59:41 AM [express] POST /api/strategies/generate-ideas 200 in 6161ms :: {"ideas":[{"day":1,"idea":"Тема: 'Какой аспект вашей натальной карты вызывает у вас больше всего вопросов?' Этот пост побуждает аудиторию задуматься о своих астрологических картах, вызывая любопытство и желание поделиться опытом. Формат подачи: вопрос в сторис или посте с вариантами ответов (например, аспекты планет, дома, знаки) для обсуждения в комментариях.","type":"Вовлекающий"}],"context":{"goal":"engagement","niche":"астролог","archetype":{"name":"Мудрец-Влюблённый-Простодушный","description":"Эксперт с хорошей интуицией. Умеет анализировать и структурировать информацию, находить решения сложных задач. Стремится к истине и глубокому пониманию. С элементами влюблённый: чувственный, эмоциональный, эстетичный, страстный.","recommendations":["знания","анализ","система","понимание","истина","красота"],"triggerWords":["анализ","система","знания","эксперт","истина","интеллект","исследование","технология","логика","доказательства"],"contentStyle":["экспертно через знания","интеллектуально","с призывом к обсуждениям","образовательно"],"tone":"Экспертный, вдумчивый, структурированный. Объясняет сложное простым языком."},"gender":"female"}}
+0|esoteric | 9:59:41 AM [express] GET /api/generation-limit 304 in 26ms :: {"allowed":true,"remaining":-1}
+
+

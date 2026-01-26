@@ -1,0 +1,41 @@
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async Dv.getUser (/var/www/magic-content/dist/index.cjs:70:32919)
+0|esoteric |     at async ue (/var/www/magic-content/dist/index.cjs:144:11235) {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at bv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at bv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:70:13330
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:70:28668
+0|esoteric |     at async Dv.getUser (/var/www/magic-content/dist/index.cjs:70:32919)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:144:7524 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at bv.<anonymous> (/var/www/magic-content/dist/index.cjs:70:4604)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at bv.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:69:155685)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+
+/root/.pm2/logs/esoteric-planner-out.log last 30 lines:
+0|esoteric | �го состояния, на самом деле, зависит абсолютно всё:\n- Наши доходы\n- Наши отношения\n- Наша экспертность\n\nНевероятно важно, как я уже сказала, услышать себя и понять, чего ты хочешь в эту новогоднюю ночь. Хотя бы начиная с этой новогодней ночи. Потому что очень часто мы проживаем период праздников так, как «нужно», как принято, как было у наших родителей. Но при этом не понимаем, что на самом деле мы этого не хотим. Что наше истинное желание и состояние — абсолютно другое.\n\nВ этом году я выбираю себя.\n\nА что выберете вы? Что для вас значит «услышать себя» в канун нового цикла?\n\nСегодня вас ждёт расклад от меня: «Какие шаги мне нужно предпринять для реализации моего самого заветного желания?»\n\nПоздравляю вас с наступающим! Это Танюшка в Матрице, всех люблю.\n\n#НовыйГодНаБали #ГодКолесаФортуны #УслышатьСебя #НовыйГодБезПравил #ЗаветноеЖелание #Эзотерика #МатрицаСудьбы","tone":"вдохновляющий","createdAt":"2025-12-30T04:27:04.052Z"},{"id":"975118be-bde6-47e0-993c-7f9884223533","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","originalText":"Ситуацию Вышла замуж за лет старше 2026 г. для дифф учитывая как вы провели 25-й год я уверен что вам захочется послать всех очень далеко и очень надолго запереться дома и делать что-то что в общем-то не одобряется с разными ","refinedText":"**Замуж в 2026? А что, если захочется всех послать и запереться дома?**\n\nСитуация «выхожу замуж за человека значительно старше» в 2026 году — это не просто событие в календаре. Это финальный аккорд целого периода вашей жизни.\n\nГод 2025-й станет для вас мощным трансформатором. Проживая его, вы будете проходить через глубокие внутренние изменения. И к его завершению может возникнуть очень конкретное и сильное желание:\n\n👉 Отправить всех и вся очень далеко.\n👉 Надолго запереться в своем пространстве.\n👉 И наконец-то заняться тем, что по душе, даже если это «в общем-то не одобряется».\n\nЭто не каприз, а естественная потребность в перезагрузке. Ваша душа будет стремиться к автономности, к созданию своих правил, к тишине после, возможно, шумного периода.\n\nБрак в 2026 может стать либо продолжением этого побега в поисках покоя, либо его антиподом — выходом в новое, но уже на своих условиях. Всё зависит от того, как вы проживете этот внутренкий бунт 2025 года.\n\n**Готовы ли вы услышать свои истинные, даже «неудобные» желания? И что они говорят вам о вашем будущем?**\n\n#НумерологияСудьбы #2026Год #КармическиеОтношения #Трансформация #ЛичныеГраницы #ВнутреннийГолос #ЖизненныеЦиклы","tone":"вдохновляющий","createdAt":"2025-12-28T09:51:41.827Z"}]
+0|esoteric | 10:04:49 AM [express] GET /api/auth/user 304 in 15ms :: {"id":"28100556-638e-4625-b32b-ccb627cd2ded","email":"i.rogozina78@yandex.ru","firstName":"Инна","lastName":"Рогоз ина","profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-04T06:04:17.356Z","subscriptionExpiresAt":"2026-02-03T06:04:17.356Z"}
+0|esoteric | 10:04:49 AM [express] GET /api/auth/access 200 in 14ms :: {"hasAccess":true,"daysLeft":8}
+0|esoteric | 10:04:49 AM [express] GET /api/archetypes/latest 304 in 29ms :: {"id":"efc8d816-69bd-4b37-8af5-2646650c6fb7","userId":"28100556-638e-4625-b32b-ccb627cd2ded","archetypeName":"Маг-Заботливый-Мудрец","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами заботливый: заботливый, поддерживающий, тёплый, надёжный.","answers":[0,0,0,1,3,0,2,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","забота"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-21T18:31:31.578Z"}
+0|esoteric | 10:06:06 AM [express] POST /api/voice-posts/transcribe 401 in 1ms :: {"message":"Unauthorized"}
+
+

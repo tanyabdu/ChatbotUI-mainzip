@@ -106,9 +106,12 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
       const formData = new FormData();
       formData.append("audio", audioBlob, "recording.webm");
       
+      const token = localStorage.getItem("auth_token");
+      
       const response = await fetch("/api/voice-posts/transcribe", {
         method: "POST",
         credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
       

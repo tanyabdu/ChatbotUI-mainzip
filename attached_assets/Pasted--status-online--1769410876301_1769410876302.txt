@@ -1,0 +1,59 @@
+───────────────────┬────────────────────────────────────────────┐
+│ status            │ online                                     │
+│ name              │ esoteric-planner                           │
+│ namespace         │ default                                    │
+│ version           │ 1.0.0                                      │
+│ restarts          │ 7                                          │
+│ uptime            │ 45h                                        │
+│ script path       │ /var/www/magic-content/dist/index.cjs      │
+│ script args       │ N/A                                        │
+│ error log path    │ /root/.pm2/logs/esoteric-planner-error.log │
+│ out log path      │ /root/.pm2/logs/esoteric-planner-out.log   │
+│ pid path          │ /root/.pm2/pids/esoteric-planner-0.pid     │
+│ interpreter       │ /usr/bin/node                              │
+│ interpreter args  │ N/A                                        │
+│ script id         │ 0                                          │
+│ exec cwd          │ /var/www/magic-content                     │
+│ exec mode         │ fork_mode                                  │
+│ node.js version   │ 20.19.6                                    │
+│ node env          │ production                                 │
+│ watch & reload    │ ✘                                          │
+│ unstable restarts │ 0                                          │
+│ created at        │ 2026-01-24T09:15:53.794Z                   │
+└───────────────────┴────────────────────────────────────────────┘
+ Actions available 
+┌────────────────────────┐
+│ km:heapdump            │
+│ km:cpu:profiling:start │
+│ km:cpu:profiling:stop  │
+│ km:heap:sampling:start │
+│ km:heap:sampling:stop  │
+└────────────────────────┘
+ Trigger via: pm2 trigger esoteric-planner <action_name>
+
+ Code metrics value 
+┌────────────────────────┬──────────────┐
+│ Used Heap Size         │ 22.07 MiB    │
+│ Heap Usage             │ 91.39 %      │
+│ Heap Size              │ 24.15 MiB    │
+│ Event Loop Latency p95 │ 1.33 ms      │
+│ Event Loop Latency     │ 0.51 ms      │
+│ Active handles         │ 5            │
+│ Active requests        │ 0            │
+│ HTTP                   │ 0.02 req/min │
+│ HTTP P95 Latency       │ 2 ms         │
+│ HTTP Mean Latency      │ 1 ms         │
+└────────────────────────┴──────────────┘
+ Divergent env variables from local env 
+┌────────────────┬───────────────────────────────────────┐
+│ SSH_CONNECTION │ 153.124.163.199 61282 192.168.0.27 22 │
+│ XDG_SESSION_ID │ 4274                                  │
+│ SSH_CLIENT     │ 153.124.163.199 61282 22              │
+│ SSH_TTY        │ /dev/pts/2                            │
+└────────────────┴───────────────────────────────────────┘
+
+ Add your own code metrics: http://bit.ly/code-metrics
+ Use `pm2 logs esoteric-planner [--lines 1000]` to display logs
+ Use `pm2 env 0` to display environment variables
+ Use `pm2 monit` to monitor CPU and Memory usage esoteric-planner
+root@cv5653817:/var/www/magic-content# 
