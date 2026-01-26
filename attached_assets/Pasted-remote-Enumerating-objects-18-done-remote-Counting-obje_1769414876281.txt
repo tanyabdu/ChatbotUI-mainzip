@@ -1,0 +1,44 @@
+remote: Enumerating objects: 18, done.
+remote: Counting objects: 100% (18/18), done.
+remote: Compressing objects: 100% (6/6), done.
+remote: Total 13 (delta 7), reused 13 (delta 7), pack-reused 0 (from 0)
+Unpacking objects: 100% (13/13), 1.35 MiB | 5.09 MiB/s, done.
+From https://github.com/tanyabdu/ChatbotUI-mainzip
+   e9641c6..91769f5  main       -> origin/main
+Updating e9641c6..91769f5
+Fast-forward
+ ...-esoteric-Transcription-error-Error-rpc-error-code-Inv_1769414221813.txt |  59 +++++++++++
+ ...60_2026\342\200\22401\342\200\22426_\320\262_15.49.24_1769413781797.png" | Bin 0 -> 535769 bytes
+ ...60_2026\342\200\22401\342\200\22426_\320\262_15.53.28_1769414040375.png" | Bin 0 -> 525115 bytes
+ ...60_2026\342\200\22401\342\200\22426_\320\262_15.58.53_1769414351665.png" | Bin 0 -> 529193 bytes
+ server/services/yandexSpeechKit.ts                                          | 198 +++++++++++++++++++++++++++++++-----
+ 5 files changed, 233 insertions(+), 24 deletions(-)
+ create mode 100644 attached_assets/Pasted-0-esoteric-Transcription-error-Error-rpc-error-code-Inv_1769414221813.txt
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026\342\200\22401\342\200\22426_\320\262_15.49.24_1769413781797.png"
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026\342\200\22401\342\200\22426_\320\262_15.53.28_1769414040375.png"
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026\342\200\22401\342\200\22426_\320\262_15.58.53_1769414351665.png"
+root@cv5653817:/var/www/magic-content# npm run build
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v5.4.20 building for production...
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 1801 modules transformed.
+../dist/public/index.html                   1.64 kB │ gzip:   0.80 kB
+../dist/public/assets/index-DwGw4tra.css  113.09 kB │ gzip:  17.34 kB
+../dist/public/assets/ui-DKupQhe4.js       66.75 kB │ gzip:  23.71 kB
+../dist/public/assets/vendor--0RGCJ5T.js  141.41 kB │ gzip:  45.48 kB
+../dist/public/assets/index-DQ4nK1VE.js   522.50 kB │ gzip: 157.62 kB
+✓ built in 4.28s
+building server...
+
+  dist/index.cjs  1.5mb ⚠️
+
+⚡ Done in 181ms
+root@cv5653817:/var/www/magic-content# pm2 restart esoteric-planner
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [esoteric-planner](ids: [ 0 ])
+[PM2] [esoteric-planner](0) ✓

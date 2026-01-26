@@ -1,0 +1,126 @@
+f","email":"maria.kudalova@mail.ru","firstName":"Мария","lastName":"Кудалова","profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-29T08:11:07.885Z","subscriptionExpiresAt":"2026-02-28T08:11:07.885Z"}
+0|esoteric-planner  | 11:13:09 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | 11:13:15 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric-planner  | Resetting database connection...
+0|esoteric-planner  | Database connection recreated successfully
+0|esoteric-planner  | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric-planner  | Resetting database connection...
+0|esoteric-planner  | Database connection recreated successfully
+0|esoteric-planner  | Login error: Error: Connection terminated due to connection timeout
+0|esoteric-planner  |     at /var/www/magic-content/dist/index.cjs:72:13356
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:72:28730
+0|esoteric-planner  |     at async V1.getUserByEmail (/var/www/magic-content/dist/index.cjs:72:33070)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:146:2716 {
+0|esoteric-planner  |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric-planner  |       at I1.<anonymous> (/var/www/magic-content/dist/index.cjs:72:4627)
+0|esoteric-planner  |       at Object.onceWrapper (node:events:638:28)
+0|esoteric-planner  |       at I1.emit (node:events:524:28)
+0|esoteric-planner  |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric-planner  |       at Socket.emit (node:events:524:28)
+0|esoteric-planner  |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric-planner  | }
+0|esoteric-planner  | 11:14:02 AM [express] POST /api/auth/login 500 in 15002ms :: {"message":"Ошибка при входе"}
+0|esoteric-planner  | 11:14:03 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric-planner  | Resetting database connection...
+0|esoteric-planner  | Database connection recreated successfully
+0|esoteric-planner  | Login error: Error: Connection terminated due to connection timeout
+0|esoteric-planner  |     at /var/www/magic-content/dist/index.cjs:72:13356
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:72:28730
+0|esoteric-planner  |     at async V1.getUserByEmail (/var/www/magic-content/dist/index.cjs:72:33070)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:146:2716 {
+0|esoteric-planner  |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric-planner  |       at I1.<anonymous> (/var/www/magic-content/dist/index.cjs:72:4627)
+0|esoteric-planner  |       at Object.onceWrapper (node:events:638:28)
+0|esoteric-planner  |       at I1.emit (node:events:524:28)
+0|esoteric-planner  |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric-planner  |       at Socket.emit (node:events:524:28)
+0|esoteric-planner  |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric-planner  | }
+0|esoteric-planner  | 11:14:21 AM [express] POST /api/auth/login 500 in 15002ms :: {"message":"Ошибка при входе"}
+0|esoteric-planner  | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric-planner  | Resetting database connection...
+0|esoteric-planner  | Database connection recreated successfully
+0|esoteric-planner  | 11:14:32 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric-planner  | Error: Connection terminated due to connection timeout
+0|esoteric-planner  |     at /var/www/magic-content/dist/index.cjs:72:13356
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:72:28730
+0|esoteric-planner  |     at async V1.getUser (/var/www/magic-content/dist/index.cjs:72:32985)
+0|esoteric-planner  |     at async de (/var/www/magic-content/dist/index.cjs:146:11242) {
+0|esoteric-planner  |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric-planner  |       at I1.<anonymous> (/var/www/magic-content/dist/index.cjs:72:4627)
+0|esoteric-planner  |       at Object.onceWrapper (node:events:638:28)
+0|esoteric-planner  |       at I1.emit (node:events:524:28)
+0|esoteric-planner  |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric-planner  |       at Socket.emit (node:events:524:28)
+0|esoteric-planner  |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric-planner  | }
+0|esoteric-planner  | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric-planner  | Resetting database connection...
+0|esoteric-planner  | Database connection recreated successfully
+0|esoteric-planner  | Login error: Error: Connection terminated due to connection timeout
+0|esoteric-planner  |     at /var/www/magic-content/dist/index.cjs:72:13356
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:72:28730
+0|esoteric-planner  |     at async V1.getUserByEmail (/var/www/magic-content/dist/index.cjs:72:33070)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:146:2716 {
+0|esoteric-planner  |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric-planner  |       at I1.<anonymous> (/var/www/magic-content/dist/index.cjs:72:4627)
+0|esoteric-planner  |       at Object.onceWrapper (node:events:638:28)
+0|esoteric-planner  |       at I1.emit (node:events:524:28)
+0|esoteric-planner  |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric-planner  |       at Socket.emit (node:events:524:28)
+0|esoteric-planner  |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric-planner  | }
+0|esoteric-planner  | 11:14:41 AM [express] POST /api/auth/login 500 in 15003ms :: {"message":"Ошибка при входе"}
+0|esoteric-planner  | Login error: Error: Connection terminated due to connection timeout
+0|esoteric-planner  |     at /var/www/magic-content/dist/index.cjs:72:13356
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:72:28730
+0|esoteric-planner  |     at async V1.getUserByEmail (/var/www/magic-content/dist/index.cjs:72:33070)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:146:2716 {
+0|esoteric-planner  |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric-planner  |       at I1.<anonymous> (/var/www/magic-content/dist/index.cjs:72:4627)
+0|esoteric-planner  |       at Object.onceWrapper (node:events:638:28)
+0|esoteric-planner  |       at I1.emit (node:events:524:28)
+0|esoteric-planner  |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric-planner  |       at Socket.emit (node:events:524:28)
+0|esoteric-planner  |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric-planner  | }
+0|esoteric-planner  | 11:14:51 AM [express] POST /api/auth/login 500 in 15003ms :: {"message":"Ошибка при входе"}
+0|esoteric-planner  | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric-planner  | Resetting database connection...
+0|esoteric-planner  | Database connection recreated successfully
+0|esoteric-planner  | Error: Connection terminated due to connection timeout
+0|esoteric-planner  |     at /var/www/magic-content/dist/index.cjs:72:13356
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:72:28730
+0|esoteric-planner  |     at async V1.getUser (/var/www/magic-content/dist/index.cjs:72:32985)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:146:7529 {
+0|esoteric-planner  |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric-planner  |       at I1.<anonymous> (/var/www/magic-content/dist/index.cjs:72:4627)
+0|esoteric-planner  |       at Object.onceWrapper (node:events:638:28)
+0|esoteric-planner  |       at I1.emit (node:events:524:28)
+0|esoteric-planner  |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric-planner  |       at Socket.emit (node:events:524:28)
+0|esoteric-planner  |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric-planner  | }
+0|esoteric-planner  | Error: Connection terminated due to connection timeout
+0|esoteric-planner  |     at /var/www/magic-content/dist/index.cjs:72:13356
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:72:28730
+0|esoteric-planner  |     at async V1.getUser (/var/www/magic-content/dist/index.cjs:72:32985)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:146:7529 {
+0|esoteric-planner  |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric-planner  |       at I1.<anonymous> (/var/www/magic-content/dist/index.cjs:72:4627)
+0|esoteric-planner  |       at Object.onceWrapper (node:events:638:28)
+0|esoteric-planner  |       at I1.emit (node:events:524:28)
+0|esoteric-planner  |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric-planner  |       at Socket.emit (node:events:524:28)
+0|esoteric-planner  |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric-planner  | }
+

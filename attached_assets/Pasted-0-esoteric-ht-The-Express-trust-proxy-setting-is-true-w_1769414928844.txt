@@ -1,0 +1,33 @@
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 20 lines:
+0|esoteric | о не хотим. Что наше истинное желание и состояние — абсолютно другое.\n\nВ этом году я выбираю себя.\n\nА что выберете вы? Что для вас значит «услышать себя» в канун нового цикла?\n\nСегодня вас ждёт расклад от меня: «Какие шаги мне нужно предпринять для реализации моего самого заветного желания?»\n\nПоздравляю вас с наступающим! Это Танюшка в Матрице, всех люблю.\n\n#НовыйГодНаБали #ГодКолесаФортуны #УслышатьСебя #НовыйГодБезПравил #ЗаветноеЖелание #Эзотерика #МатрицаСудьбы","tone":"вдохновляющий","createdAt":"2025-12-30T04:27:04.052Z"},{"id":"975118be-bde6-47e0-993c-7f9884223533","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","originalText":"Ситуацию Вышла замуж за лет старше 2026 г. для дифф учитывая как вы провели 25-й год я уверен что вам захочется послать всех очень далеко и очень надолго запереться дома и делать что-то что в общем-то не одобряется с разными ","refinedText":"**Замуж в 2026? А что, если захочется всех послать и запереться дома?**\n\nСитуация «выхожу замуж за человека значительно старше» в 2026 году — это не просто событие в календаре. Это финальный аккорд целого периода вашей жизни.\n\nГод 2025-й станет для вас мощным трансформатором. Проживая его, вы будете проходить через глубокие внутренние изменения. И к его завершению может возникнуть очень конкретное и сильное желание:\n\n👉 Отправить всех и вся очень далеко.\n👉 Надолго запереться в своем пространстве.\n👉 И наконец-то заняться тем, что по душе, даже если это «в общем-то не одобряется».\n\nЭто не каприз, а естественная потребность в перезагрузке. Ваша душа будет стремиться к автономности, к созданию своих правил, к тишине после, возможно, шумного периода.\n\nБрак в 2026 может стать либо продолжением этого побега в поисках покоя, либо его антиподом — выходом в новое, но уже на своих условиях. Всё зависит от того, как вы проживете этот внутренкий бунт 2025 года.\n\n**Готовы ли вы услышать свои истинные, даже «неудобные» желания? И что они говорят вам о вашем будущем?**\n\n#НумерологияСудьбы #2026Год #КармическиеОтношения #Трансформация #ЛичныеГраницы #ВнутреннийГолос #ЖизненныеЦиклы","tone":"вдохновляющий","createdAt":"2025-12-28T09:51:41.827Z"}]
+0|esoteric | Converting audio from audio/webm to OGG Opus...
+0|esoteric | Conversion complete.
+0|esoteric | Audio duration: 2.9 seconds, file size: 14902 bytes
+0|esoteric | Split into 1 chunk(s)
+0|esoteric | Transcribing chunk 1/1 (14902 bytes)...
+0|esoteric | Transcription successful: Фильм
+0|esoteric | 11:08:15 AM [express] POST /api/voice-posts/transcribe 200 in 558ms :: {"transcript":"Фильм"}
+
+0|esoteric-planner  | 11:08:44 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+

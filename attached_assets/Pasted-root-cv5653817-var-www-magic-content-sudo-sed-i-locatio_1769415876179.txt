@@ -1,0 +1,63 @@
+root@cv5653817:/var/www/magic-content# sudo sed -i '/location \/ {/a\        client_max_body_size 25M;' /etc/nginx/sites-available/magic-content && sudo nginx -t && sudo systemctl reload nginx
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 30
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at I1.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | Login error: Error: Connection terminated due to connection timeout
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:72:13356
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:72:28730
+0|esoteric |     at async V1.getUserByEmail (/var/www/magic-content/dist/index.cjs:72:33070)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:146:2716 {
+0|esoteric |   [cause]: Error: Connection terminated unexpectedly
+0|esoteric |       at I1.<anonymous> (/var/www/magic-content/dist/index.cjs:72:4627)
+0|esoteric |       at Object.onceWrapper (node:events:638:28)
+0|esoteric |       at I1.emit (node:events:524:28)
+0|esoteric |       at Socket.<anonymous> (/var/www/magic-content/dist/index.cjs:71:155799)
+0|esoteric |       at Socket.emit (node:events:524:28)
+0|esoteric |       at TCP.<anonymous> (node:net:343:12)
+0|esoteric | }
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 30 lines:
+0|esoteric | й пост с иллюстрациями или описаниями.","type":"Развлекательный"},{"day":25,"idea":"Тема: Как лунное рейки изменило моё отношение к здоровью — личный опыт исцеления и роста. Эмоция: благодарность и вдохновение. Формат: Личная история с конкретными примерами улучшений.","type":"Личная история"},{"day":26,"idea":"Тема: Советы 'Как использовать Таро для самопознания без страха' — методы для начинающих. Эмоция: поддержка и ясность. Формат: Экспертный пост с практическими рекомендациями.","type":"Экспертный"},{"day":27,"idea":"Тема: Опрос 'Какая техника лунного рейки вам интереснее всего?' — выбор из вариантов типа 'исцеление' или 'защита'. Эмоция: вовлечённость и любознательность. Формат: Вовлекающий пост с кратким описанием техник.","type":"Вовлекающий"},{"day":28,"idea":"Тема: Юмор про 'Тарологи и технологии' — смешные моменты с цифровыми гаданиями. Эмоция: лёгкость и современность. Формат: Развлекательный пост с мемами или короткими историями.","type":"Развлекательный"},{"day":29,"idea":"Тема: Моя любимая игра Лила и её уроки — глубокое откровение о личном росте. Эмоция: мудрость и удовлетворение. Формат: Личная история с ключевыми моментами игры и выводами.","type":"Личная история"},{"day":30,"idea":"Тема: Чеклист 'Интеграция Таро, лунного рейки и игры Лила в повседневность' — гармоничные практики. Эмоция: целостность и вдохновение. Формат: Экспертный пост с советами по сочетанию методов.","type":"Экспертный"}],"context":{"goal":"engagement","niche":"Таролог, мастер лунного рейки, проводник игры Лила","archetype":{"name":"Простодушный-Мудрец-Маг","description":"Оптимист и идеалист. Стремится к счастью, видит красоту в простых вещах. Верит в лучшее и несёт в мир доброту и позитив. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","recommendations":["радость","простота","счастье","свет","гармония","знания"],"triggerWords":["лёгкость","простота","радость","счастье","позитив","нежность","искренность","чистота","безмятежность","волшебство"],"contentStyle":["эмоционально","легко и просто","доверительно","заряжает позитивом"],"tone":"Лёгкий, тёплый, воодушевляющий. Несёт свет и радость в каждом слове."},"gender":"female"}}
+0|esoteric | 11:21:58 AM [express] GET /api/generation-limit 304 in 28ms :: {"allowed":true,"remaining":-1}
+0|esoteric | 11:22:00 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 11:22:45 AM [express] POST /api/auth/login 200 in 112ms :: {"message":"Вход выполнен успешно","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyNGZiYWY2Zi1kZDMzLTQ1YjgtYjcwZS1jYmNjY2IxZWY5MDkiLCJpYXQiOjE3Njk0MTU3NjUsImV4cCI6MTc3MjAwNzc2NX0.zlVARboj7hYfx6sxMwnpnr60G82wLR-2BasItwHFYEw","user":{"id":"24fbaf6f-dd33-45b8-b70e-cbcccb1ef909","email":"poznarkovas@gmail.com","firstName":"Светлана","lastName":"Познаркова","isAdmin":false}}
+0|esoteric | 11:22:45 AM [express] GET /api/auth/user 200 in 14ms :: {"id":"24fbaf6f-dd33-45b8-b70e-cbcccb1ef909","email":"poznarkovas@gmail.com","firstName":"Светлана","lastName":"Познаркова","profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-05T08:19:51.462Z","subscriptionExpiresAt":"2026-02-04T08:19:51.462Z"}
+0|esoteric | 11:22:46 AM [express] GET /api/auth/access 200 in 16ms :: {"hasAccess":true,"daysLeft":9}
+0|esoteric | New database connection established
+0|esoteric | 11:22:46 AM [express] GET /api/archetypes/latest 200 in 129ms :: {"id":"29e17087-b541-46ae-ad03-1dbe8a648856","userId":"24fbaf6f-dd33-45b8-b70e-cbcccb1ef909","archetypeName":"Простодушный-Заботливый-Маг","archetypeDescription":"Оптимист и идеалист. Стремится к счастью, видит красоту в простых вещах. Верит в лучшее и несёт в мир доброту и позитив. С элементами заботливый: заботливый, поддерживающий, тёплый, надёжный.","answers":[1,2,0,3,3,1,0,2],"recommendations":["радость","простота","счастье","свет","гармония","забота"],"brandColors":["#fef3c7","#fde68a","#93c5fd"],"brandFonts":["Nunito для заголовков, Open Sans для текста"],"gender":"female","createdAt":"2026-01-02T11:45:45.462Z"}
+0|esoteric | 11:23:54 AM [express] GET /api/generation-limit 200 in 33ms :: {"allowed":true,"remaining":-1}
+0|esoteric | New database connection established
+0|esoteric | 11:23:54 AM [express] GET /api/trainer/sessions 200 in 145ms :: []
+0|esoteric | Converting audio from audio/webm to OGG Opus...
+
+0|esoteric-planner  | Conversion complete.
+0|esoteric-planner  | Audio duration: 101.4 seconds, file size: 642590 bytes
+0|esoteric-planner  | Split into 5 chunk(s)
+0|esoteric-planner  | Transcribing chunk 1/5 (158898 bytes)...
+0|esoteric-planner  | Transcribing chunk 2/5 (156918 bytes)...
+0|esoteric-planner  | Transcribing chunk 3/5 (162818 bytes)...
+0|esoteric-planner  | Transcribing chunk 4/5 (161070 bytes)...
+0|esoteric-planner  | Transcribing chunk 5/5 (7982 bytes)...
+0|esoteric-planner  | Transcription successful: Вот эта история маленьких шагов она внедряется в вашу жизнь очень легко и вот эти маленькие шаги кот...
+0|esoteric-planner  | 11:24:22 AM [express] POST /api/voice-posts/transcribe 200 in 12902ms :: {"transcript":"Вот эта история маленьких шагов она внедряется в вашу жизнь очень легко и вот эти маленькие шаги которых пишут в американских книгах да вот этих мотивационных они становятся понятны как это работает а выберите себе какую то большую цель разбиваете ее на по цели затем разбивайте ее на под под под под цели так до бесконечности у меня уже запланирован мой 2026 год По темам жизни также он запланирован у меня примерно по месяцам где я понимаю что он что я буду делать так в эти месяца понятно что это не супер жесткое планирование но оно все таки присутствует у меня присутствует в голове вот эта структура знаете как это все может выглядеть и каждый месяц у меня разбит на недели а каждую неделю у меня разбита на дни и еще от каждый день у меня есть укрепление которое называется без привязки к дню где я Планирую какие дела мне нужно сделать а потом очень легко это все в интерфейсе на самой майн карте передвигается к дням недели и это очень легко вам не нужно заполнять какие то ежедневники постоянно вам не нужно что то зачеркивать стирать то есть это все вот абсолютно легко да еще раз повторюсь начинаю планирую свой год потом расписываю по месяцам примерно расписываю обязательно какая у меня большая цель на год или несколько и вот сейчас его не хочу Если так далеко идти возьмите и попробуйте распланировать например неделю с 26 января по какое у нас там по 1 февраля попробуйте в приложении смайнд разбить ее на дни сделать графу без привязки к дню и прописать какие примерно вы хотите делать дела что будет у вас на неделе да что вы будете продавать какой контент вы для этого будете делать а какие у вас есть дела там по жизни на что вам нужно сделать Куда ребенка"}
+0|esoteric-planner  | 11:24:27 AM [express] POST /api/voice-posts/generate 401 in 1ms :: {"message":"Unauthorized"}
+
