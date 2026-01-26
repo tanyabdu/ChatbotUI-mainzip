@@ -10,6 +10,7 @@ export interface Slide {
   offsetY?: number;
   titleSize?: number;
   bodySize?: number;
+  textColor?: string;
 }
 
 const MAX_CHARS_PER_SLIDE = 350;

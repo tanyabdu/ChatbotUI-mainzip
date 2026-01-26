@@ -182,6 +182,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
   const getSlideOffsetY = (slide: Slide) => slide.offsetY ?? 0;
   const getSlideTitleSize = (slide: Slide) => slide.titleSize ?? titleSize;
   const getSlideBodySize = (slide: Slide) => slide.bodySize ?? bodySize;
+  const getSlideTextColor = (slide: Slide) => slide.textColor ?? textColor;
 
   const baseColors = [
     '#ffffff', '#000000', '#f5f5f5', '#374151', '#6b7280', '#9ca3af',
@@ -235,6 +236,24 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       if (!slide) return prev;
       return updateSlide(prev, slide.id, { [sizeType]: value });
     });
+  };
+
+  const handleSlideTextColorChange = (color: string) => {
+    const slideId = slidesRef.current[currentSlideIndexRef.current]?.id;
+    if (!slideId) return;
+    setSlides(prev => {
+      const slide = prev.find(s => s.id === slideId);
+      if (!slide) return prev;
+      return updateSlide(prev, slide.id, { textColor: color });
+    });
+  };
+
+  const applyTextColorToAllSlides = () => {
+    const currentSlide = slidesRef.current[currentSlideIndexRef.current];
+    if (!currentSlide) return;
+    const colorToApply = currentSlide.textColor ?? textColor;
+    setSlides(prev => prev.map(slide => ({ ...slide, textColor: colorToApply })));
+    toast({ title: "Цвет применён ко всем слайдам" });
   };
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -799,6 +818,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     const expPadding = padding * scaleFactor;
     const slideTitleSz = getSlideTitleSize(slide);
     const slideBodySz = getSlideBodySize(slide);
+    const slideTextCol = getSlideTextColor(slide);
     const expTitleSize = (isTitleSlide ? slideTitleSz : slideTitleSz * 0.7) * scaleFactor;
     const expBodySize = slideBodySz * scaleFactor;
 
@@ -953,7 +973,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     
     if (slide.heading) {
       ctx.font = `600 ${expTitleSize}px '${titleFont}', serif`;
-      ctx.fillStyle = textColor;
+      ctx.fillStyle = slideTextCol;
       
       const lines = wrapTextWithSpacing(ctx, slide.heading, contentWidth, expLetterSpacing);
       lines.forEach((line, i) => {
@@ -982,7 +1002,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
       
       // IMPORTANT: Set font BEFORE wrapTextWithSpacing so text measurement is correct
       ctx.font = `400 ${actualBodySize}px '${bodyFont}', sans-serif`;
-      ctx.fillStyle = textColor;
+      ctx.fillStyle = slideTextCol;
       ctx.globalAlpha = 0.95;
       
       // For title slides use pre-calculated lines; for content slides calculate now (with correct font set)
@@ -1002,7 +1022,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
     if (showSlideNumber && slides.length > 1) {
       ctx.font = `400 ${14 * scaleFactor}px '${bodyFont}', sans-serif`;
-      ctx.fillStyle = textColor;
+      ctx.fillStyle = slideTextCol;
       ctx.globalAlpha = 0.7;
       ctx.textAlign = 'right';
       ctx.fillText(`${slideIndex + 1}/${slides.length}`, expWidth - 12 * scaleFactor, 12 * scaleFactor + 14 * scaleFactor);
@@ -1015,7 +1035,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     if (showSwipeArrow && slideIndex < slides.length - 1) {
       const arrowY = profileName ? footerY - 24 * scaleFactor : footerY - 8 * scaleFactor;
       ctx.globalAlpha = 0.5;
-      ctx.fillStyle = textColor;
+      ctx.fillStyle = slideTextCol;
       ctx.fillRect(expWidth/2 - 30 * scaleFactor, arrowY - 1 * scaleFactor, 60 * scaleFactor, 2 * scaleFactor);
       ctx.beginPath();
       ctx.moveTo(expWidth/2 + 30 * scaleFactor, arrowY);
@@ -1029,7 +1049,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
 
     if (profileName) {
       ctx.font = `400 ${14 * scaleFactor}px '${bodyFont}', sans-serif`;
-      ctx.fillStyle = textColor;
+      ctx.fillStyle = slideTextCol;
       ctx.globalAlpha = 0.7;
       
       const iconSize = 14 * scaleFactor;
@@ -1399,7 +1419,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               style={{
                 fontFamily: titleFont,
                 fontSize: isTitleSlide ? `${getSlideTitleSize(slide)}px` : `${getSlideTitleSize(slide) * 0.7}px`,
-                color: textColor,
+                color: getSlideTextColor(slide),
                 lineHeight: lineHeight,
                 letterSpacing: `${letterSpacing}px`,
                 marginBottom: slide.body ? '20px' : 0,
@@ -1418,7 +1438,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
               style={{
                 fontFamily: bodyFont,
                 fontSize: `${getSlideBodySize(slide)}px`,
-                color: textColor,
+                color: getSlideTextColor(slide),
                 lineHeight: lineHeight,
                 letterSpacing: `${letterSpacing}px`,
                 opacity: 0.95,
@@ -1490,7 +1510,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             right: '12px',
             fontFamily: bodyFont,
             fontSize: '14px',
-            color: textColor,
+            color: getSlideTextColor(slide),
             opacity: 0.7,
             letterSpacing: '0.5px',
           }}>
@@ -1534,7 +1554,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
             <div style={{
               fontFamily: bodyFont,
               fontSize: '14px',
-              color: textColor,
+              color: getSlideTextColor(slide),
               opacity: 0.7,
               letterSpacing: '0.5px',
               display: 'flex',
@@ -1849,6 +1869,57 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                             />
                           </div>
                         </div>
+
+                        {/* Per-slide text color */}
+                        <div className="mt-4 pt-3 border-t border-purple-100">
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="text-xs font-medium text-gray-700">
+                              Цвет текста на этом слайде
+                              {currentSlide?.textColor && <span className="text-purple-500 ml-1">*</span>}
+                            </label>
+                            {currentSlide?.textColor && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleSlideTextColorChange('')}
+                                className="h-6 text-xs text-gray-500"
+                              >
+                                Сбросить
+                              </Button>
+                            )}
+                          </div>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {[...baseColors.slice(0, 8), ...uniqueRecommendedColors.slice(0, 4)].map((color) => (
+                              <button
+                                key={`slide-${color}`}
+                                onClick={() => handleSlideTextColorChange(color)}
+                                className={`w-7 h-7 rounded-lg border-2 transition-all ${
+                                  (currentSlide ? getSlideTextColor(currentSlide) : textColor) === color
+                                    ? 'border-purple-500 scale-110 shadow-lg'
+                                    : 'border-gray-300 hover:border-purple-400'
+                                }`}
+                                style={{ backgroundColor: color }}
+                                title={color}
+                              />
+                            ))}
+                            <input
+                              type="color"
+                              value={currentSlide ? getSlideTextColor(currentSlide) : textColor}
+                              onChange={(e) => handleSlideTextColorChange(e.target.value)}
+                              className="w-7 h-7 rounded-lg border-2 border-gray-300 cursor-pointer"
+                              title="Выбрать цвет"
+                            />
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={applyTextColorToAllSlides}
+                            className="w-full text-xs h-8 border-purple-200 text-purple-700 hover:bg-purple-50"
+                          >
+                            <Palette className="h-3 w-3 mr-1" />
+                            Применить цвет ко всем слайдам
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </AccordionContent>
@@ -1888,7 +1959,7 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                       )}
 
                       <div>
-                        <label className="text-xs font-medium text-gray-700 mb-2 block">Базовые цвета</label>
+                        <label className="text-xs font-medium text-gray-700 mb-2 block">Базовые цвета (для всех)</label>
                         <div className="flex flex-wrap gap-2">
                           {baseColors.map((color) => (
                             <button
