@@ -1,0 +1,59 @@
+0|esoteric | Transcription error: Error: Ошибка транскрипции: rpc error: code = InvalidArgument desc = Specified folder ID 'ajejsgs9e13a2ft2a8tp' does not match with service account folder ID 'b1gjm18qp97mge6vd5ha'
+0|esoteric |     at IncomingMessage.<anonymous> (/var/www/magic-content/dist/index.cjs:756:37699)
+0|esoteric |     at IncomingMessage.emit (node:events:536:35)
+0|esoteric |     at endReadableNT (node:internal/streams/readable:1698:12)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | Yandex SpeechKit error: {
+0|esoteric |   error_code: 'UNAUTHORIZED',
+0|esoteric |   error_message: "rpc error: code = InvalidArgument desc = Specified folder ID 'ajejsgs9e13a2ft2a8tp' does not match with service account folder ID 'b1gjm18qp97mge6vd5ha'"
+0|esoteric | }
+0|esoteric | Transcription error: Error: Ошибка транскрипции: rpc error: code = InvalidArgument desc = Specified folder ID 'ajejsgs9e13a2ft2a8tp' does not match with service account folder ID 'b1gjm18qp97mge6vd5ha'
+0|esoteric |     at IncomingMessage.<anonymous> (/var/www/magic-content/dist/index.cjs:756:37699)
+0|esoteric |     at IncomingMessage.emit (node:events:536:35)
+0|esoteric |     at endReadableNT (node:internal/streams/readable:1698:12)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+0|esoteric | Yandex SpeechKit error: {
+0|esoteric |   error_code: 'BAD_REQUEST',
+0|esoteric |   error_message: 'ogg header has not been found'
+0|esoteric | }
+0|esoteric | Transcription error: Error: Ошибка транскрипции: ogg header has not been found
+0|esoteric |     at IncomingMessage.<anonymous> (/var/www/magic-content/dist/index.cjs:756:37699)
+0|esoteric |     at IncomingMessage.emit (node:events:536:35)
+0|esoteric |     at endReadableNT (node:internal/streams/readable:1698:12)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+0|esoteric | Transcription error: Error: Не удалось запустить FFmpeg: spawn ffmpeg ENOENT
+0|esoteric |     at ChildProcess.<anonymous> (/var/www/magic-content/dist/index.cjs:756:37846)
+0|esoteric |     at ChildProcess.emit (node:events:524:28)
+0|esoteric |     at ChildProcess._handle.onexit (node:internal/child_process:291:12)
+0|esoteric |     at onErrorNT (node:internal/child_process:483:16)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+0|esoteric | FFmpeg error: 
+0|esoteric | ht: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 50 lines:
+0|esoteric |  ещё этого не делаете — очень рекомендую начать. Прямо сегодня.\n\nА вы уже ведёте свой канал? Для кого или для чего?\n\n#Telegram #личныйбренд #экспертность #ресурсы #аудитория #контент #саморазвитие","tone":"вдохновляющий","createdAt":"2026-01-11T02:55:35.910Z"},{"id":"f58d4b6a-1ee2-444d-bc13-de2b9009f7b0","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","originalText":"Замечательная 30 декабря .я сижу на берегу индийского океана допиваю свой холодный кофе и думаю о том как здорово что этот новый год я проведу без ты Без подарков без селедки под шубой без оливье без просека моего любимого и без единой головной боли О том как же пройдёт самая разная ночь года . Этот новый год я встречаю на волшебном острове Бали с которым у меня абсолютно свои отношения И в планах Обменяться подарочками сможем сходить на вкусный ужин посмотреть очень странные дела и увлечься с кровать а утром 1 января отправиться гулять Может быть шопиться отдыхать и наслаждаться этой жизни и вот год колеса фортуны я считаю невероятно важно навык услышит себя и понять как ты хочешь Потому что год будет на высоких скоростях вот будет наполнен насыщенными событиями иногда неожиданными событиями и градус этих событий зависит напрямую от нас От нашего состояния от нашего внутренней наполненности и вот от этого состояния на самом деле зависит абсолютно всё Наши доходы зависит на нашей Отношения зависит от нашей экспертность И невероятно важно как я уже сказала услышать себя и понять чего ты хочешь в этом новогоднюю ночь хотя бы начиная с этой новогодней ночь потому что очень часто мы проживаем Период праздников так как нужно так как принято так как было у наших родителей но при этом не понимаешь что мы на самом деле этого не хотим и Что Наша истинное желание состояние но абсолютно другое вот я в этом году выбираю себя И сегодня вас ждёт расклад от меня такие шаги мне нужно предпринять для реализации моего самого заветного желания Я поздравляла вас с наступающим это танюшка в матрице всех люблю ","refinedText":"**Новый год без «надо»: как услышать себя перед стартом Колеса Фортуны**\n\n30 декабря. Сижу на берегу Индийского океана, допиваю холодный кофе и думаю о том, как здорово, что этот Новый год я проведу без «ты». Без подарков, без селедки под шубой, без оливье, без моего любимого просекко и без единой головной боли.\n\nРазмышляю о том, как пройдёт самая разная ночь года.\n\nВстречаю Новый год на волшебном острове Бали, с которым у меня абсолютно свои отношения. В планах — обменяться подарочками, сходить на вкусный ужин, посмотреть «Очень странные дела» и улечься в кровать. А утром 1 января отправиться гулять. Может быть, шопиться, отдыхать и наслаждаться этой жизнью.\n\nГод Колеса Фортуны. Я считаю невероятно важным навык — услышать себя и понять, как ты хочешь. Потому что год будет на высоких скоростях, будет наполнен насыщенными, иногда неожиданными событиями. И градус этих событий зависит напрямую от нас. От нашего состояния, от нашей внутренней наполненности.\n\nОт этого состояния, на самом деле, зависит абсолютно всё:\n- Наши доходы\n- Наши отношения\n- Наша экспертность\n\nНевероятно важно, как я уже сказала, услышать себя и понять, чего ты хочешь в эту новогоднюю ночь. Хотя бы начиная с этой новогодней ночи. Потому что очень часто мы проживаем период праздников так, как «нужно», как принято, как было у наших родителей. Но при этом не понимаем, что на самом деле мы этого не хотим. Что наше истинное желание и состояние — абсолютно другое.\n\nВ этом году я выбираю себя.\n\nА что выберете вы? Что для вас значит «услышать себя» в канун нового цикла?\n\nСегодня вас ждёт расклад от меня: «Какие шаги мне нужно предпринять для реализации моего самого заветного желания?»\n\nПоздравляю вас с наступающим! Это Танюшка в Матрице, всех люблю.\n\n#НовыйГодНаБали #ГодКолесаФортуны #УслышатьСебя #НовыйГодБезПравил #ЗаветноеЖелание #Эзотерика #МатрицаСудьбы","tone":"вдохновляющий","createdAt":"2025-12-30T04:27:04.052Z"},{"id":"975118be-bde6-47e0-993c-7f9884223533","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","originalText":"Ситуацию Вышла замуж за лет старше 2026 г. для дифф учитывая как вы провели 25-й год я уверен что вам захочется послать всех очень далеко и очень надолго запереться дома и делать что-то что в общем-то не одобряется с разными ","refinedText":"**Замуж в 2026? А что, если захочется всех послать и запереться дома?**\n\nСитуация «выхожу замуж за человека значительно старше» в 2026 году — это не просто событие в календаре. Это финальный аккорд целого периода вашей жизни.\n\nГод 2025-й станет для вас мощным трансформатором. Проживая его, вы будете проходить через глубокие внутренние изменения. И к его завершению может возникнуть очень конкретное и сильное желание:\n\n👉 Отправить всех и вся очень далеко.\n👉 Надолго запереться в своем пространстве.\n👉 И наконец-то заняться тем, что по душе, даже если это «в общем-то не одобряется».\n\nЭто не каприз, а естественная потребность в перезагрузке. Ваша душа будет стремиться к автономности, к созданию своих правил, к тишине после, возможно, шумного периода.\n\nБрак в 2026 может стать либо продолжением этого побега в поисках покоя, либо его антиподом — выходом в новое, но уже на своих условиях. Всё зависит от того, как вы проживете этот внутренкий бунт 2025 года.\n\n**Готовы ли вы услышать свои истинные, даже «неудобные» желания? И что они говорят вам о вашем будущем?**\n\n#НумерологияСудьбы #2026Год #КармическиеОтношения #Трансформация #ЛичныеГраницы #ВнутреннийГолос #ЖизненныеЦиклы","tone":"вдохновляющий","createdAt":"2025-12-28T09:51:41.827Z"}]
+0|esoteric | Converting audio from audio/webm to OGG Opus...
+0|esoteric | Conversion complete. OGG size: 30977 bytes
+0|esoteric | Transcription successful: Как нести хуйню в вашем блоге
+0|esoteric | 10:56:14 AM [express] POST /api/voice-posts/transcribe 200 in 675ms :: {"transcript":"Как нести хуйню в вашем блоге"}
+
+
