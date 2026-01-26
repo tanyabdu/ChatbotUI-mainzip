@@ -12,7 +12,7 @@ import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
 import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
 import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
-import { transcribeAudio } from "./services/whisperTranscription";
+import { transcribeAudio } from "./services/yandexSpeechKit";
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
