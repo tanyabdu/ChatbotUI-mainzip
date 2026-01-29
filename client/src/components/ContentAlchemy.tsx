@@ -260,7 +260,7 @@ export default function ContentAlchemy() {
 
         try {
           const token = localStorage.getItem("auth_token");
-          const response = await fetch("/api/transcribe", {
+          const response = await fetch("/api/voice-posts/transcribe", {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
             body: formData,
@@ -271,9 +271,21 @@ export default function ContentAlchemy() {
             if (data.text) {
               handleAnswerChange(answerIndex, (selectedTopic?.answers[answerIndex]?.answer || "") + " " + data.text);
             }
+          } else {
+            const errorData = await response.json().catch(() => ({}));
+            toast({
+              title: "Ошибка распознавания",
+              description: errorData.error || "Не удалось распознать речь",
+              variant: "destructive",
+            });
           }
         } catch (error) {
           console.error("Transcription error:", error);
+          toast({
+            title: "Ошибка распознавания",
+            description: "Проверьте подключение к интернету",
+            variant: "destructive",
+          });
         }
         
         setIsRecording(false);
