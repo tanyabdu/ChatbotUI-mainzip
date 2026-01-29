@@ -953,6 +953,18 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/content-alchemy-plans/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const planId = req.params.id;
+      await storage.deleteContentAlchemyPlan(planId, userId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Delete content alchemy plan error:", error);
+      res.status(500).json({ error: error.message || "Ошибка удаления плана" });
+    }
+  });
+
   // Grimoire Topics CRUD
   app.get("/api/grimoire-topics", isAuthenticated, async (req: any, res) => {
     try {

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Sparkles, Loader2, BookOpen, Mic, Check, ChevronRight, ChevronDown,
-  Calendar, MessageSquare, Save, Wand2, AlertCircle, Filter
+  Calendar, MessageSquare, Save, Wand2, AlertCircle, Filter, Trash2
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -86,6 +86,28 @@ export default function ContentAlchemy() {
     onError: (error: Error) => {
       toast({
         title: "Ошибка сохранения",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePlanMutation = useMutation({
+    mutationFn: async (planId: string) => {
+      const response = await apiRequest("DELETE", `/api/content-alchemy-plans/${planId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "План удалён",
+        description: "План и все его темы удалены из Гримуара",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/grimoire-topics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/content-alchemy-plans"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Ошибка удаления",
         description: error.message,
         variant: "destructive",
       });
@@ -633,11 +655,11 @@ export default function ContentAlchemy() {
                     <div className="space-y-3">
                       {Object.entries(groupedTopics).map(([planId, topics]) => (
                         <div key={planId} className="rounded-lg border border-purple-200 overflow-hidden">
-                          <button
-                            onClick={() => togglePlanExpanded(planId)}
-                            className="w-full p-3 bg-gradient-to-r from-purple-50 to-pink-50 flex items-center justify-between hover:from-purple-100 hover:to-pink-100 transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
+                          <div className="bg-gradient-to-r from-purple-50 to-pink-50 flex items-center justify-between">
+                            <button
+                              onClick={() => togglePlanExpanded(planId)}
+                              className="flex-1 p-3 flex items-center gap-2 hover:from-purple-100 hover:to-pink-100 transition-colors text-left"
+                            >
                               {expandedPlans.has(planId) ? (
                                 <ChevronDown className="h-5 w-5 text-purple-500" />
                               ) : (
@@ -647,19 +669,33 @@ export default function ContentAlchemy() {
                               <Badge variant="outline" className="bg-white text-purple-600">
                                 {topics.length} тем
                               </Badge>
-                            </div>
-                            <div className="flex gap-1">
-                              {topics.some(t => t.status === "new") && (
-                                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                              )}
-                              {topics.some(t => t.status === "in_progress") && (
-                                <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                              )}
-                              {topics.some(t => t.status === "completed") && (
-                                <div className="w-2 h-2 rounded-full bg-green-500" />
-                              )}
-                            </div>
-                          </button>
+                              <div className="flex gap-1 ml-2">
+                                {topics.some(t => t.status === "new") && (
+                                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                )}
+                                {topics.some(t => t.status === "in_progress") && (
+                                  <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                                )}
+                                {topics.some(t => t.status === "completed") && (
+                                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                                )}
+                              </div>
+                            </button>
+                            {planId !== "no-plan" && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (confirm(`Удалить план "${getPlanName(planId)}" и все его темы?`)) {
+                                    deletePlanMutation.mutate(planId);
+                                  }
+                                }}
+                                className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                title="Удалить план"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
 
                           {expandedPlans.has(planId) && (
                             <div className="bg-white divide-y divide-purple-100">

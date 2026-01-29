@@ -683,6 +683,11 @@ export class DatabaseStorage implements IStorage {
   async deleteGrimoireTopic(id: string, userId: string): Promise<void> {
     await db.delete(grimoireTopics).where(and(eq(grimoireTopics.id, id), eq(grimoireTopics.userId, userId)));
   }
+
+  async deleteContentAlchemyPlan(planId: string, userId: string): Promise<void> {
+    await db.delete(grimoireTopics).where(and(eq(grimoireTopics.planId, planId), eq(grimoireTopics.userId, userId)));
+    await db.delete(contentAlchemyPlans).where(and(eq(contentAlchemyPlans.id, planId), eq(contentAlchemyPlans.userId, userId)));
+  }
 }
 
 export const storage = new DatabaseStorage();
