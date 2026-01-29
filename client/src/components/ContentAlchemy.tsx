@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,8 @@ export default function ContentAlchemy() {
   const [generatedTopics, setGeneratedTopics] = useState<{ day: number; topic: string; description: string }[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<TopicWithQuestions | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
+  const recognitionRef = useRef<any>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "new" | "in_progress" | "completed">("all");
   const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
 
@@ -244,70 +245,75 @@ export default function ContentAlchemy() {
     });
   };
 
-  const startVoiceRecording = async (answerIndex: number) => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-
-      recorder.ondataavailable = (e) => chunks.push(e.data);
-      recorder.onstop = async () => {
-        const blob = new Blob(chunks, { type: "audio/webm" });
-        stream.getTracks().forEach(track => track.stop());
-        
-        const formData = new FormData();
-        formData.append("audio", blob, "recording.webm");
-
-        try {
-          const token = localStorage.getItem("auth_token");
-          const response = await fetch("/api/voice-posts/transcribe", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: formData,
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.text) {
-              handleAnswerChange(answerIndex, (selectedTopic?.answers[answerIndex]?.answer || "") + " " + data.text);
-            }
-          } else {
-            const errorData = await response.json().catch(() => ({}));
-            toast({
-              title: "Ошибка распознавания",
-              description: errorData.error || "Не удалось распознать речь",
-              variant: "destructive",
-            });
-          }
-        } catch (error) {
-          console.error("Transcription error:", error);
-          toast({
-            title: "Ошибка распознавания",
-            description: "Проверьте подключение к интернету",
-            variant: "destructive",
-          });
-        }
-        
-        setIsRecording(false);
-        setMediaRecorder(null);
-      };
-
-      recorder.start();
-      setMediaRecorder(recorder);
-      setIsRecording(true);
-    } catch (error) {
+  const startVoiceRecording = (answerIndex: number) => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
       toast({
-        title: "Ошибка микрофона",
-        description: "Разрешите доступ к микрофону",
+        title: "Не поддерживается",
+        description: "Ваш браузер не поддерживает голосовой ввод. Используйте Chrome или Safari.",
         variant: "destructive",
       });
+      return;
     }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "ru-RU";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    let finalTranscript = "";
+
+    recognition.onresult = (event: any) => {
+      let interimTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + " ";
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+      
+      if (finalTranscript && selectedTopic) {
+        const currentAnswer = selectedTopic.answers[answerIndex]?.answer || "";
+        const newAnswer = (currentAnswer + " " + finalTranscript).trim();
+        handleAnswerChange(answerIndex, newAnswer);
+        finalTranscript = "";
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      if (event.error === "not-allowed") {
+        toast({
+          title: "Нет доступа к микрофону",
+          description: "Разрешите доступ к микрофону в настройках браузера",
+          variant: "destructive",
+        });
+      }
+      setIsRecording(false);
+      setRecordingIndex(null);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+      setRecordingIndex(null);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+    setRecordingIndex(answerIndex);
   };
 
   const stopVoiceRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === "recording") {
-      mediaRecorder.stop();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
     }
+    setIsRecording(false);
+    setRecordingIndex(null);
   };
 
   const getStatusBadge = (status: string) => {
