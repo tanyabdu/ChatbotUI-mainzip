@@ -133,10 +133,18 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     uniqueRecommendedFonts.forEach(f => loadGoogleFont(f));
   }, [uniqueRecommendedFonts]);
 
+  // Store previous preview URL to revoke and free memory (important for iOS Safari)
+  const prevPreviewUrlRef = useRef<string | null>(null);
+  
   // Render canvas preview when slide or settings change (debounced for mobile performance)
   useEffect(() => {
     const currentSlide = slides[currentSlideIndex];
     if (!currentSlide) {
+      // Revoke previous URL when clearing preview
+      if (prevPreviewUrlRef.current) {
+        URL.revokeObjectURL(prevPreviewUrlRef.current);
+        prevPreviewUrlRef.current = null;
+      }
       setPreviewImageUrl('');
       return;
     }
@@ -157,15 +165,30 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
         // Check again after async operation
         if (renderId !== previewRenderIdRef.current) return;
         
-        const dataUrl = canvas.toDataURL('image/png');
-        setPreviewImageUrl(dataUrl);
+        // Use toBlob + createObjectURL instead of toDataURL for better memory management on iOS
+        const blob = await new Promise<Blob | null>((resolve) => {
+          canvas.toBlob((b) => resolve(b), 'image/png');
+        });
+        
+        if (!blob || renderId !== previewRenderIdRef.current) return;
+        
+        // Revoke previous URL to free memory
+        if (prevPreviewUrlRef.current) {
+          URL.revokeObjectURL(prevPreviewUrlRef.current);
+        }
+        
+        const objectUrl = URL.createObjectURL(blob);
+        prevPreviewUrlRef.current = objectUrl;
+        setPreviewImageUrl(objectUrl);
       } catch (e) {
         console.error('Preview render error:', e);
       }
     };
     
-    // Debounce preview rendering to prevent freezing during text editing
-    const timeoutId = setTimeout(renderPreview, 300);
+    // Debounce preview rendering - longer delay for better mobile performance
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const debounceMs = isMobile ? 500 : 300;
+    const timeoutId = setTimeout(renderPreview, debounceMs);
     return () => clearTimeout(timeoutId);
   }, [
     slides, currentSlideIndex, aspectRatio, defaultBackground,
@@ -174,6 +197,16 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     profileName, profileIcon, overlayPattern, textShadowEnabled,
     textShadowColor, textShadowBlur, textShadowOffsetY
   ]);
+
+  // Cleanup object URL memory on component unmount
+  useEffect(() => {
+    return () => {
+      if (prevPreviewUrlRef.current) {
+        URL.revokeObjectURL(prevPreviewUrlRef.current);
+        prevPreviewUrlRef.current = null;
+      }
+    };
+  }, []);
 
   const getSlideBackground = (slide: Slide) => slide.background ?? defaultBackground;
   const getSlideCustomImage = (slide: Slide) => slide.customImage ?? null;
