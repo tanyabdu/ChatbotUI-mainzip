@@ -888,13 +888,21 @@ export async function registerRoutes(
   // Content Alchemy - Generate content plan
   app.post("/api/content-alchemy/generate-plan", isAuthenticated, async (req: any, res) => {
     try {
-      const { daysCount, contentType, warmupTarget } = req.body;
+      const { daysCount, warmupTarget } = req.body;
+      const userId = req.user.id;
       
-      if (!daysCount || !contentType || !warmupTarget) {
+      if (!daysCount || !warmupTarget) {
         return res.status(400).json({ error: "Заполните все поля" });
       }
 
-      const topics = await generateContentPlan(daysCount, contentType, warmupTarget);
+      const archetypeResult = await storage.getLatestArchetypeResult(userId);
+      const archetype = archetypeResult ? {
+        name: archetypeResult.archetypeName,
+        description: archetypeResult.archetypeDescription || "",
+        recommendations: archetypeResult.recommendations || []
+      } : undefined;
+
+      const topics = await generateContentPlan(daysCount, warmupTarget, archetype);
       res.json({ topics });
     } catch (error: any) {
       console.error("Generate content plan error:", error);
@@ -916,13 +924,13 @@ export async function registerRoutes(
   app.post("/api/content-alchemy-plans", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const { name, daysCount, contentType, warmupTarget, topics } = req.body;
+      const { name, daysCount, warmupTarget, topics } = req.body;
 
       const plan = await storage.createContentAlchemyPlan({
         userId,
         name,
         daysCount,
-        contentType,
+        contentType: "mixed",
         warmupTarget,
         topics,
       });

@@ -9,18 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Sparkles, Loader2, BookOpen, Mic, Check, ChevronRight, 
-  Calendar, Target, Flame, MessageSquare, Save, Wand2, AlertCircle
+  Calendar, MessageSquare, Save, Wand2, AlertCircle
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { GrimoireTopic, ContentAlchemyPlan } from "@shared/schema";
 
 const DAYS_OPTIONS = [7, 14, 21, 30];
-const CONTENT_TYPES = [
-  { id: "selling", label: "Продающий", icon: Target, description: "Контент с призывом к покупке" },
-  { id: "expert", label: "Экспертный", icon: BookOpen, description: "Демонстрация экспертизы" },
-  { id: "warmup", label: "Прогревающий", icon: Flame, description: "Подогрев интереса аудитории" },
-];
 
 interface TopicWithQuestions {
   topic: GrimoireTopic;
@@ -33,7 +28,6 @@ export default function ContentAlchemy() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"create" | "grimoire">("create");
   const [daysCount, setDaysCount] = useState(7);
-  const [contentType, setContentType] = useState("selling");
   const [warmupTarget, setWarmupTarget] = useState("");
   const [planName, setPlanName] = useState("");
   const [generatedTopics, setGeneratedTopics] = useState<{ day: number; topic: string; description: string }[]>([]);
@@ -50,7 +44,7 @@ export default function ContentAlchemy() {
   });
 
   const generatePlanMutation = useMutation({
-    mutationFn: async (data: { daysCount: number; contentType: string; warmupTarget: string }) => {
+    mutationFn: async (data: { daysCount: number; warmupTarget: string }) => {
       const response = await apiRequest("POST", "/api/content-alchemy/generate-plan", data);
       return response.json();
     },
@@ -71,7 +65,7 @@ export default function ContentAlchemy() {
   });
 
   const savePlanMutation = useMutation({
-    mutationFn: async (data: { name: string; daysCount: number; contentType: string; warmupTarget: string; topics: any[] }) => {
+    mutationFn: async (data: { name: string; daysCount: number; warmupTarget: string; topics: any[] }) => {
       const response = await apiRequest("POST", "/api/content-alchemy-plans", data);
       return response.json();
     },
@@ -164,7 +158,7 @@ export default function ContentAlchemy() {
       });
       return;
     }
-    generatePlanMutation.mutate({ daysCount, contentType, warmupTarget });
+    generatePlanMutation.mutate({ daysCount, warmupTarget });
   };
 
   const handleSavePlan = () => {
@@ -179,7 +173,6 @@ export default function ContentAlchemy() {
     savePlanMutation.mutate({
       name: planName,
       daysCount,
-      contentType,
       warmupTarget,
       topics: generatedTopics,
     });
@@ -344,34 +337,6 @@ export default function ContentAlchemy() {
                         {days} дней
                       </Button>
                     ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Тип контента
-                  </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {CONTENT_TYPES.map((type) => {
-                      const Icon = type.icon;
-                      return (
-                        <button
-                          key={type.id}
-                          onClick={() => setContentType(type.id)}
-                          className={`p-4 rounded-xl border-2 transition-all text-left ${
-                            contentType === type.id
-                              ? "border-purple-500 bg-purple-50"
-                              : "border-gray-200 hover:border-purple-300"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            <Icon className={`h-5 w-5 ${contentType === type.id ? "text-purple-500" : "text-gray-400"}`} />
-                            <span className="font-medium">{type.label}</span>
-                          </div>
-                          <p className="text-xs text-gray-500">{type.description}</p>
-                        </button>
-                      );
-                    })}
                   </div>
                 </div>
 
