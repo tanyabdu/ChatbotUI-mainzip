@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Sparkles, Loader2, BookOpen, Mic, Check, ChevronRight, 
-  Calendar, MessageSquare, Save, Wand2, AlertCircle
+  Sparkles, Loader2, BookOpen, Mic, Check, ChevronRight, ChevronDown,
+  Calendar, MessageSquare, Save, Wand2, AlertCircle, Filter
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +34,8 @@ export default function ContentAlchemy() {
   const [selectedTopic, setSelectedTopic] = useState<TopicWithQuestions | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "new" | "in_progress" | "completed">("all");
+  const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
 
   const { data: grimoireTopics = [], refetch: refetchGrimoire } = useQuery<GrimoireTopic[]>({
     queryKey: ["/api/grimoire-topics"],
@@ -285,6 +287,41 @@ export default function ContentAlchemy() {
       default:
         return null;
     }
+  };
+
+  const togglePlanExpanded = (planId: string) => {
+    setExpandedPlans(prev => {
+      const next = new Set(prev);
+      if (next.has(planId)) {
+        next.delete(planId);
+      } else {
+        next.add(planId);
+      }
+      return next;
+    });
+  };
+
+  const filteredTopics = grimoireTopics.filter(topic => 
+    statusFilter === "all" || topic.status === statusFilter
+  );
+
+  const groupedTopics = filteredTopics.reduce((acc, topic) => {
+    const planId = topic.planId || "no-plan";
+    if (!acc[planId]) {
+      acc[planId] = [];
+    }
+    acc[planId].push(topic);
+    return acc;
+  }, {} as Record<string, GrimoireTopic[]>);
+
+  const getPlanName = (planId: string) => {
+    if (planId === "no-plan") return "Без плана";
+    const plan = alchemyPlans.find(p => p.id === planId);
+    return plan?.name || "Неизвестный план";
+  };
+
+  const getStatusCount = (status: string) => {
+    return grimoireTopics.filter(t => status === "all" || t.status === status).length;
   };
 
   return (
@@ -551,30 +588,112 @@ export default function ContentAlchemy() {
                   </Card>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {grimoireTopics.map((topic) => (
-                    <button
-                      key={topic.id}
-                      onClick={() => handleSelectTopic(topic)}
-                      className="w-full p-4 rounded-lg border border-purple-200 bg-white hover:bg-purple-50 transition-colors text-left flex items-center justify-between"
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2 pb-3 border-b border-purple-100">
+                    <Button
+                      variant={statusFilter === "all" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setStatusFilter("all")}
+                      className={statusFilter === "all" ? "bg-purple-500 hover:bg-purple-600" : ""}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center font-bold text-purple-600">
-                          {topic.day}
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-800">{topic.topic}</p>
-                          {topic.description && (
-                            <p className="text-sm text-gray-500 line-clamp-1">{topic.description}</p>
+                      Все ({getStatusCount("all")})
+                    </Button>
+                    <Button
+                      variant={statusFilter === "new" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setStatusFilter("new")}
+                      className={statusFilter === "new" ? "bg-blue-500 hover:bg-blue-600" : ""}
+                    >
+                      Новые ({grimoireTopics.filter(t => t.status === "new").length})
+                    </Button>
+                    <Button
+                      variant={statusFilter === "in_progress" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setStatusFilter("in_progress")}
+                      className={statusFilter === "in_progress" ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                    >
+                      В работе ({grimoireTopics.filter(t => t.status === "in_progress").length})
+                    </Button>
+                    <Button
+                      variant={statusFilter === "completed" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setStatusFilter("completed")}
+                      className={statusFilter === "completed" ? "bg-green-500 hover:bg-green-600" : ""}
+                    >
+                      Готово ({grimoireTopics.filter(t => t.status === "completed").length})
+                    </Button>
+                  </div>
+
+                  {filteredTopics.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <Filter className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                      <p>Нет тем с выбранным статусом</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {Object.entries(groupedTopics).map(([planId, topics]) => (
+                        <div key={planId} className="rounded-lg border border-purple-200 overflow-hidden">
+                          <button
+                            onClick={() => togglePlanExpanded(planId)}
+                            className="w-full p-3 bg-gradient-to-r from-purple-50 to-pink-50 flex items-center justify-between hover:from-purple-100 hover:to-pink-100 transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              {expandedPlans.has(planId) ? (
+                                <ChevronDown className="h-5 w-5 text-purple-500" />
+                              ) : (
+                                <ChevronRight className="h-5 w-5 text-purple-500" />
+                              )}
+                              <span className="font-medium text-purple-800">{getPlanName(planId)}</span>
+                              <Badge variant="outline" className="bg-white text-purple-600">
+                                {topics.length} тем
+                              </Badge>
+                            </div>
+                            <div className="flex gap-1">
+                              {topics.some(t => t.status === "new") && (
+                                <div className="w-2 h-2 rounded-full bg-blue-500" />
+                              )}
+                              {topics.some(t => t.status === "in_progress") && (
+                                <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                              )}
+                              {topics.some(t => t.status === "completed") && (
+                                <div className="w-2 h-2 rounded-full bg-green-500" />
+                              )}
+                            </div>
+                          </button>
+
+                          {expandedPlans.has(planId) && (
+                            <div className="bg-white divide-y divide-purple-100">
+                              {topics
+                                .sort((a, b) => a.day - b.day)
+                                .map((topic) => (
+                                  <button
+                                    key={topic.id}
+                                    onClick={() => handleSelectTopic(topic)}
+                                    className="w-full p-3 hover:bg-purple-50 transition-colors text-left flex items-center justify-between"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center font-bold text-purple-600 text-sm">
+                                        {topic.day}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-gray-800 truncate">{topic.topic}</p>
+                                        {topic.description && (
+                                          <p className="text-sm text-gray-500 line-clamp-1">{topic.description}</p>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                                      {getStatusBadge(topic.status)}
+                                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                                    </div>
+                                  </button>
+                                ))}
+                            </div>
                           )}
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(topic.status)}
-                        <ChevronRight className="h-5 w-5 text-gray-400" />
-                      </div>
-                    </button>
-                  ))}
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </TabsContent>
