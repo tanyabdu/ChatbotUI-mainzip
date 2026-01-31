@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useLayoutEffect, ChangeEvent } from 'react';
 import JSZip from 'jszip';
-import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp, Share2 } from 'lucide-react';
+import { Download, ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RotateCcw, AlignLeft, AlignCenter, AlignRight, Upload, Move, Type, Palette, Image, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -1345,31 +1345,6 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
     }
   };
 
-  const handleShareCurrent = async () => {
-    if (!canShare) return;
-    
-    setIsExporting(true);
-    try {
-      const canvas = await renderSlideToCanvas(currentSlide, currentSlideIndex);
-      const blob = await new Promise<Blob | null>((resolve) => 
-        canvas.toBlob((b) => resolve(b), 'image/png')
-      );
-      if (!blob) {
-        console.error('Failed to create blob from canvas');
-        return;
-      }
-      const file = new File([blob], `slide-${currentSlideIndex + 1}.png`, { type: 'image/png' });
-      
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
-      }
-    } catch (error) {
-      console.log('Share cancelled or failed');
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
   // Touch handlers for swipe navigation
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -2397,19 +2372,6 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
                     <span className="hidden sm:inline">Скачать слайд</span>
                     <span className="sm:hidden">Скачать</span>
                   </Button>
-                  {canShare && (
-                    <Button
-                      onClick={handleShareCurrent}
-                      disabled={isExporting}
-                      variant="outline"
-                      className="flex-1 text-xs sm:text-sm min-h-[44px]"
-                      size="sm"
-                    >
-                      <Share2 className="h-4 w-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Поделиться</span>
-                      <span className="sm:hidden">Поделиться</span>
-                    </Button>
-                  )}
                 </div>
                 <Button
                   onClick={handleExportAll}
@@ -2525,17 +2487,6 @@ export default function CarouselEditor({ initialText = '', userArchetypes = [] }
           >
             <Download className="h-5 w-5" />
           </Button>
-          
-          {canShare && (
-            <Button
-              onClick={handleShareCurrent}
-              disabled={isExporting}
-              size="sm"
-              className="min-h-[44px] min-w-[44px] bg-pink-500 hover:bg-pink-600"
-            >
-              <Share2 className="h-5 w-5" />
-            </Button>
-          )}
         </div>
       </div>
       
