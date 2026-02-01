@@ -15,7 +15,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { GrimoireTopic, ContentAlchemyPlan } from "@shared/schema";
 
-const DAYS_OPTIONS = [7, 14, 21, 30];
+const DAYS_OPTIONS = [7, 10, 14];
 
 interface TopicWithQuestions {
   topic: GrimoireTopic;
