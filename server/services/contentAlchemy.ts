@@ -190,7 +190,7 @@ ${archetypeInstruction}
     model: "deepseek-chat",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.85,
-    max_tokens: 6000,
+    max_tokens: 8000,
   });
 
   const content = response.choices[0]?.message?.content || "[]";
@@ -198,7 +198,26 @@ ${archetypeInstruction}
   try {
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      let jsonStr = jsonMatch[0];
+      
+      // Try to repair truncated JSON
+      if (!jsonStr.endsWith(']')) {
+        // Find the last complete object
+        const lastCompleteObj = jsonStr.lastIndexOf('},');
+        if (lastCompleteObj > 0) {
+          jsonStr = jsonStr.substring(0, lastCompleteObj + 1) + ']';
+        } else {
+          const lastObj = jsonStr.lastIndexOf('}');
+          if (lastObj > 0) {
+            jsonStr = jsonStr.substring(0, lastObj + 1) + ']';
+          }
+        }
+      }
+      
+      const parsed = JSON.parse(jsonStr);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     }
     return JSON.parse(content);
   } catch (error) {
