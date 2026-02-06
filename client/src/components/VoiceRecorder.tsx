@@ -72,13 +72,20 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
 
   const saveMutation = useMutation({
     mutationFn: async (data: { originalText: string; refinedText: string; tone: string }) => {
+      const token = localStorage.getItem("auth_token");
       const response = await fetch("/api/voice-posts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         credentials: "include",
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error("Failed to save");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Не удалось сохранить пост");
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -86,12 +93,19 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     },
+    onError: (error: Error) => {
+      alert("Ошибка сохранения: " + error.message);
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/voice-posts/${id}`, {
         method: "DELETE",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         credentials: "include",
       });
       if (!response.ok) throw new Error("Failed to delete");
