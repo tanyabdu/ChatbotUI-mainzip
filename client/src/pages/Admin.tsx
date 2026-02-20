@@ -477,25 +477,24 @@ function DemoActivityChart() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-end gap-1.5 h-48">
-        {demoData.map((d, i) => {
-          const heightPercent = (d.value / maxVal) * 100;
-          return (
-            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group">
-              <div
-                className="w-full rounded-t-md bg-gradient-to-t from-purple-600 to-pink-400 transition-all duration-300 hover:from-purple-500 hover:to-pink-300 relative"
-                style={{ height: `${heightPercent}%`, minHeight: '4px' }}
-              >
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-bold text-purple-700 whitespace-nowrap">
-                  {d.value}
-                </div>
+      <div className="overflow-x-auto -mx-2 px-2">
+        <div className="flex items-end gap-1 h-48" style={{ minWidth: `${demoData.length * 36}px` }}>
+          {demoData.map((d, i) => {
+            const heightPercent = (d.value / maxVal) * 100;
+            return (
+              <div key={i} className="flex-1 flex flex-col items-center justify-end h-full" style={{ minWidth: '28px' }}>
+                <div className="text-[10px] font-bold text-purple-700 mb-0.5">{d.value}</div>
+                <div
+                  className="w-full rounded-t-md bg-gradient-to-t from-purple-600 to-pink-400"
+                  style={{ height: `${heightPercent}%`, minHeight: '4px' }}
+                />
+                <span className="text-[9px] text-purple-400 mt-1 whitespace-nowrap">{d.day}</span>
               </div>
-              <span className="text-[10px] text-purple-400 mt-1.5 whitespace-nowrap">{d.day}</span>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex items-center justify-between text-sm flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-gradient-to-r from-purple-600 to-pink-400"></div>
           <span className="text-purple-600">Активных пользователей</span>
