@@ -215,11 +215,11 @@ export default function Admin() {
                     <p className="text-sm text-red-500">Триал истёк</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-3xl font-bold text-purple-600">158</p>
+                    <p className="text-3xl font-bold text-purple-600">289</p>
                     <p className="text-sm text-purple-500">Месячная</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-pink-200">
-                    <p className="text-3xl font-bold text-pink-600">68</p>
+                    <p className="text-3xl font-bold text-pink-600">118</p>
                     <p className="text-sm text-pink-500">Годовая</p>
                   </div>
                 </div>
@@ -442,7 +442,7 @@ export default function Admin() {
                       </li>
                       <li className="flex justify-between">
                         <span>Платных подписок</span>
-                        <span className="font-medium">226</span>
+                        <span className="font-medium">407</span>
                       </li>
                     </ul>
                   </div>
