@@ -173,7 +173,7 @@ export default function Admin() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatCard
                 title="Пользователей"
-                value={347}
+                value={stats?.totalUsers || 0}
                 icon={<Users className="h-5 w-5 text-purple-500" />}
                 description="Всего"
               />
@@ -430,7 +430,7 @@ export default function Admin() {
                     <ul className="space-y-2 text-sm text-pink-600">
                       <li className="flex justify-between">
                         <span>Всего пользователей</span>
-                        <span className="font-medium">347</span>
+                        <span className="font-medium">{stats?.totalUsers || 0}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>С активным доступом</span>
