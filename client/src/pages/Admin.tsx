@@ -219,7 +219,7 @@ export default function Admin() {
                     <p className="text-sm text-purple-500">Месячная</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-pink-200">
-                    <p className="text-3xl font-bold text-pink-600">118</p>
+                    <p className="text-3xl font-bold text-pink-600">{stats?.subscriptionBreakdown?.yearly || 0}</p>
                     <p className="text-sm text-pink-500">Годовая</p>
                   </div>
                 </div>
