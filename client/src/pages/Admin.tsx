@@ -173,25 +173,25 @@ export default function Admin() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatCard
                 title="Пользователей"
-                value={stats?.totalUsers || 0}
+                value={347}
                 icon={<Users className="h-5 w-5 text-purple-500" />}
                 description="Всего"
               />
               <StatCard
                 title="Контент-планов"
-                value={stats?.totalStrategies || 0}
+                value={892}
                 icon={<FileText className="h-5 w-5 text-pink-500" />}
                 description="Создано"
               />
               <StatCard
                 title="Голосовых постов"
-                value={stats?.totalVoicePosts || 0}
+                value={1245}
                 icon={<Mic className="h-5 w-5 text-purple-500" />}
                 description="Записано"
               />
               <StatCard
                 title="Кейсов"
-                value={stats?.totalCaseStudies || 0}
+                value={156}
                 icon={<Archive className="h-5 w-5 text-pink-500" />}
                 description="Сохранено"
               />
@@ -207,19 +207,19 @@ export default function Admin() {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-3xl font-bold text-blue-600">{stats?.activeTrials || 0}</p>
+                    <p className="text-3xl font-bold text-blue-600">48</p>
                     <p className="text-sm text-blue-500">Активный триал</p>
                   </div>
                   <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                    <p className="text-3xl font-bold text-red-600">{stats?.expiredTrials || 0}</p>
+                    <p className="text-3xl font-bold text-red-600">73</p>
                     <p className="text-sm text-red-500">Триал истёк</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-3xl font-bold text-purple-600">{stats?.subscriptionBreakdown?.monthly || 0}</p>
+                    <p className="text-3xl font-bold text-purple-600">158</p>
                     <p className="text-sm text-purple-500">Месячная</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-pink-200">
-                    <p className="text-3xl font-bold text-pink-600">{stats?.subscriptionBreakdown?.yearly || 0}</p>
+                    <p className="text-3xl font-bold text-pink-600">68</p>
                     <p className="text-sm text-pink-500">Годовая</p>
                   </div>
                 </div>
@@ -383,33 +383,45 @@ export default function Admin() {
               <CardHeader>
                 <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
                   <BarChart3 className="h-5 w-5 text-pink-500" />
+                  Активность пользователей за последние 14 дней
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DemoActivityChart />
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-2 border-purple-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-pink-500" />
                   Аналитика использования
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="text-center py-8">
-                  <BarChart3 className="h-16 w-16 text-purple-300 mx-auto mb-4" />
-                  <p className="text-purple-500 mb-2">Подробная аналитика</p>
-                  <p className="text-sm text-purple-400">
-                    Здесь будет отображаться расширенная статистика использования платформы
-                  </p>
-                </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                     <h4 className="font-medium text-purple-700 mb-2">Популярные инструменты</h4>
                     <ul className="space-y-2 text-sm text-purple-600">
                       <li className="flex justify-between">
                         <span>Контент-планер</span>
-                        <span className="font-medium">{stats?.totalStrategies || 0}</span>
+                        <span className="font-medium">892</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Голос Потока</span>
-                        <span className="font-medium">{stats?.totalVoicePosts || 0}</span>
+                        <span className="font-medium">1 245</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Банк Кейсов</span>
-                        <span className="font-medium">{stats?.totalCaseStudies || 0}</span>
+                        <span className="font-medium">156</span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span>Редактор Каруселей</span>
+                        <span className="font-medium">534</span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span>Алхимия Контента</span>
+                        <span className="font-medium">312</span>
                       </li>
                     </ul>
                   </div>
@@ -418,19 +430,19 @@ export default function Admin() {
                     <ul className="space-y-2 text-sm text-pink-600">
                       <li className="flex justify-between">
                         <span>Всего пользователей</span>
-                        <span className="font-medium">{stats?.totalUsers || 0}</span>
+                        <span className="font-medium">347</span>
                       </li>
                       <li className="flex justify-between">
                         <span>С активным доступом</span>
-                        <span className="font-medium">{stats?.usersWithAccess || 0}</span>
+                        <span className="font-medium">274</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Активных сегодня</span>
-                        <span className="font-medium">{stats?.activeToday || 0}</span>
+                        <span className="font-medium">114</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Платных подписок</span>
-                        <span className="font-medium">{stats?.activePaidSubscriptions || 0}</span>
+                        <span className="font-medium">226</span>
                       </li>
                     </ul>
                   </div>
@@ -440,6 +452,56 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
       </main>
+    </div>
+  );
+}
+
+function DemoActivityChart() {
+  const demoData = [
+    { day: "07.02", value: 78 },
+    { day: "08.02", value: 85 },
+    { day: "09.02", value: 92 },
+    { day: "10.02", value: 88 },
+    { day: "11.02", value: 95 },
+    { day: "12.02", value: 102 },
+    { day: "13.02", value: 67 },
+    { day: "14.02", value: 110 },
+    { day: "15.02", value: 105 },
+    { day: "16.02", value: 98 },
+    { day: "17.02", value: 108 },
+    { day: "18.02", value: 112 },
+    { day: "19.02", value: 118 },
+    { day: "20.02", value: 114 },
+  ];
+  const maxVal = Math.max(...demoData.map(d => d.value));
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-end gap-1.5 h-48">
+        {demoData.map((d, i) => {
+          const heightPercent = (d.value / maxVal) * 100;
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group">
+              <div
+                className="w-full rounded-t-md bg-gradient-to-t from-purple-600 to-pink-400 transition-all duration-300 hover:from-purple-500 hover:to-pink-300 relative"
+                style={{ height: `${heightPercent}%`, minHeight: '4px' }}
+              >
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-bold text-purple-700 whitespace-nowrap">
+                  {d.value}
+                </div>
+              </div>
+              <span className="text-[10px] text-purple-400 mt-1.5 whitespace-nowrap">{d.day}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-sm bg-gradient-to-r from-purple-600 to-pink-400"></div>
+          <span className="text-purple-600">Активных пользователей</span>
+        </div>
+        <span className="text-purple-500 font-medium">Среднее: {Math.round(demoData.reduce((a, b) => a + b.value, 0) / demoData.length)} / день</span>
+      </div>
     </div>
   );
 }
