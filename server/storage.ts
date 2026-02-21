@@ -547,14 +547,21 @@ export class DatabaseStorage implements IStorage {
       return { success: false, message: "Вы уже использовали этот промокод" };
     }
 
-    // Apply bonus days
+    if (promocode.promocodeType === 'discount') {
+      return { success: false, message: "Этот промокод даёт скидку на оплату. Примените его на странице тарифов при покупке подписки." };
+    }
+
     const user = await this.getUser(userId);
     if (!user) {
       return { success: false, message: "Пользователь не найден" };
     }
 
+    const bonusDays = promocode.bonusDays || 0;
+    if (bonusDays <= 0) {
+      return { success: false, message: "Промокод не содержит бонусных дней" };
+    }
+
     const now = new Date();
-    const bonusDays = promocode.bonusDays || 30;
     
     // Extend current subscription or trial
     let newExpiresAt: Date;
