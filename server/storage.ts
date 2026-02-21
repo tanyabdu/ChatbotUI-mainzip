@@ -511,7 +511,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Promocode Methods
-  async activatePromocode(userId: string, code: string): Promise<{ success: boolean; message: string; bonusDays?: number }> {
+  async activatePromocode(userId: string, code: string): Promise<{ success: boolean; message: string; bonusDays?: number; isDiscount?: boolean; discountPercent?: number; promoCode?: string }> {
     const normalizedCode = code.trim().toUpperCase();
     
     // Find promocode
@@ -548,7 +548,13 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (promocode.promocodeType === 'discount') {
-      return { success: false, message: "Этот промокод даёт скидку на оплату. Примените его на странице тарифов при покупке подписки." };
+      return { 
+        success: true, 
+        message: `Промокод даёт скидку ${promocode.discountPercent}% на оплату подписки. Перейдите на страницу тарифов для оплаты со скидкой.`,
+        isDiscount: true,
+        discountPercent: promocode.discountPercent ?? undefined,
+        promoCode: normalizedCode
+      };
     }
 
     const user = await this.getUser(userId);

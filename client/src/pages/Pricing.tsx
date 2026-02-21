@@ -38,6 +38,33 @@ export default function Pricing() {
     }
   }, [location]);
 
+  useEffect(() => {
+    const pending = localStorage.getItem('pendingPromoCode');
+    if (pending && isAuthenticated && !appliedPromo) {
+      localStorage.removeItem('pendingPromoCode');
+      setPromoCode(pending);
+      (async () => {
+        setPromoLoading(true);
+        try {
+          const response = await apiRequest('POST', '/api/promocode/verify-discount', { code: pending });
+          const data = await response.json();
+          if (data.success) {
+            setAppliedPromo({
+              code: pending.toUpperCase(),
+              discountPercent: data.discountPercent,
+              applicablePlans: data.applicablePlans,
+            });
+            toast({
+              title: "Промокод применён!",
+              description: data.message,
+            });
+          }
+        } catch (e) {}
+        setPromoLoading(false);
+      })();
+    }
+  }, [isAuthenticated]);
+
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return;
     if (!isAuthenticated) {

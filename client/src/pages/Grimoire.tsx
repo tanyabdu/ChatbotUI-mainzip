@@ -142,19 +142,30 @@ export default function Grimoire() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/cases"] }),
   });
 
+  const [, navigate] = useLocation();
   const activatePromocodeMutation = useMutation({
     mutationFn: async (code: string) => {
       const response = await apiRequest("POST", "/api/promocode/activate", { code });
       return response.json();
     },
     onSuccess: (data) => {
-      toast({
-        title: "Успешно!",
-        description: data.message,
-      });
-      setPromocode("");
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/access"] });
+      if (data.isDiscount) {
+        localStorage.setItem('pendingPromoCode', data.promoCode);
+        toast({
+          title: "Промокод принят!",
+          description: `Скидка ${data.discountPercent}% будет применена при оплате. Переходим на страницу тарифов...`,
+        });
+        setPromocode("");
+        setTimeout(() => navigate("/pricing"), 1500);
+      } else {
+        toast({
+          title: "Успешно!",
+          description: data.message,
+        });
+        setPromocode("");
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/access"] });
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -227,7 +238,6 @@ export default function Grimoire() {
   const displayName = user?.nickname || user?.firstName || user?.email?.split("@")[0] || "Эксперт";
   const archetypeTitle = archetypeResult?.archetypeName || "Неизвестный";
 
-  const [, setLocation] = useLocation();
   
   const isActiveMonthly = !!(user?.subscriptionTier === "monthly" && 
     user?.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) > new Date());
@@ -235,7 +245,7 @@ export default function Grimoire() {
     user?.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) > new Date());
   
   const handleSelectPlan = () => {
-    setLocation("/pricing");
+    navigate("/pricing");
   };
 
   const handleLogout = () => {
@@ -559,7 +569,7 @@ export default function Grimoire() {
                                           </Button>
                                           <Button
                                             size="sm"
-                                            onClick={() => setLocation(`/image-editor?text=${encodeURIComponent(formatContent.content)}`)}
+                                            onClick={() => navigate(`/image-editor?text=${encodeURIComponent(formatContent.content)}`)}
                                             className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
                                           >
                                             <Image className="h-4 w-4 mr-1" />
@@ -641,7 +651,7 @@ export default function Grimoire() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => setLocation(`/image-editor?text=${encodeURIComponent(post.refinedText)}`)}
+                              onClick={() => navigate(`/image-editor?text=${encodeURIComponent(post.refinedText)}`)}
                               title="Создать карусель"
                               className="text-pink-500 hover:text-pink-600"
                             >
@@ -962,7 +972,7 @@ export default function Grimoire() {
                   </Button>
                 </div>
                 <p className="text-sm text-purple-500 mt-3">
-                  Введите промокод, чтобы получить бонусные дни подписки
+                  Введите промокод для бонусных дней или скидки на подписку
                 </p>
               </CardContent>
             </Card>
