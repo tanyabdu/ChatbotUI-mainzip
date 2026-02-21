@@ -12,12 +12,15 @@ import { Label } from "@/components/ui/label";
 import { 
   User, BookOpen, Palette, CreditCard, Sparkles, 
   FileText, Mic, Archive, Wand2, LogOut, Home,
-  Edit2, Check, X, Trash2, Copy, Gift, ChevronDown, ChevronUp, Lock, Loader2, Image
+  Edit2, Check, X, Trash2, Copy, Gift, ChevronDown, ChevronUp, Lock, Loader2, Image,
+  Mail, Scale
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { removeToken } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { LegalDocumentLink } from "@/components/LegalDocuments";
 import type { ContentStrategy, VoicePost, CaseStudy, ArchetypeResult } from "@shared/schema";
 
 export default function Grimoire() {
@@ -413,6 +416,10 @@ export default function Grimoire() {
                 </div>
               </CardContent>
             </Card>
+
+            <MarketingConsentCard user={user} />
+
+            <LegalDocsCard />
           </TabsContent>
 
           <TabsContent value="library" className="space-y-6">
@@ -1072,6 +1079,96 @@ function SubscriptionTier({
         >
           {current ? "Продлить" : "Выбрать"}
         </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MarketingConsentCard({ user }: { user: any }) {
+  const { toast } = useToast();
+  const toggleMutation = useMutation({
+    mutationFn: async (value: boolean) => {
+      const res = await apiRequest("PATCH", "/api/auth/marketing-consent", { marketingConsent: value });
+      return res.json();
+    },
+    onSuccess: (_, value) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({
+        title: value ? "Рассылки включены" : "Рассылки отключены",
+        description: value 
+          ? "Вы будете получать информационные рассылки и сможете восстанавливать пароль" 
+          : "Обратите внимание: без согласия на рассылки восстановление пароля будет недоступно",
+      });
+    },
+    onError: () => {
+      toast({ title: "Ошибка", description: "Не удалось обновить настройки", variant: "destructive" });
+    },
+  });
+
+  return (
+    <Card className="bg-white border-2 border-purple-300 shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+          <Mail className="h-5 w-5 text-pink-500" />
+          Рассылки и уведомления
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-purple-700">Согласие на рассылки</p>
+            <p className="text-xs text-gray-500">
+              Информационные и рекламные сообщения. Также необходимо для восстановления пароля.
+            </p>
+          </div>
+          <Switch
+            checked={!!user?.marketingConsent}
+            onCheckedChange={(checked) => toggleMutation.mutate(checked)}
+            disabled={toggleMutation.isPending}
+          />
+        </div>
+        {!user?.marketingConsent && (
+          <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
+            Без согласия на рассылки восстановление пароля через email будет недоступно.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function LegalDocsCard() {
+  return (
+    <Card className="bg-white border-2 border-purple-300 shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+          <Scale className="h-5 w-5 text-pink-500" />
+          Правовые документы
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <FileText className="h-4 w-4 text-purple-400" />
+            <LegalDocumentLink docType="terms">Пользовательское соглашение</LegalDocumentLink>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <FileText className="h-4 w-4 text-purple-400" />
+            <LegalDocumentLink docType="privacy">Политика конфиденциальности</LegalDocumentLink>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <FileText className="h-4 w-4 text-purple-400" />
+            <LegalDocumentLink docType="offer">Публичная оферта</LegalDocumentLink>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <FileText className="h-4 w-4 text-purple-400" />
+            <LegalDocumentLink docType="dataConsent">Согласие на обработку персональных данных</LegalDocumentLink>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <FileText className="h-4 w-4 text-purple-400" />
+            <LegalDocumentLink docType="marketingConsent">Согласие на получение рассылок</LegalDocumentLink>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

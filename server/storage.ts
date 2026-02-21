@@ -11,9 +11,11 @@ import {
   type Payment,
   type ContentAlchemyPlan, type InsertContentAlchemyPlan,
   type GrimoireTopic, type InsertGrimoireTopic,
+  type ConsentLog, type InsertConsentLog,
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
   salesTrainerSamples, salesTrainerSessions, passwordResetTokens,
-  promocodes, promocodeUsages, payments, contentAlchemyPlans, grimoireTopics
+  promocodes, promocodeUsages, payments, contentAlchemyPlans, grimoireTopics,
+  consentLogs
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, ilike, or, and, isNull, gt, sql } from "drizzle-orm";
@@ -687,6 +689,15 @@ export class DatabaseStorage implements IStorage {
   async deleteContentAlchemyPlan(planId: string, userId: string): Promise<void> {
     await db.delete(grimoireTopics).where(and(eq(grimoireTopics.planId, planId), eq(grimoireTopics.userId, userId)));
     await db.delete(contentAlchemyPlans).where(and(eq(contentAlchemyPlans.id, planId), eq(contentAlchemyPlans.userId, userId)));
+  }
+
+  async createConsentLog(data: InsertConsentLog): Promise<ConsentLog> {
+    const [log] = await db.insert(consentLogs).values(data).returning();
+    return log;
+  }
+
+  async getConsentLogs(userId: string): Promise<ConsentLog[]> {
+    return db.select().from(consentLogs).where(eq(consentLogs.userId, userId)).orderBy(desc(consentLogs.createdAt));
   }
 }
 

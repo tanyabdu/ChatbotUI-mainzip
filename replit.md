@@ -44,6 +44,7 @@ Preferred communication style: Simple, everyday language.
 - **Case Visual Export**: Canvas-based rendering for exporting case studies as images (1080x1350 aspect ratio), utilizing user's archetype fonts and preset backgrounds.
 - **Carousel Editor**: Multi-slide generator with auto-splitting text, per-slide editing, multi-archetype styling, various backgrounds, Google Fonts, aspect ratio controls, and export options. Optimized for mobile UX.
 - **Content Alchemy (Beta)**: AI-powered expert content creation workflow using DeepSeek. Users select content type and warmup target, AI generates topic plan for X days, topics are saved to "Grimoire", and for each topic AI generates guiding questions which user answers (text/voice), then AI assembles final post. Tables: content_alchemy_plans, grimoire_topics.
+- **Legal Compliance (RF)**: Registration form with 3 consent checkboxes (data processing + offer required, marketing optional). All 5 legal documents (Privacy Policy, Terms, Offer, Data Consent, Marketing Consent) available as modal windows. Consent logging in `consent_logs` table with IP, user agent, and document version. Marketing consent toggle in profile settings with note about password recovery requirement. Legal document links in landing footer and profile page. Owner: ИП Климова Екатерина Викторовна, ИНН 561208353714.
 
 ## External Dependencies
 

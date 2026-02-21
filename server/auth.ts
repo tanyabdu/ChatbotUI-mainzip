@@ -79,10 +79,14 @@ function getTokenFromRequest(req: any): string | null {
 export async function setupAuth(app: Express) {
   app.post("/api/auth/register", registerLimiter, async (req, res) => {
     try {
-      const { email: rawEmail, firstName, lastName } = req.body;
+      const { email: rawEmail, firstName, lastName, consentData, consentOffer, consentMarketing } = req.body;
       
       if (!rawEmail || !rawEmail.includes("@")) {
         return res.status(400).json({ message: "Введите корректный email" });
+      }
+
+      if (!consentData || !consentOffer) {
+        return res.status(400).json({ message: "Необходимо принять обязательные соглашения" });
       }
       
       // Normalize email to handle iOS keyboard quirks (invisible spaces, Unicode differences)
@@ -106,7 +110,29 @@ export async function setupAuth(app: Express) {
         lastName: lastName || null,
         subscriptionTier: "trial",
         trialEndsAt,
+        marketingConsent: !!consentMarketing,
+        marketingConsentAt: consentMarketing ? new Date() : null,
       });
+
+      const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || '';
+      const userAgent = req.headers['user-agent'] || '';
+
+      const consentEntries = [
+        { type: "personal_data", granted: true },
+        { type: "offer", granted: true },
+        { type: "marketing", granted: !!consentMarketing },
+      ];
+
+      for (const entry of consentEntries) {
+        await storage.createConsentLog({
+          userId: user.id,
+          consentType: entry.type,
+          granted: entry.granted,
+          ipAddress,
+          userAgent,
+          documentVersion: "2026-02",
+        });
+      }
       
       await sendWelcomeEmail(email, password);
       
@@ -269,11 +295,13 @@ export async function setupAuth(app: Express) {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      nickname: user.nickname,
       profileImageUrl: user.profileImageUrl,
       isAdmin: user.isAdmin,
       subscriptionTier: user.subscriptionTier,
       trialEndsAt: user.trialEndsAt,
       subscriptionExpiresAt: user.subscriptionExpiresAt,
+      marketingConsent: user.marketingConsent,
     });
   });
   

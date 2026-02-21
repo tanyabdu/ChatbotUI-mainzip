@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Wand2, Mic, BookOpen, Moon, ArrowRight, Star } from "lucide-react";
 import { Link } from "wouter";
+import { LegalDocumentLink } from "@/components/LegalDocuments";
 
 export default function Landing() {
   return (
@@ -115,8 +116,14 @@ export default function Landing() {
       </main>
 
       <footer className="border-t-2 border-purple-200 py-8 bg-white">
-        <div className="container mx-auto px-6 text-center text-purple-500">
-          <p>Эзотерический Планировщик Контента &copy; 2026</p>
+        <div className="container mx-auto px-6 text-center space-y-3">
+          <p className="text-purple-500">Эзотерический Планировщик Контента &copy; 2026</p>
+          <p className="text-purple-400 text-xs">ИП Климова Екатерина Викторовна, ИНН 561208353714</p>
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
+            <LegalDocumentLink docType="terms" className="text-purple-400 hover:text-purple-600">Пользовательское соглашение</LegalDocumentLink>
+            <LegalDocumentLink docType="privacy" className="text-purple-400 hover:text-purple-600">Политика конфиденциальности</LegalDocumentLink>
+            <LegalDocumentLink docType="offer" className="text-purple-400 hover:text-purple-600">Публичная оферта</LegalDocumentLink>
+          </div>
         </div>
       </footer>
     </div>

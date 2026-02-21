@@ -41,6 +41,33 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/auth/marketing-consent", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { marketingConsent } = req.body;
+      const user = await storage.updateUser(userId, { 
+        marketingConsent: !!marketingConsent,
+        marketingConsentAt: marketingConsent ? new Date() : null,
+      });
+
+      const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || '';
+      const userAgent = req.headers['user-agent'] || '';
+      await storage.createConsentLog({
+        userId,
+        consentType: "marketing",
+        granted: !!marketingConsent,
+        ipAddress,
+        userAgent,
+        documentVersion: "2026-02",
+      });
+
+      res.json({ marketingConsent: user?.marketingConsent });
+    } catch (error) {
+      console.error("Error updating marketing consent:", error);
+      res.status(500).json({ message: "Ошибка при обновлении согласия" });
+    }
+  });
+
   // Content Strategies (protected routes)
   app.get("/api/strategies", isAuthenticated, async (req: any, res) => {
     try {

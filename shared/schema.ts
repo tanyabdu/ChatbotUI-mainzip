@@ -33,6 +33,8 @@ export const users = esotericSchema.table("users", {
   lastGenerationDate: varchar("last_generation_date"),
   lastLoginAt: timestamp("last_login_at"),
   isAdmin: boolean("is_admin").default(false),
+  marketingConsent: boolean("marketing_consent").default(false),
+  marketingConsentAt: timestamp("marketing_consent_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -325,3 +327,17 @@ export const insertGrimoireTopicSchema = createInsertSchema(grimoireTopics, {
 
 export type InsertGrimoireTopic = typeof grimoireTopics.$inferInsert;
 export type GrimoireTopic = typeof grimoireTopics.$inferSelect;
+
+export const consentLogs = esotericSchema.table("consent_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  consentType: varchar("consent_type").notNull(),
+  granted: boolean("granted").notNull(),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  documentVersion: varchar("document_version"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type ConsentLog = typeof consentLogs.$inferSelect;
+export type InsertConsentLog = typeof consentLogs.$inferInsert;

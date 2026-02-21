@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Sparkles, UserPlus, LogIn, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
+import { LegalDocumentLink } from "@/components/LegalDocuments";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -16,12 +18,21 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const [consentData, setConsentData] = useState(false);
+  const [consentOffer, setConsentOffer] = useState(false);
+  const [consentMarketing, setConsentMarketing] = useState(false);
+
+  const canSubmit = consentData && consentOffer && email.includes("@");
+
   const registerMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/auth/register", { 
         email, 
         firstName: firstName || undefined, 
-        lastName: lastName || undefined 
+        lastName: lastName || undefined,
+        consentData: true,
+        consentOffer: true,
+        consentMarketing,
       });
       return res.json();
     },
@@ -36,6 +47,10 @@ export default function Register() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!consentData || !consentOffer) {
+      setError("Необходимо принять обязательные соглашения");
+      return;
+    }
     registerMutation.mutate();
   };
 
@@ -136,11 +151,71 @@ export default function Register() {
             <div className="text-sm text-gray-500 bg-purple-50 p-3 rounded-lg">
               Пароль будет отправлен на указанный email
             </div>
+
+            <div className="space-y-3 border-t border-purple-100 pt-4">
+              <div className="flex items-start space-x-3">
+                <Checkbox 
+                  id="consentData" 
+                  checked={consentData} 
+                  onCheckedChange={(checked) => setConsentData(checked === true)}
+                  className="mt-0.5 border-purple-300 data-[state=checked]:bg-purple-600"
+                />
+                <label htmlFor="consentData" className="text-xs text-gray-600 leading-relaxed cursor-pointer">
+                  Я даю{" "}
+                  <LegalDocumentLink docType="dataConsent">
+                    согласие на обработку персональных данных
+                  </LegalDocumentLink>
+                  {" "}и принимаю условия{" "}
+                  <LegalDocumentLink docType="privacy">
+                    Политики конфиденциальности
+                  </LegalDocumentLink>
+                  {" "}и{" "}
+                  <LegalDocumentLink docType="terms">
+                    Пользовательского соглашения
+                  </LegalDocumentLink>
+                  {" "}*
+                </label>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <Checkbox 
+                  id="consentOffer" 
+                  checked={consentOffer} 
+                  onCheckedChange={(checked) => setConsentOffer(checked === true)}
+                  className="mt-0.5 border-purple-300 data-[state=checked]:bg-purple-600"
+                />
+                <label htmlFor="consentOffer" className="text-xs text-gray-600 leading-relaxed cursor-pointer">
+                  Я принимаю условия{" "}
+                  <LegalDocumentLink docType="offer">
+                    Публичной оферты
+                  </LegalDocumentLink>
+                  {" "}*
+                </label>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <Checkbox 
+                  id="consentMarketing" 
+                  checked={consentMarketing} 
+                  onCheckedChange={(checked) => setConsentMarketing(checked === true)}
+                  className="mt-0.5 border-purple-300 data-[state=checked]:bg-purple-600"
+                />
+                <label htmlFor="consentMarketing" className="text-xs text-gray-600 leading-relaxed cursor-pointer">
+                  Я даю{" "}
+                  <LegalDocumentLink docType="marketingConsent">
+                    согласие на получение рассылок
+                  </LegalDocumentLink>
+                  {" "}(необходимо для восстановления пароля)
+                </label>
+              </div>
+
+              <p className="text-[10px] text-gray-400">* — обязательные поля</p>
+            </div>
             
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500"
-              disabled={registerMutation.isPending}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 disabled:opacity-50"
+              disabled={!canSubmit || registerMutation.isPending}
             >
               <UserPlus className="h-4 w-4 mr-2" />
               {registerMutation.isPending ? "Регистрация..." : "Зарегистрироваться"}
