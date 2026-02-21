@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, Crown, ArrowLeft, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Check, Sparkles, Crown, ArrowLeft, Loader2, Tag, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -15,6 +16,14 @@ export default function Pricing() {
   const [location] = useLocation();
 
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  const [promoCode, setPromoCode] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    discountPercent: number;
+    applicablePlans: string[];
+  } | null>(null);
   
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -29,6 +38,68 @@ export default function Pricing() {
     }
   }, [location]);
 
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    if (!isAuthenticated) {
+      toast({
+        title: "Требуется авторизация",
+        description: "Войдите в аккаунт, чтобы применить промокод",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPromoLoading(true);
+    try {
+      const response = await apiRequest('POST', '/api/promocode/verify-discount', { code: promoCode });
+      const data = await response.json();
+
+      if (data.success) {
+        setAppliedPromo({
+          code: promoCode.toUpperCase(),
+          discountPercent: data.discountPercent,
+          applicablePlans: data.applicablePlans,
+        });
+        toast({
+          title: "Промокод применён!",
+          description: data.message,
+        });
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      const errorData = error.message ? error.message : "Не удалось проверить промокод";
+      toast({
+        title: "Ошибка",
+        description: errorData,
+        variant: "destructive",
+      });
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoCode("");
+  };
+
+  const getPrice = (planType: 'monthly' | 'yearly') => {
+    const basePrice = planType === 'monthly' ? 1690 : 5475;
+    if (appliedPromo && appliedPromo.applicablePlans.includes(planType)) {
+      return Math.round(basePrice * (1 - appliedPromo.discountPercent / 100));
+    }
+    return basePrice;
+  };
+
+  const hasDiscount = (planType: 'monthly' | 'yearly') => {
+    return appliedPromo && appliedPromo.applicablePlans.includes(planType);
+  };
+
   const handlePayment = async (planType: 'monthly' | 'yearly') => {
     if (!isAuthenticated) {
       toast({
@@ -41,7 +112,11 @@ export default function Pricing() {
 
     setLoading(planType);
     try {
-      const response = await apiRequest('POST', '/api/payments/create-link', { planType });
+      const body: any = { planType };
+      if (appliedPromo && appliedPromo.applicablePlans.includes(planType)) {
+        body.promoCode = appliedPromo.code;
+      }
+      const response = await apiRequest('POST', '/api/payments/create-link', body);
       const data = await response.json();
       
       if (data.paymentUrl) {
@@ -80,6 +155,9 @@ export default function Pricing() {
 
   const trialDaysLeft = getTrialDaysLeft();
   const hasActiveSubscription = user?.subscriptionTier && user.subscriptionTier !== 'trial' && user.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) > new Date();
+
+  const monthlyPrice = getPrice('monthly');
+  const yearlyPrice = getPrice('yearly');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white">
@@ -133,8 +211,60 @@ export default function Pricing() {
           )}
         </div>
 
+        {isAuthenticated && (
+          <div className="max-w-md mx-auto mb-10">
+            {appliedPromo ? (
+              <div className="flex items-center gap-3 p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+                <Tag className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-green-700 font-medium">
+                    Промокод <span className="font-bold">{appliedPromo.code}</span> применён
+                  </p>
+                  <p className="text-green-600 text-sm">Скидка {appliedPromo.discountPercent}%</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRemovePromo}
+                  className="text-green-600 hover:text-red-600 hover:bg-red-50 p-1 h-auto"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-400" />
+                  <Input
+                    placeholder="Введите промокод"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
+                    className="pl-10 border-purple-200 focus:border-purple-400"
+                  />
+                </div>
+                <Button
+                  onClick={handleApplyPromo}
+                  disabled={promoLoading || !promoCode.trim()}
+                  variant="outline"
+                  className="border-purple-300 text-purple-600 hover:bg-purple-50"
+                >
+                  {promoLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Применить"}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <Card className="relative border-2 border-purple-200 hover:border-purple-300 transition-colors shadow-lg">
+            {hasDiscount('monthly') && (
+              <div className="absolute -top-3 right-4">
+                <Badge className="bg-green-500 text-white px-3 py-1">
+                  -{appliedPromo!.discountPercent}%
+                </Badge>
+              </div>
+            )}
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl font-mystic text-purple-700">
                 Месячный
@@ -145,9 +275,22 @@ export default function Pricing() {
             </CardHeader>
             <CardContent className="text-center">
               <div className="my-6">
-                <span className="text-5xl font-bold text-purple-800">1690</span>
-                <span className="text-xl text-purple-600">₽</span>
-                <p className="text-sm text-purple-500 mt-1">в месяц</p>
+                {hasDiscount('monthly') ? (
+                  <>
+                    <div className="mb-1">
+                      <span className="text-2xl line-through text-gray-400">1690₽</span>
+                    </div>
+                    <span className="text-5xl font-bold text-green-600">{monthlyPrice}</span>
+                    <span className="text-xl text-green-500">₽</span>
+                    <p className="text-sm text-green-500 mt-1">в месяц со скидкой</p>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-5xl font-bold text-purple-800">{monthlyPrice}</span>
+                    <span className="text-xl text-purple-600">₽</span>
+                    <p className="text-sm text-purple-500 mt-1">в месяц</p>
+                  </>
+                )}
               </div>
               
               <ul className="text-left space-y-3 mb-8">
@@ -160,7 +303,7 @@ export default function Pricing() {
               </ul>
               
               <Button 
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 text-lg"
+                className={`w-full py-6 text-lg ${hasDiscount('monthly') ? 'bg-green-600 hover:bg-green-700' : 'bg-purple-600 hover:bg-purple-700'} text-white`}
                 onClick={() => handlePayment('monthly')}
                 disabled={loading !== null}
               >
@@ -193,13 +336,26 @@ export default function Pricing() {
             </CardHeader>
             <CardContent className="text-center">
               <div className="my-6">
-                <span className="text-5xl font-bold text-purple-800">5475</span>
-                <span className="text-xl text-purple-600">₽</span>
-                <p className="text-sm text-purple-500 mt-1">в год</p>
-                <div className="mt-2 text-sm">
-                  <span className="line-through text-gray-400">20 280₽</span>
-                  <span className="text-green-600 font-medium ml-2">Экономия 14 805₽</span>
-                </div>
+                {hasDiscount('yearly') ? (
+                  <>
+                    <div className="mb-1">
+                      <span className="text-2xl line-through text-gray-400">5475₽</span>
+                    </div>
+                    <span className="text-5xl font-bold text-green-600">{yearlyPrice}</span>
+                    <span className="text-xl text-green-500">₽</span>
+                    <p className="text-sm text-green-500 mt-1">в год со скидкой</p>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-5xl font-bold text-purple-800">{yearlyPrice}</span>
+                    <span className="text-xl text-purple-600">₽</span>
+                    <p className="text-sm text-purple-500 mt-1">в год</p>
+                    <div className="mt-2 text-sm">
+                      <span className="line-through text-gray-400">20 280₽</span>
+                      <span className="text-green-600 font-medium ml-2">Экономия 14 805₽</span>
+                    </div>
+                  </>
+                )}
               </div>
               
               <ul className="text-left space-y-3 mb-8">

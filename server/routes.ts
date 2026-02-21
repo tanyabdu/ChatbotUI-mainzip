@@ -758,6 +758,24 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/promocode/verify-discount", isAuthenticated, async (req: any, res) => {
+    try {
+      const { code } = req.body;
+      if (!code || typeof code !== "string") {
+        return res.status(400).json({ success: false, message: "Введите промокод" });
+      }
+      const result = await storage.verifyDiscountPromocode(req.user.id, code);
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error: any) {
+      console.error("Verify discount promocode error:", error);
+      res.status(500).json({ success: false, message: "Ошибка при проверке промокода" });
+    }
+  });
+
   // Payments - Create payment link
   app.post("/api/payments/create-link", isAuthenticated, async (req: any, res) => {
     try {
@@ -768,11 +786,24 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Пользователь не найден" });
       }
 
-      const { planType } = req.body;
+      const { planType, promoCode } = req.body;
       
       if (!planType || !['monthly', 'yearly'].includes(planType)) {
         return res.status(400).json({ error: "Укажите тип подписки: monthly или yearly" });
       }
+
+      let discountPercent = 0;
+      let appliedPromoId: string | null = null;
+      if (promoCode && typeof promoCode === 'string') {
+        const promoResult = await storage.verifyDiscountPromocode(userId, promoCode);
+        if (promoResult.success && promoResult.discountPercent && promoResult.applicablePlans?.includes(planType)) {
+          discountPercent = promoResult.discountPercent;
+          appliedPromoId = promoResult.promocodeId || null;
+        }
+      }
+
+      const basePrice = planType === 'monthly' ? 1690 : 5475;
+      const finalPrice = discountPercent > 0 ? Math.round(basePrice * (1 - discountPercent / 100)) : basePrice;
 
       const orderId = `order_${userId}_${Date.now()}`;
       const domain = process.env.REPLIT_DEV_DOMAIN || process.env.REPLIT_DOMAINS || req.get('host');
@@ -783,20 +814,20 @@ export async function registerRoutes(
         customerEmail: user.email,
         planType,
         userId,
-        baseUrl
+        baseUrl,
+        price: `${finalPrice}.00`
       });
 
-      const price = planType === 'monthly' ? '1690.00' : '5475.00';
       await storage.recordPayment({
         userId,
         orderId: shortOrderId,
-        amount: price,
+        amount: `${finalPrice}.00`,
         planType,
         status: 'pending',
-        prodamusData: null
+        prodamusData: appliedPromoId ? { appliedPromoId, discountPercent } : null
       });
 
-      console.log(`Payment link created for user ${userId}, plan: ${planType}, order: ${shortOrderId}, baseUrl: ${baseUrl}`);
+      console.log(`Payment link created for user ${userId}, plan: ${planType}, order: ${shortOrderId}, price: ${finalPrice}, discount: ${discountPercent}%`);
       
       res.json({ paymentUrl, orderId: shortOrderId });
     } catch (error: any) {
@@ -850,27 +881,35 @@ export async function registerRoutes(
         const userId = existingPayment.userId;
         const planType = existingPayment.planType as 'monthly' | 'yearly';
 
-        // SECURITY: Verify payment amount matches expected price
-        const expectedPrice = planType === 'monthly' ? 1690 : 5475;
+        const expectedAmount = parseFloat(existingPayment.amount) || (planType === 'monthly' ? 1690 : 5475);
         const paidAmount = parseFloat(webhookData.sum) || 0;
         
-        // Allow small tolerance for payment gateway fees (1%)
-        const minAcceptable = expectedPrice * 0.99;
+        const minAcceptable = expectedAmount * 0.99;
         
         if (paidAmount < minAcceptable) {
-          console.error(`Payment amount mismatch for order ${orderNum}: expected ${expectedPrice}, got ${paidAmount}`);
+          console.error(`Payment amount mismatch for order ${orderNum}: expected ${expectedAmount}, got ${paidAmount}`);
           await storage.updatePaymentStatus(orderNum, 'failed', { 
             ...req.body, 
-            error: `Amount mismatch: expected ${expectedPrice}, got ${paidAmount}` 
+            error: `Amount mismatch: expected ${expectedAmount}, got ${paidAmount}` 
           });
           return res.status(400).json({ 
             error: "Payment amount does not match expected price",
-            expected: expectedPrice,
+            expected: expectedAmount,
             received: paidAmount
           });
         }
 
         await storage.updatePaymentStatus(orderNum, 'success', req.body);
+
+        const prodamusData = existingPayment.prodamusData as any;
+        if (prodamusData?.appliedPromoId) {
+          try {
+            await storage.recordPromocodeUsageForDiscount(prodamusData.appliedPromoId, userId);
+            console.log(`Promocode usage recorded for user ${userId}, promoId: ${prodamusData.appliedPromoId}`);
+          } catch (promoErr) {
+            console.error(`Failed to record promo usage for order ${orderNum}:`, promoErr);
+          }
+        }
 
         const daysToAdd = planType === 'yearly' ? 365 : 30;
         const now = new Date();

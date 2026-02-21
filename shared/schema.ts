@@ -60,6 +60,9 @@ export const promocodes = esotericSchema.table("promocodes", {
   isActive: boolean("is_active").default(true),
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").defaultNow(),
+  promocodeType: varchar("promocode_type").default("bonus"),
+  discountPercent: integer("discount_percent"),
+  discountPlanType: varchar("discount_plan_type"),
 });
 
 export const promocodeUsages = esotericSchema.table("promocode_usages", {

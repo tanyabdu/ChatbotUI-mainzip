@@ -85,6 +85,7 @@ interface CreatePaymentLinkParams {
   planType: 'monthly' | 'yearly';
   userId: string;
   baseUrl: string;
+  price?: string;
 }
 
 function generateShortOrderId(): string {
@@ -100,9 +101,9 @@ export interface CreatePaymentLinkResult {
 }
 
 export function createPaymentLink(params: CreatePaymentLinkParams): CreatePaymentLinkResult {
-  const { orderId, customerEmail, customerPhone, planType, userId, baseUrl } = params;
+  const { orderId, customerEmail, customerPhone, planType, userId, baseUrl, price: customPrice } = params;
 
-  const price = planType === 'monthly' ? '1690.00' : '5475.00';
+  const price = customPrice || (planType === 'monthly' ? '1690.00' : '5475.00');
   const productName = planType === 'monthly' 
     ? 'Подписка Месяц' 
     : 'Подписка Год';

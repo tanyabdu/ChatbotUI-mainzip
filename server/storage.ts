@@ -599,6 +599,68 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  async verifyDiscountPromocode(userId: string, code: string): Promise<{ success: boolean; message: string; discountPercent?: number; applicablePlans?: string[]; promocodeId?: string }> {
+    const normalizedCode = code.trim().toUpperCase();
+
+    const [promocode] = await db.select().from(promocodes)
+      .where(eq(promocodes.code, normalizedCode));
+
+    if (!promocode) {
+      return { success: false, message: "Промокод не найден" };
+    }
+
+    if (!promocode.isActive) {
+      return { success: false, message: "Промокод неактивен" };
+    }
+
+    if (promocode.promocodeType !== 'discount') {
+      return { success: false, message: "Этот промокод не является скидочным" };
+    }
+
+    if (promocode.expiresAt && promocode.expiresAt < new Date()) {
+      return { success: false, message: "Срок действия промокода истёк" };
+    }
+
+    if (promocode.maxUses && (promocode.usedCount || 0) >= promocode.maxUses) {
+      return { success: false, message: "Промокод исчерпан" };
+    }
+
+    const [existingUsage] = await db.select().from(promocodeUsages)
+      .where(and(
+        eq(promocodeUsages.promocodeId, promocode.id),
+        eq(promocodeUsages.userId, userId)
+      ));
+
+    if (existingUsage) {
+      return { success: false, message: "Вы уже использовали этот промокод" };
+    }
+
+    const applicablePlans = promocode.discountPlanType
+      ? [promocode.discountPlanType]
+      : ['monthly', 'yearly'];
+
+    return {
+      success: true,
+      message: `Скидка ${promocode.discountPercent}% применена`,
+      discountPercent: promocode.discountPercent || 0,
+      applicablePlans,
+      promocodeId: promocode.id,
+    };
+  }
+
+  async recordPromocodeUsageForDiscount(promocodeId: string, userId: string): Promise<void> {
+    await db.insert(promocodeUsages).values({
+      promocodeId,
+      userId,
+    });
+    const [promo] = await db.select().from(promocodes).where(eq(promocodes.id, promocodeId));
+    if (promo) {
+      await db.update(promocodes).set({
+        usedCount: (promo.usedCount || 0) + 1,
+      }).where(eq(promocodes.id, promocodeId));
+    }
+  }
+
   async createPromocode(data: { code: string; bonusDays: number; maxUses?: number; expiresAt?: Date }): Promise<Promocode> {
     const [created] = await db.insert(promocodes).values({
       code: data.code.toUpperCase(),
