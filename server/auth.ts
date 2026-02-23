@@ -367,6 +367,77 @@ export async function setupAuth(app: Express) {
       res.status(500).json({ message: "Ошибка при смене пароля" });
     }
   });
+
+  app.get("/api/auth/consent-status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const logs = await storage.getConsentLogs(userId);
+      
+      const requiredTypes = ["personal_data", "offer", "marketing"];
+      const grantedTypes = new Set(
+        logs.filter(l => l.granted).map(l => l.consentType)
+      );
+      
+      const missing = requiredTypes.filter(t => !grantedTypes.has(t));
+      
+      res.json({
+        consentsComplete: missing.length === 0,
+        missing,
+        granted: Array.from(grantedTypes),
+      });
+    } catch (error) {
+      console.error("Consent status error:", error);
+      res.status(500).json({ message: "Ошибка при проверке согласий" });
+    }
+  });
+
+  app.post("/api/auth/accept-consents", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { consentData, consentOffer, consentMarketing } = req.body;
+
+      if (!consentData || !consentOffer || !consentMarketing) {
+        return res.status(400).json({ message: "Необходимо принять все обязательные соглашения" });
+      }
+
+      const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || '';
+      const userAgent = req.headers['user-agent'] || '';
+
+      const existingLogs = await storage.getConsentLogs(userId);
+      const grantedTypes = new Set(
+        existingLogs.filter(l => l.granted).map(l => l.consentType)
+      );
+
+      const consentEntries = [
+        { type: "personal_data", granted: true },
+        { type: "offer", granted: true },
+        { type: "marketing", granted: true },
+      ];
+
+      for (const entry of consentEntries) {
+        if (!grantedTypes.has(entry.type)) {
+          await storage.createConsentLog({
+            userId,
+            consentType: entry.type,
+            granted: entry.granted,
+            ipAddress,
+            userAgent,
+            documentVersion: "2026-02",
+          });
+        }
+      }
+
+      await storage.updateUser(userId, {
+        marketingConsent: true,
+        marketingConsentAt: new Date(),
+      });
+
+      res.json({ success: true, message: "Согласия приняты" });
+    } catch (error) {
+      console.error("Accept consents error:", error);
+      res.status(500).json({ message: "Ошибка при сохранении согласий" });
+    }
+  });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {

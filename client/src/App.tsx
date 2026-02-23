@@ -1,5 +1,6 @@
 import { Switch, Route, Redirect } from "wouter";
-import { queryClient } from "./lib/queryClient";
+import { useState, useEffect } from "react";
+import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +16,7 @@ import ResetPassword from "@/pages/ResetPassword";
 import Pricing from "@/pages/Pricing";
 import ImageEditor from "@/pages/ImageEditor";
 import { useAuth } from "@/hooks/useAuth";
+import ConsentModal from "@/components/ConsentModal";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -66,11 +68,46 @@ function Router() {
   );
 }
 
+function ConsentChecker() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [showConsent, setShowConsent] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated || isLoading) {
+      setShowConsent(false);
+      setChecked(false);
+      return;
+    }
+
+    (async () => {
+      try {
+        const response = await apiRequest("GET", "/api/auth/consent-status");
+        const data = await response.json();
+        if (!data.consentsComplete) {
+          setShowConsent(true);
+        }
+      } catch (e) {}
+      setChecked(true);
+    })();
+  }, [isAuthenticated, isLoading]);
+
+  if (!checked || !showConsent) return null;
+
+  return (
+    <ConsentModal
+      open={showConsent}
+      onAccepted={() => setShowConsent(false)}
+    />
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
+        <ConsentChecker />
         <Router />
       </TooltipProvider>
     </QueryClientProvider>
