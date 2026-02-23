@@ -22,7 +22,7 @@ export default function Register() {
   const [consentOffer, setConsentOffer] = useState(false);
   const [consentMarketing, setConsentMarketing] = useState(false);
 
-  const canSubmit = consentData && consentOffer && email.includes("@");
+  const canSubmit = consentData && consentOffer && consentMarketing && email.includes("@");
 
   const registerMutation = useMutation({
     mutationFn: async () => {
@@ -47,8 +47,8 @@ export default function Register() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!consentData || !consentOffer) {
-      setError("Необходимо принять обязательные соглашения");
+    if (!consentData || !consentOffer || !consentMarketing) {
+      setError("Необходимо принять все обязательные соглашения");
       return;
     }
     registerMutation.mutate();
@@ -205,7 +205,7 @@ export default function Register() {
                   <LegalDocumentLink docType="marketingConsent">
                     согласие на получение рассылок
                   </LegalDocumentLink>
-                  {" "}(необходимо для восстановления пароля)
+                  {" "}(необходимо для получения пароля и доступа к приложению) *
                 </label>
               </div>
 

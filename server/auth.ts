@@ -85,8 +85,8 @@ export async function setupAuth(app: Express) {
         return res.status(400).json({ message: "Введите корректный email" });
       }
 
-      if (!consentData || !consentOffer) {
-        return res.status(400).json({ message: "Необходимо принять обязательные соглашения" });
+      if (!consentData || !consentOffer || !consentMarketing) {
+        return res.status(400).json({ message: "Необходимо принять все обязательные соглашения для регистрации" });
       }
       
       // Normalize email to handle iOS keyboard quirks (invisible spaces, Unicode differences)
