@@ -82,15 +82,23 @@ export default function Pricing() {
       const data = await response.json();
 
       if (data.success) {
-        setAppliedPromo({
-          code: promoCode.toUpperCase(),
-          discountPercent: data.discountPercent,
-          applicablePlans: data.applicablePlans,
-        });
-        toast({
-          title: "Промокод применён!",
-          description: data.message,
-        });
+        if (data.bonusActivated) {
+          toast({
+            title: "Промокод активирован!",
+            description: data.message,
+          });
+          setPromoCode("");
+        } else {
+          setAppliedPromo({
+            code: promoCode.toUpperCase(),
+            discountPercent: data.discountPercent,
+            applicablePlans: data.applicablePlans,
+          });
+          toast({
+            title: "Промокод применён!",
+            description: data.message,
+          });
+        }
       } else {
         toast({
           title: "Ошибка",

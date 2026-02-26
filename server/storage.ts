@@ -627,7 +627,11 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (promocode.promocodeType !== 'discount') {
-      return { success: false, message: "Этот промокод не является скидочным" };
+      const bonusResult = await this.activatePromocode(userId, code);
+      if (bonusResult.success) {
+        return { success: true, message: bonusResult.message, bonusActivated: true } as any;
+      }
+      return { success: false, message: bonusResult.message };
     }
 
     if (promocode.expiresAt && promocode.expiresAt < new Date()) {
