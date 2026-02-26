@@ -164,6 +164,12 @@ export default function TriggerReels() {
             </CardContent>
           </Card>
 
+          <div className="rounded-xl bg-purple-50 border border-purple-200 px-4 py-3">
+            <p className="text-xs text-purple-600 leading-relaxed">
+              Это черновик, а не финальный сценарий. Обязательно перечитайте текст, адаптируйте под свой стиль и добавьте личные детали — именно ваш голос и опыт делают контент живым. AI задаёт направление, но лучший результат получается, когда вы вносите в него себя.
+            </p>
+          </div>
+
           {result.hookAnalysis && (
             <Card className="border-2 border-yellow-200 bg-gradient-to-b from-yellow-50 to-white">
               <CardContent className="p-4">
