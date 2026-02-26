@@ -14,6 +14,7 @@ import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from
 import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
 import { transcribeAudio } from "./services/yandexSpeechKit";
 import { generateContentPlan, generateQuestions, generatePostFromAnswers } from "./services/contentAlchemy";
+import { transformToTriggerReels } from "./services/triggerReels";
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -1097,6 +1098,34 @@ export async function registerRoutes(
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete topic" });
+    }
+  });
+
+  app.post("/api/trigger-reels/transform", isAuthenticated, async (req: any, res) => {
+    try {
+      const { script } = req.body;
+
+      if (!script || typeof script !== "string" || script.trim().length < 10) {
+        return res.status(400).json({ error: "Введите сценарий (минимум 10 символов)" });
+      }
+
+      if (script.length > 10000) {
+        return res.status(400).json({ error: "Сценарий слишком длинный (максимум 10000 символов)" });
+      }
+
+      const user = req.user;
+      if (!user.subscriptionTier || user.subscriptionTier === "free") {
+        const now = new Date();
+        if (!user.accessExpiresAt || user.accessExpiresAt < now) {
+          return res.status(403).json({ error: "Для использования этой функции нужна активная подписка" });
+        }
+      }
+
+      const result = await transformToTriggerReels(script.trim());
+      res.json(result);
+    } catch (error: any) {
+      console.error("Trigger Reels transform error:", error);
+      res.status(500).json({ error: "Ошибка при обработке сценария. Попробуйте ещё раз." });
     }
   });
 
