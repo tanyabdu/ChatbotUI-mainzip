@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { extractContent } from "./deepseekRetry";
+import { sendErrorNotification } from "./email";
 
 let client: OpenAI | null = null;
 
@@ -947,6 +948,11 @@ ${warmupStructure}
   }
   
   console.error("All retry attempts failed");
+  sendErrorNotification(
+    "ContentGenerator:generateIdeas",
+    lastError?.message || "Unknown error",
+    "Все попытки генерации идей завершились неудачей"
+  ).catch(() => {});
   throw new Error("Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.");
 }
 
@@ -1150,5 +1156,10 @@ ${callToAction}
   }
   
   console.error(`All ${format} retry attempts failed`);
+  sendErrorNotification(
+    `ContentGenerator:${format}`,
+    lastError?.message || "Unknown error",
+    `Все попытки генерации формата "${format}" завершились неудачей`
+  ).catch(() => {});
   throw new Error("Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.");
 }

@@ -1,3 +1,5 @@
+import { sendErrorNotification } from "./email";
+
 const RETRY_ATTEMPTS = 2;
 const RETRY_DELAY_MS = 2000;
 const USER_FRIENDLY_ERROR = "Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.";
@@ -34,6 +36,11 @@ export async function withRetry<T>(
     }
   }
   console.error(`[${context}] All ${RETRY_ATTEMPTS} attempts failed.`);
+  sendErrorNotification(
+    context,
+    lastError?.message || "Unknown error",
+    `Все ${RETRY_ATTEMPTS} попытки завершились неудачей`
+  ).catch(() => {});
   throw new Error(USER_FRIENDLY_ERROR);
 }
 

@@ -58,3 +58,5 @@ Preferred communication style: Simple, everyday language.
 - **Database**: PostgreSQL, Drizzle ORM, `pg`, `connect-pg-simple`.
 - **Payment Integration**: Prodamus (Russian payment gateway) for subscriptions, with HMAC-SHA256 signature verification and amount validation.
 - **Voice Transcription**: OpenAI Whisper API for server-side audio transcription (replaces browser Web Speech API for better cross-browser support).
+- **AI Error Resilience**: Shared retry utility (`server/services/deepseekRetry.ts`) with 2 retry attempts (2s delay), `extractContent` for safe response parsing, `ParseError` class for non-retriable errors. All DeepSeek services use this utility. User-friendly error messages: "Сервис временно недоступен" for API failures, "AI вернул некорректный ответ" for parse errors.
+- **Admin Error Notifications**: Automatic email notifications to admin (tanya.fskate@gmail.com) via Rusender when AI services fail after all retries. Throttled to max 1 email per 10 minutes per service. Fire-and-forget pattern (doesn't block user response). Function: `sendErrorNotification` in `server/services/email.ts`.

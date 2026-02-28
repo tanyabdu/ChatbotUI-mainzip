@@ -3,6 +3,10 @@ import crypto from "crypto";
 const RUSENDER_API_URL = "https://api.beta.rusender.ru/api/v1/external-mails/send";
 const FROM_EMAIL = process.env.RUSENDER_FROM_EMAIL || "noreply@esoteric-planner.ru";
 const FROM_NAME = "Эзотерический Планировщик";
+const ADMIN_EMAIL = "tanya.fskate@gmail.com";
+
+const errorThrottle: Record<string, number> = {};
+const THROTTLE_INTERVAL_MS = 10 * 60 * 1000;
 
 interface EmailParams {
   to: string;
@@ -149,4 +153,57 @@ export async function sendPasswordResetEmail(email: string, resetLink: string): 
     subject: "Сброс пароля - Эзотерический Планировщик",
     html,
   });
+}
+
+export async function sendErrorNotification(
+  serviceName: string,
+  errorMessage: string,
+  details?: string
+): Promise<boolean> {
+  const now = Date.now();
+  const lastSent = errorThrottle[serviceName] || 0;
+  if (now - lastSent < THROTTLE_INTERVAL_MS) {
+    console.log(`[Email] Error notification for "${serviceName}" throttled (last sent ${Math.round((now - lastSent) / 1000)}s ago)`);
+    return false;
+  }
+
+  const timestamp = new Date().toLocaleString("ru-RU", { timeZone: "Europe/Moscow" });
+
+  const html = `
+    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: #FEE2E2; border-left: 4px solid #EF4444; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+        <h2 style="color: #DC2626; margin: 0 0 8px 0; font-size: 18px;">Ошибка сервиса: ${serviceName}</h2>
+        <p style="color: #991B1B; margin: 0; font-size: 14px;">${timestamp} (МСК)</p>
+      </div>
+
+      <div style="background: #F9FAFB; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+        <p style="color: #374151; margin: 0 0 4px 0; font-weight: 600;">Ошибка:</p>
+        <p style="color: #EF4444; margin: 0; font-family: monospace; font-size: 14px;">${errorMessage}</p>
+      </div>
+
+      ${details ? `
+      <div style="background: #F9FAFB; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+        <p style="color: #374151; margin: 0 0 4px 0; font-weight: 600;">Детали:</p>
+        <p style="color: #6B7280; margin: 0; font-size: 14px; white-space: pre-wrap;">${details}</p>
+      </div>
+      ` : ""}
+
+      <p style="color: #9CA3AF; font-size: 12px; margin-top: 20px;">
+        Уведомления отправляются не чаще 1 раза в 10 минут на каждый сервис.
+      </p>
+    </div>
+  `;
+
+  const sent = await sendEmail({
+    to: ADMIN_EMAIL,
+    toName: "Администратор",
+    subject: `Ошибка: ${serviceName}`,
+    html,
+  });
+
+  if (sent) {
+    errorThrottle[serviceName] = now;
+  }
+
+  return sent;
 }
