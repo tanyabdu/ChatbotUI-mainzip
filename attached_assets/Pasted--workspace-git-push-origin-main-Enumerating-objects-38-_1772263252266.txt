@@ -1,0 +1,87 @@
+~/workspace$ git push origin main
+Enumerating objects: 38, done.
+Counting objects: 100% (38/38), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (27/27), done.
+Writing objects: 100% (27/27), 260.03 KiB | 28.89 MiB/s, done.
+Total 27 (delta 21), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (21/21), completed with 10 local objects.
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: 
+remote: - GITHUB PUSH PROTECTION
+remote:   —————————————————————————————————————————
+remote:     Resolve the following violations before pushing again
+remote: 
+remote:     - Push cannot contain secrets
+remote: 
+remote:     
+remote:      (?) Learn how to resolve a blocked push
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push
+remote:     
+remote:     
+remote:       —— Yandex.Cloud API Key ——————————————————————————————
+remote:        locations:
+remote:          - commit: cb141bcbbbe8ac49bfe069f803d8105d0c99450c
+remote:            path: attached_assets/Pasted-root-cv5653817-var-www-magic-content-pm2-describe-esote_1772260829372.txt:10
+remote:     
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+remote:        https://github.com/tanyabdu/ChatbotUI-mainzip/security/secret-scanning/unblock-secret/3AHtstxP8ZUT2qwelt5Hdr7bn3E
+remote:     
+remote:     
+remote:       —— OpenAI API Key ————————————————————————————————————
+remote:        locations:
+remote:          - commit: cb141bcbbbe8ac49bfe069f803d8105d0c99450c
+remote:            path: attached_assets/Pasted-root-cv5653817-var-www-magic-content-pm2-describe-esote_1772260829372.txt:11
+remote:     
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+remote:        https://github.com/tanyabdu/ChatbotUI-mainzip/security/secret-scanning/unblock-secret/3AHtsrxUSNu8DsR7dXFHfkXnexB
+remote:     
+remote: 
+remote: 
+To https://github.com/tanyabdu/ChatbotUI-mainzip
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/tanyabdu/ChatbotUI-mainzip'
+~/workspace$ git push origin main
+Enumerating objects: 38, done.
+Counting objects: 100% (38/38), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (27/27), done.
+Writing objects: 100% (27/27), 260.03 KiB | 28.89 MiB/s, done.
+Total 27 (delta 21), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (21/21), completed with 10 local objects.
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: 
+remote: - GITHUB PUSH PROTECTION
+remote:   —————————————————————————————————————————
+remote:     Resolve the following violations before pushing again
+remote: 
+remote:     - Push cannot contain secrets
+remote: 
+remote:     
+remote:      (?) Learn how to resolve a blocked push
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push
+remote:     
+remote:     
+remote:       —— Yandex.Cloud API Key ——————————————————————————————
+remote:        locations:
+remote:          - commit: cb141bcbbbe8ac49bfe069f803d8105d0c99450c
+remote:            path: attached_assets/Pasted-root-cv5653817-var-www-magic-content-pm2-describe-esote_1772260829372.txt:10
+remote:     
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+remote:        https://github.com/tanyabdu/ChatbotUI-mainzip/security/secret-scanning/unblock-secret/3AHtstxP8ZUT2qwelt5Hdr7bn3E
+remote:     
+remote:     
+remote:       —— OpenAI API Key ————————————————————————————————————
+remote:        locations:
+remote:          - commit: cb141bcbbbe8ac49bfe069f803d8105d0c99450c
+remote:            path: attached_assets/Pasted-root-cv5653817-var-www-magic-content-pm2-describe-esote_1772260829372.txt:11
+remote:     
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+remote:        https://github.com/tanyabdu/ChatbotUI-mainzip/security/secret-scanning/unblock-secret/3AHtsrxUSNu8DsR7dXFHfkXnexB
+remote:     
+remote: 
+remote: 
+To https://github.com/tanyabdu/ChatbotUI-mainzip
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/tanyabdu/ChatbotUI-mainzip'
+~/workspace$ 

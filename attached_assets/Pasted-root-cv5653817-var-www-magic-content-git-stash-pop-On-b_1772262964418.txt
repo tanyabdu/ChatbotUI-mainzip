@@ -1,0 +1,88 @@
+root@cv5653817:/var/www/magic-content# git stash pop
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   dist/index.cjs
+	deleted:    dist/public/assets/index-B5-9wBWF.js
+	deleted:    dist/public/assets/index-DagNHBKj.css
+	modified:   dist/public/index.html
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	dist/public/assets/index-BBpVAuDX.js
+	dist/public/assets/index-DoRWfItP.css
+	node_modules/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (e567a4a8c5d2ed25187b28f173b3a2841878cdbd)
+root@cv5653817:/var/www/magic-content# git push origin main
+Username for 'https://github.com': tanyabdu
+Password for 'https://tanyabdu@github.com': 
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/tanyabdu/ChatbotUI-mainzip.git/'
+root@cv5653817:/var/www/magic-content# git push origin main
+Username for 'https://github.com': tanyabdu
+Password for 'https://tanyabdu@github.com': 
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/tanyabdu/ChatbotUI-mainzip.git/'
+root@cv5653817:/var/www/magic-content# cd /var/www/magic-content && git stash
+Saved working directory and index state WIP on main: 70be4fe Allow bonus promo codes to be applied on the pricing page
+root@cv5653817:/var/www/magic-content# git push origin main
+Username for 'https://github.com': cd /var/www/magic-content && git stash pop
+Password for 'https://cd%20%2Fvar%2Fwww%2Fmagic-content%20%26%26%20git%20stash%20pop@github.com': 
+?уйте ещё раз.");
+      }
+      lastError = error;
+      console.error(`[${context}] Attempt ${attempt}/${RETRY_ATTEMPTS} failed:`, error.message || error);
+      if (attempt < RETRY_ATTEMPTS) {
+        await sleep(RETRY_DELAY_MS);
+      }
+    }
+  }
+  console.error(`[${context}] All ${RETRY_ATTEMPTS} attempts failed.`);
+  sendErrorNotification(
+    context,
+    lastError?.message || "Unknown error",
+    `Все ${RETRY_ATTEMPTS} попытки завершились неудачей`
+  ).catch(() => {});
+  throw new Error(USER_FRIENDLY_ERROR);
+}
+
+export function extractContent(response: any): string | null {
+  if (!response?.choices || !Array.isArray(response.choices) || response.choices.length === 0) {
+    return null;
+  }
+  return response.choices[0]?.message?.content || null;
+}
+ENDOFFILEremote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/tanyabdu/ChatbotUI-mainzip.git/'
+root@cv5653817:/var/www/magic-content# ?уйте ещё раз.");
+>       }
+>       lastError = error;
+>       console.error(`[${context}] Attempt ${attempt}/${RETRY_ATTEMPTS} failed:`, error.message || error);
+>       if (attempt < RETRY_ATTEMPTS) {
+>         await sleep(RETRY_DELAY_MS);
+>       }
+>     }
+>   }
+>   console.error(`[${context}] All ${RETRY_ATTEMPTS} attempts failed.`);
+>   sendErrorNotification(
+>     context,
+>     lastError?.message || "Unknown error",
+>     `Все ${RETRY_ATTEMPTS} попытки завершились неудачей`
+>   ).catch(() => {});
+>   throw new Error(USER_FRIENDLY_ERROR);
+> }
+> 
+> export function extractContent(response: any): string | null {
+>   if (!response?.choices || !Array.isArray(response.choices) || response.choices.length === 0) {
+-bash: !response?.choices: event not found
+>     return null;
+>   }
+>   return response.choices[0]?.message?.content || null;
+> }
+> ENDOFFILE
+> 
