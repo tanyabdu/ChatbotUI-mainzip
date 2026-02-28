@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type { SalesTrainerSample } from "@shared/schema";
+import { withRetry, extractContent } from "./deepseekRetry";
 
 const OFFER_LABELS: Record<string, string> = {
   consultation: "Консультация",
@@ -75,7 +76,7 @@ ${params.offerType ? `Желаемое предложение: ${getOfferLabel(p
 
 Напиши улучшенную версию ответа, которая закроет клиента на продажу:`;
 
-  try {
+  return withRetry(async () => {
     const response = await client.chat.completions.create({
       model: "deepseek-chat",
       messages: [
@@ -86,9 +87,10 @@ ${params.offerType ? `Желаемое предложение: ${getOfferLabel(p
       max_tokens: 1500,
     });
 
-    return response.choices[0]?.message?.content || "Не удалось сгенерировать ответ";
-  } catch (error: any) {
-    console.error("DeepSeek API error:", error);
-    throw new Error(`Ошибка API: ${error.message}`);
-  }
+    const content = extractContent(response);
+    if (!content) {
+      throw new Error("Пустой ответ от AI");
+    }
+    return content;
+  }, "MoneyTrainer");
 }

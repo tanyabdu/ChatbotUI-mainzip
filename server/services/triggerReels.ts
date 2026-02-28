@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { withRetry, extractContent, ParseError } from "./deepseekRetry";
 
 const deepseek = new OpenAI({
   baseURL: "https://api.deepseek.com",
@@ -99,35 +100,37 @@ export async function transformToTriggerReels(originalScript: string): Promise<{
   hookAnalysis: string;
   ctaType: string;
 }> {
-  const response = await deepseek.chat.completions.create({
-    model: "deepseek-chat",
-    messages: [
-      {
-        role: "user",
-        content: `${SYSTEM_PROMPT}\n\n---\n\nВот оригинальный сценарий Reels, который нужно переработать в триггерный:\n\n${originalScript}`,
-      },
-    ],
-    temperature: 0.8,
-    max_tokens: 4000,
-    response_format: { type: "json_object" },
-  });
+  return withRetry(async () => {
+    const response = await deepseek.chat.completions.create({
+      model: "deepseek-chat",
+      messages: [
+        {
+          role: "user",
+          content: `${SYSTEM_PROMPT}\n\n---\n\nВот оригинальный сценарий Reels, который нужно переработать в триггерный:\n\n${originalScript}`,
+        },
+      ],
+      temperature: 0.8,
+      max_tokens: 4000,
+      response_format: { type: "json_object" },
+    });
 
-  const content = response.choices[0]?.message?.content;
-  if (!content) {
-    throw new Error("Пустой ответ от AI");
-  }
+    const content = extractContent(response);
+    if (!content) {
+      throw new Error("Пустой ответ от AI");
+    }
 
-  let parsed: any;
-  try {
-    parsed = JSON.parse(content);
-  } catch {
-    throw new Error("AI вернул некорректный формат ответа. Попробуйте ещё раз.");
-  }
+    let parsed: any;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      throw new ParseError("AI вернул некорректный формат ответа");
+    }
 
-  return {
-    transformedScript: parsed.transformedScript || "",
-    usedTriggers: parsed.usedTriggers || [],
-    hookAnalysis: parsed.hookAnalysis || "",
-    ctaType: parsed.ctaType || "",
-  };
+    return {
+      transformedScript: parsed.transformedScript || "",
+      usedTriggers: parsed.usedTriggers || [],
+      hookAnalysis: parsed.hookAnalysis || "",
+      ctaType: parsed.ctaType || "",
+    };
+  }, "TriggerReels");
 }

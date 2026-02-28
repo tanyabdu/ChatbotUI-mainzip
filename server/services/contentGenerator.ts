@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { extractContent } from "./deepseekRetry";
 
 let client: OpenAI | null = null;
 
@@ -622,7 +623,7 @@ ${writingStyleRules}
     const elapsed = Date.now() - startTime;
     console.log(`DeepSeek API responded in ${elapsed}ms`);
 
-    const content = response.choices[0]?.message?.content || "[]";
+    const content = extractContent(response) || "[]";
     console.log("Raw AI response length:", content.length);
     
     if (content.length < 100) {
@@ -909,7 +910,7 @@ ${warmupStructure}
       const elapsed = Date.now() - startTime;
       console.log(`Ideas generated in ${elapsed}ms`);
 
-      const content = response.choices[0]?.message?.content || "{}";
+      const content = extractContent(response) || "{}";
       console.log("Raw AI response (first 500 chars):", content.substring(0, 500));
       
       try {
@@ -946,7 +947,7 @@ ${warmupStructure}
   }
   
   console.error("All retry attempts failed");
-  throw lastError;
+  throw new Error("Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.");
 }
 
 // Step 2: Generate single format content (on demand)
@@ -1115,7 +1116,7 @@ ${callToAction}
       const elapsed = Date.now() - startTime;
       console.log(`${format} generated in ${elapsed}ms`);
 
-      const content = response.choices[0]?.message?.content || "{}";
+      const content = extractContent(response) || "{}";
       console.log(`Raw ${format} response (first 300 chars):`, content.substring(0, 300));
       
       try {
@@ -1149,5 +1150,5 @@ ${callToAction}
   }
   
   console.error(`All ${format} retry attempts failed`);
-  throw lastError;
+  throw new Error("Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.");
 }

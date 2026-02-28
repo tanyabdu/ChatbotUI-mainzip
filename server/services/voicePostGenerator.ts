@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { withRetry, extractContent } from "./deepseekRetry";
 
 const SYSTEM_PROMPT = `Ты — копирайтер для эзотерических экспертов (тарологов, астрологов, нумерологов).
 Твоя задача — превратить устную речь эксперта в красивый, структурированный пост для социальных сетей.
@@ -34,7 +35,7 @@ export async function generatePostFromTranscript(transcript: string): Promise<st
 
 Создай готовый к публикации пост:`;
 
-  try {
+  return withRetry(async () => {
     const response = await client.chat.completions.create({
       model: "deepseek-chat",
       messages: [
@@ -45,9 +46,10 @@ export async function generatePostFromTranscript(transcript: string): Promise<st
       max_tokens: 2000,
     });
 
-    return response.choices[0]?.message?.content || "Не удалось сгенерировать пост";
-  } catch (error: any) {
-    console.error("DeepSeek API error:", error);
-    throw new Error(`Ошибка API: ${error.message}`);
-  }
+    const content = extractContent(response);
+    if (!content) {
+      throw new Error("Пустой ответ от AI");
+    }
+    return content;
+  }, "VoicePostGenerator");
 }

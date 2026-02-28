@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { withRetry, extractContent, ParseError } from "./deepseekRetry";
 
 const deepseek = new OpenAI({
   baseURL: "https://api.deepseek.com",
@@ -186,44 +187,44 @@ ${archetypeInstruction}
 
 Типы контента: Знакомство, Экспертный, Возражение, Кейс, Продающий`;
 
-  const response = await deepseek.chat.completions.create({
-    model: "deepseek-chat",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.85,
-    max_tokens: 8000,
-  });
+  return withRetry(async () => {
+    const response = await deepseek.chat.completions.create({
+      model: "deepseek-chat",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.85,
+      max_tokens: 8000,
+    });
 
-  const content = response.choices[0]?.message?.content || "[]";
-  
-  try {
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (jsonMatch) {
-      let jsonStr = jsonMatch[0];
-      
-      // Try to repair truncated JSON
-      if (!jsonStr.endsWith(']')) {
-        // Find the last complete object
-        const lastCompleteObj = jsonStr.lastIndexOf('},');
-        if (lastCompleteObj > 0) {
-          jsonStr = jsonStr.substring(0, lastCompleteObj + 1) + ']';
-        } else {
-          const lastObj = jsonStr.lastIndexOf('}');
-          if (lastObj > 0) {
-            jsonStr = jsonStr.substring(0, lastObj + 1) + ']';
+    const content = extractContent(response) || "[]";
+    
+    try {
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        let jsonStr = jsonMatch[0];
+        
+        if (!jsonStr.endsWith(']')) {
+          const lastCompleteObj = jsonStr.lastIndexOf('},');
+          if (lastCompleteObj > 0) {
+            jsonStr = jsonStr.substring(0, lastCompleteObj + 1) + ']';
+          } else {
+            const lastObj = jsonStr.lastIndexOf('}');
+            if (lastObj > 0) {
+              jsonStr = jsonStr.substring(0, lastObj + 1) + ']';
+            }
           }
         }
+        
+        const parsed = JSON.parse(jsonStr);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
       }
-      
-      const parsed = JSON.parse(jsonStr);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
+      return JSON.parse(content);
+    } catch (error) {
+      console.error("Failed to parse content plan:", content);
+      throw new ParseError("Не удалось сгенерировать план");
     }
-    return JSON.parse(content);
-  } catch (error) {
-    console.error("Failed to parse content plan:", content);
-    throw new Error("Не удалось сгенерировать план. Попробуйте ещё раз.");
-  }
+  }, "ContentAlchemy:generatePlan");
 }
 
 export async function generateQuestions(topic: string, description: string): Promise<string[]> {
@@ -241,25 +242,27 @@ ${description ? `Описание: ${description}` : ""}
 Ответь ТОЛЬКО JSON массивом вопросов:
 ["Вопрос 1?", "Вопрос 2?", "Вопрос 3?", "Вопрос 4?"]`;
 
-  const response = await deepseek.chat.completions.create({
-    model: "deepseek-chat",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.7,
-    max_tokens: 1000,
-  });
+  return withRetry(async () => {
+    const response = await deepseek.chat.completions.create({
+      model: "deepseek-chat",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+      max_tokens: 1000,
+    });
 
-  const content = response.choices[0]?.message?.content || "[]";
-  
-  try {
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+    const content = extractContent(response) || "[]";
+    
+    try {
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+      return JSON.parse(content);
+    } catch (error) {
+      console.error("Failed to parse questions:", content);
+      throw new ParseError("Не удалось сгенерировать вопросы");
     }
-    return JSON.parse(content);
-  } catch (error) {
-    console.error("Failed to parse questions:", content);
-    throw new Error("Не удалось сгенерировать вопросы. Попробуйте ещё раз.");
-  }
+  }, "ContentAlchemy:generateQuestions");
 }
 
 export async function generatePostFromAnswers(
@@ -290,18 +293,20 @@ ${answersText}
 
 Напиши ТОЛЬКО готовый текст поста, без пояснений.`;
 
-  const response = await deepseek.chat.completions.create({
-    model: "deepseek-chat",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.7,
-    max_tokens: 2000,
-  });
+  return withRetry(async () => {
+    const response = await deepseek.chat.completions.create({
+      model: "deepseek-chat",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+      max_tokens: 2000,
+    });
 
-  const content = response.choices[0]?.message?.content || "";
-  
-  if (!content.trim()) {
-    throw new Error("Не удалось сгенерировать пост. Попробуйте ещё раз.");
-  }
+    const content = extractContent(response);
+    
+    if (!content?.trim()) {
+      throw new Error("Пустой ответ от AI");
+    }
 
-  return content.trim();
+    return content.trim();
+  }, "ContentAlchemy:generatePost");
 }
