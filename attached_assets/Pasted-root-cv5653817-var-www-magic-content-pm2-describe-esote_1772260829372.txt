@@ -1,0 +1,35 @@
+root@cv5653817:/var/www/magic-content# pm2 describe esoteric-planner | grep -A 20 "env"
+│ node env          │ production                                 │
+│ watch & reload    │ ✘                                          │
+│ unstable restarts │ 0                                          │
+│ created at        │ 2026-02-26T08:03:45.270Z                   │
+└───────────────────┴────────────────────────────────────────────┘
+Process configuration
+┌──────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ YANDEX_FOLDER_ID         │ b1gjm18qp97mge6vd5ha                                                                                                                                                 │
+│ YANDEX_SPEECHKIT_API_KEY │ AQVN0-Q4lwRqE_olI7mrp72J_HUoRAusqicMT0im                                                                                                                             │
+│ OPENAI_API_KEY           │ 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 │
+└──────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+ Actions available 
+┌────────────────────────┐
+│ km:heapdump            │
+│ km:cpu:profiling:start │
+│ km:cpu:profiling:stop  │
+│ km:heap:sampling:start │
+│ km:heap:sampling:stop  │
+└────────────────────────┘
+ Trigger via: pm2 trigger esoteric-planner <action_name>
+
+--
+ Divergent env variables from local env 
+┌────────────────┬───────────────────────────────────────┐
+│ SSH_CONNECTION │ 103.175.214.247 50700 192.168.0.27 22 │
+│ XDG_SESSION_ID │ 5451                                  │
+│ SSH_CLIENT     │ 103.175.214.247 50700 22              │
+└────────────────┴───────────────────────────────────────┘
+
+ Add your own code metrics: http://bit.ly/code-metrics
+ Use `pm2 logs esoteric-planner [--lines 1000]` to display logs
+ Use `pm2 env 0` to display environment variables
+ Use `pm2 monit` to monitor CPU and Memory usage esoteric-planner
+root@cv5653817:/var/www/magic-content# 
