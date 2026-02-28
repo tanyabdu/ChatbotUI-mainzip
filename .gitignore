@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.env
+*.log
+attached_assets/Pasted-root-cv5653817-var-www-magic-content-pm2-describe-esote_*
