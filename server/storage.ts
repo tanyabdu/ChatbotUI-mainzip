@@ -562,52 +562,67 @@ export class DatabaseStorage implements IStorage {
       return { success: false, message: "Пользователь не найден" };
     }
 
-    const bonusDays = promocode.bonusDays || 0;
-    if (bonusDays <= 0) {
-      return { success: false, message: "Промокод не содержит бонусных дней" };
+    const now = new Date();
+    let newExpiresAt: Date;
+    let bonusDays: number;
+    let successMessage: string;
+
+    if (promocode.bonusUntil) {
+      if (promocode.bonusUntil <= now) {
+        return { success: false, message: "Срок действия промокода истёк" };
+      }
+      const bonusEndDate = new Date(promocode.bonusUntil);
+      const currentExpires = user.subscriptionExpiresAt && user.subscriptionExpiresAt > now
+        ? user.subscriptionExpiresAt
+        : (user.trialEndsAt && user.trialEndsAt > now ? user.trialEndsAt : now);
+      newExpiresAt = currentExpires > bonusEndDate ? currentExpires : bonusEndDate;
+      bonusDays = Math.ceil((newExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const dateStr = bonusEndDate.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+      successMessage = `Промокод активирован! Доступ до ${dateStr}`;
+    } else {
+      bonusDays = promocode.bonusDays || 0;
+      if (bonusDays <= 0) {
+        return { success: false, message: "Промокод не содержит бонусных дней" };
+      }
+      
+      if (user.subscriptionTier === "monthly" || user.subscriptionTier === "yearly") {
+        const currentExpires = user.subscriptionExpiresAt && user.subscriptionExpiresAt > now 
+          ? user.subscriptionExpiresAt 
+          : now;
+        newExpiresAt = new Date(currentExpires);
+      } else {
+        const currentTrialEnds = user.trialEndsAt && user.trialEndsAt > now 
+          ? user.trialEndsAt 
+          : now;
+        newExpiresAt = new Date(currentTrialEnds);
+      }
+      newExpiresAt.setDate(newExpiresAt.getDate() + bonusDays);
+      successMessage = `Промокод активирован! Добавлено ${bonusDays} дней`;
     }
 
-    const now = new Date();
-    
-    // Extend current subscription or trial
-    let newExpiresAt: Date;
     if (user.subscriptionTier === "monthly" || user.subscriptionTier === "yearly") {
-      const currentExpires = user.subscriptionExpiresAt && user.subscriptionExpiresAt > now 
-        ? user.subscriptionExpiresAt 
-        : now;
-      newExpiresAt = new Date(currentExpires);
-      newExpiresAt.setDate(newExpiresAt.getDate() + bonusDays);
-      
       await this.updateUser(userId, {
         subscriptionExpiresAt: newExpiresAt,
       });
     } else {
-      const currentTrialEnds = user.trialEndsAt && user.trialEndsAt > now 
-        ? user.trialEndsAt 
-        : now;
-      newExpiresAt = new Date(currentTrialEnds);
-      newExpiresAt.setDate(newExpiresAt.getDate() + bonusDays);
-      
       await this.updateUser(userId, {
         subscriptionTier: "monthly",
         subscriptionExpiresAt: newExpiresAt,
       });
     }
 
-    // Record usage
     await db.insert(promocodeUsages).values({
       promocodeId: promocode.id,
       userId: userId,
     });
 
-    // Increment used count
     await db.update(promocodes).set({
       usedCount: (promocode.usedCount || 0) + 1,
     }).where(eq(promocodes.id, promocode.id));
 
     return { 
       success: true, 
-      message: `Промокод активирован! Добавлено ${bonusDays} дней`, 
+      message: successMessage, 
       bonusDays 
     };
   }
