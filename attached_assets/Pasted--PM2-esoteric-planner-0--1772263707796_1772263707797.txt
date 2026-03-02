@@ -1,0 +1,42 @@
+[PM2] [esoteric-planner](0) ✓
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ esoteric-planner   │ fork     │ 53   │ online    │ 0%       │ 17.3mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+root@cv5653817:/var/www/magic-content# nano ~/.bashrc
+root@cv5653817:/var/www/magic-content# source ~/.bashrc
+root@cv5653817:/var/www/magic-content# cd /var/www/magic-content && git pull origin main
+remote: Enumerating objects: 48, done.
+remote: Counting objects: 100% (48/48), done.
+remote: Compressing objects: 100% (10/10), done.
+remote: Total 37 (delta 27), reused 37 (delta 27), pack-reused 0 (from 0)
+Unpacking objects: 100% (37/37), 756.63 KiB | 3.36 MiB/s, done.
+From https://github.com/tanyabdu/ChatbotUI-mainzip
+ * branch            main       -> FETCH_HEAD
+   70be4fe..e5a0ad2  main       -> origin/main
+Updating 70be4fe..e5a0ad2
+Fast-forward
+ .gitignore                                                                  |   5 ++
+ attached_assets/IMG_2623_1772260093618.PNG                                  | Bin 0 -> 293793 bytes
+ ...workspace-git-push-origin-main-Enumerating-objects-38-_1772263252266.txt |  87 +++++++++++++++++++++++
+ ...oot-cv5653817-var-www-magic-content-git-stash-pop-On-b_1772262964418.txt |  88 +++++++++++++++++++++++
+ ...oot-cv5653817-var-www-magic-content-pm2-logs-lines-200_1772260155219.txt |   7 ++
+ ...\320\260\320\275\320\260_2026-02-28_\320\262_11.10.18_1772262620313.png" | Bin 0 -> 560705 bytes
+ replit.md                                                                   |   4 +-
+ server/services/contentAlchemy.ts                                           | 135 +++++++++++++++++++-----------------
+ server/services/contentGenerator.ts                                         |  22 ++++--
+ server/services/deepseekRetry.ts                                            |  52 ++++++++++++++
+ server/services/email.ts                                                    |  57 +++++++++++++++
+ server/services/moneyTrainer.ts                                             |  14 ++--
+ server/services/triggerReels.ts                                             |  65 ++++++++---------
+ server/services/voicePostGenerator.ts                                       |  14 ++--
+ 14 files changed, 436 insertions(+), 114 deletions(-)
+ create mode 100644 .gitignore
+ create mode 100644 attached_assets/IMG_2623_1772260093618.PNG
+ create mode 100644 attached_assets/Pasted--workspace-git-push-origin-main-Enumerating-objects-38-_1772263252266.txt
+ create mode 100644 attached_assets/Pasted-root-cv5653817-var-www-magic-content-git-stash-pop-On-b_1772262964418.txt
+ create mode 100644 attached_assets/Pasted-root-cv5653817-var-www-magic-content-pm2-logs-lines-200_1772260155219.txt
+ create mode 100644 "attached_assets/\320\241\320\275\320\270\320\274\320\276\320\272_\321\215\320\272\321\200\320\260\320\275\320\260_2026-02-28_\320\262_11.10.18_1772262620313.png"
+ create mode 100644 server/services/deepseekRetry.ts
+root@cv5653817:/var/www/magic-content# 
