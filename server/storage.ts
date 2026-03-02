@@ -577,8 +577,9 @@ export class DatabaseStorage implements IStorage {
         : (user.trialEndsAt && user.trialEndsAt > now ? user.trialEndsAt : now);
       newExpiresAt = currentExpires > bonusEndDate ? currentExpires : bonusEndDate;
       bonusDays = Math.ceil((newExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      const dateStr = bonusEndDate.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
-      successMessage = `Промокод активирован! Доступ до ${dateStr}`;
+      const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+      const dateStr = `${bonusEndDate.getDate()} ${months[bonusEndDate.getMonth()]}`;
+      successMessage = `Промокод активирован! Доступ до ${dateStr} включительно`;
     } else {
       bonusDays = promocode.bonusDays || 0;
       if (bonusDays <= 0) {
