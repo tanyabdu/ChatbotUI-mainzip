@@ -1,0 +1,112 @@
+root@cv5653817:/var/www/magic-content# pm2 logs --lines 50
+[TAILING] Tailing last 50 lines for [all] processes (change the value with --lines option)
+/root/.pm2/pm2.log last 50 lines:
+PM2        | 2026-02-26T11:03:45: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-02-26T11:03:45: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-02-26T11:03:45: PM2 log: pid=975080 msg=process killed
+PM2        | 2026-02-26T11:03:45: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-02-26T11:03:45: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-02-28T09:43:27: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-02-28T09:43:27: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-02-28T09:43:27: PM2 log: pid=975917 msg=process killed
+PM2        | 2026-02-28T09:43:27: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-02-28T09:43:27: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-02-28T09:44:40: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-02-28T09:44:40: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-02-28T09:44:40: PM2 log: pid=996066 msg=process killed
+PM2        | 2026-02-28T09:44:40: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-02-28T09:44:40: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-02-28T10:26:32: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-02-28T10:26:32: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-02-28T10:26:32: PM2 log: pid=996108 msg=process killed
+PM2        | 2026-02-28T10:26:32: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-02-28T10:26:32: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-02-28T10:29:01: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-02-28T10:29:01: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-02-28T10:29:01: PM2 log: pid=996467 msg=process killed
+PM2        | 2026-02-28T10:29:01: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-02-28T10:29:01: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-02T11:09:29: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-02T11:09:29: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-02T11:09:29: PM2 log: pid=996572 msg=process killed
+PM2        | 2026-03-02T11:09:29: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-02T11:09:29: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-02T11:13:04: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-02T11:13:04: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-02T11:13:05: PM2 log: pid=1028045 msg=process killed
+PM2        | 2026-03-02T11:13:05: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-02T11:13:05: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-02T12:36:44: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-02T12:36:44: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-02T12:36:45: PM2 log: pid=1028181 msg=process killed
+PM2        | 2026-03-02T12:36:45: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-02T12:36:45: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-02T12:40:34: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-02T12:40:34: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-02T12:40:34: PM2 log: pid=1029217 msg=process killed
+PM2        | 2026-03-02T12:40:34: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-02T12:40:34: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-02T12:44:00: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-02T12:44:00: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-02T12:44:00: PM2 log: pid=1029324 msg=process killed
+PM2        | 2026-03-02T12:44:00: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-02T12:44:00: PM2 log: App [esoteric-planner:0] online
+
+/root/.pm2/logs/esoteric-planner-error.log last 50 lines:
+0|esoteric | yt: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at Bce.r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | yt: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at Bce.r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | yt: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at Bce.r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | yt: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at Bce.r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+0|esoteric | stories JSON parse error: Unterminated string in JSON at position 4498
+0|esoteric | Response content: {
+0|esoteric |     "content": "Сторис 1: Если ты сейчас думаешь 'это не сработает у меня, я слишком особенная', остановись на секунду. Я расскажу тебе про Аню — молодая мама в декрете, которая засыпала с мыслью 'я ни на что не способна', и про Катю — директорку компании, которая ворочалась ночами от ощущения 'я 
+0|esoteric | stories generation error (attempt 1): JSON parse failed: Unterminated string in JSON at position 4498
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Nn (/var/www/magic-content/dist/index.cjs:191:8896)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1031:26045
+
+/root/.pm2/logs/esoteric-planner-out.log last 50 lines:
+0|esoteric | Психолог","goal":"engagement","days":7,"posts":[{"day":1,"idea":"Тема: 'Как я поняла, что хочу стать психологом'. Рассказываю личную историю о моменте осознания своего призвания, возможно, через трудный опыт или вдохновляющую встречу. Вызывает эмоции искренности и доверия, показывая, что я не просто эксперт, а человек, прошедший свой путь. Формат: видео-монолог с кадрами из личного архива или фото, создающий атмосферу откровенности.","post":{"content":"Я стояла на краю обрыва, и в тот момент поняла — либо прыгаю, либо начинаю жить по-настоящему.\n\nЭто был не метафорический обрыв, а самый настоящий — в горах Кавказа. Я приехала туда после развода, когда казалось, что жизнь разбита на тысячу осколков. Три года брака, которые я называла «тюрьмой с видом на кухню». Я всё делала «правильно»: терпела унижения, молчала, когда хотелось кричать, и улыбалась, когда внутри всё сжималось от боли. Я думала — это и есть сила женщины, это героизм повседневности.\n\nНо там, на краю, ветер выл так, будто хотел вырвать из меня всё накопленное отчаяние. И я вдруг осознала — я стою не перед выбором «жить или не жить». Я стою перед выбором «прозябать или побеждать». Все эти годы я пыталась преодолеть не отношения, а саму себя — свою потребность в одобрении, свой страх одиночества. И в тот миг, когда солнце коснулось вершин, я поняла: настоящая сила — не в том, чтобы терпеть, а в том, чтобы меняться. Не в пассивном выживании, а в активном движении к себе.\n\nЭтот инсайт стал моим личным вызовом. Я вернулась с той поездки другим человеком — не сломленной, а заряженной на действие. Поступила на психологию, начала работать с такими же женщинами, которые забыли, каково это — радоваться своим победам, большим и маленьким. Каждая сессия стала для меня новым восхождением — к пониманию, к результатам, к той радости, когда клиентка говорит: «Я смогла!»\n\nТеперь я знаю: наша жизнь — это череда обрывов и вершин. И каждый раз, когда кажется, что дальше некуда, — это просто новая точка старта. Твоя сила уже в тебе, нужно только сделать первый шаг. Прямо сегодня вечером возьми лист бумаги и напиши: «Что я терплю, хотя могла бы изменить?» Этот вопрос — твой личный вызов. Прими его.\n\nРасскажи в комментариях — когда ты последний раз чувствовала себя на краю? И что помогло сделать шаг вперёд? Сохрани этот пост, если твоя душа тоже жаждет побед — не над другими, а над своими страхами.","hashtags":["#психологияпобед","#силавсебе","#преодолениекакстильжизни","#личнаяисторияпсихолога","#мотивациякдействию","#геройвкаждойизнас","#радостьизменений","#вызовпринят","#психологиядлясильных","#путьксебе"]},"type":"Личная история","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":2,"idea":"Тема: '3 простых упражнения для снятия тревоги за 5 минут'. Даю практические советы, такие как дыхательные техники или техники заземления, которые можно применить сразу. Вызывает эмоции облегчения и полезности, демонстрируя экспертность без давления. Формат: инфографика в сторис или короткое видео с пошаговой демонстрацией, чтобы легко сохранить и использовать.","post":{"content":"","hashtags":[]},"type":"Экспертный","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":3,"idea":"Тема: 'А какой ваш любимый способ справляться со стрессом?'. Задаю открытый вопрос, чтобы аудитория поделилась своими методами в комментариях или через опрос. Вызывает эмоции вовлечённости и общности, создавая диалог и собирая ценные инсайты. Формат: пост с вопросом и вариантами ответов в опросе, побуждающий к активному участию.","post":{"content":"","hashtags":[]},"type":"Вовлекающий","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":4,"idea":"Тема: 'Смешные мемы про психологов и клиентов'. Показываю лёгкий юмористический контент, например, мемы о типичных ситуациях в кабинете психолога. Вызывает эмоции радости и разрядки, помогая снять напряжение и сделать тему психологии более доступной. Формат: карусель из мемов в посте или сторис, чтобы поднять настроение и вызвать улыбку.","post":{"content":"","hashtags":[]},"type":"Развлекательный","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":5,"idea":"Тема: 'Как я помогала клиентке преодолеть страх публичных выступлений'. Делюсь кейсом из практики с деталями процесса и результатами. Вызывает эмоции вдохновения и надежды, показывая реальные изменения и мою роль как героя-помощника. Формат: текстовая история в посте с элементами 'было/стало', возможно, с иллюстрациями для наглядности.","post":{"content":"","hashtags":[]},"type":"Личная история","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":6,"idea":"Тема: 'Чеклист: 5 признаков, что пора к психологу'. Предоставляю полезный список симптомов или ситуаций, указывающих на необходимость профессиональной помощи. Вызывает эмоции осознанности и заботы о себе, укрепляя доверие как к эксперту. Формат: PDF-чеклист для скачивания или интерактивный список в посте, чтобы аудитория могла проверить себя.","post":{"content":"","hashtags":[]},"type":"Экспертный","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":7,"idea":"Тема: 'Какой психологический сериал или фильм вам больше всего запомнился?'. Запускаю обсуждение в комментариях, чтобы узнать мнения аудитории о популярных медиа на тему психологии. Вызывает эмоции увлечённости и обмена опытом, усиливая вовлечённость через культурные отсылки. Формат: пост с вопросом и возможностью голосования в опросе, поощряющий активное взаимодействие.","post":{"content":"","hashtags":[]},"type":"Вовлекающий","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}}],"createdAt":"2026-01-10T00:18:46.990Z"}]
+0|esoteric | New database connection established
+0|esoteric | 9:16:57 AM [express] GET /api/generation-limit 304 in 124ms :: {"allowed":true,"remaining":-1}
+
+
