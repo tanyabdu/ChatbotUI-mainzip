@@ -12,6 +12,7 @@ interface TransformResult {
   usedTriggers: { name: string; explanation: string }[];
   hookAnalysis: string;
   ctaType: string;
+  usedFormulas: string;
 }
 
 export default function TriggerReels() {
@@ -210,6 +211,18 @@ export default function TriggerReels() {
                   <h4 className="text-sm font-semibold text-pink-700">Призыв к действию</h4>
                 </div>
                 <p className="text-sm text-gray-700">{result.ctaType}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {result.usedFormulas && (
+            <Card className="border-2 border-indigo-200 bg-gradient-to-b from-indigo-50 to-white">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles className="h-4 w-4 text-indigo-500" />
+                  <h4 className="text-sm font-semibold text-indigo-700">Использованные формулы сценариев</h4>
+                </div>
+                <p className="text-sm text-gray-700">Формулы: {result.usedFormulas}</p>
               </CardContent>
             </Card>
           )}
