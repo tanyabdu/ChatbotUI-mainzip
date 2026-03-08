@@ -215,18 +215,6 @@ export default function TriggerReels() {
             </Card>
           )}
 
-          {result.usedFormulas && (
-            <Card className="border-2 border-indigo-200 bg-gradient-to-b from-indigo-50 to-white">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="h-4 w-4 text-indigo-500" />
-                  <h4 className="text-sm font-semibold text-indigo-700">Использованные формулы сценариев</h4>
-                </div>
-                <p className="text-sm text-gray-700">Формулы: {result.usedFormulas}</p>
-              </CardContent>
-            </Card>
-          )}
-
           <div className="flex gap-3">
             <Button
               onClick={handleReset}
