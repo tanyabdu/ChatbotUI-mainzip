@@ -1,0 +1,73 @@
+[TAILING] Tailing last 30 lines for [all] processes (change the value with --lines option)
+/root/.pm2/pm2.log last 30 lines:
+PM2        | 2026-03-02T12:36:44: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-02T12:36:44: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-02T12:36:45: PM2 log: pid=1028181 msg=process killed
+PM2        | 2026-03-02T12:36:45: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-02T12:36:45: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-02T12:40:34: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-02T12:40:34: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-02T12:40:34: PM2 log: pid=1029217 msg=process killed
+PM2        | 2026-03-02T12:40:34: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-02T12:40:34: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-02T12:44:00: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-02T12:44:00: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-02T12:44:00: PM2 log: pid=1029324 msg=process killed
+PM2        | 2026-03-02T12:44:00: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-02T12:44:00: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-08T14:02:14: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-08T14:02:14: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-08T14:02:14: PM2 log: pid=1029428 msg=process killed
+PM2        | 2026-03-08T14:02:14: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-08T14:02:14: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-09T11:08:34: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-09T11:08:34: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-09T11:08:34: PM2 log: pid=1105911 msg=process killed
+PM2        | 2026-03-09T11:08:34: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-09T11:08:34: PM2 log: App [esoteric-planner:0] online
+PM2        | 2026-03-09T11:14:42: PM2 log: Stopping app:esoteric-planner id:0
+PM2        | 2026-03-09T11:14:42: PM2 log: App [esoteric-planner:0] exited with code [0] via signal [SIGINT]
+PM2        | 2026-03-09T11:14:42: PM2 log: pid=1115614 msg=process killed
+PM2        | 2026-03-09T11:14:42: PM2 log: App [esoteric-planner:0] starting in -fork mode-
+PM2        | 2026-03-09T11:14:42: PM2 log: App [esoteric-planner:0] online
+
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric | }
+0|esoteric | [Email] Rusender API error (422): {"message":"Email receiver doesn't exist","statusCode":422}
+0|esoteric | [Email] Rusender API error (422): {"message":"Email receiver doesn't exist","statusCode":422}
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | JSON parse error: Expected ',' or '}' after property value in JSON at position 111
+0|esoteric | Response content: {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Тема: 'Сколько на самом деле стоит ваше "нет времени"?' Закрывает возражение 'дорого/нет времени' через сравнение цены игры с ежедневными тратами на кофе или такси, показывая, что инвестиция в психологическую трансформацию окупает
+0|esoteric | Ideas generation error (attempt 1): JSON parse failed: Expected ',' or '}' after property value in JSON at position 111
+0|esoteric | Yandex SpeechKit error: {
+0|esoteric |   error_code: 'TOO_MANY_REQUESTS',
+0|esoteric |   error_message: 'rpc error: code = ResourceExhausted desc = limit on requests was exceeded. Limit: 20, Interval: 1s'
+0|esoteric | }
+0|esoteric | Transcription error: Error: Ошибка транскрипции: rpc error: code = ResourceExhausted desc = limit on requests was exceeded. Limit: 20, Interval: 1s
+0|esoteric |     at IncomingMessage.<anonymous> (/var/www/magic-content/dist/index.cjs:779:41155)
+0|esoteric |     at IncomingMessage.emit (node:events:536:35)
+0|esoteric |     at endReadableNT (node:internal/streams/readable:1698:12)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Nn (/var/www/magic-content/dist/index.cjs:191:8896)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1088:26045
+0|esoteric | [TriggerReels] Attempt 1/2 failed: Пустой ответ от AI
+0|esoteric | [TriggerReels] Attempt 1/2 failed: Пустой ответ от AI
+0|esoteric | [TriggerReels] Attempt 1/2 failed: Пустой ответ от AI
+0|esoteric | [TriggerReels] Attempt 1/2 failed: Пустой ответ от AI
+0|esoteric | [TriggerReels] Attempt 1/2 failed: Пустой ответ от AI
+
+/root/.pm2/logs/esoteric-planner-out.log last 30 lines:
+0|esoteric | илие) относит зрителя к группе, сталкивавшейся с подобным."},{"name":"Конкретика/цифры","explanation":"Упоминание возраста (30 лет), сроков (10 лет, 2 года назад) делает историю более реальной и триггерящей."},{"name":"FOMO (страх упустить)","explanation":"Фраза в призыве «пока не стало слишком поздно» создаёт срочность и страх упустить возможность."},{"name":"Личное обращение","explanation":"Использование «ты», «тебе», «вы» на протяжении всего текста создаёт эффект прямого диалога."}],"hookAnalysis":"Хук начинается с команды «Стоп!» и сразу задаёт эмоциональный вопрос о бессилии, используя триггер страха и сопричастности — это останавливает скролл, так как обращается к личному опыту боли, который есть у многих.","ctaType":"Прямой призыв с условием: «Пишите в комментариях слово МОЛИТВА, и я пришлю вам практику» с усилением FOMO («пока не стало слишком поздно»).","usedFormulas":"5, 11"}
+0|esoteric | post generated in 166953ms
+0|esoteric | Raw post response (first 300 chars): {
+0|esoteric |     "content": "Знаешь это чувство, когда держишь в руках колоду Таро, а внутри — полный ступор? 'С чего вообще начать? А вдруг сделаю что-то не так?'\n\nПомню, как сама сидела с первой колодой — красивой, но такой пугающе непонятной. Хотела задать вопрос о карьере, но руки дрожали. Сделала раскла
+0|esoteric | 1:23:22 PM [express] POST /api/strategies/generate-format 200 in 166969ms :: {"content":{"content":"Знаешь это чувство, когда держишь в руках колоду Таро, а внутри — полный ступор? 'С чего вообще начать? А вдруг сделаю что-то не так?'\n\nПомню, как сама сидела с первой колодой — красивой, но такой пугающе непонятной. Хотела задать вопрос о карьере, но руки дрожали. Сделала расклад наугад, карты вышли противоречивые, а я только больше запуталась. Потом неделю анализировала, где ошиблась — оказалось, пропустила базовые шаги, которые кажутся очевидными, но их упускают почти все новички.\n\nТак вот, после лет исследований и сотен раскладов я вывела систему из трёх ключевых шагов. Это не магия, а технология работы с картами. Первое — очищение пространства. Не ритуалы со свечами (хотя и они могут быть), а создание ментальной чистоты: убрать лишние предметы со стола, выключить уведомления на телефоне, сделать три глубоких вдоха. Это переключает мозг из режима 'бытовухи' в состояние анализа.\n\nВторое — настройка на колоду. Не просто 'почувствовать энергию', а конкретные действия: подержать карты в руках 2-3 минуты, перетасовать, пока не появится ощущение лёгкости. Я раньше торопилась, и карты буквально 'молчали'. А когда начала выделять на это время — ответы стали приходить чёткими, как отстроенный механизм.\n\nТретий шаг — формулировка вопроса. Вот где 90% провалов! Вопрос 'Что меня ждёт в любви?' слишком абстрактный. А 'Какие мои следующие шаги для построения отношений с текущим партнёром?' — это уже система запроса. Карты обожают конкретику, они работают как интеллектуальный инструмент, когда вопрос структурирован.\n\nЭти три шага — моя личная технология, которая превратила Таро из гадания в точный анализ. Когда ты следуешь системе, исчезает страх 'сделать неправильно', потому что ты действуешь по проверенному алгоритму. Истина в том, что карты — это не про мистику, а про понимание закономерностей через чёткую структуру.\n\nЕсли хочешь глубже погрузиться в эту систему, у меня есть готовый 'Таро-расклад' с пошаговой инструкцией — там разобрала каждый этап так, чтобы даже первая практика дала ясный результат. Просто напиши 'Таро' в директ, и я расскажу, как это работает."}}
+
+
