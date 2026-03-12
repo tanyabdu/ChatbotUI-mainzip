@@ -168,7 +168,7 @@ export async function transformToTriggerReels(originalScript: string): Promise<{
         },
       ],
       temperature: 0.8,
-      max_tokens: 5000,
+      max_tokens: 6000,
       response_format: { type: "json_object" },
     });
 
