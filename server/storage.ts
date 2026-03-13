@@ -378,13 +378,33 @@ export class DatabaseStorage implements IStorage {
     subscriptionBreakdown: { trial: number; free: number; monthly: number; yearly: number };
     activeTrials: number;
     expiredTrials: number;
+    newUsersLast7Days: number;
+    newUsersLast30Days: number;
+    totalSuccessfulPayments: number;
+    paidMonthlyPayments: number;
+    paidYearlyPayments: number;
+    promocodeStats: Array<{
+      code: string;
+      usedCount: number;
+      maxUses: number | null;
+      type: string;
+      discountPercent: number | null;
+      bonusDays: number;
+      isActive: boolean;
+      expiresAt: Date | null;
+      bonusUntil: Date | null;
+    }>;
   }> {
     const allUsers = await db.select().from(users);
     const allStrategies = await db.select().from(contentStrategies);
     const allVoicePosts = await db.select().from(voicePosts);
     const allCaseStudies = await db.select().from(caseStudies);
+    const allPayments = await db.select().from(payments);
+    const allPromocodes = await db.select().from(promocodes);
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const subscriptionBreakdown = {
       trial: allUsers.filter(u => u.subscriptionTier === "trial").length,
@@ -397,6 +417,9 @@ export class DatabaseStorage implements IStorage {
     const expiredTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) <= now).length;
     
     const activeToday = allUsers.filter(u => u.lastLoginAt && new Date(u.lastLoginAt) >= todayStart).length;
+    
+    const newUsersLast7Days = allUsers.filter(u => u.createdAt && new Date(u.createdAt) >= last7Days).length;
+    const newUsersLast30Days = allUsers.filter(u => u.createdAt && new Date(u.createdAt) >= last30Days).length;
     
     const usersWithAccessSet = new Set<string>();
     
@@ -420,6 +443,23 @@ export class DatabaseStorage implements IStorage {
       new Date(u.subscriptionExpiresAt) > now
     ).length;
 
+    const successfulPayments = allPayments.filter(p => p.status === "success");
+    const totalSuccessfulPayments = successfulPayments.length;
+    const paidMonthlyPayments = successfulPayments.filter(p => p.planType === "monthly").length;
+    const paidYearlyPayments = successfulPayments.filter(p => p.planType === "yearly").length;
+
+    const promocodeStats = allPromocodes.map(p => ({
+      code: p.code,
+      usedCount: p.usedCount ?? 0,
+      maxUses: p.maxUses,
+      type: p.promocodeType ?? "bonus",
+      discountPercent: p.discountPercent,
+      bonusDays: p.bonusDays,
+      isActive: p.isActive ?? false,
+      expiresAt: p.expiresAt,
+      bonusUntil: p.bonusUntil,
+    }));
+
     return {
       totalUsers: allUsers.length,
       usersWithAccess: usersWithAccessSet.size,
@@ -431,6 +471,12 @@ export class DatabaseStorage implements IStorage {
       subscriptionBreakdown,
       activeTrials,
       expiredTrials,
+      newUsersLast7Days,
+      newUsersLast30Days,
+      totalSuccessfulPayments,
+      paidMonthlyPayments,
+      paidYearlyPayments,
+      promocodeStats,
     };
   }
 

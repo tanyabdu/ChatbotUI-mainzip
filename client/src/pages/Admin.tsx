@@ -7,12 +7,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
-  Plus, Clock, Crown, Shield, ShieldOff, Trash2
+  Plus, Clock, Crown, Shield, ShieldOff, Trash2, CreditCard, Tag,
+  UserCheck, UserX, CalendarDays, Activity
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import type { User } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+
+interface PromocodeStat {
+  code: string;
+  usedCount: number;
+  maxUses: number | null;
+  type: string;
+  discountPercent: number | null;
+  bonusDays: number;
+  isActive: boolean;
+  expiresAt: string | null;
+  bonusUntil: string | null;
+}
 
 interface AdminStats {
   totalUsers: number;
@@ -30,6 +43,12 @@ interface AdminStats {
   };
   activeTrials: number;
   expiredTrials: number;
+  newUsersLast7Days: number;
+  newUsersLast30Days: number;
+  totalSuccessfulPayments: number;
+  paidMonthlyPayments: number;
+  paidYearlyPayments: number;
+  promocodeStats: PromocodeStat[];
 }
 
 export default function Admin() {
@@ -79,23 +98,27 @@ export default function Admin() {
       }
       return res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      toast({ title: "Права изменены", description: `Пользователь ${data.email} ${data.isAdmin ? "теперь админ" : "больше не админ"}` });
+      toast({ title: "Права обновлены" });
     },
-    onError: (error: Error) => {
-      toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+    onError: (error: any) => {
+      toast({ title: "Ошибка", description: error.message || "Не удалось изменить права", variant: "destructive" });
     },
   });
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await apiRequest("DELETE", `/api/admin/users/${userId}`);
+      const res = await apiRequest("DELETE", `/api/admin/users/${userId}`);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Ошибка при удалении");
+      }
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
-      toast({ title: "Пользователь удалён", description: "Все данные пользователя удалены" });
+      toast({ title: "Пользователь удалён" });
     },
     onError: (error: any) => {
       toast({ title: "Ошибка", description: error.message || "Не удалось удалить пользователя", variant: "destructive" });
@@ -154,49 +177,98 @@ export default function Admin() {
 
       <main className="container mx-auto px-6 py-8">
         <Tabs defaultValue="dashboard" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex bg-purple-100 border-2 border-purple-200">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex bg-purple-100 border-2 border-purple-200">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-              <LayoutDashboard className="h-4 w-4 mr-2" />
-              Дашборд
+              <LayoutDashboard className="h-4 w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Дашборд</span>
             </TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-              <Users className="h-4 w-4 mr-2" />
-              Пользователи
+              <Users className="h-4 w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Пользователи</span>
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+              <CreditCard className="h-4 w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Платежи</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Аналитика
+              <BarChart3 className="h-4 w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Аналитика</span>
             </TabsTrigger>
           </TabsList>
 
+          {/* ── ДАШБОРД ── */}
           <TabsContent value="dashboard" className="space-y-6">
+            {/* Ключевые метрики */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatCard
-                title="Пользователей"
-                value={stats?.totalUsers || 0}
+                title="Всего пользователей"
+                value={stats?.totalUsers ?? 0}
                 icon={<Users className="h-5 w-5 text-purple-500" />}
-                description="Всего"
+                description="Зарегистрировано"
               />
               <StatCard
-                title="Контент-планов"
-                value={892}
-                icon={<FileText className="h-5 w-5 text-pink-500" />}
-                description="Создано"
+                title="Активных сейчас"
+                value={stats?.usersWithAccess ?? 0}
+                icon={<UserCheck className="h-5 w-5 text-green-500" />}
+                description="С активным доступом"
               />
               <StatCard
-                title="Голосовых постов"
-                value={1245}
-                icon={<Mic className="h-5 w-5 text-purple-500" />}
-                description="Записано"
+                title="Платных подписок"
+                value={stats?.activePaidSubscriptions ?? 0}
+                icon={<Crown className="h-5 w-5 text-pink-500" />}
+                description="Активные (мес. + год.)"
               />
               <StatCard
-                title="Кейсов"
-                value={156}
-                icon={<Archive className="h-5 w-5 text-pink-500" />}
-                description="Сохранено"
+                title="Активны сегодня"
+                value={stats?.activeToday ?? 0}
+                icon={<Activity className="h-5 w-5 text-purple-500" />}
+                description="Заходили сегодня"
               />
             </div>
 
+            {/* Новые регистрации */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="bg-white border-2 border-purple-200">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <CalendarDays className="h-5 w-5 text-purple-500" />
+                    <p className="font-medium text-purple-700">Новые регистрации</p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-purple-500">За последние 7 дней</span>
+                      <span className="font-bold text-xl text-purple-700">{stats?.newUsersLast7Days ?? 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-purple-500">За последние 30 дней</span>
+                      <span className="font-bold text-xl text-purple-700">{stats?.newUsersLast30Days ?? 0}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white border-2 border-purple-200">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <CreditCard className="h-5 w-5 text-pink-500" />
+                    <p className="font-medium text-purple-700">Оплаты (всего)</p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-purple-500">Успешных платежей</span>
+                      <span className="font-bold text-xl text-purple-700">{stats?.totalSuccessfulPayments ?? 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-purple-500">Месячных / Годовых</span>
+                      <span className="font-bold text-purple-700">
+                        {stats?.paidMonthlyPayments ?? 0} / {stats?.paidYearlyPayments ?? 0}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Распределение подписок */}
             <Card className="bg-white border-2 border-purple-300 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
@@ -207,26 +279,56 @@ export default function Admin() {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-3xl font-bold text-blue-600">48</p>
-                    <p className="text-sm text-blue-500">Активный триал</p>
+                    <p className="text-3xl font-bold text-blue-600">{stats?.activeTrials ?? 0}</p>
+                    <p className="text-sm text-blue-500 mt-1">Триал активен</p>
                   </div>
                   <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                    <p className="text-3xl font-bold text-red-600">73</p>
-                    <p className="text-sm text-red-500">Триал истёк</p>
+                    <p className="text-3xl font-bold text-red-600">{stats?.expiredTrials ?? 0}</p>
+                    <p className="text-sm text-red-500 mt-1">Триал истёк</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-3xl font-bold text-purple-600">289</p>
-                    <p className="text-sm text-purple-500">Месячная</p>
+                    <p className="text-3xl font-bold text-purple-600">{stats?.subscriptionBreakdown?.monthly ?? 0}</p>
+                    <p className="text-sm text-purple-500 mt-1">Месячная</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-pink-200">
-                    <p className="text-3xl font-bold text-pink-600">{stats?.subscriptionBreakdown?.yearly || 0}</p>
-                    <p className="text-sm text-pink-500">Годовая</p>
+                    <p className="text-3xl font-bold text-pink-600">{stats?.subscriptionBreakdown?.yearly ?? 0}</p>
+                    <p className="text-sm text-pink-500 mt-1">Годовая</p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Использование инструментов */}
+            <Card className="bg-white border-2 border-purple-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-pink-500" />
+                  Использование инструментов
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <StatRow
+                    icon={<FileText className="h-4 w-4 text-purple-500" />}
+                    label="Контент-планов"
+                    value={stats?.totalStrategies ?? 0}
+                  />
+                  <StatRow
+                    icon={<Mic className="h-4 w-4 text-pink-500" />}
+                    label="Голосовых постов"
+                    value={stats?.totalVoicePosts ?? 0}
+                  />
+                  <StatRow
+                    icon={<Archive className="h-4 w-4 text-purple-500" />}
+                    label="Кейсов"
+                    value={stats?.totalCaseStudies ?? 0}
+                  />
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* ── ПОЛЬЗОВАТЕЛИ ── */}
           <TabsContent value="users" className="space-y-6">
             <Card className="bg-white border-2 border-purple-300 shadow-lg">
               <CardHeader>
@@ -249,7 +351,7 @@ export default function Admin() {
                         <div key={u.id} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                           <div className="flex items-center justify-between flex-wrap gap-4 mb-3">
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold flex-shrink-0">
                                 {(u.nickname || u.firstName || u.email || "?").charAt(0).toUpperCase()}
                               </div>
                               <div>
@@ -257,6 +359,7 @@ export default function Admin() {
                                   {u.nickname || u.firstName || u.email?.split("@")[0] || "Пользователь"}
                                 </p>
                                 <p className="text-sm text-purple-500">{u.email}</p>
+                                <p className="text-xs text-purple-400">Регистрация: {formatDate((u as any).createdAt)}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 flex-wrap">
@@ -282,7 +385,7 @@ export default function Admin() {
                           </div>
                           
                           <div className="flex items-center justify-between flex-wrap gap-3 text-sm">
-                            <div className="flex items-center gap-4 text-purple-600">
+                            <div className="flex items-center gap-4 text-purple-600 flex-wrap">
                               {u.isAdmin ? (
                                 <span className="flex items-center gap-1 text-pink-600 font-medium">
                                   <Crown className="h-3 w-3" />
@@ -301,6 +404,9 @@ export default function Admin() {
                                     <span className="flex items-center gap-1">
                                       <Crown className="h-3 w-3" />
                                       Подписка до: {formatDate(u.subscriptionExpiresAt)}
+                                      {subDays !== null && subDays > 0 && (
+                                        <span className="text-green-600 ml-1">({subDays} дн.)</span>
+                                      )}
                                     </span>
                                   )}
                                 </>
@@ -378,73 +484,185 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics" className="space-y-6">
+          {/* ── ПЛАТЕЖИ И ПРОМОКОДЫ ── */}
+          <TabsContent value="payments" className="space-y-6">
+            {/* Платежи */}
             <Card className="bg-white border-2 border-purple-300 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-pink-500" />
-                  Активность пользователей за последние 14 дней
+                  <CreditCard className="h-5 w-5 text-pink-500" />
+                  Статистика платежей
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <DemoActivityChart />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-5 bg-green-50 rounded-lg border border-green-200 text-center">
+                    <p className="text-4xl font-bold text-green-600">{stats?.totalSuccessfulPayments ?? 0}</p>
+                    <p className="text-sm text-green-600 mt-1">Успешных оплат (всего)</p>
+                  </div>
+                  <div className="p-5 bg-purple-50 rounded-lg border border-purple-200 text-center">
+                    <p className="text-4xl font-bold text-purple-600">{stats?.paidMonthlyPayments ?? 0}</p>
+                    <p className="text-sm text-purple-600 mt-1">Месячных подписок</p>
+                  </div>
+                  <div className="p-5 bg-pink-50 rounded-lg border border-pink-200 text-center">
+                    <p className="text-4xl font-bold text-pink-600">{stats?.paidYearlyPayments ?? 0}</p>
+                    <p className="text-sm text-pink-600 mt-1">Годовых подписок</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
+            {/* Промокоды */}
+            <Card className="bg-white border-2 border-purple-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                  <Tag className="h-5 w-5 text-pink-500" />
+                  Промокоды
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {!stats?.promocodeStats?.length ? (
+                  <p className="text-purple-400 text-center py-6">Промокодов нет</p>
+                ) : (
+                  <div className="space-y-3">
+                    {stats.promocodeStats.map((p) => {
+                      const isExpired = p.expiresAt && new Date(p.expiresAt) < new Date();
+                      const isBonusUntilExpired = p.bonusUntil && new Date(p.bonusUntil) < new Date();
+                      const usagePercent = p.maxUses ? Math.round((p.usedCount / p.maxUses) * 100) : null;
+
+                      return (
+                        <div key={p.code} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                          <div className="flex items-center justify-between flex-wrap gap-3">
+                            <div className="flex items-center gap-3">
+                              <code className="bg-white border border-purple-300 rounded px-2 py-1 font-mono font-bold text-purple-700 text-sm">
+                                {p.code}
+                              </code>
+                              <Badge variant="outline" className={
+                                p.type === "discount" ? "text-green-600 border-green-300" : "text-blue-600 border-blue-300"
+                              }>
+                                {p.type === "discount" ? `Скидка ${p.discountPercent}%` : `+${p.bonusDays} дней`}
+                              </Badge>
+                              {(!p.isActive || isExpired || isBonusUntilExpired) && (
+                                <Badge variant="destructive" className="text-xs">Истёк</Badge>
+                              )}
+                              {p.isActive && !isExpired && !isBonusUntilExpired && (
+                                <Badge className="bg-green-100 text-green-700 border border-green-300 text-xs">Активен</Badge>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-purple-700 text-lg">
+                                {p.usedCount}
+                                {p.maxUses !== null && (
+                                  <span className="text-purple-400 font-normal text-sm"> / {p.maxUses === 10000 ? "∞" : p.maxUses}</span>
+                                )}
+                              </p>
+                              <p className="text-xs text-purple-400">использований</p>
+                            </div>
+                          </div>
+                          <div className="mt-2 flex items-center gap-4 text-xs text-purple-500 flex-wrap">
+                            {p.bonusUntil && (
+                              <span>Доступ до: {formatDate(p.bonusUntil)}</span>
+                            )}
+                            {p.expiresAt && (
+                              <span>Истекает: {formatDate(p.expiresAt)}</span>
+                            )}
+                            {usagePercent !== null && (
+                              <div className="flex items-center gap-2 flex-1">
+                                <div className="flex-1 bg-purple-200 rounded-full h-1.5 min-w-[60px]">
+                                  <div
+                                    className="bg-purple-500 h-1.5 rounded-full"
+                                    style={{ width: `${Math.min(usagePercent, 100)}%` }}
+                                  />
+                                </div>
+                                <span>{usagePercent}%</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ── АНАЛИТИКА ── */}
+          <TabsContent value="analytics" className="space-y-6">
+            {/* Воронка */}
             <Card className="bg-white border-2 border-purple-300 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-pink-500" />
-                  Аналитика использования
+                  Воронка конверсии
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h4 className="font-medium text-purple-700 mb-2">Популярные инструменты</h4>
-                    <ul className="space-y-2 text-sm text-purple-600">
-                      <li className="flex justify-between">
-                        <span>Контент-планер</span>
-                        <span className="font-medium">892</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Голос Потока</span>
-                        <span className="font-medium">1 245</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Банк Кейсов</span>
-                        <span className="font-medium">156</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Редактор Каруселей</span>
-                        <span className="font-medium">534</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Алхимия Контента</span>
-                        <span className="font-medium">312</span>
-                      </li>
-                    </ul>
+              <CardContent className="space-y-3">
+                <FunnelRow
+                  label="Всего зарегистрировалось"
+                  value={stats?.totalUsers ?? 0}
+                  total={stats?.totalUsers ?? 1}
+                  color="bg-purple-400"
+                />
+                <FunnelRow
+                  label="Прошли триал (активны)"
+                  value={stats?.activeTrials ?? 0}
+                  total={stats?.totalUsers ?? 1}
+                  color="bg-blue-400"
+                />
+                <FunnelRow
+                  label="С активным доступом"
+                  value={stats?.usersWithAccess ?? 0}
+                  total={stats?.totalUsers ?? 1}
+                  color="bg-green-400"
+                />
+                <FunnelRow
+                  label="Оплатили подписку"
+                  value={stats?.activePaidSubscriptions ?? 0}
+                  total={stats?.totalUsers ?? 1}
+                  color="bg-pink-400"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Общая статистика */}
+            <Card className="bg-white border-2 border-purple-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-pink-500" />
+                  Подробная статистика
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-purple-700 mb-3">Пользователи</h4>
+                    <AnalyticsRow label="Всего зарегистрировано" value={stats?.totalUsers ?? 0} />
+                    <AnalyticsRow label="С активным доступом" value={stats?.usersWithAccess ?? 0} />
+                    <AnalyticsRow label="Активны сегодня" value={stats?.activeToday ?? 0} />
+                    <AnalyticsRow label="Новых за 7 дней" value={stats?.newUsersLast7Days ?? 0} />
+                    <AnalyticsRow label="Новых за 30 дней" value={stats?.newUsersLast30Days ?? 0} />
+                    <AnalyticsRow label="Триал активен" value={stats?.activeTrials ?? 0} />
+                    <AnalyticsRow label="Триал истёк" value={stats?.expiredTrials ?? 0} />
+                    <AnalyticsRow label="Месячная подписка" value={stats?.subscriptionBreakdown?.monthly ?? 0} />
+                    <AnalyticsRow label="Годовая подписка" value={stats?.subscriptionBreakdown?.yearly ?? 0} />
                   </div>
-                  <div className="p-4 bg-pink-50 rounded-lg border border-pink-200">
-                    <h4 className="font-medium text-pink-700 mb-2">Общая статистика</h4>
-                    <ul className="space-y-2 text-sm text-pink-600">
-                      <li className="flex justify-between">
-                        <span>Всего пользователей</span>
-                        <span className="font-medium">{stats?.totalUsers || 0}</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>С активным доступом</span>
-                        <span className="font-medium">274</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Активных сегодня</span>
-                        <span className="font-medium">114</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Платных подписок</span>
-                        <span className="font-medium">407</span>
-                      </li>
-                    </ul>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-purple-700 mb-3">Контент и платежи</h4>
+                    <AnalyticsRow label="Контент-планов создано" value={stats?.totalStrategies ?? 0} />
+                    <AnalyticsRow label="Голосовых постов" value={stats?.totalVoicePosts ?? 0} />
+                    <AnalyticsRow label="Кейсов сохранено" value={stats?.totalCaseStudies ?? 0} />
+                    <AnalyticsRow label="Успешных платежей (всего)" value={stats?.totalSuccessfulPayments ?? 0} />
+                    <AnalyticsRow label="Из них — месячных" value={stats?.paidMonthlyPayments ?? 0} />
+                    <AnalyticsRow label="Из них — годовых" value={stats?.paidYearlyPayments ?? 0} />
+                    <AnalyticsRow
+                      label="Конверсия в оплату"
+                      value={
+                        stats?.totalUsers
+                          ? `${Math.round(((stats?.activePaidSubscriptions ?? 0) / stats.totalUsers) * 100)}%`
+                          : "0%"
+                      }
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -456,51 +674,38 @@ export default function Admin() {
   );
 }
 
-function DemoActivityChart() {
-  const demoData = [
-    { day: "07.02", value: 78 },
-    { day: "08.02", value: 85 },
-    { day: "09.02", value: 92 },
-    { day: "10.02", value: 88 },
-    { day: "11.02", value: 95 },
-    { day: "12.02", value: 102 },
-    { day: "13.02", value: 67 },
-    { day: "14.02", value: 110 },
-    { day: "15.02", value: 105 },
-    { day: "16.02", value: 98 },
-    { day: "17.02", value: 108 },
-    { day: "18.02", value: 112 },
-    { day: "19.02", value: 118 },
-    { day: "20.02", value: 114 },
-  ];
-  const maxVal = Math.max(...demoData.map(d => d.value));
-
+function FunnelRow({ label, value, total, color }: { label: string; value: number; total: number; color: string }) {
+  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
   return (
-    <div className="space-y-4">
-      <div className="overflow-x-auto -mx-2 px-2">
-        <div className="flex items-end gap-1 h-48" style={{ minWidth: `${demoData.length * 36}px` }}>
-          {demoData.map((d, i) => {
-            const heightPercent = (d.value / maxVal) * 100;
-            return (
-              <div key={i} className="flex-1 flex flex-col items-center justify-end h-full" style={{ minWidth: '28px' }}>
-                <div className="text-[10px] font-bold text-purple-700 mb-0.5">{d.value}</div>
-                <div
-                  className="w-full rounded-t-md bg-gradient-to-t from-purple-600 to-pink-400"
-                  style={{ height: `${heightPercent}%`, minHeight: '4px' }}
-                />
-                <span className="text-[9px] text-purple-400 mt-1 whitespace-nowrap">{d.day}</span>
-              </div>
-            );
-          })}
-        </div>
+    <div className="space-y-1">
+      <div className="flex justify-between text-sm">
+        <span className="text-purple-600">{label}</span>
+        <span className="font-bold text-purple-700">{value} <span className="text-purple-400 font-normal">({pct}%)</span></span>
       </div>
-      <div className="flex items-center justify-between text-sm flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-gradient-to-r from-purple-600 to-pink-400"></div>
-          <span className="text-purple-600">Активных пользователей</span>
-        </div>
-        <span className="text-purple-500 font-medium">Среднее: {Math.round(demoData.reduce((a, b) => a + b.value, 0) / demoData.length)} / день</span>
+      <div className="w-full bg-purple-100 rounded-full h-2">
+        <div className={`${color} h-2 rounded-full transition-all`} style={{ width: `${pct}%` }} />
       </div>
+    </div>
+  );
+}
+
+function AnalyticsRow({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="flex items-center justify-between text-sm py-1.5 border-b border-purple-100 last:border-0">
+      <span className="text-purple-500">{label}</span>
+      <span className="font-bold text-purple-700">{typeof value === "number" ? value.toLocaleString("ru-RU") : value}</span>
+    </div>
+  );
+}
+
+function StatRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-100">
+      <div className="flex items-center gap-2 text-purple-600">
+        {icon}
+        <span className="text-sm">{label}</span>
+      </div>
+      <span className="font-bold text-purple-700 text-lg">{value.toLocaleString("ru-RU")}</span>
     </div>
   );
 }
@@ -520,10 +725,10 @@ function StatCard({
     <Card className="bg-white border-2 border-purple-200">
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2 gap-2">
-          <p className="text-sm text-purple-500">{title}</p>
+          <p className="text-sm text-purple-500 leading-tight">{title}</p>
           {icon}
         </div>
-        <p className="text-2xl font-bold text-purple-700">{value}</p>
+        <p className="text-2xl font-bold text-purple-700">{value.toLocaleString("ru-RU")}</p>
         <p className="text-xs text-purple-400">{description}</p>
       </CardContent>
     </Card>
