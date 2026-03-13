@@ -57,7 +57,8 @@ export interface IStorage {
   // Admin
   getAllUsers(): Promise<User[]>;
   deleteUser(id: string): Promise<void>;
-  getAdminStats(): Promise<{
+  getUserAccessSources(): Promise<Map<string, { hasPayment: boolean; hasPromocode: boolean; promoCodes: string[] }>>;
+  getAdminStats(params?: { from?: Date; to?: Date }): Promise<{
     totalUsers: number;
     usersWithAccess: number;
     activeToday: number;
@@ -68,6 +69,31 @@ export interface IStorage {
     subscriptionBreakdown: { trial: number; free: number; monthly: number; yearly: number };
     activeTrials: number;
     expiredTrials: number;
+    activeMonthly: number;
+    activeYearly: number;
+    noAccess: number;
+    newUsersLast7Days: number;
+    newUsersLast30Days: number;
+    totalSuccessfulPayments: number;
+    paidMonthlyPayments: number;
+    paidYearlyPayments: number;
+    paidWithMoney: number;
+    paidWithPromocode: number;
+    paidBoth: number;
+    periodNewUsers: number;
+    periodPayments: number;
+    periodPromoUsages: number;
+    promocodeStats: Array<{
+      code: string;
+      usedCount: number;
+      maxUses: number | null;
+      type: string;
+      discountPercent: number | null;
+      bonusDays: number;
+      isActive: boolean;
+      expiresAt: Date | null;
+      bonusUntil: Date | null;
+    }>;
   }>;
   
   // Generation limits
@@ -367,47 +393,43 @@ export class DatabaseStorage implements IStorage {
     await db.delete(users).where(eq(users.id, id));
   }
 
-  async getAdminStats(): Promise<{
-    totalUsers: number;
-    usersWithAccess: number;
-    activeToday: number;
-    activePaidSubscriptions: number;
-    totalStrategies: number;
-    totalVoicePosts: number;
-    totalCaseStudies: number;
-    subscriptionBreakdown: { trial: number; free: number; monthly: number; yearly: number };
-    activeTrials: number;
-    expiredTrials: number;
-    activeMonthly: number;
-    activeYearly: number;
-    noAccess: number;
-    newUsersLast7Days: number;
-    newUsersLast30Days: number;
-    totalSuccessfulPayments: number;
-    paidMonthlyPayments: number;
-    paidYearlyPayments: number;
-    promocodeStats: Array<{
-      code: string;
-      usedCount: number;
-      maxUses: number | null;
-      type: string;
-      discountPercent: number | null;
-      bonusDays: number;
-      isActive: boolean;
-      expiresAt: Date | null;
-      bonusUntil: Date | null;
-    }>;
-  }> {
+  async getUserAccessSources(): Promise<Map<string, { hasPayment: boolean; hasPromocode: boolean; promoCodes: string[] }>> {
+    const allPayments = await db.select().from(payments).where(eq(payments.status, "success"));
+    const allUsages = await db.select({
+      userId: promocodeUsages.userId,
+      code: promocodes.code,
+    }).from(promocodeUsages).innerJoin(promocodes, eq(promocodeUsages.promocodeId, promocodes.id));
+
+    const result = new Map<string, { hasPayment: boolean; hasPromocode: boolean; promoCodes: string[] }>();
+
+    for (const p of allPayments) {
+      const existing = result.get(p.userId) ?? { hasPayment: false, hasPromocode: false, promoCodes: [] };
+      existing.hasPayment = true;
+      result.set(p.userId, existing);
+    }
+    for (const u of allUsages) {
+      const existing = result.get(u.userId) ?? { hasPayment: false, hasPromocode: false, promoCodes: [] };
+      existing.hasPromocode = true;
+      if (!existing.promoCodes.includes(u.code)) existing.promoCodes.push(u.code);
+      result.set(u.userId, existing);
+    }
+    return result;
+  }
+
+  async getAdminStats(params?: { from?: Date; to?: Date }) {
     const allUsers = await db.select().from(users);
     const allStrategies = await db.select().from(contentStrategies);
     const allVoicePosts = await db.select().from(voicePosts);
     const allCaseStudies = await db.select().from(caseStudies);
     const allPayments = await db.select().from(payments);
     const allPromocodes = await db.select().from(promocodes);
+    const allPromoUsages = await db.select().from(promocodeUsages);
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const { from, to } = params ?? {};
 
     const subscriptionBreakdown = {
       trial: allUsers.filter(u => u.subscriptionTier === "trial").length,
@@ -428,7 +450,6 @@ export class DatabaseStorage implements IStorage {
     const newUsersLast30Days = allUsers.filter(u => u.createdAt && new Date(u.createdAt) >= last30Days).length;
     
     const usersWithAccessSet = new Set<string>();
-    
     allUsers.forEach(u => {
       if (u.isAdmin) {
         usersWithAccessSet.add(u.id);
@@ -453,6 +474,26 @@ export class DatabaseStorage implements IStorage {
     const totalSuccessfulPayments = successfulPayments.length;
     const paidMonthlyPayments = successfulPayments.filter(p => p.planType === "monthly").length;
     const paidYearlyPayments = successfulPayments.filter(p => p.planType === "yearly").length;
+
+    // Users who paid with real money (have ≥1 successful payment)
+    const usersWithPayment = new Set(successfulPayments.map(p => p.userId));
+    // Users who used a promo code
+    const usersWithPromo = new Set(allPromoUsages.map(u => u.userId));
+    const paidWithMoney = Array.from(usersWithPayment).filter(id => !usersWithPromo.has(id)).length;
+    const paidWithPromocode = Array.from(usersWithPromo).filter(id => !usersWithPayment.has(id)).length;
+    const paidBoth = Array.from(usersWithPayment).filter(id => usersWithPromo.has(id)).length;
+
+    // Period-specific stats (filtered by from/to if provided)
+    const inPeriod = (date: Date | null | undefined) => {
+      if (!date) return false;
+      const d = new Date(date);
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+      return true;
+    };
+    const periodNewUsers = from || to ? allUsers.filter(u => inPeriod(u.createdAt)).length : newUsersLast30Days;
+    const periodPayments = from || to ? successfulPayments.filter(p => inPeriod(p.createdAt)).length : totalSuccessfulPayments;
+    const periodPromoUsages = from || to ? allPromoUsages.filter(u => inPeriod(u.usedAt)).length : allPromoUsages.length;
 
     const promocodeStats = allPromocodes.map(p => ({
       code: p.code,
@@ -485,6 +526,12 @@ export class DatabaseStorage implements IStorage {
       totalSuccessfulPayments,
       paidMonthlyPayments,
       paidYearlyPayments,
+      paidWithMoney,
+      paidWithPromocode,
+      paidBoth,
+      periodNewUsers,
+      periodPayments,
+      periodPromoUsages,
       promocodeStats,
     };
   }

@@ -549,10 +549,29 @@ export async function registerRoutes(
 
   app.get("/api/admin/stats", isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
-      const stats = await storage.getAdminStats();
+      const { from, to } = req.query as { from?: string; to?: string };
+      const params: { from?: Date; to?: Date } = {};
+      if (from) params.from = new Date(from);
+      if (to) {
+        const toDate = new Date(to);
+        toDate.setHours(23, 59, 59, 999);
+        params.to = toDate;
+      }
+      const stats = await storage.getAdminStats(params);
       res.json(stats);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch admin stats" });
+    }
+  });
+
+  app.get("/api/admin/access-sources", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const sourcesMap = await storage.getUserAccessSources();
+      const result: Record<string, { hasPayment: boolean; hasPromocode: boolean; promoCodes: string[] }> = {};
+      sourcesMap.forEach((val, key) => { result[key] = val; });
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch access sources" });
     }
   });
 

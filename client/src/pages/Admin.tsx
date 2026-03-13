@@ -1,14 +1,16 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { 
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
   Plus, Clock, Crown, Shield, ShieldOff, Trash2, CreditCard, Tag,
-  UserCheck, UserX, CalendarDays, Activity
+  UserCheck, CalendarDays, Activity, Banknote, Gift, Search
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import type { User } from "@shared/schema";
@@ -51,19 +53,35 @@ interface AdminStats {
   totalSuccessfulPayments: number;
   paidMonthlyPayments: number;
   paidYearlyPayments: number;
+  paidWithMoney: number;
+  paidWithPromocode: number;
+  paidBoth: number;
+  periodNewUsers: number;
+  periodPayments: number;
+  periodPromoUsages: number;
   promocodeStats: PromocodeStat[];
 }
+
+type AccessSources = Record<string, { hasPayment: boolean; hasPromocode: boolean; promoCodes: string[] }>;
+
+const toInputDate = (d: Date) => d.toISOString().slice(0, 10);
 
 export default function Admin() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [userSearch, setUserSearch] = useState("");
+
+  const defaultTo = new Date();
+  const defaultFrom = new Date(defaultTo.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const [periodFrom, setPeriodFrom] = useState(toInputDate(defaultFrom));
+  const [periodTo, setPeriodTo] = useState(toInputDate(defaultTo));
 
   const { data: stats } = useQuery<AdminStats>({
-    queryKey: ["/api/admin/stats"],
+    queryKey: ["/api/admin/stats", periodFrom, periodTo],
     queryFn: async () => {
-      const res = await apiRequest("GET", "/api/admin/stats");
+      const res = await apiRequest("GET", `/api/admin/stats?from=${periodFrom}&to=${periodTo}`);
       return res.json();
     },
     enabled: !!user?.isAdmin,
@@ -73,6 +91,15 @@ export default function Admin() {
     queryKey: ["/api/admin/users"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/admin/users");
+      return res.json();
+    },
+    enabled: !!user?.isAdmin,
+  });
+
+  const { data: accessSources = {} } = useQuery<AccessSources>({
+    queryKey: ["/api/admin/access-sources"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/access-sources");
       return res.json();
     },
     enabled: !!user?.isAdmin,
@@ -229,8 +256,8 @@ export default function Admin() {
               />
             </div>
 
-            {/* Новые регистрации */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Новые регистрации + оплаты + источники */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="bg-white border-2 border-purple-200">
                 <CardContent className="p-5">
                   <div className="flex items-center gap-3 mb-3">
@@ -265,6 +292,28 @@ export default function Admin() {
                       <span className="font-bold text-purple-700">
                         {stats?.paidMonthlyPayments ?? 0} / {stats?.paidYearlyPayments ?? 0}
                       </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white border-2 border-green-200">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Banknote className="h-5 w-5 text-green-600" />
+                    <p className="font-medium text-green-700">Источники доступа</p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-1 text-green-600"><Banknote className="h-3 w-3" /> Только деньгами</span>
+                      <span className="font-bold text-lg text-green-700">{stats?.paidWithMoney ?? 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-1 text-blue-600"><Gift className="h-3 w-3" /> Только промокод</span>
+                      <span className="font-bold text-lg text-blue-700">{stats?.paidWithPromocode ?? 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-purple-500">И то и другое</span>
+                      <span className="font-bold text-lg text-purple-700">{stats?.paidBoth ?? 0}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -338,17 +387,35 @@ export default function Admin() {
           <TabsContent value="users" className="space-y-6">
             <Card className="bg-white border-2 border-purple-300 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
-                  <Users className="h-5 w-5 text-pink-500" />
-                  Все пользователи ({allUsers.length})
-                </CardTitle>
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                    <Users className="h-5 w-5 text-pink-500" />
+                    Все пользователи ({allUsers.length})
+                  </CardTitle>
+                  <div className="relative w-full sm:w-72">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-400" />
+                    <Input
+                      placeholder="Поиск по email или имени..."
+                      value={userSearch}
+                      onChange={e => setUserSearch(e.target.value)}
+                      className="pl-9 border-purple-200 focus:border-purple-400"
+                    />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {allUsers.length === 0 ? (
                   <p className="text-purple-500 text-center py-8">Нет зарегистрированных пользователей</p>
                 ) : (
                   <div className="space-y-4">
-                    {allUsers.map((u) => {
+                    {allUsers.filter(u => {
+                      if (!userSearch) return true;
+                      const q = userSearch.toLowerCase();
+                      return (u.email ?? "").toLowerCase().includes(q) ||
+                        (u.nickname ?? "").toLowerCase().includes(q) ||
+                        (u.firstName ?? "").toLowerCase().includes(q);
+                    }).map((u) => {
+                      const src = accessSources[u.id];
                       const trialDays = getDaysLeft(u.trialEndsAt);
                       const subDays = getDaysLeft(u.subscriptionExpiresAt);
                       const isExpired = (trialDays === null || trialDays <= 0) && (subDays === null || subDays <= 0);
@@ -366,6 +433,19 @@ export default function Admin() {
                                 </p>
                                 <p className="text-sm text-purple-500">{u.email}</p>
                                 <p className="text-xs text-purple-400">Регистрация: {formatDate((u as any).createdAt)}</p>
+                                {/* Payment/Promo source badges */}
+                                <div className="flex items-center gap-1 mt-1 flex-wrap">
+                                  {src?.hasPayment && (
+                                    <span className="inline-flex items-center gap-0.5 text-[10px] bg-green-100 text-green-700 border border-green-200 rounded px-1.5 py-0.5 font-medium">
+                                      <Banknote className="h-2.5 w-2.5" /> Оплата
+                                    </span>
+                                  )}
+                                  {src?.hasPromocode && src.promoCodes.map(code => (
+                                    <span key={code} className="inline-flex items-center gap-0.5 text-[10px] bg-blue-100 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5 font-medium">
+                                      <Gift className="h-2.5 w-2.5" /> {code}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 flex-wrap">
@@ -595,6 +675,69 @@ export default function Admin() {
 
           {/* ── АНАЛИТИКА ── */}
           <TabsContent value="analytics" className="space-y-6">
+            {/* Выбор периода */}
+            <Card className="bg-white border-2 border-purple-200">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <CalendarDays className="h-5 w-5 text-purple-500 flex-shrink-0" />
+                  <span className="font-medium text-purple-700 flex-shrink-0">Период:</span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Input
+                      type="date"
+                      value={periodFrom}
+                      onChange={e => setPeriodFrom(e.target.value)}
+                      className="w-40 border-purple-200 focus:border-purple-400 text-sm"
+                    />
+                    <span className="text-purple-400">—</span>
+                    <Input
+                      type="date"
+                      value={periodTo}
+                      onChange={e => setPeriodTo(e.target.value)}
+                      className="w-40 border-purple-200 focus:border-purple-400 text-sm"
+                    />
+                  </div>
+                  <div className="flex gap-2 ml-auto flex-wrap">
+                    {[
+                      { label: "7 дней", days: 7 },
+                      { label: "30 дней", days: 30 },
+                      { label: "90 дней", days: 90 },
+                    ].map(({ label, days }) => (
+                      <Button
+                        key={days}
+                        size="sm"
+                        variant="outline"
+                        className="border-purple-200 text-purple-600 hover:bg-purple-50 text-xs"
+                        onClick={() => {
+                          const to = new Date();
+                          const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
+                          setPeriodTo(toInputDate(to));
+                          setPeriodFrom(toInputDate(from));
+                        }}
+                      >
+                        {label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Статистика за период */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-5 bg-purple-50 rounded-lg border-2 border-purple-200 text-center">
+                <p className="text-4xl font-bold text-purple-700">{stats?.periodNewUsers ?? 0}</p>
+                <p className="text-sm text-purple-500 mt-1">Новых регистраций за период</p>
+              </div>
+              <div className="p-5 bg-green-50 rounded-lg border-2 border-green-200 text-center">
+                <p className="text-4xl font-bold text-green-700">{stats?.periodPayments ?? 0}</p>
+                <p className="text-sm text-green-600 mt-1">Успешных оплат за период</p>
+              </div>
+              <div className="p-5 bg-blue-50 rounded-lg border-2 border-blue-200 text-center">
+                <p className="text-4xl font-bold text-blue-700">{stats?.periodPromoUsages ?? 0}</p>
+                <p className="text-sm text-blue-600 mt-1">Активаций промокодов за период</p>
+              </div>
+            </div>
+
             {/* Воронка */}
             <Card className="bg-white border-2 border-purple-300 shadow-lg">
               <CardHeader>
