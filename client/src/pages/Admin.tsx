@@ -43,6 +43,9 @@ interface AdminStats {
   };
   activeTrials: number;
   expiredTrials: number;
+  activeMonthly: number;
+  activeYearly: number;
+  noAccess: number;
   newUsersLast7Days: number;
   newUsersLast30Days: number;
   totalSuccessfulPayments: number;
@@ -273,28 +276,31 @@ export default function Admin() {
               <CardHeader>
                 <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-pink-500" />
-                  Распределение пользователей
+                  Активный доступ сейчас
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-3xl font-bold text-blue-600">{stats?.activeTrials ?? 0}</p>
-                    <p className="text-sm text-blue-500 mt-1">Триал активен</p>
-                  </div>
-                  <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                    <p className="text-3xl font-bold text-red-600">{stats?.expiredTrials ?? 0}</p>
-                    <p className="text-sm text-red-500 mt-1">Триал истёк</p>
+                    <p className="text-sm text-blue-500 mt-1">Активный триал</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-3xl font-bold text-purple-600">{stats?.subscriptionBreakdown?.monthly ?? 0}</p>
-                    <p className="text-sm text-purple-500 mt-1">Месячная</p>
+                    <p className="text-3xl font-bold text-purple-600">{stats?.activeMonthly ?? 0}</p>
+                    <p className="text-sm text-purple-500 mt-1">Месячная (активная)</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-pink-200">
-                    <p className="text-3xl font-bold text-pink-600">{stats?.subscriptionBreakdown?.yearly ?? 0}</p>
-                    <p className="text-sm text-pink-500 mt-1">Годовая</p>
+                    <p className="text-3xl font-bold text-pink-600">{stats?.activeYearly ?? 0}</p>
+                    <p className="text-sm text-pink-500 mt-1">Годовая (активная)</p>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-3xl font-bold text-gray-500">{stats?.noAccess ?? 0}</p>
+                    <p className="text-sm text-gray-400 mt-1">Нет доступа</p>
                   </div>
                 </div>
+                <p className="text-xs text-purple-300 mt-3 text-right">
+                  Итого: {(stats?.activeTrials ?? 0) + (stats?.activeMonthly ?? 0) + (stats?.activeYearly ?? 0) + (stats?.noAccess ?? 0)} из {stats?.totalUsers ?? 0} (без учёта админов)
+                </p>
               </CardContent>
             </Card>
 
@@ -605,20 +611,20 @@ export default function Admin() {
                   color="bg-purple-400"
                 />
                 <FunnelRow
-                  label="Прошли триал (активны)"
+                  label="На активном триале прямо сейчас"
                   value={stats?.activeTrials ?? 0}
                   total={stats?.totalUsers ?? 1}
                   color="bg-blue-400"
                 />
                 <FunnelRow
-                  label="С активным доступом"
+                  label="С активным доступом (триал + подписка)"
                   value={stats?.usersWithAccess ?? 0}
                   total={stats?.totalUsers ?? 1}
                   color="bg-green-400"
                 />
                 <FunnelRow
-                  label="Оплатили подписку"
-                  value={stats?.activePaidSubscriptions ?? 0}
+                  label="Активная оплаченная подписка"
+                  value={(stats?.activeMonthly ?? 0) + (stats?.activeYearly ?? 0)}
                   total={stats?.totalUsers ?? 1}
                   color="bg-pink-400"
                 />
@@ -642,10 +648,10 @@ export default function Admin() {
                     <AnalyticsRow label="Активны сегодня" value={stats?.activeToday ?? 0} />
                     <AnalyticsRow label="Новых за 7 дней" value={stats?.newUsersLast7Days ?? 0} />
                     <AnalyticsRow label="Новых за 30 дней" value={stats?.newUsersLast30Days ?? 0} />
-                    <AnalyticsRow label="Триал активен" value={stats?.activeTrials ?? 0} />
-                    <AnalyticsRow label="Триал истёк" value={stats?.expiredTrials ?? 0} />
-                    <AnalyticsRow label="Месячная подписка" value={stats?.subscriptionBreakdown?.monthly ?? 0} />
-                    <AnalyticsRow label="Годовая подписка" value={stats?.subscriptionBreakdown?.yearly ?? 0} />
+                    <AnalyticsRow label="Триал активен (сейчас)" value={stats?.activeTrials ?? 0} />
+                    <AnalyticsRow label="Нет доступа" value={stats?.noAccess ?? 0} />
+                    <AnalyticsRow label="Месячная (активная)" value={stats?.activeMonthly ?? 0} />
+                    <AnalyticsRow label="Годовая (активная)" value={stats?.activeYearly ?? 0} />
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium text-purple-700 mb-3">Контент и платежи</h4>
@@ -656,10 +662,10 @@ export default function Admin() {
                     <AnalyticsRow label="Из них — месячных" value={stats?.paidMonthlyPayments ?? 0} />
                     <AnalyticsRow label="Из них — годовых" value={stats?.paidYearlyPayments ?? 0} />
                     <AnalyticsRow
-                      label="Конверсия в оплату"
+                      label="Конверсия в активную оплату"
                       value={
                         stats?.totalUsers
-                          ? `${Math.round(((stats?.activePaidSubscriptions ?? 0) / stats.totalUsers) * 100)}%`
+                          ? `${Math.round((((stats?.activeMonthly ?? 0) + (stats?.activeYearly ?? 0)) / stats.totalUsers) * 100)}%`
                           : "0%"
                       }
                     />

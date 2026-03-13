@@ -378,6 +378,9 @@ export class DatabaseStorage implements IStorage {
     subscriptionBreakdown: { trial: number; free: number; monthly: number; yearly: number };
     activeTrials: number;
     expiredTrials: number;
+    activeMonthly: number;
+    activeYearly: number;
+    noAccess: number;
     newUsersLast7Days: number;
     newUsersLast30Days: number;
     totalSuccessfulPayments: number;
@@ -413,7 +416,10 @@ export class DatabaseStorage implements IStorage {
       yearly: allUsers.filter(u => u.subscriptionTier === "yearly").length,
     };
     
-    const activeTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) > now).length;
+    const activeTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) > now && u.subscriptionTier === "trial").length;
+    const activeMonthly = allUsers.filter(u => u.subscriptionTier === "monthly" && u.subscriptionExpiresAt && new Date(u.subscriptionExpiresAt) > now).length;
+    const activeYearly = allUsers.filter(u => u.subscriptionTier === "yearly" && u.subscriptionExpiresAt && new Date(u.subscriptionExpiresAt) > now).length;
+    const noAccess = allUsers.filter(u => !u.isAdmin && !(u.trialEndsAt && new Date(u.trialEndsAt) > now && u.subscriptionTier === "trial") && !((u.subscriptionTier === "monthly" || u.subscriptionTier === "yearly") && u.subscriptionExpiresAt && new Date(u.subscriptionExpiresAt) > now)).length;
     const expiredTrials = allUsers.filter(u => u.trialEndsAt && new Date(u.trialEndsAt) <= now).length;
     
     const activeToday = allUsers.filter(u => u.lastLoginAt && new Date(u.lastLoginAt) >= todayStart).length;
@@ -471,6 +477,9 @@ export class DatabaseStorage implements IStorage {
       subscriptionBreakdown,
       activeTrials,
       expiredTrials,
+      activeMonthly,
+      activeYearly,
+      noAccess,
       newUsersLast7Days,
       newUsersLast30Days,
       totalSuccessfulPayments,
