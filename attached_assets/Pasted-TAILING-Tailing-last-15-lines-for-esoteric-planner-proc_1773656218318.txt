@@ -1,0 +1,22 @@
+TAILING] Tailing last 15 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 15 lines:
+0|esoteric | Transcription error: Error: Ошибка транскрипции: rpc error: code = ResourceExhausted desc = limit on requests was exceeded. Limit: 20, Interval: 1s
+0|esoteric |     at IncomingMessage.<anonymous> (/var/www/magic-content/dist/index.cjs:781:41153)
+0|esoteric |     at IncomingMessage.emit (node:events:536:35)
+0|esoteric |     at endReadableNT (node:internal/streams/readable:1698:12)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at qn (/var/www/magic-content/dist/index.cjs:191:8897)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1090:26361
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at qn (/var/www/magic-content/dist/index.cjs:191:8897)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1090:26361
+
+/root/.pm2/logs/esoteric-planner-out.log last 15 lines:
+0|esoteric | (формат, без деталей сеанса). 4. Каков результат в ощущениях и действиях 'после'. Сделать акцент на решении конкретного запроса, а не на технике.","type":"Кейс"},{"day":5,"topic":"Закрытие возражения 'Моя ситуация уникальна и слишком сложна, вряд ли это сработает'","description":"Формат: 'Закулисье работы'. Рассказать о принципах индивидуального подхода. Раскрыть через вопросы: Как строится работа под ЛЮБОЙ запрос? Почему 'сложность' — это часто стандартная защита психики? Пример (в общих чертах), как в работе соединяются уникальность клиента и универсальные механизмы психики. Сместить фокус с 'особенности проблемы' на 'точность метода'.","type":"Возражение"},{"day":6,"topic":"Как выглядит путь решения вашего запроса с помощью индивидуальной гипнопрактики","description":"Формат: мягкий продающий пост-инструкция. Описать процесс и пользу для клиента шагами: 1. Выявление корня запроса. 2. Работа на уровне подсознания. 3. Интеграция результата. Рассказать о ключевых преимуществах такого формата (конфиденциальность, глубина, индивидуальность, поддержка). Подать это как логичное продолжение тем предыдущих дней — решение, о котором шла речь.","type":"Продающий"},{"day":7,"topic":"Что изменится, если принять решение сегодня, а не 'подумать' ещё неделю?","description":"Формат: прямой продающий пост с дедлайном. Работа с возражением 'надо подумать'. Контраст двух сценариев: 1. Сценарий 'отложить' — что будет через неделю/месяц с проблемой? 2. Сценарий 'начать' — какой первый шаг и что это откроет. Объявить ограниченное количество мест или срок действия условия (например, запись на пробную сессию со специальным условием). Призыв к действию — сделать выбор в пользу себя сейчас.","type":"Продающий"}]}
+
+

@@ -179,7 +179,8 @@ export async function transformToTriggerReels(originalScript: string): Promise<{
 
     let parsed: any;
     try {
-      parsed = JSON.parse(content);
+      const cleaned = content.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+      parsed = JSON.parse(cleaned);
     } catch {
       throw new ParseError("AI вернул некорректный формат ответа");
     }
