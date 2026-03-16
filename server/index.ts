@@ -2,7 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 
 const app = express();
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 const httpServer = createServer(app);
 
 declare module "http" {

@@ -1,0 +1,60 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 30
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric | carousel generation error (attempt 1): JSON parse failed: Unexpected token 'р', ..."оем.\n---\ретья карт"... is not valid JSON
+0|esoteric | Yandex SpeechKit error: {
+0|esoteric |   error_code: 'TOO_MANY_REQUESTS',
+0|esoteric |   error_message: 'rpc error: code = ResourceExhausted desc = limit on requests was exceeded. Limit: 20, Interval: 1s'
+0|esoteric | }
+0|esoteric | Transcription error: Error: Ошибка транскрипции: rpc error: code = ResourceExhausted desc = limit on requests was exceeded. Limit: 20, Interval: 1s
+0|esoteric |     at IncomingMessage.<anonymous> (/var/www/magic-content/dist/index.cjs:781:41153)
+0|esoteric |     at IncomingMessage.emit (node:events:536:35)
+0|esoteric |     at endReadableNT (node:internal/streams/readable:1698:12)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at qn (/var/www/magic-content/dist/index.cjs:191:8897)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1090:26361
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at qn (/var/www/magic-content/dist/index.cjs:191:8897)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1090:26361
+0|esoteric | xt: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|esoteric |     at Object.trustProxy (/var/www/magic-content/dist/index.cjs:82:75444)
+0|esoteric |     at Vce.r.<computed> [as trustProxy] (/var/www/magic-content/dist/index.cjs:82:80683)
+0|esoteric |     at Object.keyGenerator (/var/www/magic-content/dist/index.cjs:82:82166)
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:82:83333
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:82:83043 {
+0|esoteric |   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|esoteric |   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 30 lines:
+0|esoteric |  {"hasAccess":true,"daysLeft":16}
+0|esoteric | 1:57:18 PM [express] GET /api/archetypes/latest 304 in 126ms :: {"id":"840da645-b283-4582-b785-f2ca2b7ac7ad","userId":"4f65625f-793a-4dd5-b2ae-db4250bd596f","archetypeName":"Маг-Мудрец-Искатель","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","answers":[3,0,0,1,1,1,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-02-26T18:43:14.812Z"}
+0|esoteric | 1:57:22 PM [express] GET /api/voice-posts 304 in 27ms :: []
+0|esoteric | 1:57:39 PM [express] GET /api/generation-limit 200 in 31ms :: {"allowed":true,"remaining":-1}
+0|esoteric | 1:57:39 PM [express] GET /api/strategies 200 in 36ms :: []
+0|esoteric | Generating ideas only: { goal: 'engagement', niche: 'Астролог', days: 1, gender: 'female' }
+0|esoteric | Generating ideas only (attempt 1/2)...
+0|esoteric | Ideas generated in 3878ms
+0|esoteric | Raw AI response (first 500 chars): {
+0|esoteric |     "ideas": [{"day": 1, "idea": "Как я нашла своё призвание через астрологию", "type": "Личная история"}]
+0|esoteric | }
+0|esoteric | 1:57:52 PM [express] POST /api/strategies/generate-ideas 200 in 3964ms :: {"ideas":[{"day":1,"idea":"Как я нашла своё призвание через астрологию","type":"Личная история"}],"context":{"goal":"engagement","niche":"Астролог","archetype":{"name":"Маг-Мудрец-Искатель","description":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"triggerWords":["трансформация","магия","мистика","волшебство","чудо","преображение","перерождение","инсайт","активация","интуиция","метафизика","глубина","видение"],"contentStyle":["глубоко, многомерно, мистически","завораживающе","процессы на глубинном уровне","медитативно"],"tone":"Загадочный, глубокий, трансформационный. Говорит о невидимых процессах и скрытых силах."},"gender":"female"}}
+0|esoteric | 1:57:52 PM [express] GET /api/generation-limit 304 in 27ms :: {"allowed":true,"remaining":-1}
+0|esoteric | Generating post for: Как я нашла своё призвание через астрологию..., gender: female
+0|esoteric | Generating post for idea: Как я нашла своё призвание через астрологию... (attempt 1/2)
+0|esoteric | 1:58:21 PM [express] GET /api/auth/user 304 in 14ms :: {"id":"4f65625f-793a-4dd5-b2ae-db4250bd596f","email":"popova.a-a@mail.ru","firstName":"Анастасия","lastName":"Суразакова ","nickname":null,"profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-03-01T15:30:29.282Z","subscriptionExpiresAt":"2026-03-31T15:30:29.282Z","marketingConsent":true}
+0|esoteric | 1:58:21 PM [express] GET /api/archetypes/latest 304 in 28ms :: {"id":"840da645-b283-4582-b785-f2ca2b7ac7ad","userId":"4f65625f-793a-4dd5-b2ae-db4250bd596f","archetypeName":"Маг-Мудрец-Искатель","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","answers":[3,0,0,1,1,1,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-02-26T18:43:14.812Z"}
+0|esoteric | 1:58:21 PM [express] GET /api/auth/consent-status 304 in 35ms :: {"consentsComplete":true,"missing":[],"granted":["marketing","offer","personal_data"]}
+0|esoteric | New database connection established
+0|esoteric | 1:58:22 PM [express] GET /api/auth/access 304 in 130ms :: {"hasAccess":true,"daysLeft":16}
+0|esoteric | 1:58:24 PM [express] GET /api/voice-posts 304 in 33ms :: []
+0|esoteric | post generated in 67832ms
+0|esoteric | Raw post response (first 300 chars): {
+0|esoteric |     "content": "Я проснулась в холодном поту от того же сна в третий раз за неделю — я терялась в бесконечном лабиринте, не зная, куда идти.\n\nЭто было пять лет назад. Я работала в офисе, получала хорошую зарплату, но каждый день чувствовала пустоту. Как будто я играла роль в чужом спектакле, а м
+
