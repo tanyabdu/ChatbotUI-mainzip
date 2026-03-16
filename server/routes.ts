@@ -1132,12 +1132,10 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Сценарий слишком длинный (максимум 10000 символов)" });
       }
 
-      const user = req.user;
-      if (!user.subscriptionTier || user.subscriptionTier === "free") {
-        const now = new Date();
-        if (!user.accessExpiresAt || user.accessExpiresAt < now) {
-          return res.status(403).json({ error: "Для использования этой функции нужна активная подписка" });
-        }
+      const userId = req.user.id;
+      const access = await storage.hasActiveAccess(userId);
+      if (!access.hasAccess) {
+        return res.status(403).json({ error: "Для использования этой функции нужна активная подписка" });
       }
 
       const result = await transformToTriggerReels(script.trim());
