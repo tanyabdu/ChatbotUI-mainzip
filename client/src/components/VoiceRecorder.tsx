@@ -3,7 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2, AlertCircle, Image } from "lucide-react";
+import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2, AlertCircle, Image, PenLine } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import type { VoicePost } from "@shared/schema";
@@ -24,6 +25,8 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
   const [showHistory, setShowHistory] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showManualInput, setShowManualInput] = useState(false);
+  const [manualText, setManualText] = useState("");
 
   const recognitionRef = useRef<any>(null);
   const finalTranscriptRef = useRef<string>("");
