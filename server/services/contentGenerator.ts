@@ -618,7 +618,7 @@ ${writingStyleRules}
         { role: "user", content: userPrompt },
       ],
       temperature: 0.7,
-      max_tokens: 5000,
+      max_tokens: 8000,
     }, { timeout: 25000 });
 
     const elapsed = Date.now() - startTime;
@@ -906,7 +906,7 @@ ${warmupStructure}
           { role: "user", content: userPrompt },
         ],
         temperature: 1.0,
-        max_tokens: 2000,
+        max_tokens: 8000,
         response_format: { type: "json_object" },
       }, { timeout: 25000 });
 
