@@ -917,7 +917,8 @@ ${warmupStructure}
       console.log("Raw AI response (first 500 chars):", content.substring(0, 500));
       
       try {
-        const parsed = JSON.parse(content);
+        const cleaned = cleanJsonResponse(content);
+        const parsed = JSON.parse(cleaned);
         
         // Handle both formats: { ideas: [...] } or direct array [...]
         if (parsed.ideas && Array.isArray(parsed.ideas)) {
@@ -926,7 +927,6 @@ ${warmupStructure}
           return parsed as ContentIdea[];
         } else {
           // Try to find array in response
-          const cleaned = cleanJsonResponse(content);
           const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
           if (jsonMatch) {
             return JSON.parse(jsonMatch[0]) as ContentIdea[];
