@@ -1,10 +1,9 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2, AlertCircle, Image, PenLine } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+import { Mic, Square, Loader2, Sparkles, Copy, Check, Save, History, Trash2, AlertCircle, Image } from "lucide-react";
 import { useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import type { VoicePost } from "@shared/schema";
@@ -14,29 +13,58 @@ interface VoiceRecorderProps {
   onGeneratePost?: (transcript: string) => void;
 }
 
+function checkMediaRecorderSupport(): { supported: boolean; mimeType: string | null } {
+  if (typeof window === "undefined") {
+    return { supported: false, mimeType: null };
+  }
+  
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    return { supported: false, mimeType: null };
+  }
+  
+  if (typeof MediaRecorder === "undefined") {
+    return { supported: false, mimeType: null };
+  }
+  
+  const mimeTypes = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4",
+    "audio/ogg;codecs=opus",
+    "audio/ogg",
+  ];
+  
+  for (const mimeType of mimeTypes) {
+    if (MediaRecorder.isTypeSupported(mimeType)) {
+      return { supported: true, mimeType };
+    }
+  }
+  
+  return { supported: true, mimeType: null };
+}
+
 export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRecorderProps) {
   const [, setLocation] = useLocation();
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [interimText, setInterimText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState("");
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showManualInput, setShowManualInput] = useState(false);
-  const [manualText, setManualText] = useState("");
+  const [isSupported, setIsSupported] = useState(true);
+  const [supportedMimeType, setSupportedMimeType] = useState<string | null>(null);
+  
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
-  const recognitionRef = useRef<any>(null);
-  const finalTranscriptRef = useRef<string>("");
-
-  const isSupported =
-    typeof window !== "undefined" &&
-    !!(
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition
-    );
+  useEffect(() => {
+    const { supported, mimeType } = checkMediaRecorderSupport();
+    setIsSupported(supported);
+    setSupportedMimeType(mimeType);
+  }, []);
 
   const { data: savedPosts = [] } = useQuery<VoicePost[]>({
     queryKey: ["/api/voice-posts"],
@@ -87,14 +115,46 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
     },
   });
 
+  const transcribeMutation = useMutation({
+    mutationFn: async (audioBlob: Blob) => {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "recording.webm");
+      
+      const token = localStorage.getItem("auth_token");
+      
+      const response = await fetch("/api/voice-posts/transcribe", {
+        method: "POST",
+        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Ошибка транскрипции");
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setTranscript(data.transcript);
+      setIsTranscribing(false);
+      onTranscript?.(data.transcript);
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+      setIsTranscribing(false);
+    },
+  });
+
   const generatePostMutation = useMutation({
     mutationFn: async (text: string) => {
       const token = localStorage.getItem("auth_token");
       const response = await fetch("/api/voice-posts/generate", {
         method: "POST",
-        headers: {
+        headers: { 
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         credentials: "include",
         body: JSON.stringify({ transcript: text }),
@@ -115,73 +175,66 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
     },
   });
 
-  const startRecording = useCallback(() => {
+  const startRecording = useCallback(async () => {
     setError(null);
     setTranscript("");
-    setInterimText("");
     setGeneratedPost("");
     setSaved(false);
-    finalTranscriptRef.current = "";
+    chunksRef.current = [];
 
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      setError("Ваш браузер не поддерживает голосовой ввод. Используйте Chrome или Safari.");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "ru-RU";
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    recognition.onresult = (event: any) => {
-      let interim = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const text = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscriptRef.current += text + " ";
-          setTranscript(finalTranscriptRef.current.trim());
-        } else {
-          interim += text;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      const options: MediaRecorderOptions = {};
+      if (supportedMimeType) {
+        options.mimeType = supportedMimeType;
+      }
+      
+      let mediaRecorder: MediaRecorder;
+      try {
+        mediaRecorder = new MediaRecorder(stream, options);
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(stream);
+      }
+      
+      const actualMimeType = mediaRecorder.mimeType || "audio/webm";
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
         }
-      }
-      setInterimText(interim);
-    };
-
-    recognition.onerror = (event: any) => {
-      if (event.error === "not-allowed") {
+      };
+      
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(track => track.stop());
+        
+        if (chunksRef.current.length > 0) {
+          const audioBlob = new Blob(chunksRef.current, { type: actualMimeType });
+          setIsTranscribing(true);
+          transcribeMutation.mutate(audioBlob);
+        }
+      };
+      
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start(1000);
+      setIsRecording(true);
+    } catch (err: any) {
+      console.error("Error starting recording:", err);
+      if (err.name === "NotAllowedError") {
         setError("Микрофон не разрешён. Разрешите доступ к микрофону в настройках браузера.");
-      } else if (event.error === "no-speech") {
-        // тихо игнорируем — пользователь просто молчал
-      } else if (event.error !== "aborted") {
-        setError("Ошибка распознавания: " + event.error);
+      } else if (err.name === "NotFoundError") {
+        setError("Микрофон не найден. Подключите микрофон и попробуйте снова.");
+      } else if (err.name === "NotSupportedError") {
+        setError("Формат записи не поддерживается вашим браузером.");
+      } else {
+        setError("Не удалось запустить запись. Проверьте доступ к микрофону.");
       }
-      setIsRecording(false);
-      setInterimText("");
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-      setInterimText("");
-      const finalText = finalTranscriptRef.current.trim();
-      if (finalText) {
-        setTranscript(finalText);
-        onTranscript?.(finalText);
-      }
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsRecording(true);
-  }, [onTranscript]);
+    }
+  }, [transcribeMutation, supportedMimeType]);
 
   const stopRecording = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
     }
     setIsRecording(false);
   }, []);
@@ -223,7 +276,8 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
             <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
             <h3 className="text-xl font-mystic text-purple-700 mb-2">Браузер не поддерживается</h3>
             <p className="text-purple-600">
-              Голосовой ввод работает в Chrome и Safari. Пожалуйста, используйте один из этих браузеров.
+              Ваш браузер не поддерживает запись аудио. 
+              Пожалуйста, используйте современный браузер (Chrome, Safari, Firefox, Edge).
             </p>
           </CardContent>
         </Card>
@@ -235,7 +289,7 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
     <section className="fade-in max-w-2xl mx-auto">
       <Card className="relative overflow-visible bg-white border-2 border-purple-300 shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-50 to-transparent pointer-events-none rounded-lg" />
-
+        
         <CardHeader className="text-center relative z-10">
           <CardTitle className="text-3xl font-mystic text-purple-700">
             <Mic className="inline-block h-8 w-8 mr-2 mb-1 text-pink-500" />
@@ -257,42 +311,44 @@ export default function VoiceRecorder({ onTranscript, onGeneratePost }: VoiceRec
           <div className="text-center">
             <button
               onClick={toggleRecording}
+              disabled={isTranscribing}
               data-testid="button-record"
               className={`
-                w-24 h-24 rounded-full shadow-xl flex items-center justify-center transition-all transform
-                focus:outline-none mx-auto ring-4 ring-card
-                ${isRecording
-                  ? "bg-red-500 recording-pulse"
+                w-24 h-24 rounded-full shadow-xl flex items-center justify-center transition-all transform 
+                focus:outline-none mx-auto ring-4 ring-card disabled:opacity-50
+                ${isRecording 
+                  ? "bg-red-500 recording-pulse" 
                   : "bg-gradient-to-br from-red-500 to-pink-600 hover:scale-105"
                 }
               `}
             >
-              {isRecording ? (
+              {isTranscribing ? (
+                <Loader2 className="h-10 w-10 text-white animate-spin" />
+              ) : isRecording ? (
                 <Square className="h-10 w-10 text-white" />
               ) : (
                 <Mic className="h-10 w-10 text-white" />
               )}
             </button>
             <p className="text-sm text-muted-foreground mt-4">
-              {isRecording
-                ? "Слушаю... Нажмите для остановки"
-                : "Нажмите для записи"}
+              {isTranscribing 
+                ? "Распознаю речь..." 
+                : isRecording 
+                  ? "Запись... Нажмите для остановки" 
+                  : "Нажмите для записи"}
             </p>
           </div>
 
-          {(transcript || interimText) && (
+          {transcript && !isRecording && !isTranscribing && (
             <div className="text-left fade-in">
               <label className="text-xs text-purple-600 mb-1 block">Текст:</label>
-              <div className="bg-purple-50 p-4 rounded-lg text-sm min-h-[80px] max-h-40 overflow-y-auto border-2 border-purple-200">
-                <span className="text-purple-700">{transcript}</span>
-                {interimText && (
-                  <span className="text-purple-400 italic"> {interimText}</span>
-                )}
+              <div className="bg-purple-50 p-4 rounded-lg text-purple-700 text-sm min-h-[80px] max-h-32 overflow-y-auto border-2 border-purple-200">
+                {transcript}
               </div>
             </div>
           )}
 
-          {transcript && !isRecording && !generatedPost && (
+          {transcript && !isRecording && !isTranscribing && !generatedPost && (
             <Button
               onClick={handleGeneratePost}
               disabled={isGenerating}
