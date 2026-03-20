@@ -163,14 +163,18 @@ export async function transformToTriggerReels(originalScript: string): Promise<{
       model: "deepseek-chat",
       messages: [
         {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        {
           role: "user",
-          content: `${SYSTEM_PROMPT}\n\n---\n\nВот оригинальный сценарий Reels, который нужно переработать в триггерный:\n\n${originalScript}`,
+          content: `Вот оригинальный сценарий Reels, который нужно переработать в триггерный:\n\n${originalScript}`,
         },
       ],
       temperature: 0.8,
       max_tokens: 6000,
       response_format: { type: "json_object" },
-    });
+    }, { timeout: 25000 });
 
     const content = extractContent(response);
     if (!content) {
