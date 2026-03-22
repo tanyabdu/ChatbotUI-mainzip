@@ -110,6 +110,7 @@ export interface IStorage {
   // Payments
   recordPayment(data: { userId: string; orderId: string; amount: string; planType: string; status: string; prodamusData?: any }): Promise<Payment>;
   getPaymentHistory(userId: string): Promise<Payment[]>;
+  getAllPayments(): Promise<(Payment & { userEmail?: string; userName?: string })[]>;
   getPaymentByOrderId(orderId: string): Promise<Payment | undefined>;
   updatePaymentStatus(orderId: string, status: string, prodamusData?: any): Promise<void>;
   
@@ -825,6 +826,27 @@ export class DatabaseStorage implements IStorage {
 
   async getPaymentHistory(userId: string): Promise<Payment[]> {
     return db.select().from(payments).where(eq(payments.userId, userId)).orderBy(desc(payments.createdAt));
+  }
+
+  async getAllPayments(): Promise<(Payment & { userEmail?: string; userName?: string })[]> {
+    const rows = await db
+      .select({
+        id: payments.id,
+        userId: payments.userId,
+        orderId: payments.orderId,
+        amount: payments.amount,
+        planType: payments.planType,
+        status: payments.status,
+        prodamusData: payments.prodamusData,
+        createdAt: payments.createdAt,
+        userEmail: users.email,
+        userName: users.firstName,
+      })
+      .from(payments)
+      .leftJoin(users, eq(payments.userId, users.id))
+      .orderBy(desc(payments.createdAt))
+      .limit(500);
+    return rows;
   }
 
   async getPaymentByOrderId(orderId: string): Promise<Payment | undefined> {

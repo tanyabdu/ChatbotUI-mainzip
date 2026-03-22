@@ -155,6 +155,61 @@ export async function sendPasswordResetEmail(email: string, resetLink: string): 
   });
 }
 
+export async function sendPaymentNotification(params: {
+  userEmail: string;
+  userName?: string;
+  planType: string;
+  amount: string;
+  orderId: string;
+  expiresAt: Date;
+}): Promise<boolean> {
+  const timestamp = new Date().toLocaleString("ru-RU", { timeZone: "Europe/Moscow" });
+  const expiresStr = params.expiresAt.toLocaleDateString("ru-RU", { timeZone: "Europe/Moscow", day: "2-digit", month: "2-digit", year: "numeric" });
+  const planLabel = params.planType === "yearly" ? "Годовая подписка" : "Месячная подписка";
+  const amountFormatted = parseFloat(params.amount).toLocaleString("ru-RU") + " ₽";
+
+  const html = `
+    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #D1FAE5 0%, #ECFDF5 100%); border-left: 4px solid #10B981; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+        <h2 style="color: #065F46; margin: 0 0 4px 0; font-size: 20px;">✅ Новая оплата!</h2>
+        <p style="color: #047857; margin: 0; font-size: 14px;">${timestamp} (МСК)</p>
+      </div>
+
+      <div style="background: #F9FAFB; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; color: #6B7280; font-size: 14px; width: 40%;">Пользователь:</td>
+            <td style="padding: 6px 0; color: #111827; font-weight: 600; font-size: 14px;">${params.userEmail}${params.userName ? ` (${params.userName})` : ""}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #6B7280; font-size: 14px;">Тариф:</td>
+            <td style="padding: 6px 0; color: #111827; font-weight: 600; font-size: 14px;">${planLabel}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #6B7280; font-size: 14px;">Сумма:</td>
+            <td style="padding: 6px 0; color: #059669; font-weight: 700; font-size: 16px;">${amountFormatted}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #6B7280; font-size: 14px;">Доступ до:</td>
+            <td style="padding: 6px 0; color: #111827; font-weight: 600; font-size: 14px;">${expiresStr}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #6B7280; font-size: 14px;">Номер заказа:</td>
+            <td style="padding: 6px 0; color: #6B7280; font-size: 12px; font-family: monospace;">${params.orderId}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to: ADMIN_EMAIL,
+    toName: "Администратор",
+    subject: `💰 Оплата: ${planLabel} — ${amountFormatted}`,
+    html,
+  });
+}
+
 export async function sendErrorNotification(
   serviceName: string,
   errorMessage: string,

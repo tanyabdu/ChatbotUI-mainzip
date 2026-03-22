@@ -12,6 +12,7 @@ import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
 import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
 import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
+import { sendPaymentNotification } from "./services/email";
 import { transcribeAudio } from "./services/yandexSpeechKit";
 import { generateContentPlan, generateQuestions, generatePostFromAnswers } from "./services/contentAlchemy";
 import { transformToTriggerReels } from "./services/triggerReels";
@@ -778,6 +779,17 @@ export async function registerRoutes(
     }
   });
 
+  // Admin: Get all payments with user info
+  app.get("/api/admin/payments", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const allPayments = await storage.getAllPayments();
+      res.json(allPayments);
+    } catch (error: any) {
+      console.error("Get admin payments error:", error);
+      res.status(500).json({ error: "Ошибка при получении платежей" });
+    }
+  });
+
   app.post("/api/promocode/verify-discount", isAuthenticated, async (req: any, res) => {
     try {
       const { code } = req.body;
@@ -950,6 +962,16 @@ export async function registerRoutes(
         });
 
         console.log(`Payment successful for user ${userId}, plan: ${planType}, amount: ${paidAmount}, expires: ${newExpiresAt}`);
+
+        // Fire-and-forget email notification to admin
+        sendPaymentNotification({
+          userEmail: user?.email || userId,
+          userName: user?.firstName || undefined,
+          planType,
+          amount: String(paidAmount),
+          orderId: orderNum,
+          expiresAt: newExpiresAt,
+        }).catch((err) => console.error("Payment notification email error:", err));
       }
 
       res.json({ success: true });

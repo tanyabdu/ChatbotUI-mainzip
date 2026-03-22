@@ -64,6 +64,18 @@ interface AdminStats {
 
 type AccessSources = Record<string, { hasPayment: boolean; hasPromocode: boolean; promoCodes: string[] }>;
 
+interface AdminPayment {
+  id: string;
+  userId: string;
+  orderId: string;
+  amount: string;
+  planType: string;
+  status: string;
+  createdAt: string;
+  userEmail?: string;
+  userName?: string;
+}
+
 const toInputDate = (d: Date) => d.toISOString().slice(0, 10);
 
 export default function Admin() {
@@ -100,6 +112,15 @@ export default function Admin() {
     queryKey: ["/api/admin/access-sources"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/admin/access-sources");
+      return res.json();
+    },
+    enabled: !!user?.isAdmin,
+  });
+
+  const { data: allPayments = [] } = useQuery<AdminPayment[]>({
+    queryKey: ["/api/admin/payments"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/payments");
       return res.json();
     },
     enabled: !!user?.isAdmin,
@@ -595,6 +616,62 @@ export default function Admin() {
                     <p className="text-sm text-pink-600 mt-1">Годовых подписок</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Журнал оплат */}
+            <Card className="bg-white border-2 border-purple-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                  <Banknote className="h-5 w-5 text-green-500" />
+                  Журнал оплат
+                  <span className="text-sm font-normal text-purple-400 ml-2">последние 500</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {!allPayments.length ? (
+                  <p className="text-purple-400 text-center py-6">Оплат пока нет</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-purple-200">
+                          <th className="text-left py-2 px-2 text-purple-600 font-semibold">Дата</th>
+                          <th className="text-left py-2 px-2 text-purple-600 font-semibold">Пользователь</th>
+                          <th className="text-left py-2 px-2 text-purple-600 font-semibold">Тариф</th>
+                          <th className="text-right py-2 px-2 text-purple-600 font-semibold">Сумма</th>
+                          <th className="text-center py-2 px-2 text-purple-600 font-semibold">Статус</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allPayments.map((p) => (
+                          <tr key={p.id} className="border-b border-purple-100 hover:bg-purple-50 transition-colors">
+                            <td className="py-2 px-2 text-gray-500 whitespace-nowrap">
+                              {new Date(p.createdAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                            </td>
+                            <td className="py-2 px-2">
+                              <div className="text-gray-800 font-medium truncate max-w-[180px]">{p.userEmail || p.userId}</div>
+                              {p.userName && <div className="text-gray-400 text-xs">{p.userName}</div>}
+                            </td>
+                            <td className="py-2 px-2">
+                              <Badge variant="outline" className={p.planType === "yearly" ? "text-purple-700 border-purple-400" : "text-blue-700 border-blue-400"}>
+                                {p.planType === "yearly" ? "Год" : "Месяц"}
+                              </Badge>
+                            </td>
+                            <td className="py-2 px-2 text-right font-bold text-green-700">
+                              {p.status === "success" ? `${parseFloat(p.amount).toLocaleString("ru-RU")} ₽` : <span className="text-gray-400">{parseFloat(p.amount).toLocaleString("ru-RU")} ₽</span>}
+                            </td>
+                            <td className="py-2 px-2 text-center">
+                              {p.status === "success" && <Badge className="bg-green-100 text-green-700 border border-green-300 text-xs">Оплачено</Badge>}
+                              {p.status === "pending" && <Badge variant="outline" className="text-yellow-600 border-yellow-400 text-xs">Ожидание</Badge>}
+                              {p.status === "failed" && <Badge variant="destructive" className="text-xs">Ошибка</Badge>}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
