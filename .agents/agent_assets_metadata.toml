@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "IjWhdcpVMGWFWWFFvgQz2"
+uri = "file://триггерный_контент.txt"
+type = "text"
+title = "Триггерный контент — полная база знаний"
