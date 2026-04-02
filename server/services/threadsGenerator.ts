@@ -171,10 +171,95 @@ export async function generateThreadsPosts(
       throw new ParseError("AI не вернул массив постов");
     }
 
-    return parsed.posts.map((post: any, idx: number) => ({
+    const rawPosts: ThreadsPost[] = parsed.posts.map((post: any, idx: number) => ({
       format: post.format || formats[idx]?.format || `Пост ${idx + 1}`,
       time: post.time || formats[idx]?.time || "",
       text: post.text || "",
     }));
+
+    const normalized = normalizePosts(rawPosts, formats, postsCount);
+    return normalized;
   }, "ThreadsGenerator");
+}
+
+const STOP_WORDS = [
+  "Успей записаться",
+  "Осталось N мест",
+  "Трансформация",
+  "квантовый скачок",
+  "Поток изобилия",
+  "вибрации",
+  "высокие вибрации",
+  "Заработай миллион",
+  "Всё расскажу на курсе",
+  "Только для своих",
+];
+
+const MARKDOWN_PATTERNS: { pattern: RegExp; replacement: string }[] = [
+  { pattern: /\*\*(.+?)\*\*/g, replacement: "$1" },
+  { pattern: /\*(.+?)\*/g, replacement: "$1" },
+  { pattern: /__(.+?)__/g, replacement: "$1" },
+  { pattern: /_(.+?)_/g, replacement: "$1" },
+  { pattern: /#{1,6}\s?/g, replacement: "" },
+];
+
+function countEmojis(text: string): number {
+  const emojiRegex = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu;
+  return (text.match(emojiRegex) || []).length;
+}
+
+function removeMarkdown(text: string): string {
+  let result = text;
+  for (const { pattern, replacement } of MARKDOWN_PATTERNS) {
+    result = result.replace(pattern, replacement);
+  }
+  return result;
+}
+
+function limitEmojis(text: string, max: number): string {
+  const emojiRegex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+  let count = 0;
+  return text.replace(emojiRegex, (match) => {
+    count++;
+    return count <= max ? match : "";
+  });
+}
+
+function removeStopWords(text: string): string {
+  let result = text;
+  for (const word of STOP_WORDS) {
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    result = result.replace(new RegExp(escaped, "gi"), "");
+  }
+  return result;
+}
+
+function sanitizeText(text: string): string {
+  let result = removeMarkdown(text);
+  result = removeStopWords(result);
+  if (countEmojis(result) > 2) {
+    result = limitEmojis(result, 2);
+  }
+  return result.trim();
+}
+
+function normalizePosts(
+  posts: ThreadsPost[],
+  formats: { format: string; time: string }[],
+  postsCount: 3 | 5
+): ThreadsPost[] {
+  const result: ThreadsPost[] = [];
+
+  for (let i = 0; i < postsCount; i++) {
+    const expectedFormat = formats[i];
+    const raw = posts[i];
+
+    result.push({
+      format: expectedFormat.format,
+      time: expectedFormat.time,
+      text: raw?.text ? sanitizeText(raw.text) : "",
+    });
+  }
+
+  return result;
 }
