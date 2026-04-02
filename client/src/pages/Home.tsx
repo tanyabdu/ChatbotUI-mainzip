@@ -12,6 +12,7 @@ import MoneyTrainer from "@/components/MoneyTrainer";
 import CarouselEditor from "@/components/CarouselEditor";
 import ContentAlchemy from "@/components/ContentAlchemy";
 import TriggerReels from "@/components/TriggerReels";
+import ThreadsGenerator from "@/components/ThreadsGenerator";
 import { getArchetypeIdByName } from "@/lib/archetypeFonts";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -99,6 +100,8 @@ export default function Home() {
         {activeTab === "alchemy" && <ContentAlchemy />}
         
         {activeTab === "triggerReels" && <TriggerReels />}
+        
+        {activeTab === "threads" && <ThreadsGenerator />}
         </div>
       </div>
     </div>

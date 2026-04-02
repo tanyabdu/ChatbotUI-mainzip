@@ -16,6 +16,7 @@ import { sendPaymentNotification } from "./services/email";
 import { transcribeAudio } from "./services/yandexSpeechKit";
 import { generateContentPlan, generateQuestions, generatePostFromAnswers } from "./services/contentAlchemy";
 import { transformToTriggerReels } from "./services/triggerReels";
+import { generateThreadsPosts } from "./services/threadsGenerator";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -1165,6 +1166,37 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Trigger Reels transform error:", error);
       res.status(500).json({ error: "Ошибка при обработке сценария. Попробуйте ещё раз." });
+    }
+  });
+
+  // Threads Generator
+  app.post("/api/threads/generate", isAuthenticated, async (req: any, res) => {
+    try {
+      const { userInput, postsCount } = req.body;
+
+      if (!userInput || typeof userInput !== "string" || userInput.trim().length < 10) {
+        return res.status(400).json({ error: "Введите идею или тему (минимум 10 символов)" });
+      }
+
+      if (userInput.length > 5000) {
+        return res.status(400).json({ error: "Текст слишком длинный (максимум 5000 символов)" });
+      }
+
+      if (postsCount !== 3 && postsCount !== 5) {
+        return res.status(400).json({ error: "Количество постов должно быть 3 или 5" });
+      }
+
+      const userId = req.user.id;
+      const access = await storage.hasActiveAccess(userId);
+      if (!access.hasAccess) {
+        return res.status(403).json({ error: "Для использования этой функции нужна активная подписка" });
+      }
+
+      const posts = await generateThreadsPosts(userInput.trim(), postsCount as 3 | 5);
+      res.json({ posts });
+    } catch (error: any) {
+      console.error("Threads generate error:", error);
+      res.status(500).json({ error: error.message || "Ошибка при генерации постов. Попробуйте ещё раз." });
     }
   });
 
