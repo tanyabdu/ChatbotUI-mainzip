@@ -1,0 +1,85 @@
+root@cv5653817:~# pm2 status
+pm2 logs esoteric-planner --lines 50
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ esoteric-planner   │ fork     │ 76   │ online    │ 0%       │ 116.3mb  │
+│ 3  │ profile-analyzer   │ fork     │ 1897 │ online    │ 0%       │ 51.1mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+[TAILING] Tailing last 50 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 50 lines:
+0|esoteric |   },
+0|esoteric |   {
+0|esoteric |     "day": 10,
+0|esoteric |     "topic": "Кейс клиентки: трансформация ключевой проблемы (формат 'было/стало')",
+0|esoteric |     "description": "Формат: Разбор кейса клиентки. Раскрыть через вопросы: С какой запросом пришла клиентка? Какой был её главный запрос и внутреннее состояние? Какой был прорывной момент в работе? К какому конкретному результату (эмоциональному, поведенческому) она пришла? (Эксперт расскажет СВОЙ кейс)",
+0|esoteric |     "type": "Кейс"
+0|esoteric |   },
+0|esoteric |   {
+0|esoteric |     "day": 11,
+0|esoteric |     "topic": "Кейс клиентки с другим запросом: работа с иным типажом и ситуацией",
+0|esoteric |     "description": "Формат: Разбор кейса клиентки. Показать широту компетенций. Раскрыть через вопросы: Чем отличался этот запрос от предыдущего кейса? Какая была специфика работы? Какой неочевидный результат получила клиентка помимо основного? (Эксперт выберет СВОЙ контрастный кейс)",
+0|esoteric |     "type": "Кейс"
+0|esoteric |   },
+0|esoteric |   {
+0|esoteric |     "day": 12,
+0|esoteric |     "topic": 'Подборка отзывов: истории о преодолении "точки невозврата"',
+0|esoteric |     "description": "Формат: Подборка отзывов (текст/скрины). Сгруппировать отзывы по темам (работа с тревогой, отношениями, самооценкой). Раскрыть через вопросы: Что клиенты отмечают как самый ценный момент в работе? Как изменилось их восприятие проблемы? Какие слова благодарности они используют чаще всего?",
+0|esoteric |     "type": "Кейс"
+0|esoteric |   },
+0|esoteric |   {
+0|esoteric |     "day": 13,
+0|esoteric |     "topic": "Как устроена консультация: процесс, методология и ваша роль как проводника",
+0|esoteric |     "description": "Формат: Мягкая продажа. Подробно о продукте. Раскрыть через вопросы: Из каких этапов состоит ваша консультация? Как вы помогаете клиенту увидеть корень проблемы? В чём уникальность вашего подхода и поддержки? Что именно клиент получает в процессе работы?",
+0|esoteric |     "type": "Продающий"
+0|esoteric |   },
+0|esoteric |   {
+0|esoteric |     "day": 14,
+0|esoteric |     "topic": "Письмо себе прошлой: почему важно действовать сейчас, а не ждать 'идеального момента'",
+0|esoteric |     "description": "Формат: Письмо себе прошлой + жёсткий дедлайн. Раскрыть через вопросы: Что бы вы сказали себе того, кто долго откладывал решение своей проблемы? Какой самый важный шаг нужно сделать прямо сейчас? Почему следующий понедельник/месяц/год — это иллюзия? Объявите дедлайн на запись с чётким обоснованием срочности.",
+0|esoteric |     "type": "Продающий"
+0|esoteric |   }
+0|esoteric | ]
+0|esoteric | ```
+0|esoteric | [ContentAlchemy:generatePlan] Parse error (not retrying): Не удалось сгенерировать план
+0|esoteric | Generate content plan error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Hr (/var/www/magic-content/dist/index.cjs:223:8858)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1218:22726
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Database heartbeat failed: Connection terminated due to connection timeout
+0|esoteric | Database heartbeat failed: read ECONNRESET
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+
+/root/.pm2/logs/esoteric-planner-out.log last 50 lines:
+0|esoteric | формационными играми, как вырасти в доходах ","expertDraft":"Добрый день. Вам нужно больше привлекать и работать с женщинами, быть для них наставником","improvedAnswer":"Добрый день, [Имя]!\n\nСпасибо, что поделились своим вопросом. Я прекрасно понимаю, как важно для практикующего эксперта не только следовать своему призванию, но и создавать устойчивый, растущий поток доходов, который позволит вам развиваться с ещё большей лёгкостью и вдохновением.\n\nОсновываясь на вашей дате рождения (19.02.1987), могу отметить, что ваш энергетический профиль действительно обладает сильным потенциалом для наставничества и глубокой трансформационной работы. Один из ключей к росту действительно лежит в области работы с женской аудиторией — ваши врождённые качества могут создавать для них особенное пространство доверия и понимания.\n\nОднако, вопрос «как вырасти в доходах» — это всегда комплексная задача. Дать поверхностный совет в двух словах было бы несерьёзно, ведь важно совместить несколько аспектов:\n— Ваши личные нумерологические циклы и числа, активирующие денежный поток именно сейчас.\n— Стратегию упаковки ваших знаний (нумерология, игры) в такие форматы, которые будут востребованы и ценны.\n— Понимание, на каком именно сегменте женской аудитории стоит сфокусироваться для максимального результата.\n— Внутренние установки, которые могут незаметно ограничивать ваш финансовый рост, несмотря на все старания.\n\nЧтобы разобрать это детально и составить для вас персональную дорожную карту, я предлагаю провести индивидуальную консультацию. На ней мы с вами:\n— Проанализируем вашу полную нумерологическую карту с акцентом на денежные и карьерные арканы.\n— Выявим ваш уникальный «стиль» монетизации, который будет чувствоваться органично.\n— Наметим конкретные шаги на ближайшие 3-6 месяцев по упаковке услуг и выходу на новый доход.\n— Разберём, как через ваши трансформационные игры можно естественно выстроить путь клиента к более глубоким и дорогим предложениям.\n\nЕсли вам откликается такой подход, напишите мне, пожалуйста, в личные сообщения со словом «Доход», и мы согласуем удобное время для глубокой работы. Давайте превратим ваш вопрос в четкий и вдохновляющий план действий.","painType":"money","offerType":"consultation","createdAt":"2026-01-08T15:22:36.115Z"}]
+0|esoteric | 5:01:04 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 5:11:53 PM [express] GET /api/auth/user 304 in 19ms :: {"id":"6ae539ee-5946-4869-8ad9-be41e362a718","email":"polina.yarusova@gmail.com","firstName":"Polina","lastName":"Yarusova","nickname":null,"profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-09T10:34:10.885Z","subscriptionExpiresAt":"2026-03-31T23:59:59.000Z","marketingConsent":true}
+0|esoteric | 5:11:53 PM [express] GET /api/auth/consent-status 304 in 38ms :: {"consentsComplete":true,"missing":[],"granted":["marketing","offer","personal_data"]}
+0|esoteric | New database connection established
+0|esoteric | New database connection established
+0|esoteric | 5:11:53 PM [express] GET /api/auth/access 304 in 148ms :: {"hasAccess":false,"reason":"Пробный период закончился. Оформите подписку для продолжения работы."}
+0|esoteric | 5:11:53 PM [express] GET /api/archetypes/latest 304 in 164ms :: {"id":"a3447602-f471-4adc-9255-5c6bf1129b0d","userId":"6ae539ee-5946-4869-8ad9-be41e362a718","archetypeName":"Простодушный-Маг-Мудрец","archetypeDescription":"Оптимист и идеалист. Стремится к счастью, видит красоту в простых вещах. Верит в лучшее и несёт в мир доброту и позитив. С элементами маг: харизматичный, влиятельный, таинственный, трансформирующий.","answers":[0,0,0,1,2,2,0,2],"recommendations":["радость","простота","счастье","свет","гармония","трансформация"],"brandColors":["#fef3c7","#fde68a","#93c5fd"],"brandFonts":["Nunito для заголовков, Open Sans для текста"],"gender":"female","createdAt":"2026-02-13T01:30:54.614Z"}
+0|esoteric | 5:12:47 PM [express] GET /api/auth/user 304 in 16ms :: {"id":"6ae539ee-5946-4869-8ad9-be41e362a718","email":"polina.yarusova@gmail.com","firstName":"Polina","lastName":"Yarusova","nickname":null,"profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-09T10:34:10.885Z","subscriptionExpiresAt":"2026-03-31T23:59:59.000Z","marketingConsent":true}
+0|esoteric | 5:12:47 PM [express] GET /api/auth/consent-status 304 in 31ms :: {"consentsComplete":true,"missing":[],"granted":["marketing","offer","personal_data"]}
+0|esoteric | 5:12:47 PM [express] GET /api/archetypes/latest 304 in 30ms :: {"id":"a3447602-f471-4adc-9255-5c6bf1129b0d","userId":"6ae539ee-5946-4869-8ad9-be41e362a718","archetypeName":"Простодушный-Маг-Мудрец","archetypeDescription":"Оптимист и идеалист. Стремится к счастью, видит красоту в простых вещах. Верит в лучшее и несёт в мир доброту и позитив. С элементами маг: харизматичный, влиятельный, таинственный, трансформирующий.","answers":[0,0,0,1,2,2,0,2],"recommendations":["радость","простота","счастье","свет","гармония","трансформация"],"brandColors":["#fef3c7","#fde68a","#93c5fd"],"brandFonts":["Nunito для заголовков, Open Sans для текста"],"gender":"female","createdAt":"2026-02-13T01:30:54.614Z"}
+0|esoteric | New database connection established
+0|esoteric | 5:12:47 PM [express] GET /api/auth/access 304 in 134ms :: {"hasAccess":false,"reason":"Пробный период закончился. Оформите подписку для продолжения работы."}
+0|esoteric | 5:12:47 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | 5:12:53 PM [express] POST /api/auth/login 200 in 127ms :: {"message":"Вход выполнен успешно","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTRhNTcyYi1hZTk4LTQyZTMtODQ2Yy01NzE4Mjg1ZDFkOTIiLCJpYXQiOjE3NzUzMTE5NzMsImV4cCI6MTc3NzkwMzk3M30.ciI1_X7mlmnFF_4hwe-eBCF1T0nCtP6nEWH8WHnB3e8","user":{"id":"3a4a572b-ae98-42e3-846c-5718285d1d92","email":"tanya.fskate@gmail.com","firstName":"Татьяна ","lastName":"Абдулаева","isAdmin":true}}
+0|esoteric | 5:12:54 PM [express] GET /api/auth/user 200 in 17ms :: {"id":"3a4a572b-ae98-42e3-846c-5718285d1d92","email":"tanya.fskate@gmail.com","firstName":"Татьяна ","lastName":"Абдулаева","nickname":null,"profileImageUrl":null,"isAdmin":true,"subscriptionTier":"monthly","trialEndsAt":"2025-12-24T05:18:58.747Z","subscriptionExpiresAt":"2026-04-02T09:26:31.343Z","marketingConsent":true}
+0|esoteric | 5:12:54 PM [express] GET /api/auth/access 200 in 14ms :: {"hasAccess":true,"daysLeft":-1}
+0|esoteric | 5:12:54 PM [express] GET /api/auth/consent-status 200 in 44ms :: {"consentsComplete":true,"missing":[],"granted":["offer","personal_data","marketing"]}
+0|esoteric | New database connection established
+0|esoteric | 5:12:54 PM [express] GET /api/archetypes/latest 200 in 148ms :: {"id":"4e30c9e1-5340-4b02-b8fe-4f29fe8626f9","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","archetypeName":"Мудрец-Влюблённый-Простодушный","archetypeDescription":"Эксперт с хорошей интуицией. Умеет анализировать и структурировать информацию, находить решения сложных задач. Стремится к истине и глубокому пониманию. С элементами влюблённый: чувственный, эмоциональный, эстетичный, страстный.","answers":[1,0,3,3,2,3,3,2],"recommendations":["знания","анализ","система","понимание","истина","красота"],"brandColors":["#1e3a5f","#94a3b8","#f8fafc"],"brandFonts":["Merriweather для заголовков, Roboto для текста"],"gender":"female","createdAt":"2025-12-27T06:20:52.005Z"}
+0|esoteric | 5:13:44 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+
+

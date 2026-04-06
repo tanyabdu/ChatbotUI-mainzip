@@ -84,6 +84,7 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [userSearch, setUserSearch] = useState("");
+  const [usagePeriod, setUsagePeriod] = useState<"day" | "week" | "month">("week");
 
   const defaultTo = new Date();
   const defaultFrom = new Date(defaultTo.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -121,6 +122,15 @@ export default function Admin() {
     queryKey: ["/api/admin/payments"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/admin/payments");
+      return res.json();
+    },
+    enabled: !!user?.isAdmin,
+  });
+
+  const { data: usageData } = useQuery<{ stats: { section: string; label: string; count: number }[] }>({
+    queryKey: ["/api/admin/usage-stats", usagePeriod],
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/admin/usage-stats?period=${usagePeriod}`);
       return res.json();
     },
     enabled: !!user?.isAdmin,
@@ -891,6 +901,69 @@ export default function Admin() {
                     />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Использование разделов */}
+            <Card className="bg-white border-2 border-purple-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-mystic text-purple-700 flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-pink-500" />
+                  Использование разделов
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex gap-2 flex-wrap">
+                  {([
+                    { value: "day", label: "За день" },
+                    { value: "week", label: "За неделю" },
+                    { value: "month", label: "За месяц" },
+                  ] as const).map(({ value, label }) => (
+                    <Button
+                      key={value}
+                      size="sm"
+                      variant={usagePeriod === value ? "default" : "outline"}
+                      className={usagePeriod === value
+                        ? "bg-purple-500 text-white hover:bg-purple-600"
+                        : "border-purple-200 text-purple-600 hover:bg-purple-50"
+                      }
+                      onClick={() => setUsagePeriod(value)}
+                    >
+                      {label}
+                    </Button>
+                  ))}
+                </div>
+                {!usageData?.stats || usageData.stats.length === 0 ? (
+                  <p className="text-sm text-purple-400 text-center py-4">
+                    Нет данных за выбранный период
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {(() => {
+                      const maxCount = Math.max(...usageData.stats.map(s => s.count), 1);
+                      return usageData.stats.map((item, idx) => {
+                        const pct = Math.round((item.count / maxCount) * 100);
+                        return (
+                          <div key={item.section} className="space-y-1">
+                            <div className="flex justify-between items-center text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="text-purple-400 font-mono text-xs w-5 text-right">{idx + 1}</span>
+                                <span className="text-purple-700 font-medium">{item.label}</span>
+                              </div>
+                              <span className="font-bold text-purple-700 tabular-nums">{item.count}</span>
+                            </div>
+                            <div className="w-full bg-purple-100 rounded-full h-2">
+                              <div
+                                className="bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full transition-all"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

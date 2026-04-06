@@ -332,6 +332,16 @@ export const insertGrimoireTopicSchema = createInsertSchema(grimoireTopics, {
 export type InsertGrimoireTopic = typeof grimoireTopics.$inferInsert;
 export type GrimoireTopic = typeof grimoireTopics.$inferSelect;
 
+export const usageEvents = esotericSchema.table("usage_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  section: varchar("section").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type UsageEvent = typeof usageEvents.$inferSelect;
+export type InsertUsageEvent = typeof usageEvents.$inferInsert;
+
 export const consentLogs = esotericSchema.table("consent_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),

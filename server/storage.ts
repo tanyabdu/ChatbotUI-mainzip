@@ -15,10 +15,10 @@ import {
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
   salesTrainerSamples, salesTrainerSessions, passwordResetTokens,
   promocodes, promocodeUsages, payments, contentAlchemyPlans, grimoireTopics,
-  consentLogs
+  consentLogs, usageEvents
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, ilike, or, and, isNull, gt, sql } from "drizzle-orm";
+import { eq, desc, ilike, or, and, isNull, gt, gte, sql, count } from "drizzle-orm";
 
 export interface IStorage {
   // Users (for Replit Auth)
@@ -122,6 +122,10 @@ export interface IStorage {
   getGrimoireTopics(userId: string): Promise<GrimoireTopic[]>;
   getGrimoireTopic(id: string, userId: string): Promise<GrimoireTopic | undefined>;
   createGrimoireTopic(topic: InsertGrimoireTopic): Promise<GrimoireTopic>;
+
+  // Usage Events
+  logUsageEvent(userId: string, section: string): Promise<void>;
+  getUsageStats(period: "day" | "week" | "month"): Promise<{ section: string; label: string; count: number }[]>;
   updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined>;
   deleteGrimoireTopic(id: string, userId: string): Promise<void>;
 }
@@ -917,6 +921,46 @@ export class DatabaseStorage implements IStorage {
 
   async getConsentLogs(userId: string): Promise<ConsentLog[]> {
     return db.select().from(consentLogs).where(eq(consentLogs.userId, userId)).orderBy(desc(consentLogs.createdAt));
+  }
+
+  async logUsageEvent(userId: string, section: string): Promise<void> {
+    await db.insert(usageEvents).values({ userId, section });
+  }
+
+  async getUsageStats(period: "day" | "week" | "month"): Promise<{ section: string; label: string; count: number }[]> {
+    const now = new Date();
+    let since: Date;
+    if (period === "day") {
+      since = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    } else if (period === "week") {
+      since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else {
+      since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    const SECTION_LABELS: Record<string, string> = {
+      generator: "Генератор контента",
+      alchemy: "Алхимия контента",
+      triggerReels: "Триггерные Reels",
+      threads: "Треды",
+      voice: "Голос потока",
+      cases: "Кейсы",
+      trainer: "Денежный тренажёр",
+      archetype: "Архетип стратегии",
+    };
+
+    const rows = await db
+      .select({ section: usageEvents.section, cnt: count() })
+      .from(usageEvents)
+      .where(gte(usageEvents.createdAt, since))
+      .groupBy(usageEvents.section)
+      .orderBy(desc(count()));
+
+    return rows.map(r => ({
+      section: r.section,
+      label: SECTION_LABELS[r.section] ?? r.section,
+      count: Number(r.cnt),
+    }));
   }
 }
 

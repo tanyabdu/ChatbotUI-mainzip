@@ -181,6 +181,7 @@ export async function registerRoutes(
       // Increment daily generation count
       await storage.incrementDailyGeneration(userId);
       
+      storage.logUsageEvent(userId, "generator").catch(() => {});
       res.json({ ideas, context: { goal, niche, product, archetype, gender } });
     } catch (error) {
       console.error("Ideas generation error:", error);
@@ -360,6 +361,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: parsed.error.message });
       }
       const result = await storage.createArchetypeResult(parsed.data as InsertArchetypeResult);
+      storage.logUsageEvent(userId, "archetype").catch(() => {});
       res.status(201).json(result);
     } catch (error) {
       res.status(500).json({ error: "Failed to save archetype result" });
@@ -435,7 +437,7 @@ export async function registerRoutes(
       const post = await generatePostFromTranscript(transcript);
       
       await storage.incrementDailyGeneration(userId);
-      
+      storage.logUsageEvent(userId, "voice").catch(() => {});
       res.json({ post });
     } catch (error: any) {
       console.error("Voice post generation error:", error);
@@ -509,7 +511,9 @@ export async function registerRoutes(
         after: after || "",
         tags: tags || []
       });
-      
+
+      const _caseUserId = req.user?.id;
+      if (_caseUserId) storage.logUsageEvent(_caseUserId, "cases").catch(() => {});
       res.json(generated);
     } catch (error: any) {
       console.error("Case generation error:", error);
@@ -715,7 +719,7 @@ export async function registerRoutes(
 
       // Increment daily generation count
       await storage.incrementDailyGeneration(userId);
-
+      storage.logUsageEvent(userId, "trainer").catch(() => {});
       res.json({ improvedAnswer, sessionId: session.id });
     } catch (error: any) {
       console.error("Trainer generation error:", error);
@@ -1012,6 +1016,7 @@ export async function registerRoutes(
       } : undefined;
 
       const topics = await generateContentPlan(daysCount, warmupTarget, archetype);
+      storage.logUsageEvent(userId, "alchemy").catch(() => {});
       res.json({ topics });
     } catch (error: any) {
       console.error("Generate content plan error:", error);
@@ -1162,6 +1167,7 @@ export async function registerRoutes(
       }
 
       const result = await transformToTriggerReels(script.trim());
+      storage.logUsageEvent(userId, "triggerReels").catch(() => {});
       res.json(result);
     } catch (error: any) {
       console.error("Trigger Reels transform error:", error);
@@ -1193,10 +1199,26 @@ export async function registerRoutes(
       }
 
       const posts = await generateThreadsPosts(userInput.trim(), postsCount as 3 | 5);
+      storage.logUsageEvent(userId, "threads").catch(() => {});
       res.json({ posts });
     } catch (error: any) {
       console.error("Threads generate error:", error);
       res.status(500).json({ error: error.message || "Ошибка при генерации постов. Попробуйте ещё раз." });
+    }
+  });
+
+  // Admin - Usage Stats
+  app.get("/api/admin/usage-stats", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const period = (req.query.period as string) || "week";
+      if (!["day", "week", "month"].includes(period)) {
+        return res.status(400).json({ error: "period must be day, week, or month" });
+      }
+      const stats = await storage.getUsageStats(period as "day" | "week" | "month");
+      res.json({ stats });
+    } catch (error) {
+      console.error("Usage stats error:", error);
+      res.status(500).json({ error: "Failed to fetch usage stats" });
     }
   });
 
