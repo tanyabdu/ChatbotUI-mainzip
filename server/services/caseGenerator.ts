@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { getDeepseekClient } from "./deepseekClient";
 
 const SYSTEM_PROMPT = `Ты — копирайтер и маркетолог для экспертов и специалистов.
 Твоя задача — превратить отзыв клиента в продающий кейс для социальных сетей.
@@ -66,15 +66,7 @@ interface GeneratedCase {
 }
 
 export async function generateCase(params: GenerateCaseParams): Promise<GeneratedCase> {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) {
-    throw new Error("DEEPSEEK_API_KEY не настроен");
-  }
-
-  const client = new OpenAI({
-    apiKey: apiKey,
-    baseURL: "https://api.deepseek.com",
-  });
+  const client = getDeepseekClient();
 
   const userPrompt = `Создай продающий кейс на основе этих данных:
 

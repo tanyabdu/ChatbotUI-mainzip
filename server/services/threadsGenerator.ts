@@ -1,10 +1,7 @@
-import OpenAI from "openai";
 import { withRetry, extractContent, ParseError } from "./deepseekRetry";
+import { getDeepseekClient } from "./deepseekClient";
 
-const deepseek = new OpenAI({
-  baseURL: "https://api.deepseek.com",
-  apiKey: process.env.DEEPSEEK_API_KEY,
-});
+const deepseek = getDeepseekClient();
 
 const SYSTEM_PROMPT = `Ты — эксперт по стратегии контента для Threads. Твоя специализация — создавать посты для эзотериков, нумерологов, таро-практиков, астрологов и других духовных экспертов.
 

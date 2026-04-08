@@ -1,5 +1,5 @@
-import OpenAI from "openai";
 import { withRetry, extractContent } from "./deepseekRetry";
+import { getDeepseekClient } from "./deepseekClient";
 
 const SYSTEM_PROMPT = `Ты — копирайтер для эзотерических экспертов (тарологов, астрологов, нумерологов).
 Твоя задача — превратить устную речь эксперта в красивый, структурированный пост для социальных сетей.
@@ -19,15 +19,7 @@ const SYSTEM_PROMPT = `Ты — копирайтер для эзотеричес
 Стиль: тёплый, вдохновляющий, экспертный.`;
 
 export async function generatePostFromTranscript(transcript: string): Promise<string> {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) {
-    throw new Error("DEEPSEEK_API_KEY не настроен");
-  }
-
-  const client = new OpenAI({
-    apiKey: apiKey,
-    baseURL: "https://api.deepseek.com",
-  });
+  const client = getDeepseekClient();
 
   const userPrompt = `Преврати эту устную речь в красивый пост для социальных сетей:
 

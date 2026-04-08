@@ -1,6 +1,6 @@
-import OpenAI from "openai";
 import type { SalesTrainerSample } from "@shared/schema";
 import { withRetry, extractContent } from "./deepseekRetry";
+import { getDeepseekClient } from "./deepseekClient";
 
 const OFFER_LABELS: Record<string, string> = {
   consultation: "Консультация",
@@ -48,15 +48,7 @@ interface GenerateImprovedAnswerParams {
 export async function generateImprovedAnswer(
   params: GenerateImprovedAnswerParams
 ): Promise<string> {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) {
-    throw new Error("DEEPSEEK_API_KEY не настроен");
-  }
-
-  const client = new OpenAI({
-    apiKey: apiKey,
-    baseURL: "https://api.deepseek.com",
-  });
+  const client = getDeepseekClient();
 
   const fewShotExamples = params.samples.slice(0, 3).map((sample, i) => `
 --- Пример ${i + 1} ---

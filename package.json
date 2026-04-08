@@ -66,6 +66,7 @@
     "express-session": "^1.18.1",
     "framer-motion": "^11.13.1",
     "html2canvas": "^1.4.1",
+    "https-proxy-agent": "^9.0.0",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.3",
     "jszip": "^3.10.1",

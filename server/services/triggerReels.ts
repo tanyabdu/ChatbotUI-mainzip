@@ -1,10 +1,7 @@
-import OpenAI from "openai";
+import { getDeepseekClient } from "./deepseekClient";
 import { withRetry, extractContent, ParseError } from "./deepseekRetry";
 
-const deepseek = new OpenAI({
-  baseURL: "https://api.deepseek.com",
-  apiKey: process.env.DEEPSEEK_API_KEY,
-});
+const deepseek = getDeepseekClient();
 
 const SYSTEM_PROMPT = `Ты — эксперт по созданию триггерного контента для Instagram Reels. Твоя задача — взять обычный сценарий Reels и переделать его в триггерный: добавить маркетинговые триггеры, усилить хуки, сделать текст цепляющим и добавить призыв к действию.
 

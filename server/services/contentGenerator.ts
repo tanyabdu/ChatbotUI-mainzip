@@ -1,17 +1,9 @@
-import OpenAI from "openai";
 import { extractContent } from "./deepseekRetry";
 import { sendErrorNotification } from "./email";
+import { getDeepseekClient } from "./deepseekClient";
 
-let client: OpenAI | null = null;
-
-function getClient(): OpenAI {
-  if (!client) {
-    client = new OpenAI({
-      baseURL: "https://api.deepseek.com/v1",
-      apiKey: process.env.DEEPSEEK_API_KEY,
-    });
-  }
-  return client;
+function getClient() {
+  return getDeepseekClient();
 }
 
 export interface ContentGenerationInput {

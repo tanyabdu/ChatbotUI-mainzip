@@ -1,10 +1,7 @@
-import OpenAI from "openai";
 import { withRetry, extractContent, ParseError } from "./deepseekRetry";
+import { getDeepseekClient } from "./deepseekClient";
 
-const deepseek = new OpenAI({
-  baseURL: "https://api.deepseek.com",
-  apiKey: process.env.DEEPSEEK_API_KEY,
-});
+const deepseek = getDeepseekClient();
 
 export interface AlchemyTopic {
   day: number;
