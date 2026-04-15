@@ -1,0 +1,25 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 15
+[TAILING] Tailing last 15 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 15 lines:
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/magic-content/dist/index.cjs' imported from /usr/lib/node_modules/pm2/lib/ProcessContainerFork.js
+0|esoteric |     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+0|esoteric |     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+0|esoteric |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+0|esoteric |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+0|esoteric |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+0|esoteric |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+0|esoteric |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+0|esoteric |     at ModuleLoader.import (node:internal/modules/esm/loader:605:34)
+0|esoteric |     at defaultImportModuleDynamicallyForScript (node:internal/modules/esm/utils:234:31)
+0|esoteric |     at importModuleDynamicallyCallback (node:internal/modules/esm/utils:256:12) {
+0|esoteric |   code: 'ERR_MODULE_NOT_FOUND',
+0|esoteric |   url: 'file:///var/www/magic-content/dist/index.cjs'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 15 lines:
+0|esoteric | �� ощущение, ситуация, состояние? Какой был запрос на старте? Какой самый яркий инсайт или переломный момент был в процессе? Какое качественно новое 'после' — не действие, а именно ОЩУЩЕНИЕ — она получила?","type":"Кейс"},{"day":5,"topic":"Разбор ошибки: 'У меня особые обстоятельства, это не сработает'","description":"Формат: разбор ошибки. Закрыть возражение 'не сработает у меня'. Раскрыть через вопросы: С какими разными жизненными ситуациями и историями приходили клиентки? Что общего было в их запросе, несмотря на внешнюю разницу? Почему метод работает с ядром проблемы, а не с её декорациями?","type":"Возражение"},{"day":6,"topic":"Как за 21 день выстроить незыблемый внутренний стержень: принципы мини-сопровождения","description":"Формат: мягкий продающий пост о пользе продукта. Рассказать о структуре и трансформации через метафоры (закладка фундамента, пробуждение силы, обретение корней). Раскрыть через вопросы: Из каких трёх ключевых этапов состоит путь? Какой глубинный процесс запускается на каждом? Что клиентка начинает чувствовать и замечать в жизни по мере прохождения?","type":"Продающий"},{"day":7,"topic":"Письмо себе из будущего, где ты живешь из состояния внутренней опоры. И последний шанс присоединиться","description":"Формат: эмоциональное продающее письмо + дедлайн. Создать образ желаемого состояния через чувства. Раскрыть через вопросы: Какими словами ты из будущего описываешь свои сегодняшние сомнения? Что стало возможным, когда внутри поселилась тихая сила? Что ты хочешь сказать себе сегодняшней, которая ещё колеблется? Четко обозначить дату старта (12.04) и конечный срок для принятия решения.","type":"Продающий"}]}
+0|esoteric | 12:07:49 PM [express] Server initialization complete
+0|esoteric | 12:07:49 PM [express] serving on port 5000
+
+

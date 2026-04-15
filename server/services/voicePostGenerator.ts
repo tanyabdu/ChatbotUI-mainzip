@@ -1,5 +1,5 @@
 import { withRetry, extractContent } from "./deepseekRetry";
-import { getDeepseekClient } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
 
 const SYSTEM_PROMPT = `Ты — копирайтер для эзотерических экспертов (тарологов, астрологов, нумерологов).
 Твоя задача — превратить устную речь эксперта в красивый, структурированный пост для социальных сетей.
@@ -29,7 +29,7 @@ export async function generatePostFromTranscript(transcript: string): Promise<st
 
   return withRetry(async () => {
     const response = await client.chat.completions.create({
-      model: "deepseek-chat",
+      model: AI_MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt }

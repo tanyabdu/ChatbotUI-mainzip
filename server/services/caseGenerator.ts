@@ -1,4 +1,4 @@
-import { getDeepseekClient } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
 
 const SYSTEM_PROMPT = `Ты — копирайтер и маркетолог для экспертов и специалистов.
 Твоя задача — превратить отзыв клиента в продающий кейс для социальных сетей.
@@ -83,7 +83,7 @@ ${params.reviewText}
 
   try {
     const response = await client.chat.completions.create({
-      model: "deepseek-chat",
+      model: AI_MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt }

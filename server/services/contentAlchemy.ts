@@ -1,5 +1,5 @@
 import { withRetry, extractContent, ParseError } from "./deepseekRetry";
-import { getDeepseekClient } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
 
 const deepseek = getDeepseekClient();
 
@@ -186,7 +186,7 @@ ${archetypeInstruction}
 
   return withRetry(async () => {
     const response = await deepseek.chat.completions.create({
-      model: "deepseek-chat",
+      model: AI_MODEL,
       messages: [{ role: "user", content: prompt }],
       temperature: 0.85,
       max_tokens: 8000,
@@ -241,7 +241,7 @@ ${description ? `Описание: ${description}` : ""}
 
   return withRetry(async () => {
     const response = await deepseek.chat.completions.create({
-      model: "deepseek-chat",
+      model: AI_MODEL,
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       max_tokens: 1000,
@@ -292,7 +292,7 @@ ${answersText}
 
   return withRetry(async () => {
     const response = await deepseek.chat.completions.create({
-      model: "deepseek-chat",
+      model: AI_MODEL,
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       max_tokens: 2000,

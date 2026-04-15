@@ -1,6 +1,6 @@
 import { extractContent } from "./deepseekRetry";
 import { sendErrorNotification } from "./email";
-import { getDeepseekClient } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
 
 function getClient() {
   return getDeepseekClient();
@@ -604,7 +604,7 @@ ${writingStyleRules}
     const startTime = Date.now();
     
     const response = await getClient().chat.completions.create({
-      model: "deepseek-chat",
+      model: AI_MODEL,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
@@ -892,7 +892,7 @@ ${warmupStructure}
       const startTime = Date.now();
       
       const response = await getClient().chat.completions.create({
-        model: "deepseek-chat",
+        model: AI_MODEL,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -1103,7 +1103,7 @@ ${callToAction}
       const startTime = Date.now();
       
       const response = await getClient().chat.completions.create({
-        model: "deepseek-chat",
+        model: AI_MODEL,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },

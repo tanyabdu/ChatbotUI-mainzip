@@ -1,0 +1,160 @@
+root@cv5653817:/var/www/magic-content# Connection to 91.229.8.194 closed by remote host.
+Connection to 91.229.8.194 closed.
+tatanaabdulaeva@MacBook-Air-Tatana ~ % ssh root@91.229.8.194
+
+root@91.229.8.194's password: 
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-85-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Apr  8 10:30:17 AM MSK 2026
+
+  System load:  0.12              Processes:             165
+  Usage of /:   8.4% of 78.68GB   Users logged in:       0
+  Memory usage: 58%               IPv4 address for ens3: 192.168.0.27
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance for Applications is not enabled.
+
+162 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+13 additional security updates can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+*** System restart required ***
+Last login: Wed Apr  8 10:27:11 2026 from 103.147.170.192
+root@cv5653817:~# cd /var/www/magic-content
+root@cv5653817:/var/www/magic-content# curl -s https://api.deepseek.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $(pm2 env 0 | grep DEEPSEEK_API_KEY | awk -F'"' '{print $4}')" \
+  -d '{"model":"deepseek-chat","messages":[{"role":"user","content":"Hi"}],"max_tokens":5}'
+Authentication Fails (auth header format should be Bearer sk-...)root@cv5653817:/var/www/magic-content# pm2 env 0 | grep DEEPSEEK
+DEEPSEEK_API_KEY: sk-3d2c5ab69cb44032862277c8bb02824f
+root@cv5653817:/var/www/magic-content# Connection to 91.229.8.194 closed by remote host.
+Connection to 91.229.8.194 closed.
+tatanaabdulaeva@MacBook-Air-Tatana ~ % ssh root@91.229.8.194
+root@91.229.8.194's password: 
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-85-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Apr  8 10:32:02 AM MSK 2026
+
+  System load:  0.08              Processes:             168
+  Usage of /:   8.4% of 78.68GB   Users logged in:       0
+  Memory usage: 58%               IPv4 address for ens3: 192.168.0.27
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance for Applications is not enabled.
+
+162 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+13 additional security updates can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+*** System restart required ***
+Last login: Wed Apr  8 10:30:17 2026 from 103.147.170.192
+root@cv5653817:~# cd /var/www/magic-content
+root@cv5653817:/var/www/magic-content# KEY=$(pm2 env 0 | grep DEEPSEEK_API_KEY | awk '{print $2}') && curl -s https://api.deepseek.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $KEY" \
+  -d '{"model":"deepseek-chat","messages":[{"role":"user","content":"Hi"}],"max_tokens":5}'
+^C
+root@cv5653817:/var/www/magic-content# Connection to 91.229.8.194 closed by remote host.
+Connection to 91.229.8.194 closed.
+tatanaabdulaeva@MacBook-Air-Tatana ~ % ssh root@91.229.8.194
+root@91.229.8.194's password: 
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-85-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Apr  8 10:34:03 AM MSK 2026
+
+  System load:  0.01              Processes:             162
+  Usage of /:   8.4% of 78.68GB   Users logged in:       0
+  Memory usage: 58%               IPv4 address for ens3: 192.168.0.27
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance for Applications is not enabled.
+
+162 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+13 additional security updates can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+*** System restart required ***
+Last login: Wed Apr  8 10:32:03 2026 from 103.147.170.192
+root@cv5653817:~# cd /var/www/magic-content
+root@cv5653817:/var/www/magic-content# cat /var/www/magic-content/ecosystem.config.js
+cat: /var/www/magic-content/ecosystem.config.js: No such file or directory
+root@cv5653817:/var/www/magic-content# nano /var/www/magic-content/ecosystem.config.js
+
+
+
+
+
+
+
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v5.4.20 building for production...
+transforming (1) index.htmlBrowserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 1812 modules transformed.
+../dist/public/index.html                   1.64 kB │ gzip:   0.80 kB
+../dist/public/assets/index-BT__XLs-.css  120.50 kB │ gzip:  18.19 kB
+../dist/public/assets/ui-DKupQhe4.js       66.75 kB │ gzip:  23.71 kB
+../dist/public/assets/vendor--0RGCJ5T.js  141.41 kB │ gzip:  45.48 kB
+../dist/public/assets/index-Cl5jpYyJ.js   633.60 kB │ gzip: 186.99 kB
+✓ built in 4.51s
+building server...
+
+  dist/index.cjs  1.7mb ⚠️
+
+⚡ Done in 129ms
+[PM2] Applying action restartProcessId on app [esoteric-planner](ids: [ 0 ])
+[PM2] [esoteric-planner](0) ✓
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ esoteric-planner   │ fork     │ 82   │ online    │ 0%       │ 18.3mb   │
+root@cv5653817:/var/www/magic-content# cd /var/www/profile-analyzer
+root@cv5653817:/var/www/magic-content# cd /var/www/profile-analyzer
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+root@cv5653817:/var/www/magic-content# cd /var/www/profile-analyzer
+
+root@cv5653817:/var/www/magic-content# cd /var/www/profile-analyzer

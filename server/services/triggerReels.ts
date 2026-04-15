@@ -1,4 +1,4 @@
-import { getDeepseekClient } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
 import { withRetry, extractContent, ParseError } from "./deepseekRetry";
 
 const deepseek = getDeepseekClient();
@@ -157,7 +157,7 @@ export async function transformToTriggerReels(originalScript: string): Promise<{
 }> {
   return withRetry(async () => {
     const response = await deepseek.chat.completions.create({
-      model: "deepseek-chat",
+      model: AI_MODEL,
       messages: [
         {
           role: "system",

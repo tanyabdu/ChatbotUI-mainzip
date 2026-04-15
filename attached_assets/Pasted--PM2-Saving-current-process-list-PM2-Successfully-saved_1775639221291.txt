@@ -1,0 +1,20 @@
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 10
+[TAILING] Tailing last 10 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-out.log last 10 lines:
+0|esoteric | а внешнюю разницу? Почему метод работает с ядром проблемы, а не с её декорациями?","type":"Возражение"},{"day":6,"topic":"Как за 21 день выстроить незыблемый внутренний стержень: принципы мини-сопровождения","description":"Формат: мягкий продающий пост о пользе продукта. Рассказать о структуре и трансформации через метафоры (закладка фундамента, пробуждение силы, обретение корней). Раскрыть через вопросы: Из каких трёх ключевых этапов состоит путь? Какой глубинный процесс запускается на каждом? Что клиентка начинает чувствовать и замечать в жизни по мере прохождения?","type":"Продающий"},{"day":7,"topic":"Письмо себе из будущего, где ты живешь из состояния внутренней опоры. И последний шанс присоединиться","description":"Формат: эмоциональное продающее письмо + дедлайн. Создать образ желаемого состояния через чувства. Раскрыть через вопросы: Какими словами ты из будущего описываешь свои сегодняшние сомнения? Что стало возможным, когда внутри поселилась тихая сила? Что ты хочешь сказать себе сегодняшней, которая ещё колеблется? Четко обозначить дату старта (12.04) и конечный срок для принятия решения.","type":"Продающий"}]}
+
+/root/.pm2/logs/esoteric-planner-error.log last 10 lines:
+0|esoteric |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+0|esoteric |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+0|esoteric |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+0|esoteric |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+0|esoteric |     at ModuleLoader.import (node:internal/modules/esm/loader:605:34)
+0|esoteric |     at defaultImportModuleDynamicallyForScript (node:internal/modules/esm/utils:234:31)
+0|esoteric |     at importModuleDynamicallyCallback (node:internal/modules/esm/utils:256:12) {
+0|esoteric |   code: 'ERR_MODULE_NOT_FOUND',
+0|esoteric |   url: 'file:///var/www/magic-content/dist/index.cjs'
+0|esoteric | }
+
+

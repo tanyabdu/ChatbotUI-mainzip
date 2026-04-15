@@ -1,5 +1,5 @@
 import { withRetry, extractContent, ParseError } from "./deepseekRetry";
-import { getDeepseekClient } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
 
 const deepseek = getDeepseekClient();
 
@@ -130,7 +130,7 @@ export async function generateThreadsPosts(
   return withRetry(async () => {
     const response = await deepseek.chat.completions.create(
       {
-        model: "deepseek-chat",
+        model: AI_MODEL,
         messages: [
           {
             role: "system",

@@ -1,6 +1,6 @@
 import type { SalesTrainerSample } from "@shared/schema";
 import { withRetry, extractContent } from "./deepseekRetry";
-import { getDeepseekClient } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
 
 const OFFER_LABELS: Record<string, string> = {
   consultation: "Консультация",
@@ -70,7 +70,7 @@ ${params.offerType ? `Желаемое предложение: ${getOfferLabel(p
 
   return withRetry(async () => {
     const response = await client.chat.completions.create({
-      model: "deepseek-chat",
+      model: AI_MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt }
