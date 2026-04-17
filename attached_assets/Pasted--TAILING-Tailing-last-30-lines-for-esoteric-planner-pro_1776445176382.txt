@@ -1,0 +1,33 @@
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric | {
+0|esoteric |   "c"... is not valid JSON
+0|esoteric | All stories retry attempts failed
+0|esoteric | Format generation error: Error: Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.
+0|esoteric |     at $E (/var/www/magic-content/dist/index.cjs:824:1482)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1229:4212
+0|esoteric | post JSON parse error: Unexpected token '`', "```
+0|esoteric | {
+0|esoteric |     "... is not valid JSON
+0|esoteric | Response content: ```
+0|esoteric | {
+0|esoteric |     "content": "Когда я впервые столкнулась с кризисом в отношениях, я была в полном отчаянии. Казалось, что все мои знания о любви и гармонии рухнули в один момент.\n\nЯ перепробовала всё: от разговоров по душам до попыток изменить себя ради партнёра. Но ничего не помогало. Отношения становил
+0|esoteric | post generation error (attempt 1): JSON parse failed: Unexpected token '`', "```
+0|esoteric | {
+0|esoteric |     "... is not valid JSON
+0|esoteric | post JSON parse error: Unexpected token '`', "```
+0|esoteric | {
+0|esoteric |   "c"... is not valid JSON
+0|esoteric | Response content: ```
+0|esoteric | {
+0|esoteric |   "content": "Иногда кажется, что наши отношения зашли в тупик, и мы не знаем, как вернуть гармонию и понимание. Я сама пережила моменты, когда казалось, что всё рушится...\n\nВ один из таких сложных периодов я решила проанализировать свои отношения. Я задавала себе вопросы: что нас связывает?
+0|esoteric | post generation error (attempt 2): JSON parse failed: Unexpected token '`', "```
+0|esoteric | {
+0|esoteric |   "c"... is not valid JSON
+0|esoteric | All post retry attempts failed
+0|esoteric | Format generation error: Error: Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.
+0|esoteric |     at $E (/var/www/magic-content/dist/index.cjs:824:1482)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1229:4212
+
