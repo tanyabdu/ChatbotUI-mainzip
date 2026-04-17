@@ -44,9 +44,15 @@ export async function withRetry<T>(
   throw new Error(USER_FRIENDLY_ERROR);
 }
 
+function stripCodeFences(text: string): string {
+  return text.replace(/^```(?:json|javascript|js)?\s*/i, "").replace(/\s*```$/, "").trim();
+}
+
 export function extractContent(response: any): string | null {
   if (!response?.choices || !Array.isArray(response.choices) || response.choices.length === 0) {
     return null;
   }
-  return response.choices[0]?.message?.content || null;
+  const content = response.choices[0]?.message?.content || null;
+  if (!content) return null;
+  return stripCodeFences(content);
 }
