@@ -1019,6 +1019,7 @@ function NewsletterTab() {
     try {
       const params = new URLSearchParams({ segment, marketingOnly: String(marketingOnly) });
       const res = await fetch(`/api/admin/newsletter/count?${params}`, { credentials: "include" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setRecipientCount(data.count);
     } catch {

@@ -988,7 +988,9 @@ export class DatabaseStorage implements IStorage {
         conditions.push(eq(users.subscriptionTier, "yearly"));
         break;
       case "free":
-        conditions.push(eq(users.subscriptionTier, "free"));
+        conditions.push(
+          or(eq(users.subscriptionTier, "free"), isNull(users.subscriptionTier))
+        );
         break;
       case "active":
         conditions.push(gte(users.lastLoginAt, thirtyDaysAgo));
