@@ -1028,9 +1028,25 @@ export class DatabaseStorage implements IStorage {
     return rows;
   }
 
-  async saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<NewsletterLog> {
-    const [log] = await db.insert(newsletterLogs).values(data).returning();
-    return log;
+  async saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<string> {
+    const [row] = await db.insert(newsletterLogs).values(data).returning({ id: newsletterLogs.id });
+    return row.id;
+  }
+
+  async updateNewsletterLog(id: string, data: { sent: number; failed: number; total: number }): Promise<void> {
+    await db.update(newsletterLogs).set(data).where(eq(newsletterLogs.id, id));
+  }
+
+  async incrementNewsletterEngagement(logId: string, type: "open" | "click"): Promise<void> {
+    if (type === "open") {
+      await db.update(newsletterLogs)
+        .set({ opens: sql`${newsletterLogs.opens} + 1` })
+        .where(eq(newsletterLogs.id, logId));
+    } else {
+      await db.update(newsletterLogs)
+        .set({ clicks: sql`${newsletterLogs.clicks} + 1` })
+        .where(eq(newsletterLogs.id, logId));
+    }
   }
 
   async getNewsletterLogs(): Promise<NewsletterLog[]> {

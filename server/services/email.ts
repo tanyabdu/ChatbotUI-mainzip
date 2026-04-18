@@ -40,6 +40,7 @@ interface EmailParams {
   toName?: string;
   subject: string;
   html: string;
+  idempotencyKey?: string;
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
@@ -53,7 +54,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     return false;
   }
 
-  const idempotencyKey = crypto.randomUUID();
+  const idempotencyKey = params.idempotencyKey ?? crypto.randomUUID();
 
   const payload = {
     idempotencyKey,

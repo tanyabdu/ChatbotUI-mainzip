@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import crypto from "crypto";
 import multer from "multer";
 import { storage } from "./storage";
 import { 
@@ -857,6 +858,19 @@ export async function registerRoutes(
       }
       const baseUrl = process.env.APP_URL || `https://${req.hostname}`;
       const recipients = await storage.getNewsletterRecipients(segmentsArr, marketingOnly);
+      const total = recipients.length;
+
+      // Create the log entry first so we can embed its ID in the idempotency key
+      // for Rusender webhook correlation (open/click tracking)
+      const logId = await storage.saveNewsletterLog({
+        subject,
+        segment: segmentsArr.join(","),
+        marketingOnly: !!marketingOnly,
+        sent: 0,
+        failed: 0,
+        total,
+      });
+
       let sent = 0;
       let failed = 0;
       const recipientResults: { email: string; firstName: string | null; status: "sent" | "failed" }[] = [];
@@ -864,16 +878,18 @@ export async function registerRoutes(
         const token = generateUnsubscribeToken(r.email);
         const unsubscribeUrl = `${baseUrl}/api/unsubscribe?token=${token}&email=${encodeURIComponent(r.email)}`;
         const htmlWithFooter = appendUnsubscribeFooter(html, unsubscribeUrl);
-        const ok = await sendEmail({ to: r.email, toName: r.firstName || undefined, subject, html: htmlWithFooter });
+        // Structured idempotencyKey: "{logId}:{randomUUID}" so webhook events can be
+        // correlated back to the newsletter log entry.
+        const idempotencyKey = `${logId}:${crypto.randomUUID()}`;
+        const ok = await sendEmail({ to: r.email, toName: r.firstName || undefined, subject, html: htmlWithFooter, idempotencyKey });
         if (ok) sent++; else failed++;
         recipientResults.push({ email: r.email, firstName: r.firstName, status: ok ? "sent" : "failed" });
         // small delay to avoid rate limiting
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      const total = recipients.length;
-      console.log(`[Newsletter] Sent: ${sent}, Failed: ${failed}, Total: ${total}`);
-      const log = await storage.saveNewsletterLog({ subject, segment: segmentsArr.join(","), marketingOnly: !!marketingOnly, sent, failed, total });
-      await storage.saveNewsletterRecipients(log.id, recipientResults);
+      console.log(`[Newsletter] logId=${logId} Sent: ${sent}, Failed: ${failed}, Total: ${total}`);
+      await storage.updateNewsletterLog(logId, { sent, failed, total });
+      await storage.saveNewsletterRecipients(logId, recipientResults);
       res.json({ sent, failed, total });
     } catch (error: any) {
       console.error("Newsletter send error:", error);
@@ -889,6 +905,43 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Newsletter history error:", error);
       res.status(500).json({ error: "Ошибка при загрузке истории рассылок" });
+    }
+  });
+
+  // Rusender webhook — receives open/click events for newsletter tracking
+  // Rusender sends a POST with JSON payload containing the event type and idempotencyKey.
+  // Our idempotencyKey format is "{logId}:{uuid}", which lets us identify which newsletter
+  // the event belongs to and increment its open/click counter.
+  // Configure this URL in the Rusender dashboard: POST /api/webhooks/rusender
+  app.post("/api/webhooks/rusender", async (req: any, res) => {
+    try {
+      const body = req.body as Record<string, unknown>;
+      // Rusender webhook payload shape (based on their API docs):
+      // { event: "open" | "click", idempotencyKey: string, email?: string, ... }
+      const event = typeof body.event === "string" ? body.event.toLowerCase() : null;
+      const idempotencyKey = typeof body.idempotencyKey === "string" ? body.idempotencyKey : null;
+
+      if (!event || !idempotencyKey) {
+        return res.status(400).json({ error: "Missing event or idempotencyKey" });
+      }
+
+      if (event !== "open" && event !== "click") {
+        // Unrecognised event type — acknowledge and ignore
+        return res.json({ ok: true });
+      }
+
+      // Extract the newsletter log ID from the structured key: "{logId}:{uuid}"
+      const logId = idempotencyKey.split(":")[0];
+      if (!logId) {
+        return res.status(400).json({ error: "Cannot parse logId from idempotencyKey" });
+      }
+
+      await storage.incrementNewsletterEngagement(logId, event as "open" | "click");
+      console.log(`[Newsletter Webhook] event=${event} logId=${logId}`);
+      res.json({ ok: true });
+    } catch (error: any) {
+      console.error("[Newsletter Webhook] Error:", error);
+      res.status(500).json({ error: "Internal error" });
     }
   });
 

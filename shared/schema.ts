@@ -364,6 +364,8 @@ export const newsletterLogs = esotericSchema.table("newsletter_logs", {
   sent: integer("sent").notNull().default(0),
   failed: integer("failed").notNull().default(0),
   total: integer("total").notNull().default(0),
+  opens: integer("opens").notNull().default(0),
+  clicks: integer("clicks").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

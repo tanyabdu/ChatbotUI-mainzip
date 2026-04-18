@@ -1034,7 +1034,7 @@ function NewsletterTab() {
 
   const { data: history = [], isLoading: historyLoading, isError: historyError } = useQuery<{
     id: string; subject: string; segment: string; marketingOnly: boolean;
-    sent: number; failed: number; total: number; createdAt: string;
+    sent: number; failed: number; total: number; opens: number; clicks: number; createdAt: string;
   }[]>({
     queryKey: ["/api/admin/newsletter/history"],
     queryFn: async () => {
@@ -1249,11 +1249,15 @@ function NewsletterTab() {
                     <th className="text-left py-2 pr-4 text-purple-500 font-semibold">Сегмент</th>
                     <th className="text-right py-2 pr-2 text-purple-500 font-semibold">Отпр.</th>
                     <th className="text-right py-2 pr-2 text-purple-500 font-semibold">Ошибок</th>
-                    <th className="text-right py-2 text-purple-500 font-semibold">Всего</th>
+                    <th className="text-right py-2 pr-2 text-purple-500 font-semibold">Откр.</th>
+                    <th className="text-right py-2 text-purple-500 font-semibold">Клики</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {history.map((log) => (
+                  {history.map((log) => {
+                    const openRate = log.sent > 0 ? Math.round((log.opens / log.sent) * 100) : 0;
+                    const clickRate = log.sent > 0 ? Math.round((log.clicks / log.sent) * 100) : 0;
+                    return (
                     <tr
                       key={log.id}
                       className="border-b border-purple-50 hover:bg-purple-50/60 cursor-pointer transition-colors"
@@ -1272,9 +1276,23 @@ function NewsletterTab() {
                       </td>
                       <td className="py-2 pr-2 text-right font-semibold text-green-600">{log.sent}</td>
                       <td className="py-2 pr-2 text-right font-semibold text-red-500">{log.failed > 0 ? log.failed : <span className="text-gray-300">—</span>}</td>
-                      <td className="py-2 text-right text-purple-600">{log.total}</td>
+                      <td className="py-2 pr-2 text-right">
+                        {log.opens > 0 ? (
+                          <span className="font-semibold text-blue-600">{log.opens} <span className="text-blue-400 font-normal text-xs">({openRate}%)</span></span>
+                        ) : (
+                          <span className="text-gray-300">—</span>
+                        )}
+                      </td>
+                      <td className="py-2 text-right">
+                        {log.clicks > 0 ? (
+                          <span className="font-semibold text-indigo-600">{log.clicks} <span className="text-indigo-400 font-normal text-xs">({clickRate}%)</span></span>
+                        ) : (
+                          <span className="text-gray-300">—</span>
+                        )}
+                      </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
