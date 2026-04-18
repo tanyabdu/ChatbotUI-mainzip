@@ -1,5 +1,32 @@
 import crypto from "crypto";
 
+const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || "esoteric-unsubscribe-secret-key";
+
+export function generateUnsubscribeToken(email: string): string {
+  return crypto.createHmac("sha256", UNSUBSCRIBE_SECRET).update(email.toLowerCase()).digest("hex");
+}
+
+export function verifyUnsubscribeToken(email: string, token: string): boolean {
+  const expected = generateUnsubscribeToken(email);
+  return crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(token, "hex"));
+}
+
+export function appendUnsubscribeFooter(html: string, unsubscribeUrl: string): string {
+  const footer = `
+    <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E5E7EB; text-align: center;">
+      <p style="color: #9CA3AF; font-size: 12px; margin: 0;">
+        Вы получили это письмо, так как подписались на рассылку.<br/>
+        <a href="${unsubscribeUrl}" style="color: #9CA3AF; text-decoration: underline;">Отписаться от рассылки</a>
+      </p>
+    </div>
+  `;
+  const closingBody = html.lastIndexOf("</div>");
+  if (closingBody !== -1) {
+    return html.slice(0, closingBody + 6) + footer;
+  }
+  return html + footer;
+}
+
 const RUSENDER_API_URL = "https://api.beta.rusender.ru/api/v1/external-mails/send";
 const FROM_EMAIL = process.env.RUSENDER_FROM_EMAIL || "noreply@esoteric-planner.ru";
 const FROM_NAME = "Эзотерический Планировщик";

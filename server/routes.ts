@@ -12,7 +12,7 @@ import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
 import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
 import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
-import { sendPaymentNotification, sendEmail } from "./services/email";
+import { sendPaymentNotification, sendEmail, generateUnsubscribeToken, verifyUnsubscribeToken, appendUnsubscribeFooter } from "./services/email";
 import { transcribeAudio } from "./services/yandexSpeechKit";
 import { generateContentPlan, generateQuestions, generatePostFromAnswers } from "./services/contentAlchemy";
 import { transformToTriggerReels } from "./services/triggerReels";
@@ -22,6 +22,35 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 }
 });
+
+function unsubscribeHtmlPage(type: "success" | "error", message: string): string {
+  const color = type === "success" ? "#7C3AED" : "#EF4444";
+  const icon = type === "success" ? "✅" : "❌";
+  return `<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Отписка от рассылки — Эзотерический Планировщик</title>
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; background: #F9FAFB; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .card { background: #fff; border-radius: 16px; padding: 40px 32px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h1 { color: ${color}; font-size: 22px; margin: 0 0 12px; }
+    p { color: #6B7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px; }
+    a { display: inline-block; color: #7C3AED; text-decoration: none; font-size: 14px; border-bottom: 1px solid #E9D5FF; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">${icon}</div>
+    <h1>${type === "success" ? "Отписка выполнена" : "Ошибка"}</h1>
+    <p>${message}</p>
+    <a href="/">Вернуться на сайт</a>
+  </div>
+</body>
+</html>`;
+}
 
 export async function registerRoutes(
   httpServer: Server,
@@ -826,11 +855,15 @@ export async function registerRoutes(
       if (!subject?.trim() || !html?.trim()) {
         return res.status(400).json({ error: "Укажите тему и текст письма" });
       }
+      const baseUrl = process.env.APP_URL || `https://${req.hostname}`;
       const recipients = await storage.getNewsletterRecipients(segmentsArr, marketingOnly);
       let sent = 0;
       let failed = 0;
       for (const r of recipients) {
-        const ok = await sendEmail({ to: r.email, toName: r.firstName || undefined, subject, html });
+        const token = generateUnsubscribeToken(r.email);
+        const unsubscribeUrl = `${baseUrl}/api/unsubscribe?token=${token}&email=${encodeURIComponent(r.email)}`;
+        const htmlWithFooter = appendUnsubscribeFooter(html, unsubscribeUrl);
+        const ok = await sendEmail({ to: r.email, toName: r.firstName || undefined, subject, html: htmlWithFooter });
         if (ok) sent++; else failed++;
         // small delay to avoid rate limiting
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -854,6 +887,36 @@ export async function registerRoutes(
       console.error("Newsletter history error:", error);
       res.status(500).json({ error: "Ошибка при загрузке истории рассылок" });
     }
+  });
+
+  // Unsubscribe from newsletter (no auth required — accessible via email link)
+  app.get("/api/unsubscribe", async (req: any, res) => {
+    const { token, email } = req.query as { token?: string; email?: string };
+
+    if (!token || !email) {
+      return res.status(400).send(unsubscribeHtmlPage("error", "Некорректная ссылка отписки."));
+    }
+
+    let tokenValid = false;
+    try {
+      tokenValid = verifyUnsubscribeToken(email, token);
+    } catch {
+      tokenValid = false;
+    }
+
+    if (!tokenValid) {
+      return res.status(400).send(unsubscribeHtmlPage("error", "Недействительная ссылка отписки."));
+    }
+
+    const user = await storage.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).send(unsubscribeHtmlPage("error", "Пользователь не найден."));
+    }
+
+    await storage.updateUser(user.id, { marketingConsent: false, marketingConsentAt: null });
+    console.log(`[Unsubscribe] User ${email} unsubscribed from newsletter`);
+
+    return res.send(unsubscribeHtmlPage("success", "Вы успешно отписались от рассылки."));
   });
 
   app.post("/api/promocode/verify-discount", isAuthenticated, async (req: any, res) => {

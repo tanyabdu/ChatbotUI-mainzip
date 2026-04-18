@@ -24,6 +24,7 @@ import { eq, desc, ilike, or, and, isNull, gt, gte, sql, count } from "drizzle-o
 export interface IStorage {
   // Users (for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUser(id: string, data: Partial<UpsertUser>): Promise<User | undefined>;
   
