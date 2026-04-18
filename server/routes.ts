@@ -970,6 +970,18 @@ export async function registerRoutes(
     }
 
     await storage.updateUser(user.id, { marketingConsent: false, marketingConsentAt: null });
+
+    const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || '';
+    const userAgent = req.headers['user-agent'] || '';
+    await storage.createConsentLog({
+      userId: user.id,
+      consentType: "marketing",
+      granted: false,
+      ipAddress,
+      userAgent,
+      documentVersion: "2026-02",
+    });
+
     console.log(`[Unsubscribe] User ${email} unsubscribed from newsletter`);
 
     return res.send(unsubscribeHtmlPage("success", "Вы успешно отписались от рассылки."));
