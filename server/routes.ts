@@ -795,13 +795,20 @@ export async function registerRoutes(
     }
   });
 
+  const VALID_SEGMENTS = new Set(["all","trial","monthly","yearly","free","active","inactive","new7","new30"]);
+
+  function parseSegments(raw: unknown): string[] {
+    const arr: string[] = raw
+      ? (Array.isArray(raw) ? raw as string[] : [raw as string])
+      : ["all"];
+    const filtered = arr.filter(s => VALID_SEGMENTS.has(s));
+    return filtered.length > 0 ? filtered : ["all"];
+  }
+
   // Admin: Newsletter — get recipient count by segment
   app.get("/api/admin/newsletter/count", isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
-      const raw = req.query.segments;
-      const segments: string[] = raw
-        ? (Array.isArray(raw) ? raw as string[] : [raw as string])
-        : ["all"];
+      const segments = parseSegments(req.query.segments);
       const marketingOnly = req.query.marketingOnly !== "false";
       const recipients = await storage.getNewsletterRecipients(segments, marketingOnly);
       res.json({ count: recipients.length });
@@ -815,7 +822,7 @@ export async function registerRoutes(
   app.post("/api/admin/newsletter/send", isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
       const { segments, marketingOnly = true, subject, html } = req.body;
-      const segmentsArr: string[] = Array.isArray(segments) && segments.length > 0 ? segments : ["all"];
+      const segmentsArr = parseSegments(segments);
       if (!subject?.trim() || !html?.trim()) {
         return res.status(400).json({ error: "Укажите тему и текст письма" });
       }

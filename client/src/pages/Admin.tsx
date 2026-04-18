@@ -1078,6 +1078,8 @@ function NewsletterTab() {
   }
 
   const segmentLabel = (val: string) => SEGMENTS.find(s => s.value === val)?.label ?? val;
+  const segmentChips = (raw: string) =>
+    raw.split(",").map(v => v.trim()).filter(Boolean).map(v => segmentLabel(v));
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -1240,7 +1242,9 @@ function NewsletterTab() {
                       </td>
                       <td className="py-2 pr-4 text-gray-700 max-w-[200px] truncate" title={log.subject}>{log.subject}</td>
                       <td className="py-2 pr-4">
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs">{segmentLabel(log.segment)}</span>
+                        {segmentChips(log.segment).map((chip, i) => (
+                          <span key={i} className="inline-block px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs mr-1">{chip}</span>
+                        ))}
                         {!log.marketingOnly && <span className="ml-1 inline-block px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs">все</span>}
                       </td>
                       <td className="py-2 pr-2 text-right font-semibold text-green-600">{log.sent}</td>
