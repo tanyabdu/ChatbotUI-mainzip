@@ -12,7 +12,7 @@ import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
 import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
 import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
-import { sendPaymentNotification } from "./services/email";
+import { sendPaymentNotification, sendEmail } from "./services/email";
 import { transcribeAudio } from "./services/yandexSpeechKit";
 import { generateContentPlan, generateQuestions, generatePostFromAnswers } from "./services/contentAlchemy";
 import { transformToTriggerReels } from "./services/triggerReels";
@@ -792,6 +792,43 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Get admin payments error:", error);
       res.status(500).json({ error: "Ошибка при получении платежей" });
+    }
+  });
+
+  // Admin: Newsletter — get recipient count by segment
+  app.get("/api/admin/newsletter/count", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const segment = (req.query.segment as string) || "all";
+      const marketingOnly = req.query.marketingOnly !== "false";
+      const recipients = await storage.getNewsletterRecipients(segment, marketingOnly);
+      res.json({ count: recipients.length });
+    } catch (error: any) {
+      console.error("Newsletter count error:", error);
+      res.status(500).json({ error: "Ошибка при подсчёте получателей" });
+    }
+  });
+
+  // Admin: Newsletter — send emails
+  app.post("/api/admin/newsletter/send", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { segment = "all", marketingOnly = true, subject, html } = req.body;
+      if (!subject?.trim() || !html?.trim()) {
+        return res.status(400).json({ error: "Укажите тему и текст письма" });
+      }
+      const recipients = await storage.getNewsletterRecipients(segment, marketingOnly);
+      let sent = 0;
+      let failed = 0;
+      for (const r of recipients) {
+        const ok = await sendEmail({ to: r.email, toName: r.firstName || undefined, subject, html });
+        if (ok) sent++; else failed++;
+        // small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      console.log(`[Newsletter] Sent: ${sent}, Failed: ${failed}, Total: ${recipients.length}`);
+      res.json({ sent, failed, total: recipients.length });
+    } catch (error: any) {
+      console.error("Newsletter send error:", error);
+      res.status(500).json({ error: "Ошибка при отправке рассылки" });
     }
   });
 

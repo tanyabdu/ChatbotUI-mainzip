@@ -126,6 +126,9 @@ export interface IStorage {
   // Usage Events
   logUsageEvent(userId: string, section: string): Promise<void>;
   getUsageStats(period: "day" | "week" | "month"): Promise<{ section: string; label: string; count: number }[]>;
+
+  // Newsletter
+  getNewsletterRecipients(segment: string, marketingOnly: boolean): Promise<{ email: string; firstName: string | null }[]>;
   updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined>;
   deleteGrimoireTopic(id: string, userId: string): Promise<void>;
 }
@@ -961,6 +964,55 @@ export class DatabaseStorage implements IStorage {
       label: SECTION_LABELS[r.section] ?? r.section,
       count: Number(r.cnt),
     }));
+  }
+
+  async getNewsletterRecipients(segment: string, marketingOnly: boolean): Promise<{ email: string; firstName: string | null }[]> {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const conditions: any[] = [eq(users.isAdmin, false)];
+
+    if (marketingOnly) {
+      conditions.push(eq(users.marketingConsent, true));
+    }
+
+    switch (segment) {
+      case "trial":
+        conditions.push(eq(users.subscriptionTier, "trial"));
+        break;
+      case "monthly":
+        conditions.push(eq(users.subscriptionTier, "monthly"));
+        break;
+      case "yearly":
+        conditions.push(eq(users.subscriptionTier, "yearly"));
+        break;
+      case "free":
+        conditions.push(eq(users.subscriptionTier, "free"));
+        break;
+      case "active":
+        conditions.push(gte(users.lastLoginAt, thirtyDaysAgo));
+        break;
+      case "inactive":
+        conditions.push(
+          or(isNull(users.lastLoginAt), sql`${users.lastLoginAt} < ${thirtyDaysAgo}`)
+        );
+        break;
+      case "new7":
+        conditions.push(gte(users.createdAt, sevenDaysAgo));
+        break;
+      case "new30":
+        conditions.push(gte(users.createdAt, thirtyDaysAgo));
+        break;
+      // "all" — no extra condition
+    }
+
+    const rows = await db
+      .select({ email: users.email, firstName: users.firstName })
+      .from(users)
+      .where(and(...conditions));
+
+    return rows;
   }
 }
 

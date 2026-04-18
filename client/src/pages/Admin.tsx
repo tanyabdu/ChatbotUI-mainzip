@@ -6,11 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { 
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
   Plus, Clock, Crown, Shield, ShieldOff, Trash2, CreditCard, Tag,
-  UserCheck, CalendarDays, Activity, Banknote, Gift, Search
+  UserCheck, CalendarDays, Activity, Banknote, Gift, Search, Mail, Send, RefreshCw
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import type { User } from "@shared/schema";
@@ -238,7 +246,7 @@ export default function Admin() {
 
       <main className="container mx-auto px-6 py-8">
         <Tabs defaultValue="dashboard" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex bg-purple-100 border-2 border-purple-200">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex bg-purple-100 border-2 border-purple-200">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
               <LayoutDashboard className="h-4 w-4 mr-1 md:mr-2" />
               <span className="hidden sm:inline">Дашборд</span>
@@ -254,6 +262,10 @@ export default function Admin() {
             <TabsTrigger value="analytics" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
               <BarChart3 className="h-4 w-4 mr-1 md:mr-2" />
               <span className="hidden sm:inline">Аналитика</span>
+            </TabsTrigger>
+            <TabsTrigger value="newsletter" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+              <Mail className="h-4 w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Рассылки</span>
             </TabsTrigger>
           </TabsList>
 
@@ -967,8 +979,195 @@ export default function Admin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* ── РАССЫЛКИ ── */}
+          <TabsContent value="newsletter" className="space-y-6">
+            <NewsletterTab />
+          </TabsContent>
         </Tabs>
       </main>
+    </div>
+  );
+}
+
+const SEGMENTS = [
+  { value: "all", label: "Все пользователи" },
+  { value: "trial", label: "Пробный период" },
+  { value: "monthly", label: "Месячная подписка" },
+  { value: "yearly", label: "Годовая подписка" },
+  { value: "free", label: "Без доступа (free)" },
+  { value: "active", label: "Активные (вход за 30 дней)" },
+  { value: "inactive", label: "Неактивные (нет входа 30+ дней)" },
+  { value: "new7", label: "Новые за 7 дней" },
+  { value: "new30", label: "Новые за 30 дней" },
+];
+
+function NewsletterTab() {
+  const { toast } = useToast();
+  const [segment, setSegment] = useState("all");
+  const [marketingOnly, setMarketingOnly] = useState(true);
+  const [subject, setSubject] = useState("");
+  const [html, setHtml] = useState("");
+  const [recipientCount, setRecipientCount] = useState<number | null>(null);
+  const [loadingCount, setLoadingCount] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
+
+  async function checkCount() {
+    setLoadingCount(true);
+    setRecipientCount(null);
+    try {
+      const params = new URLSearchParams({ segment, marketingOnly: String(marketingOnly) });
+      const res = await fetch(`/api/admin/newsletter/count?${params}`, { credentials: "include" });
+      const data = await res.json();
+      setRecipientCount(data.count);
+    } catch {
+      toast({ title: "Ошибка", description: "Не удалось получить количество получателей", variant: "destructive" });
+    } finally {
+      setLoadingCount(false);
+    }
+  }
+
+  async function sendNewsletter() {
+    if (!subject.trim() || !html.trim()) {
+      toast({ title: "Заполните поля", description: "Укажите тему и текст письма", variant: "destructive" });
+      return;
+    }
+    setSending(true);
+    setResult(null);
+    try {
+      const res = await apiRequest("POST", "/api/admin/newsletter/send", { segment, marketingOnly, subject, html });
+      const data = await res.json();
+      setResult(data);
+      toast({ title: "Рассылка завершена", description: `Отправлено: ${data.sent}, ошибок: ${data.failed}` });
+    } catch {
+      toast({ title: "Ошибка отправки", description: "Попробуйте ещё раз", variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="space-y-6 max-w-2xl">
+      <Card className="bg-white border-2 border-purple-200">
+        <CardHeader>
+          <CardTitle className="text-purple-700 flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            Новая рассылка
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Segment selector */}
+          <div className="space-y-2">
+            <Label className="text-purple-700 font-semibold">Сегмент получателей</Label>
+            <div className="grid grid-cols-1 gap-2">
+              {SEGMENTS.map((s) => (
+                <label key={s.value} className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${segment === s.value ? "border-purple-400 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                  <input
+                    type="radio"
+                    name="segment"
+                    value={s.value}
+                    checked={segment === s.value}
+                    onChange={() => { setSegment(s.value); setRecipientCount(null); }}
+                    className="accent-purple-500"
+                  />
+                  <span className="text-sm text-purple-700">{s.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Marketing consent filter */}
+          <div className="flex items-center gap-3 p-3 rounded-lg border-2 border-purple-100">
+            <Checkbox
+              id="marketingOnly"
+              checked={marketingOnly}
+              onCheckedChange={(v) => { setMarketingOnly(!!v); setRecipientCount(null); }}
+              className="border-purple-400 data-[state=checked]:bg-purple-500"
+            />
+            <label htmlFor="marketingOnly" className="text-sm text-purple-700 cursor-pointer">
+              Только с согласием на маркетинговые рассылки <span className="text-purple-400">(рекомендуется по закону)</span>
+            </label>
+          </div>
+
+          {/* Count check */}
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={checkCount} disabled={loadingCount} className="border-purple-300 text-purple-600 hover:bg-purple-50">
+              {loadingCount ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Users className="h-4 w-4 mr-2" />}
+              Проверить охват
+            </Button>
+            {recipientCount !== null && (
+              <span className="text-purple-700 font-semibold">
+                {recipientCount === 0 ? "Нет получателей" : `${recipientCount} получател${recipientCount === 1 ? "ь" : recipientCount < 5 ? "я" : "ей"}`}
+              </span>
+            )}
+          </div>
+
+          {/* Subject */}
+          <div className="space-y-2">
+            <Label htmlFor="subject" className="text-purple-700 font-semibold">Тема письма</Label>
+            <Input
+              id="subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Например: Новые возможности планировщика ✨"
+              className="border-purple-200 focus:border-purple-400"
+            />
+          </div>
+
+          {/* Body */}
+          <div className="space-y-2">
+            <Label htmlFor="html" className="text-purple-700 font-semibold">Текст письма (HTML)</Label>
+            <Textarea
+              id="html"
+              value={html}
+              onChange={(e) => setHtml(e.target.value)}
+              placeholder={"<p>Привет!</p>\n<p>Хотим поделиться с вами...</p>"}
+              rows={10}
+              className="border-purple-200 focus:border-purple-400 font-mono text-sm"
+            />
+            <p className="text-xs text-purple-400">Поддерживается HTML. Для простого текста просто пишите без тегов.</p>
+          </div>
+
+          {/* Send button */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90"
+                disabled={sending || !subject.trim() || !html.trim()}
+              >
+                {sending ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                {sending ? "Отправляется..." : "Отправить рассылку"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Подтвердите отправку</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {recipientCount !== null
+                    ? `Будет отправлено письмо «${subject}» для ${recipientCount} получателей.`
+                    : `Будет отправлено письмо «${subject}». Точное количество получателей неизвестно — нажмите «Проверить охват» перед отправкой.`}
+                  {" "}Это действие нельзя отменить.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Отмена</AlertDialogCancel>
+                <AlertDialogAction onClick={sendNewsletter} className="bg-purple-600 hover:bg-purple-700">
+                  Отправить
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Result */}
+          {result && (
+            <div className={`p-4 rounded-lg border-2 ${result.failed === 0 ? "border-green-200 bg-green-50" : "border-yellow-200 bg-yellow-50"}`}>
+              <p className="font-semibold text-sm mb-1">{result.failed === 0 ? "✅ Рассылка завершена успешно" : "⚠️ Рассылка завершена с ошибками"}</p>
+              <p className="text-sm text-gray-600">Отправлено: <strong>{result.sent}</strong> из <strong>{result.total}</strong>{result.failed > 0 && `, ошибок: ${result.failed}`}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
