@@ -1004,7 +1004,7 @@ const SEGMENTS = [
 
 function NewsletterTab() {
   const { toast } = useToast();
-  const [segment, setSegment] = useState("all");
+  const [segments, setSegments] = useState<string[]>(["all"]);
   const [marketingOnly, setMarketingOnly] = useState(true);
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("");
@@ -1013,6 +1013,20 @@ function NewsletterTab() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
   const queryClient = useQueryClient();
+
+  function toggleSegment(value: string) {
+    setRecipientCount(null);
+    if (value === "all") {
+      setSegments(["all"]);
+      return;
+    }
+    setSegments(prev => {
+      const without = prev.filter(s => s !== "all" && s !== value);
+      const adding = !prev.includes(value);
+      const next = adding ? [...without, value] : without;
+      return next.length === 0 ? ["all"] : next;
+    });
+  }
 
   const { data: history = [], isLoading: historyLoading, isError: historyError } = useQuery<{
     id: string; subject: string; segment: string; marketingOnly: boolean;
@@ -1030,7 +1044,8 @@ function NewsletterTab() {
     setLoadingCount(true);
     setRecipientCount(null);
     try {
-      const params = new URLSearchParams({ segment, marketingOnly: String(marketingOnly) });
+      const params = new URLSearchParams({ marketingOnly: String(marketingOnly) });
+      segments.forEach(s => params.append("segments", s));
       const res = await fetch(`/api/admin/newsletter/count?${params}`, { credentials: "include" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -1050,7 +1065,7 @@ function NewsletterTab() {
     setSending(true);
     setResult(null);
     try {
-      const res = await apiRequest("POST", "/api/admin/newsletter/send", { segment, marketingOnly, subject, html });
+      const res = await apiRequest("POST", "/api/admin/newsletter/send", { segments, marketingOnly, subject, html });
       const data = await res.json();
       setResult(data);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/newsletter/history"] });
@@ -1076,21 +1091,21 @@ function NewsletterTab() {
         <CardContent className="space-y-6">
           {/* Segment selector */}
           <div className="space-y-2">
-            <Label className="text-purple-700 font-semibold">Сегмент получателей</Label>
+            <Label className="text-purple-700 font-semibold">Сегменты получателей <span className="text-purple-400 font-normal">(можно выбрать несколько)</span></Label>
             <div className="grid grid-cols-1 gap-2">
-              {SEGMENTS.map((s) => (
-                <label key={s.value} className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${segment === s.value ? "border-purple-400 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
-                  <input
-                    type="radio"
-                    name="segment"
-                    value={s.value}
-                    checked={segment === s.value}
-                    onChange={() => { setSegment(s.value); setRecipientCount(null); }}
-                    className="accent-purple-500"
-                  />
-                  <span className="text-sm text-purple-700">{s.label}</span>
-                </label>
-              ))}
+              {SEGMENTS.map((s) => {
+                const checked = segments.includes(s.value);
+                return (
+                  <label key={s.value} className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${checked ? "border-purple-400 bg-purple-50" : "border-purple-100 hover:border-purple-300"}`}>
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={() => toggleSegment(s.value)}
+                      className="border-purple-400 data-[state=checked]:bg-purple-500"
+                    />
+                    <span className="text-sm text-purple-700">{s.label}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 

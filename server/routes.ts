@@ -798,9 +798,12 @@ export async function registerRoutes(
   // Admin: Newsletter — get recipient count by segment
   app.get("/api/admin/newsletter/count", isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
-      const segment = (req.query.segment as string) || "all";
+      const raw = req.query.segments;
+      const segments: string[] = raw
+        ? (Array.isArray(raw) ? raw as string[] : [raw as string])
+        : ["all"];
       const marketingOnly = req.query.marketingOnly !== "false";
-      const recipients = await storage.getNewsletterRecipients(segment, marketingOnly);
+      const recipients = await storage.getNewsletterRecipients(segments, marketingOnly);
       res.json({ count: recipients.length });
     } catch (error: any) {
       console.error("Newsletter count error:", error);
@@ -811,11 +814,12 @@ export async function registerRoutes(
   // Admin: Newsletter — send emails
   app.post("/api/admin/newsletter/send", isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
-      const { segment = "all", marketingOnly = true, subject, html } = req.body;
+      const { segments, marketingOnly = true, subject, html } = req.body;
+      const segmentsArr: string[] = Array.isArray(segments) && segments.length > 0 ? segments : ["all"];
       if (!subject?.trim() || !html?.trim()) {
         return res.status(400).json({ error: "Укажите тему и текст письма" });
       }
-      const recipients = await storage.getNewsletterRecipients(segment, marketingOnly);
+      const recipients = await storage.getNewsletterRecipients(segmentsArr, marketingOnly);
       let sent = 0;
       let failed = 0;
       for (const r of recipients) {
@@ -826,7 +830,7 @@ export async function registerRoutes(
       }
       const total = recipients.length;
       console.log(`[Newsletter] Sent: ${sent}, Failed: ${failed}, Total: ${total}`);
-      await storage.saveNewsletterLog({ subject, segment, marketingOnly: !!marketingOnly, sent, failed, total });
+      await storage.saveNewsletterLog({ subject, segment: segmentsArr.join(","), marketingOnly: !!marketingOnly, sent, failed, total });
       res.json({ sent, failed, total });
     } catch (error: any) {
       console.error("Newsletter send error:", error);

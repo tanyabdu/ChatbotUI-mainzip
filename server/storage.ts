@@ -129,7 +129,7 @@ export interface IStorage {
   getUsageStats(period: "day" | "week" | "month"): Promise<{ section: string; label: string; count: number }[]>;
 
   // Newsletter
-  getNewsletterRecipients(segment: string, marketingOnly: boolean): Promise<{ email: string; firstName: string | null }[]>;
+  getNewsletterRecipients(segments: string[], marketingOnly: boolean): Promise<{ email: string; firstName: string | null }[]>;
   saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<void>;
   getNewsletterLogs(): Promise<import("@shared/schema").NewsletterLog[]>;
   updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined>;
@@ -969,53 +969,57 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
-  async getNewsletterRecipients(segment: string, marketingOnly: boolean): Promise<{ email: string; firstName: string | null }[]> {
+  async getNewsletterRecipients(segments: string[], marketingOnly: boolean): Promise<{ email: string; firstName: string | null }[]> {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    const conditions: any[] = [eq(users.isAdmin, false)];
-
+    const baseConditions: any[] = [eq(users.isAdmin, false)];
     if (marketingOnly) {
-      conditions.push(eq(users.marketingConsent, true));
+      baseConditions.push(eq(users.marketingConsent, true));
     }
 
-    switch (segment) {
-      case "trial":
-        conditions.push(eq(users.subscriptionTier, "trial"));
-        break;
-      case "monthly":
-        conditions.push(eq(users.subscriptionTier, "monthly"));
-        break;
-      case "yearly":
-        conditions.push(eq(users.subscriptionTier, "yearly"));
-        break;
-      case "free":
-        conditions.push(
-          or(eq(users.subscriptionTier, "free"), isNull(users.subscriptionTier))
-        );
-        break;
-      case "active":
-        conditions.push(gte(users.lastLoginAt, thirtyDaysAgo));
-        break;
-      case "inactive":
-        conditions.push(
-          or(isNull(users.lastLoginAt), sql`${users.lastLoginAt} < ${thirtyDaysAgo}`)
-        );
-        break;
-      case "new7":
-        conditions.push(gte(users.createdAt, sevenDaysAgo));
-        break;
-      case "new30":
-        conditions.push(gte(users.createdAt, thirtyDaysAgo));
-        break;
-      // "all" — no extra condition
+    const includeAll = segments.length === 0 || segments.includes("all");
+
+    if (!includeAll) {
+      const segmentClauses: any[] = [];
+      for (const segment of segments) {
+        switch (segment) {
+          case "trial":
+            segmentClauses.push(eq(users.subscriptionTier, "trial"));
+            break;
+          case "monthly":
+            segmentClauses.push(eq(users.subscriptionTier, "monthly"));
+            break;
+          case "yearly":
+            segmentClauses.push(eq(users.subscriptionTier, "yearly"));
+            break;
+          case "free":
+            segmentClauses.push(or(eq(users.subscriptionTier, "free"), isNull(users.subscriptionTier)));
+            break;
+          case "active":
+            segmentClauses.push(gte(users.lastLoginAt, thirtyDaysAgo));
+            break;
+          case "inactive":
+            segmentClauses.push(or(isNull(users.lastLoginAt), sql`${users.lastLoginAt} < ${thirtyDaysAgo}`));
+            break;
+          case "new7":
+            segmentClauses.push(gte(users.createdAt, sevenDaysAgo));
+            break;
+          case "new30":
+            segmentClauses.push(gte(users.createdAt, thirtyDaysAgo));
+            break;
+        }
+      }
+      if (segmentClauses.length > 0) {
+        baseConditions.push(segmentClauses.length === 1 ? segmentClauses[0] : or(...segmentClauses));
+      }
     }
 
     const rows = await db
-      .select({ email: users.email, firstName: users.firstName })
+      .selectDistinct({ email: users.email, firstName: users.firstName })
       .from(users)
-      .where(and(...conditions));
+      .where(and(...baseConditions));
 
     return rows;
   }
