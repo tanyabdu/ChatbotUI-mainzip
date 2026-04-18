@@ -55,3 +55,7 @@ build = ["npm", "run", "build"]
 run = ["node", "dist/prod-entry.cjs"]
 deploymentTarget = "vm"
 ignorePorts = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 180000
