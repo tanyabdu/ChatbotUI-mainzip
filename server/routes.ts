@@ -859,18 +859,21 @@ export async function registerRoutes(
       const recipients = await storage.getNewsletterRecipients(segmentsArr, marketingOnly);
       let sent = 0;
       let failed = 0;
+      const recipientResults: { email: string; firstName: string | null; status: "sent" | "failed" }[] = [];
       for (const r of recipients) {
         const token = generateUnsubscribeToken(r.email);
         const unsubscribeUrl = `${baseUrl}/api/unsubscribe?token=${token}&email=${encodeURIComponent(r.email)}`;
         const htmlWithFooter = appendUnsubscribeFooter(html, unsubscribeUrl);
         const ok = await sendEmail({ to: r.email, toName: r.firstName || undefined, subject, html: htmlWithFooter });
         if (ok) sent++; else failed++;
+        recipientResults.push({ email: r.email, firstName: r.firstName, status: ok ? "sent" : "failed" });
         // small delay to avoid rate limiting
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       const total = recipients.length;
       console.log(`[Newsletter] Sent: ${sent}, Failed: ${failed}, Total: ${total}`);
-      await storage.saveNewsletterLog({ subject, segment: segmentsArr.join(","), marketingOnly: !!marketingOnly, sent, failed, total });
+      const log = await storage.saveNewsletterLog({ subject, segment: segmentsArr.join(","), marketingOnly: !!marketingOnly, sent, failed, total });
+      await storage.saveNewsletterRecipients(log.id, recipientResults);
       res.json({ sent, failed, total });
     } catch (error: any) {
       console.error("Newsletter send error:", error);
@@ -917,6 +920,18 @@ export async function registerRoutes(
     console.log(`[Unsubscribe] User ${email} unsubscribed from newsletter`);
 
     return res.send(unsubscribeHtmlPage("success", "Вы успешно отписались от рассылки."));
+  });
+
+  // Admin: Newsletter — recipient list for a specific log
+  app.get("/api/admin/newsletter/:id/recipients", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const recipients = await storage.getNewsletterLogRecipients(id);
+      res.json(recipients);
+    } catch (error: any) {
+      console.error("Newsletter recipients error:", error);
+      res.status(500).json({ error: "Ошибка при загрузке списка получателей" });
+    }
   });
 
   app.post("/api/promocode/verify-discount", isAuthenticated, async (req: any, res) => {

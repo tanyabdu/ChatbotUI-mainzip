@@ -13,10 +13,11 @@ import {
   type GrimoireTopic, type InsertGrimoireTopic,
   type ConsentLog, type InsertConsentLog,
   type NewsletterLog,
+  type NewsletterLogRecipient,
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
   salesTrainerSamples, salesTrainerSessions, passwordResetTokens,
   promocodes, promocodeUsages, payments, contentAlchemyPlans, grimoireTopics,
-  consentLogs, usageEvents, newsletterLogs
+  consentLogs, usageEvents, newsletterLogs, newsletterLogRecipients
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, ilike, or, and, isNull, gt, gte, sql, count } from "drizzle-orm";
@@ -131,8 +132,10 @@ export interface IStorage {
 
   // Newsletter
   getNewsletterRecipients(segments: string[], marketingOnly: boolean): Promise<{ email: string; firstName: string | null }[]>;
-  saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<void>;
-  getNewsletterLogs(): Promise<import("@shared/schema").NewsletterLog[]>;
+  saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<NewsletterLog>;
+  getNewsletterLogs(): Promise<NewsletterLog[]>;
+  saveNewsletterRecipients(logId: string, recipients: { email: string; firstName: string | null; status: "sent" | "failed" }[]): Promise<void>;
+  getNewsletterLogRecipients(logId: string): Promise<NewsletterLogRecipient[]>;
   updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined>;
   deleteGrimoireTopic(id: string, userId: string): Promise<void>;
 }
@@ -1025,12 +1028,26 @@ export class DatabaseStorage implements IStorage {
     return rows;
   }
 
-  async saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<void> {
-    await db.insert(newsletterLogs).values(data);
+  async saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<NewsletterLog> {
+    const [log] = await db.insert(newsletterLogs).values(data).returning();
+    return log;
   }
 
   async getNewsletterLogs(): Promise<NewsletterLog[]> {
     return db.select().from(newsletterLogs).orderBy(desc(newsletterLogs.createdAt)).limit(100);
+  }
+
+  async saveNewsletterRecipients(logId: string, recipients: { email: string; firstName: string | null; status: "sent" | "failed" }[]): Promise<void> {
+    if (recipients.length === 0) return;
+    await db.insert(newsletterLogRecipients).values(
+      recipients.map(r => ({ logId, email: r.email, firstName: r.firstName, status: r.status }))
+    );
+  }
+
+  async getNewsletterLogRecipients(logId: string): Promise<NewsletterLogRecipient[]> {
+    return db.select().from(newsletterLogRecipients)
+      .where(eq(newsletterLogRecipients.logId, logId))
+      .orderBy(newsletterLogRecipients.email);
   }
 }
 

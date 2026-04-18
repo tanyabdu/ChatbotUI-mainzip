@@ -15,6 +15,13 @@
       "when": 1776524783705,
       "tag": "0001_neat_ravenous",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776527440677,
+      "tag": "0002_clammy_menace",
+      "breakpoints": true
     }
   ]
 }

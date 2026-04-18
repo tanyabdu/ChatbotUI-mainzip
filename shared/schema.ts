@@ -369,3 +369,15 @@ export const newsletterLogs = esotericSchema.table("newsletter_logs", {
 
 export type NewsletterLog = typeof newsletterLogs.$inferSelect;
 export type InsertNewsletterLog = typeof newsletterLogs.$inferInsert;
+
+export const newsletterLogRecipients = esotericSchema.table("newsletter_log_recipients", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  logId: varchar("log_id").notNull().references(() => newsletterLogs.id, { onDelete: "cascade" }),
+  email: varchar("email").notNull(),
+  firstName: varchar("first_name"),
+  status: varchar("status").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type NewsletterLogRecipient = typeof newsletterLogRecipients.$inferSelect;
+export type InsertNewsletterLogRecipient = typeof newsletterLogRecipients.$inferInsert;

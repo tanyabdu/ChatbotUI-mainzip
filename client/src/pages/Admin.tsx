@@ -14,6 +14,9 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
@@ -1012,6 +1015,7 @@ function NewsletterTab() {
   const [loadingCount, setLoadingCount] = useState(false);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
+  const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   function toggleSegment(value: string) {
@@ -1038,6 +1042,20 @@ function NewsletterTab() {
       if (!res.ok) throw new Error("Failed to load history");
       return res.json();
     },
+  });
+
+  const selectedLog = selectedLogId ? history.find(l => l.id === selectedLogId) ?? null : null;
+
+  const { data: logRecipients = [], isLoading: recipientsLoading } = useQuery<{
+    id: string; logId: string; email: string; firstName: string | null; status: string; createdAt: string;
+  }[]>({
+    queryKey: ["/api/admin/newsletter", selectedLogId, "recipients"],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/newsletter/${selectedLogId}/recipients`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load recipients");
+      return res.json();
+    },
+    enabled: !!selectedLogId,
   });
 
   async function checkCount() {
@@ -1236,7 +1254,12 @@ function NewsletterTab() {
                 </thead>
                 <tbody>
                   {history.map((log) => (
-                    <tr key={log.id} className="border-b border-purple-50 hover:bg-purple-50/40 transition-colors">
+                    <tr
+                      key={log.id}
+                      className="border-b border-purple-50 hover:bg-purple-50/60 cursor-pointer transition-colors"
+                      onClick={() => setSelectedLogId(log.id)}
+                      title="Нажмите, чтобы увидеть список получателей"
+                    >
                       <td className="py-2 pr-4 text-purple-600 whitespace-nowrap">
                         {new Date(log.createdAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </td>
@@ -1258,6 +1281,56 @@ function NewsletterTab() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!selectedLogId} onOpenChange={(open) => { if (!open) setSelectedLogId(null); }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-purple-700 flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Получатели рассылки
+              {selectedLog && (
+                <span className="text-sm font-normal text-purple-400 ml-1">— {selectedLog.subject}</span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto mt-2">
+            {recipientsLoading ? (
+              <div className="flex items-center gap-2 text-purple-400 py-6 justify-center">
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Загрузка получателей...</span>
+              </div>
+            ) : logRecipients.length === 0 ? (
+              <p className="text-sm text-purple-400 py-6 text-center">Данные о получателях не сохранены для этой рассылки</p>
+            ) : (
+              <div className="space-y-1">
+                <div className="flex gap-3 text-xs text-purple-400 font-semibold px-3 pb-1 border-b border-purple-100">
+                  <span className="flex-1">Email</span>
+                  <span className="w-32">Имя</span>
+                  <span className="w-16 text-right">Статус</span>
+                </div>
+                {logRecipients.map((r) => (
+                  <div key={r.id} className="flex gap-3 items-center px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors text-sm">
+                    <span className="flex-1 text-gray-700 font-mono truncate">{r.email}</span>
+                    <span className="w-32 text-purple-600 truncate">{r.firstName ?? <span className="text-gray-300">—</span>}</span>
+                    <span className={`w-16 text-right font-semibold ${r.status === "sent" ? "text-green-600" : "text-red-500"}`}>
+                      {r.status === "sent" ? "✓ Отпр." : "✗ Ошибка"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {logRecipients.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-purple-100 flex gap-4 text-sm">
+              <span className="text-green-600 font-semibold">{logRecipients.filter(r => r.status === "sent").length} отправлено</span>
+              {logRecipients.some(r => r.status === "failed") && (
+                <span className="text-red-500 font-semibold">{logRecipients.filter(r => r.status === "failed").length} ошибок</span>
+              )}
+              <span className="text-purple-400 ml-auto">Всего: {logRecipients.length}</span>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
