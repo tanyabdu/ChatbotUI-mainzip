@@ -355,3 +355,17 @@ export const consentLogs = esotericSchema.table("consent_logs", {
 
 export type ConsentLog = typeof consentLogs.$inferSelect;
 export type InsertConsentLog = typeof consentLogs.$inferInsert;
+
+export const newsletterLogs = esotericSchema.table("newsletter_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subject: text("subject").notNull(),
+  segment: varchar("segment").notNull(),
+  marketingOnly: boolean("marketing_only").notNull().default(true),
+  sent: integer("sent").notNull().default(0),
+  failed: integer("failed").notNull().default(0),
+  total: integer("total").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type NewsletterLog = typeof newsletterLogs.$inferSelect;
+export type InsertNewsletterLog = typeof newsletterLogs.$inferInsert;

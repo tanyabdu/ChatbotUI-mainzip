@@ -1012,6 +1012,19 @@ function NewsletterTab() {
   const [loadingCount, setLoadingCount] = useState(false);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
+  const queryClient = useQueryClient();
+
+  const { data: history = [], isLoading: historyLoading, isError: historyError } = useQuery<{
+    id: string; subject: string; segment: string; marketingOnly: boolean;
+    sent: number; failed: number; total: number; createdAt: string;
+  }[]>({
+    queryKey: ["/api/admin/newsletter/history"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/newsletter/history", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load history");
+      return res.json();
+    },
+  });
 
   async function checkCount() {
     setLoadingCount(true);
@@ -1040,6 +1053,7 @@ function NewsletterTab() {
       const res = await apiRequest("POST", "/api/admin/newsletter/send", { segment, marketingOnly, subject, html });
       const data = await res.json();
       setResult(data);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/newsletter/history"] });
       toast({ title: "Рассылка завершена", description: `Отправлено: ${data.sent}, ошибок: ${data.failed}` });
     } catch {
       toast({ title: "Ошибка отправки", description: "Попробуйте ещё раз", variant: "destructive" });
@@ -1047,6 +1061,8 @@ function NewsletterTab() {
       setSending(false);
     }
   }
+
+  const segmentLabel = (val: string) => SEGMENTS.find(s => s.value === val)?.label ?? val;
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -1165,6 +1181,60 @@ function NewsletterTab() {
             <div className={`p-4 rounded-lg border-2 ${result.failed === 0 ? "border-green-200 bg-green-50" : "border-yellow-200 bg-yellow-50"}`}>
               <p className="font-semibold text-sm mb-1">{result.failed === 0 ? "✅ Рассылка завершена успешно" : "⚠️ Рассылка завершена с ошибками"}</p>
               <p className="text-sm text-gray-600">Отправлено: <strong>{result.sent}</strong> из <strong>{result.total}</strong>{result.failed > 0 && `, ошибок: ${result.failed}`}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* History */}
+      <Card className="bg-white border-2 border-purple-200">
+        <CardHeader>
+          <CardTitle className="text-purple-700 flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            История рассылок
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {historyLoading ? (
+            <div className="flex items-center gap-2 text-purple-400 py-4">
+              <RefreshCw className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Загрузка истории...</span>
+            </div>
+          ) : historyError ? (
+            <p className="text-sm text-red-400 py-4 text-center">Не удалось загрузить историю рассылок</p>
+          ) : history.length === 0 ? (
+            <p className="text-sm text-purple-400 py-4 text-center">Рассылок ещё не было</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-purple-100">
+                    <th className="text-left py-2 pr-4 text-purple-500 font-semibold">Дата</th>
+                    <th className="text-left py-2 pr-4 text-purple-500 font-semibold">Тема</th>
+                    <th className="text-left py-2 pr-4 text-purple-500 font-semibold">Сегмент</th>
+                    <th className="text-right py-2 pr-2 text-purple-500 font-semibold">Отпр.</th>
+                    <th className="text-right py-2 pr-2 text-purple-500 font-semibold">Ошибок</th>
+                    <th className="text-right py-2 text-purple-500 font-semibold">Всего</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((log) => (
+                    <tr key={log.id} className="border-b border-purple-50 hover:bg-purple-50/40 transition-colors">
+                      <td className="py-2 pr-4 text-purple-600 whitespace-nowrap">
+                        {new Date(log.createdAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </td>
+                      <td className="py-2 pr-4 text-gray-700 max-w-[200px] truncate" title={log.subject}>{log.subject}</td>
+                      <td className="py-2 pr-4">
+                        <span className="inline-block px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs">{segmentLabel(log.segment)}</span>
+                        {!log.marketingOnly && <span className="ml-1 inline-block px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs">все</span>}
+                      </td>
+                      <td className="py-2 pr-2 text-right font-semibold text-green-600">{log.sent}</td>
+                      <td className="py-2 pr-2 text-right font-semibold text-red-500">{log.failed > 0 ? log.failed : <span className="text-gray-300">—</span>}</td>
+                      <td className="py-2 text-right text-purple-600">{log.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>

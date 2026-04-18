@@ -824,11 +824,24 @@ export async function registerRoutes(
         // small delay to avoid rate limiting
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      console.log(`[Newsletter] Sent: ${sent}, Failed: ${failed}, Total: ${recipients.length}`);
-      res.json({ sent, failed, total: recipients.length });
+      const total = recipients.length;
+      console.log(`[Newsletter] Sent: ${sent}, Failed: ${failed}, Total: ${total}`);
+      await storage.saveNewsletterLog({ subject, segment, marketingOnly: !!marketingOnly, sent, failed, total });
+      res.json({ sent, failed, total });
     } catch (error: any) {
       console.error("Newsletter send error:", error);
       res.status(500).json({ error: "Ошибка при отправке рассылки" });
+    }
+  });
+
+  // Admin: Newsletter — history
+  app.get("/api/admin/newsletter/history", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const logs = await storage.getNewsletterLogs();
+      res.json(logs);
+    } catch (error: any) {
+      console.error("Newsletter history error:", error);
+      res.status(500).json({ error: "Ошибка при загрузке истории рассылок" });
     }
   });
 

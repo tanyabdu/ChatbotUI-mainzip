@@ -12,10 +12,11 @@ import {
   type ContentAlchemyPlan, type InsertContentAlchemyPlan,
   type GrimoireTopic, type InsertGrimoireTopic,
   type ConsentLog, type InsertConsentLog,
+  type NewsletterLog,
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
   salesTrainerSamples, salesTrainerSessions, passwordResetTokens,
   promocodes, promocodeUsages, payments, contentAlchemyPlans, grimoireTopics,
-  consentLogs, usageEvents
+  consentLogs, usageEvents, newsletterLogs
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, ilike, or, and, isNull, gt, gte, sql, count } from "drizzle-orm";
@@ -129,6 +130,8 @@ export interface IStorage {
 
   // Newsletter
   getNewsletterRecipients(segment: string, marketingOnly: boolean): Promise<{ email: string; firstName: string | null }[]>;
+  saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<void>;
+  getNewsletterLogs(): Promise<import("@shared/schema").NewsletterLog[]>;
   updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined>;
   deleteGrimoireTopic(id: string, userId: string): Promise<void>;
 }
@@ -1015,6 +1018,14 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions));
 
     return rows;
+  }
+
+  async saveNewsletterLog(data: { subject: string; segment: string; marketingOnly: boolean; sent: number; failed: number; total: number }): Promise<void> {
+    await db.insert(newsletterLogs).values(data);
+  }
+
+  async getNewsletterLogs(): Promise<NewsletterLog[]> {
+    return db.select().from(newsletterLogs).orderBy(desc(newsletterLogs.createdAt)).limit(100);
   }
 }
 
