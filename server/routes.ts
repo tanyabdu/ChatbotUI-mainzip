@@ -999,6 +999,44 @@ export async function registerRoutes(
     }
   });
 
+  // Admin: Newsletter — export recipient list as CSV
+  app.get("/api/admin/newsletter/:id/recipients/export", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const recipients = await storage.getNewsletterLogRecipients(id);
+
+      const sanitize = (s: string) =>
+        /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+
+      const escape = (v: string | null | undefined) => {
+        const s = sanitize(v ?? "");
+        if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+          return `"${s.replace(/"/g, '""')}"`;
+        }
+        return s;
+      };
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="newsletter-${id}-recipients.csv"`);
+
+      res.write("\uFEFF");
+      res.write("email,firstName,status,sentAt\n");
+      for (const r of recipients) {
+        const row = [
+          escape(r.email),
+          escape(r.firstName),
+          escape(r.status),
+          escape(r.createdAt ? new Date(r.createdAt).toISOString() : ""),
+        ].join(",");
+        res.write(row + "\n");
+      }
+      res.end();
+    } catch (error: any) {
+      console.error("Newsletter recipients export error:", error);
+      res.status(500).json({ error: "Ошибка при экспорте списка получателей" });
+    }
+  });
+
   app.post("/api/promocode/verify-discount", isAuthenticated, async (req: any, res) => {
     try {
       const { code } = req.body;

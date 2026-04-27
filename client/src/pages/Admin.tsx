@@ -21,7 +21,7 @@ import {
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
   Plus, Clock, Crown, Shield, ShieldOff, Trash2, CreditCard, Tag,
-  UserCheck, CalendarDays, Activity, Banknote, Gift, Search, Mail, Send, RefreshCw
+  UserCheck, CalendarDays, Activity, Banknote, Gift, Search, Mail, Send, RefreshCw, Download
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import type { User } from "@shared/schema";
@@ -1339,12 +1339,26 @@ function NewsletterTab() {
             )}
           </div>
           {logRecipients.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-purple-100 flex gap-4 text-sm">
+            <div className="mt-3 pt-3 border-t border-purple-100 flex items-center gap-4 text-sm flex-wrap">
               <span className="text-green-600 font-semibold">{logRecipients.filter(r => r.status === "sent").length} отправлено</span>
               {logRecipients.some(r => r.status === "failed") && (
                 <span className="text-red-500 font-semibold">{logRecipients.filter(r => r.status === "failed").length} ошибок</span>
               )}
-              <span className="text-purple-400 ml-auto">Всего: {logRecipients.length}</span>
+              <span className="text-purple-400">Всего: {logRecipients.length}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-purple-300 text-purple-600 hover:bg-purple-50 ml-auto"
+                asChild
+              >
+                <a
+                  href={`/api/admin/newsletter/${selectedLogId}/recipients/export`}
+                  download
+                >
+                  <Download className="h-4 w-4 mr-1.5" />
+                  Скачать CSV
+                </a>
+              </Button>
             </div>
           )}
         </DialogContent>
