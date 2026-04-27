@@ -1118,7 +1118,9 @@ function NewsletterTab() {
   const [recipientSearch, setRecipientSearch] = useState("");
   const [recipientStatusFilter, setRecipientStatusFilter] = useState<"all" | "sent" | "failed">("all");
   const [exportStatusFilter, setExportStatusFilter] = useState<"all" | "sent" | "failed">("all");
-  const [webhookBannerDismissed, setWebhookBannerDismissed] = useState(false);
+  const [webhookBannerDismissed, setWebhookBannerDismissed] = useState(
+    () => localStorage.getItem("rusender_webhook_banner_dismissed") === "true"
+  );
   const queryClient = useQueryClient();
 
   function toggleSegment(value: string) {
@@ -1361,7 +1363,10 @@ function NewsletterTab() {
                 </p>
               </div>
               <button
-                onClick={() => setWebhookBannerDismissed(true)}
+                onClick={() => {
+                  localStorage.setItem("rusender_webhook_banner_dismissed", "true");
+                  setWebhookBannerDismissed(true);
+                }}
                 className="shrink-0 text-blue-400 hover:text-blue-600 transition-colors"
                 aria-label="Скрыть подсказку"
               >
