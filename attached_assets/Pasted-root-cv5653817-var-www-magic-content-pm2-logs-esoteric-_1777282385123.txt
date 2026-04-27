@@ -1,0 +1,93 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 50
+[TAILING] Tailing last 50 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-out.log last 50 lines:
+0|esoteric | :"","hashtags":[]},"type":"Развлекательный","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":5,"idea":"Тема: 'Как я помогала клиентке преодолеть страх публичных выступлений'. Делюсь кейсом из практики с деталями процесса и результатами. Вызывает эмоции вдохновения и надежды, показывая реальные изменения и мою роль как героя-помощника. Формат: текстовая история в посте с элементами 'было/стало', возможно, с иллюстрациями для наглядности.","post":{"content":"","hashtags":[]},"type":"Личная история","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":6,"idea":"Тема: 'Чеклист: 5 признаков, что пора к психологу'. Предоставляю полезный список симптомов или ситуаций, указывающих на необходимость профессиональной помощи. Вызывает эмоции осознанности и заботы о себе, укрепляя доверие как к эксперту. Формат: PDF-чеклист для скачивания или интерактивный список в посте, чтобы аудитория могла проверить себя.","post":{"content":"","hashtags":[]},"type":"Экспертный","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}},{"day":7,"idea":"Тема: 'Какой психологический сериал или фильм вам больше всего запомнился?'. Запускаю обсуждение в комментариях, чтобы узнать мнения аудитории о популярных медиа на тему психологии. Вызывает эмоции увлечённости и обмена опытом, усиливая вовлечённость через культурные отсылки. Формат: пост с вопросом и возможностью голосования в опросе, поощряющий активное взаимодействие.","post":{"content":"","hashtags":[]},"type":"Вовлекающий","reels":{"content":"","hashtags":[]},"stories":{"content":"","hashtags":[]},"carousel":{"content":"","hashtags":[]}}],"createdAt":"2026-01-10T00:18:46.990Z"}]
+0|esoteric | Generating ideas only: { goal: 'sale', niche: 'Психолог', days: 14, gender: 'female' }
+0|esoteric | Generating ideas only (attempt 1/2)...
+0|esoteric | Ideas generated in 6410ms
+0|esoteric | Raw AI response (first 500 chars): {
+0|esoteric |     "ideas": [
+0|esoteric |         {
+0|esoteric |             "day": 1,
+0|esoteric |             "idea": "Мой путь в психологию через собственные испытания",
+0|esoteric |             "type": "Знакомство"
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric |             "day": 2,
+0|esoteric |             "idea": "Чувство одиночества даже в окружении людей",
+0|esoteric |             "type": "Знакомство"
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric |             "day": 3,
+0|esoteric |             "idea": "Сложности в принятии важных решений",
+0|esoteric |             "type": "Знакомство"
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric |             "day": 4,
+0|esoteric |             "idea": "Чек-
+0|esoteric | 12:21:01 PM [express] POST /api/strategies/generate-ideas 200 in 6488ms :: {"ideas":[{"day":1,"idea":"Мой путь в психологию через собственные испытания","type":"Знакомство"},{"day":2,"idea":"Чувство одиночества даже в окружении людей","type":"Знакомство"},{"day":3,"idea":"Сложности в принятии важных решений","type":"Знакомство"},{"day":4,"idea":"Чек-лист: как подготовиться к консультации","type":"Экспертный"},{"day":5,"idea":"Распространённые ошибки в самоанализе","type":"Экспертный"},{"day":6,"idea":"Метод повышения самооценки","type":"Экспертный"},{"day":7,"idea":"Стоимость бездействия в психологической работе","type":"Закрытие возражения"},{"day":8,"idea":"Истории успеха разных клиентов","type":"Закрытие возражения"},{"day":9,"idea":"Быстрые результаты в работе с психологом","type":"Закрытие возражения"},{"day":10,"idea":"Кейс клиентки: от тревоги к уверенности","type":"Кейс"},{"day":11,"idea":"Как психологическая помощь изменила жизнь клиентки","type":"Кейс"},{"day":12,"idea":"Отзывы о психологической поддержке","type":"Кейс"},{"day":13,"idea":"Детальный обзор консультации и закрытой группы","type":"Продающий"},{"day":14,"idea":"Последний шанс на участие в закрытой группе","type":"Продающий"}],"context":{"goal":"sale","niche":"Психолог","product":"консультация и закрытая группа","archetype":{"name":"Маг-Заботливый-Творец","description":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами заботливый: заботливый, поддерживающий, тёплый, надёжный.","recommendations":["трансформация","глубина","магия","видение","пробуждение","забота"],"triggerWords":["трансформация","магия","мистика","волшебство","чудо","преображение","перерождение","инсайт","активация","интуиция","метафизика","глубина","видение"],"contentStyle":["глубоко, многомерно, мистически","завораживающе","процессы на глубинном уровне","медитативно"],"tone":"Загадочный, глубокий, трансформационный. Говорит о невидимых процессах и скрытых силах."},"gender":"female"}}
+0|esoteric | New database connection established
+0|esoteric | 12:21:02 PM [express] GET /api/generation-limit 304 in 116ms :: {"allowed":true,"remaining":-1}
+0|esoteric | Generating carousel for: Чувство одиночества даже в окружении людей..., gender: female
+0|esoteric | Generating carousel for idea: Чувство одиночества даже в окружении людей... (attempt 1/2)
+0|esoteric | carousel generated in 3442ms
+0|esoteric | Raw carousel response (first 300 chars): {
+0|esoteric | "content": "Одиночество в толпе — будто ты на другой волне, и никто не понимает твоих переживаний...\n\n---\n\nКогда вокруг люди, но не с кем поделиться тем, что на душе — это как замкнутый круг. Ты улыбаешься, а внутри пустота. Знакомо? Я тоже прошла через это. Помню, как сидела в кафе с друзьями
+0|esoteric | 12:21:12 PM [express] POST /api/strategies/generate-format 200 in 3458ms :: {"content":{"content":"Одиночество в толпе — будто ты на другой волне, и никто не понимает твоих переживаний...\n\n---\n\nКогда вокруг люди, но не с кем поделиться тем, что на душе — это как замкнутый круг. Ты улыбаешься, а внутри пустота. Знакомо? Я тоже прошла через это. Помню, как сидела в кафе с друзьями, смеялась, а внутри была мысль: «Никто не знает, что я чувствую на самом деле».\n\n---\n\nМне помогли понять, что одиночество — это не приговор, а возможность для внутреннего роста и преображения. Это как мистический путь к себе, где ты открываешь новые грани своей души. На консультациях и в закрытой группе я увидела, как магия взаимодействия с психологом и единомышленниками может изменить жизнь. Ты не просто избавляешься от одиночества, ты начинаешь видеть мир и себя по-новому.\n\n---\n\nХочешь узнать, как шаг за шагом перейти от одиночества к глубокому пониманию себя и других? Запишись на консультацию или присоединись к закрытой группе — и позволь себе сделать этот шаг к внутренней свободе и новым инсайтам. Жду тебя!\n"}}
+0|esoteric | 12:22:44 PM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 12:25:37 PM [express] GET /api/auth/user 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | 12:31:02 PM [express] serving on port 5000
+
+/root/.pm2/logs/esoteric-planner-error.log last 50 lines:
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric |             "day": 2,
+0|esoteric |             "idea": "Как энергия влияет на нашу жизнь",
+0|esoteric |             "type": "Экспертный"
+0|esoteric |         },
+0|esoteric |         {
+0|esoteric | 
+0|esoteric | Ideas generation error (attempt 2): JSON parse failed: Expected ',' or '}' after property value in JSON at position 822
+0|esoteric | All retry attempts failed
+0|esoteric | Ideas generation error: Error: Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.
+0|esoteric |     at BL (/var/www/magic-content/dist/index.cjs:711:1575)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1229:3290
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Wr (/var/www/magic-content/dist/index.cjs:201:14287)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1229:28808
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | JSON parse error: Expected ',' or '}' after property value in JSON at position 548
+0|esoteric | Response content: {
+0|esoteric |   "ideas": [
+0|esoteric |     {
+0|esoteric |       "day": 1,
+0|esoteric |       "idea": "Мой путь к осознанию собственной ценности",
+0|esoteric |       "type": "Знакомство"
+0|esoteric |     },
+0|esoteric |     {
+0|esoteric |       "day": 2,
+0|esoteric |       "idea": "Паника при молчащем телефоне — знакомая история?",
+0|esoteric |       "type": "Знакомство"
+0|esoteric |     },
+0|esoteric |     {
+0|esoteric |       "day": 3,
+0|esoteric |       "idea": "Повторяющие
+0|esoteric | Ideas generation error (attempt 1): JSON parse failed: Expected ',' or '}' after property value in JSON at position 548
+0|esoteric | Error: FATAL: UNSUBSCRIBE_SECRET environment variable is not set. Set a strong random secret before running in production.
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:208:340
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:208:479
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:208:12954
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1235:12375
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1:225
+0|esoteric |     at /var/www/magic-content/dist/index.cjs:1235:14267
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1235:14233
+
+
