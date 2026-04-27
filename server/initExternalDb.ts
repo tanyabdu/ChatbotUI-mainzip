@@ -215,6 +215,21 @@ async function initDatabase() {
       )
     `);
 
+    console.log("Creating security_events table...");
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS esoteric_planner.security_events (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        event_type VARCHAR NOT NULL,
+        email VARCHAR,
+        ip_address VARCHAR,
+        user_agent TEXT,
+        reason VARCHAR NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_security_events_type_created ON esoteric_planner.security_events (event_type, created_at)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_security_events_email ON esoteric_planner.security_events (email)`);
+
     console.log("Database schema and tables created successfully!");
   } catch (error) {
     console.error("Error initializing database:", error);

@@ -966,8 +966,26 @@ export async function registerRoutes(
   // Unsubscribe from newsletter (no auth required — accessible via email link)
   app.get("/api/unsubscribe", async (req: any, res) => {
     const { token, email } = req.query as { token?: string; email?: string };
+    const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || '';
+    const userAgent = req.headers['user-agent'] || '';
+
+    const logSecurityEvent = async (reason: string, emailAttempted: string | null) => {
+      console.warn(`[Security] Invalid unsubscribe attempt — reason: ${reason}, email: ${emailAttempted ?? "(none)"}, ip: ${ipAddress}`);
+      try {
+        await storage.createSecurityEvent({
+          eventType: "invalid_unsubscribe",
+          email: emailAttempted,
+          ipAddress,
+          userAgent,
+          reason,
+        });
+      } catch (err) {
+        console.error("[Security] Failed to persist security event:", (err as Error).message);
+      }
+    };
 
     if (!token || !email) {
+      await logSecurityEvent("missing_token_or_email", email || null);
       return res.status(400).send(unsubscribeHtmlPage("error", "Некорректная ссылка отписки."));
     }
 
@@ -979,18 +997,18 @@ export async function registerRoutes(
     }
 
     if (!tokenValid) {
+      await logSecurityEvent("invalid_token", email);
       return res.status(400).send(unsubscribeHtmlPage("error", "Недействительная ссылка отписки."));
     }
 
     const user = await storage.getUserByEmail(email);
     if (!user) {
+      await logSecurityEvent("user_not_found", email);
       return res.status(404).send(unsubscribeHtmlPage("error", "Пользователь не найден."));
     }
 
     await storage.updateUser(user.id, { marketingConsent: false, marketingConsentAt: null });
 
-    const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || '';
-    const userAgent = req.headers['user-agent'] || '';
     await storage.createConsentLog({
       userId: user.id,
       consentType: "marketing",

@@ -396,3 +396,19 @@ export const newsletterEvents = esotericSchema.table("newsletter_events", {
 
 export type NewsletterEvent = typeof newsletterEvents.$inferSelect;
 export type InsertNewsletterEvent = typeof newsletterEvents.$inferInsert;
+
+export const securityEvents = esotericSchema.table("security_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventType: varchar("event_type").notNull(),
+  email: varchar("email"),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  reason: varchar("reason").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_security_events_type_created").on(table.eventType, table.createdAt),
+  index("idx_security_events_email").on(table.email),
+]);
+
+export type SecurityEvent = typeof securityEvents.$inferSelect;
+export type InsertSecurityEvent = typeof securityEvents.$inferInsert;

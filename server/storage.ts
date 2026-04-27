@@ -14,10 +14,12 @@ import {
   type ConsentLog, type InsertConsentLog,
   type NewsletterLog,
   type NewsletterLogRecipient,
+  type SecurityEvent, type InsertSecurityEvent,
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
   salesTrainerSamples, salesTrainerSessions, passwordResetTokens,
   promocodes, promocodeUsages, payments, contentAlchemyPlans, grimoireTopics,
-  consentLogs, usageEvents, newsletterLogs, newsletterLogRecipients, newsletterEvents
+  consentLogs, usageEvents, newsletterLogs, newsletterLogRecipients, newsletterEvents,
+  securityEvents
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, ilike, or, and, isNull, gt, gte, sql, count } from "drizzle-orm";
@@ -141,6 +143,9 @@ export interface IStorage {
 
   // Consent Logs
   getConsentLogs(userId: string): Promise<ConsentLog[]>;
+
+  // Security Events
+  createSecurityEvent(data: InsertSecurityEvent): Promise<SecurityEvent>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -934,6 +939,11 @@ export class DatabaseStorage implements IStorage {
 
   async getConsentLogs(userId: string): Promise<ConsentLog[]> {
     return db.select().from(consentLogs).where(eq(consentLogs.userId, userId)).orderBy(desc(consentLogs.createdAt));
+  }
+
+  async createSecurityEvent(data: InsertSecurityEvent): Promise<SecurityEvent> {
+    const [event] = await db.insert(securityEvents).values(data).returning();
+    return event;
   }
 
   async logUsageEvent(userId: string, section: string): Promise<void> {
