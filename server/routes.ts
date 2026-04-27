@@ -920,6 +920,7 @@ export async function registerRoutes(
       // { event: "open" | "click", idempotencyKey: string, email?: string, ... }
       const event = typeof body.event === "string" ? body.event.toLowerCase() : null;
       const idempotencyKey = typeof body.idempotencyKey === "string" ? body.idempotencyKey : null;
+      const email = typeof body.email === "string" ? body.email.toLowerCase().trim() : null;
 
       if (!event || !idempotencyKey) {
         return res.status(400).json({ error: "Missing event or idempotencyKey" });
@@ -936,8 +937,14 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Cannot parse logId from idempotencyKey" });
       }
 
-      await storage.incrementNewsletterEngagement(logId, event as "open" | "click");
-      console.log(`[Newsletter Webhook] event=${event} logId=${logId}`);
+      if (!email) {
+        // Email is required for per-recipient deduplication; acknowledge without recording
+        console.warn(`[Newsletter Webhook] event=${event} logId=${logId} — skipped (no email in payload)`);
+        return res.json({ ok: true });
+      }
+
+      await storage.incrementNewsletterEngagement(logId, event as "open" | "click", email);
+      console.log(`[Newsletter Webhook] event=${event} logId=${logId} email=${email}`);
       res.json({ ok: true });
     } catch (error: any) {
       console.error("[Newsletter Webhook] Error:", error);

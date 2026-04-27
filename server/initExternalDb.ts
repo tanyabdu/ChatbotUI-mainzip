@@ -175,6 +175,46 @@ async function initDatabase() {
       )
     `);
     
+    console.log("Creating newsletter_logs table...");
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS esoteric_planner.newsletter_logs (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        subject TEXT NOT NULL,
+        segment VARCHAR NOT NULL,
+        marketing_only BOOLEAN NOT NULL DEFAULT true,
+        sent INTEGER NOT NULL DEFAULT 0,
+        failed INTEGER NOT NULL DEFAULT 0,
+        total INTEGER NOT NULL DEFAULT 0,
+        opens INTEGER NOT NULL DEFAULT 0,
+        clicks INTEGER NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    console.log("Creating newsletter_log_recipients table...");
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS esoteric_planner.newsletter_log_recipients (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        log_id VARCHAR NOT NULL REFERENCES esoteric_planner.newsletter_logs(id) ON DELETE CASCADE,
+        email VARCHAR NOT NULL,
+        first_name VARCHAR,
+        status VARCHAR NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    console.log("Creating newsletter_events table...");
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS esoteric_planner.newsletter_events (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        log_id VARCHAR NOT NULL REFERENCES esoteric_planner.newsletter_logs(id) ON DELETE CASCADE,
+        email VARCHAR NOT NULL,
+        event_type VARCHAR NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        CONSTRAINT uq_newsletter_event UNIQUE (log_id, email, event_type)
+      )
+    `);
+
     console.log("Database schema and tables created successfully!");
   } catch (error) {
     console.error("Error initializing database:", error);

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { text, varchar, integer, boolean, timestamp, jsonb, index, pgSchema } from "drizzle-orm/pg-core";
+import { text, varchar, integer, boolean, timestamp, jsonb, index, unique, pgSchema } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -383,3 +383,16 @@ export const newsletterLogRecipients = esotericSchema.table("newsletter_log_reci
 
 export type NewsletterLogRecipient = typeof newsletterLogRecipients.$inferSelect;
 export type InsertNewsletterLogRecipient = typeof newsletterLogRecipients.$inferInsert;
+
+export const newsletterEvents = esotericSchema.table("newsletter_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  logId: varchar("log_id").notNull().references(() => newsletterLogs.id, { onDelete: "cascade" }),
+  email: varchar("email").notNull(),
+  eventType: varchar("event_type").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  unique("uq_newsletter_event").on(table.logId, table.email, table.eventType),
+]);
+
+export type NewsletterEvent = typeof newsletterEvents.$inferSelect;
+export type InsertNewsletterEvent = typeof newsletterEvents.$inferInsert;

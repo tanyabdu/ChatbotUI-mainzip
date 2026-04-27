@@ -17,7 +17,7 @@ import {
   users, contentStrategies, archetypeResults, voicePosts, caseStudies,
   salesTrainerSamples, salesTrainerSessions, passwordResetTokens,
   promocodes, promocodeUsages, payments, contentAlchemyPlans, grimoireTopics,
-  consentLogs, usageEvents, newsletterLogs, newsletterLogRecipients
+  consentLogs, usageEvents, newsletterLogs, newsletterLogRecipients, newsletterEvents
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, ilike, or, and, isNull, gt, gte, sql, count } from "drizzle-orm";
@@ -1037,14 +1037,18 @@ export class DatabaseStorage implements IStorage {
     await db.update(newsletterLogs).set(data).where(eq(newsletterLogs.id, id));
   }
 
-  async incrementNewsletterEngagement(logId: string, type: "open" | "click"): Promise<void> {
+  async incrementNewsletterEngagement(logId: string, type: "open" | "click", email: string): Promise<void> {
+    await db.insert(newsletterEvents)
+      .values({ logId, email, eventType: type })
+      .onConflictDoNothing();
+
     if (type === "open") {
       await db.update(newsletterLogs)
-        .set({ opens: sql`${newsletterLogs.opens} + 1` })
+        .set({ opens: sql`(SELECT COUNT(*) FROM ${newsletterEvents} WHERE ${newsletterEvents.logId} = ${logId} AND ${newsletterEvents.eventType} = 'open')` })
         .where(eq(newsletterLogs.id, logId));
     } else {
       await db.update(newsletterLogs)
-        .set({ clicks: sql`${newsletterLogs.clicks} + 1` })
+        .set({ clicks: sql`(SELECT COUNT(*) FROM ${newsletterEvents} WHERE ${newsletterEvents.logId} = ${logId} AND ${newsletterEvents.eventType} = 'click')` })
         .where(eq(newsletterLogs.id, logId));
     }
   }
