@@ -1043,7 +1043,12 @@ export async function registerRoutes(
   app.get("/api/admin/newsletter/:id/recipients/export", isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const recipients = await storage.getNewsletterLogRecipients(id);
+      const statusFilter = req.query.status as string | undefined;
+      const allRecipients = await storage.getNewsletterLogRecipients(id);
+      const recipients =
+        statusFilter === "sent" || statusFilter === "failed"
+          ? allRecipients.filter((r) => r.status === statusFilter)
+          : allRecipients;
 
       const sanitize = (s: string) =>
         /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
@@ -1056,8 +1061,9 @@ export async function registerRoutes(
         return s;
       };
 
+      const filenameSuffix = statusFilter === "sent" || statusFilter === "failed" ? `-${statusFilter}` : "";
       res.setHeader("Content-Type", "text/csv; charset=utf-8");
-      res.setHeader("Content-Disposition", `attachment; filename="newsletter-${id}-recipients.csv"`);
+      res.setHeader("Content-Disposition", `attachment; filename="newsletter-${id}-recipients${filenameSuffix}.csv"`);
 
       res.write("\uFEFF");
       res.write("email,firstName,status,sentAt\n");

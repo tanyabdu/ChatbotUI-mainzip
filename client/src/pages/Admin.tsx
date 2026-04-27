@@ -1103,6 +1103,7 @@ function NewsletterTab() {
   const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
   const [recipientSearch, setRecipientSearch] = useState("");
   const [recipientStatusFilter, setRecipientStatusFilter] = useState<"all" | "sent" | "failed">("all");
+  const [exportStatusFilter, setExportStatusFilter] = useState<"all" | "sent" | "failed">("all");
   const [webhookBannerDismissed, setWebhookBannerDismissed] = useState(false);
   const queryClient = useQueryClient();
 
@@ -1424,7 +1425,7 @@ function NewsletterTab() {
         </CardContent>
       </Card>
 
-      <Dialog open={!!selectedLogId} onOpenChange={(open) => { if (!open) { setSelectedLogId(null); setRecipientSearch(""); setRecipientStatusFilter("all"); } }}>
+      <Dialog open={!!selectedLogId} onOpenChange={(open) => { if (!open) { setSelectedLogId(null); setRecipientSearch(""); setRecipientStatusFilter("all"); setExportStatusFilter("all"); } }}>
         <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-purple-700 flex items-center gap-2">
@@ -1497,26 +1498,44 @@ function NewsletterTab() {
             )}
           </div>
           {logRecipients.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-purple-100 flex items-center gap-4 text-sm flex-wrap">
-              <span className="text-green-600 font-semibold">{logRecipients.filter(r => r.status === "sent").length} отправлено</span>
-              {logRecipients.some(r => r.status === "failed") && (
-                <span className="text-red-500 font-semibold">{logRecipients.filter(r => r.status === "failed").length} ошибок</span>
-              )}
-              <span className="text-purple-400">Всего: {logRecipients.length}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-purple-300 text-purple-600 hover:bg-purple-50 ml-auto"
-                asChild
-              >
-                <a
-                  href={`/api/admin/newsletter/${selectedLogId}/recipients/export`}
-                  download
+            <div className="mt-3 pt-3 border-t border-purple-100 flex flex-col gap-2 text-sm">
+              <div className="flex items-center gap-4 flex-wrap">
+                <span className="text-green-600 font-semibold">{logRecipients.filter(r => r.status === "sent").length} отправлено</span>
+                {logRecipients.some(r => r.status === "failed") && (
+                  <span className="text-red-500 font-semibold">{logRecipients.filter(r => r.status === "failed").length} ошибок</span>
+                )}
+                <span className="text-purple-400">Всего: {logRecipients.length}</span>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-gray-500 text-xs">Экспорт:</span>
+                {(["all", "sent", "failed"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setExportStatusFilter(f)}
+                    className={`px-2 py-0.5 rounded text-xs border transition-colors ${
+                      exportStatusFilter === f
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "border-purple-300 text-purple-600 hover:bg-purple-50"
+                    }`}
+                  >
+                    {f === "all" ? "Все" : f === "sent" ? "Только отправленные" : "Только ошибки"}
+                  </button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-300 text-purple-600 hover:bg-purple-50 ml-auto"
+                  asChild
                 >
-                  <Download className="h-4 w-4 mr-1.5" />
-                  Скачать CSV
-                </a>
-              </Button>
+                  <a
+                    href={`/api/admin/newsletter/${selectedLogId}/recipients/export${exportStatusFilter !== "all" ? `?status=${exportStatusFilter}` : ""}`}
+                    download
+                  >
+                    <Download className="h-4 w-4 mr-1.5" />
+                    Скачать CSV
+                  </a>
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
