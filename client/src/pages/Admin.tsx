@@ -21,7 +21,7 @@ import {
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
   Plus, Clock, Crown, Shield, ShieldOff, Trash2, CreditCard, Tag,
-  UserCheck, CalendarDays, Activity, Banknote, Gift, Search, Mail, Send, RefreshCw, Download
+  UserCheck, CalendarDays, Activity, Banknote, Gift, Search, Mail, Send, RefreshCw, Download, Info, X
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import type { User } from "@shared/schema";
@@ -1018,6 +1018,7 @@ function NewsletterTab() {
   const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
   const [recipientSearch, setRecipientSearch] = useState("");
   const [recipientStatusFilter, setRecipientStatusFilter] = useState<"all" | "sent" | "failed">("all");
+  const [webhookBannerDismissed, setWebhookBannerDismissed] = useState(false);
   const queryClient = useQueryClient();
 
   function toggleSegment(value: string) {
@@ -1242,6 +1243,32 @@ function NewsletterTab() {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Webhook setup hint — shown when no open/click data has been recorded yet */}
+          {!webhookBannerDismissed && !historyLoading && !historyError && history.length > 0 &&
+            history.every((log) => log.opens === 0 && log.clicks === 0) && (
+            <div className="mb-4 flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+              <div className="flex-1">
+                <p className="font-semibold mb-0.5">Отслеживание открытий и кликов не настроено</p>
+                <p className="text-blue-700">
+                  Чтобы видеть статистику, настройте webhook в личном кабинете Rusender:
+                </p>
+                <p className="mt-1 font-mono text-xs break-all bg-blue-100 rounded px-2 py-1 select-all">
+                  {`${window.location.origin}/api/webhooks/rusender`}
+                </p>
+                <p className="mt-1 text-blue-600 text-xs">
+                  Метод: <strong>POST</strong>. После настройки данные начнут появляться автоматически.
+                </p>
+              </div>
+              <button
+                onClick={() => setWebhookBannerDismissed(true)}
+                className="shrink-0 text-blue-400 hover:text-blue-600 transition-colors"
+                aria-label="Скрыть подсказку"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
           {historyLoading ? (
             <div className="flex items-center gap-2 text-purple-400 py-4">
               <RefreshCw className="h-4 w-4 animate-spin" />
