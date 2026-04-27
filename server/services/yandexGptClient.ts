@@ -32,12 +32,10 @@ export type YandexCreateParams = {
   temperature?: number;
   max_tokens?: number;
   response_format?: { type: string };
-  [key: string]: any;
 };
 
 export type YandexCreateOptions = {
   timeout?: number;
-  [key: string]: any;
 };
 
 export type YandexCompatibleResponse = {
