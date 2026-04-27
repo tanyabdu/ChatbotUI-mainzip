@@ -1016,6 +1016,8 @@ function NewsletterTab() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
   const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
+  const [recipientSearch, setRecipientSearch] = useState("");
+  const [recipientStatusFilter, setRecipientStatusFilter] = useState<"all" | "sent" | "failed">("all");
   const queryClient = useQueryClient();
 
   function toggleSegment(value: string) {
@@ -1056,6 +1058,16 @@ function NewsletterTab() {
       return res.json();
     },
     enabled: !!selectedLogId,
+  });
+
+  const filteredRecipients = logRecipients.filter((r) => {
+    const matchesSearch =
+      recipientSearch === "" ||
+      r.email.toLowerCase().includes(recipientSearch.toLowerCase()) ||
+      (r.firstName ?? "").toLowerCase().includes(recipientSearch.toLowerCase());
+    const matchesStatus =
+      recipientStatusFilter === "all" || r.status === recipientStatusFilter;
+    return matchesSearch && matchesStatus;
   });
 
   async function checkCount() {
@@ -1300,7 +1312,7 @@ function NewsletterTab() {
         </CardContent>
       </Card>
 
-      <Dialog open={!!selectedLogId} onOpenChange={(open) => { if (!open) setSelectedLogId(null); }}>
+      <Dialog open={!!selectedLogId} onOpenChange={(open) => { if (!open) { setSelectedLogId(null); setRecipientSearch(""); setRecipientStatusFilter("all"); } }}>
         <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-purple-700 flex items-center gap-2">
@@ -1311,6 +1323,38 @@ function NewsletterTab() {
               )}
             </DialogTitle>
           </DialogHeader>
+          {logRecipients.length > 0 && (
+            <div className="flex gap-2 items-center mt-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-purple-400 pointer-events-none" />
+                <Input
+                  placeholder="Поиск по email или имени..."
+                  value={recipientSearch}
+                  onChange={(e) => setRecipientSearch(e.target.value)}
+                  className="pl-8 h-8 text-sm border-purple-200 focus-visible:ring-purple-400"
+                />
+              </div>
+              <div className="flex rounded-md border border-purple-200 overflow-hidden text-xs font-medium">
+                {(["all", "sent", "failed"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setRecipientStatusFilter(f)}
+                    className={`px-3 py-1.5 transition-colors ${
+                      recipientStatusFilter === f
+                        ? f === "all"
+                          ? "bg-purple-600 text-white"
+                          : f === "sent"
+                          ? "bg-green-600 text-white"
+                          : "bg-red-500 text-white"
+                        : "bg-white text-gray-500 hover:bg-purple-50"
+                    }`}
+                  >
+                    {f === "all" ? "Все" : f === "sent" ? "Отправлено" : "Ошибка"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex-1 overflow-y-auto mt-2">
             {recipientsLoading ? (
               <div className="flex items-center gap-2 text-purple-400 py-6 justify-center">
@@ -1319,6 +1363,8 @@ function NewsletterTab() {
               </div>
             ) : logRecipients.length === 0 ? (
               <p className="text-sm text-purple-400 py-6 text-center">Данные о получателях не сохранены для этой рассылки</p>
+            ) : filteredRecipients.length === 0 ? (
+              <p className="text-sm text-purple-400 py-6 text-center">Нет получателей, соответствующих фильтру</p>
             ) : (
               <div className="space-y-1">
                 <div className="flex gap-3 text-xs text-purple-400 font-semibold px-3 pb-1 border-b border-purple-100">
@@ -1326,7 +1372,7 @@ function NewsletterTab() {
                   <span className="w-32">Имя</span>
                   <span className="w-16 text-right">Статус</span>
                 </div>
-                {logRecipients.map((r) => (
+                {filteredRecipients.map((r) => (
                   <div key={r.id} className="flex gap-3 items-center px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors text-sm">
                     <span className="flex-1 text-gray-700 font-mono truncate">{r.email}</span>
                     <span className="w-32 text-purple-600 truncate">{r.firstName ?? <span className="text-gray-300">—</span>}</span>
