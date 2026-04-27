@@ -18,6 +18,7 @@ import { transcribeAudio } from "./services/yandexSpeechKit";
 import { generateContentPlan, generateQuestions, generatePostFromAnswers } from "./services/contentAlchemy";
 import { transformToTriggerReels } from "./services/triggerReels";
 import { generateThreadsPosts } from "./services/threadsGenerator";
+import { getProvider, AI_MODEL } from "./services/deepseekClient";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -598,6 +599,10 @@ export async function registerRoutes(
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch admin stats" });
     }
+  });
+
+  app.get("/api/admin/ai-status", isAuthenticated, requireAdmin, (req: any, res) => {
+    res.json({ provider: getProvider(), model: AI_MODEL });
   });
 
   app.get("/api/admin/access-sources", isAuthenticated, requireAdmin, async (req: any, res) => {

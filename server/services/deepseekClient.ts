@@ -16,7 +16,7 @@ export const AI_MODEL = useYandex
   ? "gpt-4o-mini"
   : "deepseek-chat";
 
-function getProvider() {
+export function getProvider() {
   if (useYandex) return "YandexGPT";
   if (useMistral) return "Mistral";
   if (useOpenAI) return "OpenAI";

@@ -148,6 +148,15 @@ export default function Admin() {
     enabled: !!user?.isAdmin,
   });
 
+  const { data: aiStatus } = useQuery<{ provider: string; model: string }>({
+    queryKey: ["/api/admin/ai-status"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/ai-status");
+      return res.json();
+    },
+    enabled: !!user?.isAdmin,
+  });
+
   const { data: consentLogs = [], isFetching: isConsentLoading } = useQuery<ConsentLog[]>({
     queryKey: ["/api/admin/users", consentHistoryUserId, "consent-logs"],
     queryFn: async () => {
@@ -241,12 +250,17 @@ export default function Admin() {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <header className="border-b-2 border-purple-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Sparkles className="h-8 w-8 text-purple-600" />
             <h1 className="text-2xl font-mystic text-purple-700">Панель Управления</h1>
             <Badge variant="secondary" className="bg-purple-100 text-purple-700 border border-purple-300">
               Админ
             </Badge>
+            {aiStatus && (
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700 border border-blue-300 font-mono text-xs">
+                {aiStatus.provider} · {aiStatus.model}
+              </Badge>
+            )}
           </div>
           <Button variant="ghost" asChild data-testid="link-home">
             <Link href="/">
