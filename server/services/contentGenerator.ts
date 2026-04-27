@@ -1011,13 +1011,29 @@ ${archetype.contentStyle?.length ? `Стиль: ${archetype.contentStyle.slice(0
 
 СТИЛЬ: Живой разговорный язык. Как подруге за чаем. Можно длинные предложения если они читаются легко.`;
 
-  const selectedReelsHooks = getRandomElements(REELS_HOOK_FORMULAS, 6);
-  const selectedStoriesHooks = getRandomElements(STORIES_HOOK_FORMULAS, 6);
+  const isYandex = getProvider() === "YandexGPT";
+  const hooksCount = isYandex ? 3 : 6;
+
+  const selectedReelsHooks = getRandomElements(REELS_HOOK_FORMULAS, hooksCount);
+  const selectedStoriesHooks = getRandomElements(STORIES_HOOK_FORMULAS, hooksCount);
   const selectedReelsStyle = getRandomElements(CONTENT_STYLES, 1)[0];
   const selectedStoriesStyle = getRandomElements(CONTENT_STYLES, 1)[0];
 
   const formatInstructions: Record<string, string> = {
-    post: `Напиши РАЗВЁРНУТЫЙ ПОСТ для Instagram.
+    post: isYandex
+      ? `Напиши РАЗВЁРНУТЫЙ ПОСТ для Instagram.
+
+⚠️ ОБЯЗАТЕЛЬНАЯ ДЛИНА: 1000-1500 символов (это 5-7 абзацев!)
+Короткие посты в 2-3 предложения — ЗАПРЕЩЕНЫ!
+
+${writingRules}
+
+СТРУКТУРА РАЗВЁРНУТОГО ПОСТА:
+1. ХУК (1-2 предложения) — зацепи внимание, останови скролл
+2. ИСТОРИЯ/СИТУАЦИЯ (2-3 абзаца) — раскрой тему через историю или конкретный пример
+3. ИНСАЙТ/ПОЛЬЗА (1-2 абзаца) — дай ценность, покажи решение
+4. ПРИЗЫВ (1-2 предложения) — что сделать дальше`
+      : `Напиши РАЗВЁРНУТЫЙ ПОСТ для Instagram.
 
 ⚠️ ОБЯЗАТЕЛЬНАЯ ДЛИНА: 1000-1500 символов (это 5-7 абзацев!)
 Короткие посты в 2-3 предложения — ЗАПРЕЩЕНЫ!
