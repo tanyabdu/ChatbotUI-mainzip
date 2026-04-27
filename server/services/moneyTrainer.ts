@@ -24,6 +24,7 @@ function getOfferLabel(offerType?: string): string {
   return OFFER_LABELS[offerType] || offerType;
 }
 
+// ~300 tokens — well under the ~1500-token YandexGPT threshold; no compact variant needed.
 const SYSTEM_PROMPT = `Ты — тренер по продажам для эзотерических экспертов (тарологов, астрологов, нумерологов).
 Твоя задача — улучшить черновик ответа эксперта на вопрос клиента так, чтобы:
 

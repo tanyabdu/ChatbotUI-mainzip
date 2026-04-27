@@ -1,5 +1,5 @@
 import { withRetry, extractContent, ParseError } from "./deepseekRetry";
-import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL, getProvider } from "./deepseekClient";
 
 const deepseek = getDeepseekClient();
 
@@ -135,7 +135,27 @@ ${archetype.contentStyle?.length ? `Стиль: ${archetype.contentStyle.slice(0
 Пиши в стиле этого архетипа!`
     : "";
 
-  const prompt = `Ты — маркетолог-стратег, специалист по ПРОГРЕВАМ И ЗАПУСКАМ продуктов для экспертов в сфере эзотерики, психологии и коучинга.
+  const isYandex = getProvider() === "YandexGPT";
+
+  const prompt = isYandex
+    ? `Ты — маркетолог-стратег по прогревам продуктов.
+
+Создай контент-план на ${daysCount} дней для прогрева к: "${warmupTarget}"
+
+${warmupStructure}
+
+ВОЗРАЖЕНИЯ: ${objectionsText.replace(/\n/g, "; ")}
+ФОРМАТЫ ПОДАЧИ: ${selectedFormats}
+${archetypeInstruction}
+
+ВАЖНО: темы универсальные — не придумывай конкретные личные истории за эксперта. Эксперт сам раскроет тему через свой опыт.
+НЕ пиши: конкретные имена клиенток, конкретные ситуации которых может не быть у эксперта.
+
+Ответь ТОЛЬКО валидным JSON массивом:
+[{"day": 1, "topic": "Универсальное направление темы", "description": "Формат и что раскрыть", "type": "Знакомство"}]
+
+Типы: Знакомство, Экспертный, Возражение, Кейс, Продающий`
+    : `Ты — маркетолог-стратег, специалист по ПРОГРЕВАМ И ЗАПУСКАМ продуктов для экспертов в сфере эзотерики, психологии и коучинга.
 
 Создай контент-план на ${daysCount} дней для прогрева к: "${warmupTarget}"
 

@@ -1,5 +1,5 @@
 import { withRetry, extractContent, ParseError } from "./deepseekRetry";
-import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
+import { getDeepseekClient, AI_MODEL, getProvider } from "./deepseekClient";
 
 const deepseek = getDeepseekClient();
 
@@ -97,6 +97,22 @@ Threads — это сеть, где важна разговорная, жива�
   ]
 }`;
 
+const SYSTEM_PROMPT_COMPACT = `Ты — эксперт по контенту для Threads. Специализация: эзотерики, нумерологи, таро-практики, астрологи.
+
+5 ФОРМАТОВ ПОСТОВ:
+1. «Интрига + обещание» (08:00) — провокация в первой строке, намёк на ценность, 3-5 абзацев
+2. «Поиск аудитории» (11:00) — узнавание ситуации из жизни, вопрос в конце, 2-4 абзаца
+3. «Факт дня / Экспертный» (14:00) — факт или заявление, список или структура, 4-7 абзацев
+4. «Провокационный вопрос» (17:00) — спорное утверждение, раздели мнения, 2-3 абзаца
+5. «Лид-магнит / Оффер» (20:00) — боль аудитории, что получит человек, мягкий призыв, 3-5 абзацев
+
+ПРАВИЛА: короткие абзацы (2-3 предложения), пустые строки между ними, БЕЗ markdown, максимум 2 эмодзи, разговорный стиль, БЕЗ заголовков заглавными буквами.
+
+СТОП-СЛОВА (запрещено): «Успей записаться», «Осталось N мест», «Трансформация», «квантовый скачок», «Поток изобилия», «вибрации», «Заработай миллион», «Всё расскажу на курсе», «переходи по ссылке».
+
+Ответ СТРОГО в формате JSON:
+{"posts": [{"format": "Название формата", "time": "ЧЧ:00", "text": "Текст поста"}]}`;
+
 export interface ThreadsPost {
   format: string;
   time: string;
@@ -127,6 +143,8 @@ export async function generateThreadsPosts(
     .map((f, i) => `${i + 1}. ${f.format} (${f.time})`)
     .join("\n");
 
+  const activeSystemPrompt = getProvider() === "YandexGPT" ? SYSTEM_PROMPT_COMPACT : SYSTEM_PROMPT;
+
   return withRetry(async () => {
     const response = await deepseek.chat.completions.create(
       {
@@ -134,7 +152,7 @@ export async function generateThreadsPosts(
         messages: [
           {
             role: "system",
-            content: SYSTEM_PROMPT,
+            content: activeSystemPrompt,
           },
           {
             role: "user",

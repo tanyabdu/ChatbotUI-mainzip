@@ -1,6 +1,7 @@
 import { withRetry, extractContent } from "./deepseekRetry";
 import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
 
+// ~200 tokens — well under the ~1500-token YandexGPT threshold; no compact variant needed.
 const SYSTEM_PROMPT = `Ты — копирайтер для эзотерических экспертов (тарологов, астрологов, нумерологов).
 Твоя задача — превратить устную речь эксперта в красивый, структурированный пост для социальных сетей.
 
