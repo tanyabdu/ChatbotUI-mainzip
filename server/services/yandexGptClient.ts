@@ -1,5 +1,3 @@
-import https from "https";
-
 const YANDEX_GPT_URL = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
 
 interface YandexMessage {
@@ -23,44 +21,66 @@ interface YandexResponse {
       message: { role: string; text: string };
       status: string;
     }>;
-    usage: { inputTextTokens: string; completionTokens: string; totalTokens: string };
-    modelVersion: string;
+    usage?: { inputTextTokens: string; completionTokens: string; totalTokens: string };
+    modelVersion?: string;
   };
 }
 
-function callYandexGPT(request: YandexRequest, apiKey: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify(request);
+export type YandexCreateParams = {
+  model: string;
+  messages: Array<{ role: string; content: string }>;
+  temperature?: number;
+  max_tokens?: number;
+  response_format?: { type: string };
+  [key: string]: any;
+};
 
-    const req = https.request(YANDEX_GPT_URL, {
+export type YandexCreateOptions = {
+  timeout?: number;
+  [key: string]: any;
+};
+
+export type YandexCompatibleResponse = {
+  choices: Array<{ message: { role: string; content: string }; finish_reason: string }>;
+};
+
+async function callYandexGPT(
+  request: YandexRequest,
+  apiKey: string,
+  folderId: string,
+  timeoutMs: number
+): Promise<string> {
+  const body = JSON.stringify(request);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  let res: Response;
+  try {
+    res = await fetch(YANDEX_GPT_URL, {
       method: "POST",
       headers: {
-        "Authorization": `Api-Key ${apiKey}`,
+        Authorization: `Api-Key ${apiKey}`,
         "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(body),
+        "x-folder-id": folderId,
       },
-    }, (res) => {
-      let data = "";
-      res.on("data", (chunk) => { data += chunk; });
-      res.on("end", () => {
-        try {
-          const parsed: YandexResponse = JSON.parse(data);
-          if (res.statusCode !== 200) {
-            reject(new Error(`YandexGPT error ${res.statusCode}: ${data}`));
-            return;
-          }
-          const text = parsed.result?.alternatives?.[0]?.message?.text ?? "";
-          resolve(text);
-        } catch (e) {
-          reject(new Error(`YandexGPT parse error: ${data}`));
-        }
-      });
+      body,
+      signal: controller.signal,
     });
+  } finally {
+    clearTimeout(timer);
+  }
 
-    req.on("error", (err) => reject(new Error(`YandexGPT request error: ${err.message}`)));
-    req.write(body);
-    req.end();
-  });
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => "unknown");
+    throw new Error(`YandexGPT error ${res.status}: ${errorText}`);
+  }
+
+  const data: YandexResponse = await res.json();
+  const text = data?.result?.alternatives?.[0]?.message?.text;
+  if (!text) {
+    throw new Error("YandexGPT вернул пустой ответ");
+  }
+  return text;
 }
 
 export class YandexGptClient {
@@ -70,13 +90,10 @@ export class YandexGptClient {
 
   chat: {
     completions: {
-      create: (params: {
-        model: string;
-        messages: Array<{ role: string; content: string }>;
-        temperature?: number;
-        max_tokens?: number;
-        response_format?: { type: string };
-      }) => Promise<{ choices: Array<{ message: { content: string } }> }>;
+      create: (
+        params: YandexCreateParams,
+        options?: YandexCreateOptions
+      ) => Promise<YandexCompatibleResponse>;
     };
   };
 
@@ -87,7 +104,7 @@ export class YandexGptClient {
 
     this.chat = {
       completions: {
-        create: async (params) => {
+        create: async (params, options) => {
           const messages: YandexMessage[] = params.messages.map((m) => ({
             role: m.role as "system" | "user" | "assistant",
             text: m.content,
@@ -103,9 +120,15 @@ export class YandexGptClient {
             messages,
           };
 
-          const text = await callYandexGPT(request, this.apiKey);
+          const text = await callYandexGPT(
+            request,
+            this.apiKey,
+            this.folderId,
+            options?.timeout ?? 60000
+          );
+
           return {
-            choices: [{ message: { content: text } }],
+            choices: [{ message: { role: "assistant", content: text }, finish_reason: "stop" }],
           };
         },
       },
