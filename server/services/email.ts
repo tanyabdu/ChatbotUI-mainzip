@@ -1,6 +1,23 @@
 import crypto from "crypto";
 
-const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || "esoteric-unsubscribe-secret-key";
+const UNSUBSCRIBE_SECRET = (() => {
+  const secret = process.env.UNSUBSCRIBE_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "FATAL: UNSUBSCRIBE_SECRET environment variable is not set. " +
+        "Set a strong random secret before running in production."
+      );
+    }
+    console.warn(
+      "WARNING: UNSUBSCRIBE_SECRET is not set. " +
+      "Using a temporary in-process secret — unsubscribe tokens will be invalid after restart. " +
+      "Set UNSUBSCRIBE_SECRET in your environment variables."
+    );
+    return crypto.randomBytes(32).toString("hex");
+  }
+  return secret;
+})();
 
 export function generateUnsubscribeToken(email: string): string {
   return crypto.createHmac("sha256", UNSUBSCRIBE_SECRET).update(email.toLowerCase()).digest("hex");
