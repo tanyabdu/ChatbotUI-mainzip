@@ -13,7 +13,7 @@ import { generateImprovedAnswer } from "./services/moneyTrainer";
 import { generateCase, cleanOcrText } from "./services/caseGenerator";
 import { generateContentStrategy, generateIdeasOnly, generateSingleFormat } from "./services/contentGenerator";
 import { createPaymentLink, verifyWebhookSignature, parseWebhookData } from "./services/prodamus";
-import { sendPaymentNotification, sendEmail, generateUnsubscribeToken, verifyUnsubscribeToken, appendUnsubscribeFooter } from "./services/email";
+import { sendPaymentNotification, sendEmail, generateUnsubscribeToken, verifyUnsubscribeToken, appendUnsubscribeFooter, type UnsubscribeVerifyResult } from "./services/email";
 import { transcribeAudio } from "./services/yandexSpeechKit";
 import { generateContentPlan, generateQuestions, generatePostFromAnswers } from "./services/contentAlchemy";
 import { transformToTriggerReels } from "./services/triggerReels";
@@ -989,16 +989,20 @@ export async function registerRoutes(
       return res.status(400).send(unsubscribeHtmlPage("error", "Некорректная ссылка отписки."));
     }
 
-    let tokenValid = false;
+    let verifyResult: UnsubscribeVerifyResult = { valid: false };
     try {
-      tokenValid = verifyUnsubscribeToken(email, token);
+      verifyResult = verifyUnsubscribeToken(email, token);
     } catch {
-      tokenValid = false;
+      verifyResult = { valid: false };
     }
 
-    if (!tokenValid) {
+    if (!verifyResult.valid) {
       await logSecurityEvent("invalid_token", email);
       return res.status(400).send(unsubscribeHtmlPage("error", "Недействительная ссылка отписки."));
+    }
+
+    if (verifyResult.usedPrevSecret) {
+      console.log(`[Unsubscribe] Token for ${email} accepted via previous (rotated) secret — consider re-sending with new secret`);
     }
 
     const user = await storage.getUserByEmail(email);

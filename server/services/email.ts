@@ -19,13 +19,69 @@ const UNSUBSCRIBE_SECRET = (() => {
   return secret;
 })();
 
-export function generateUnsubscribeToken(email: string): string {
-  return crypto.createHmac("sha256", UNSUBSCRIBE_SECRET).update(email.toLowerCase()).digest("hex");
+/**
+ * Previous unsubscribe secret used during key rotation.
+ * Set UNSUBSCRIBE_SECRET_PREV to the old secret value when rotating UNSUBSCRIBE_SECRET.
+ * Tokens signed with the previous secret will be accepted until UNSUBSCRIBE_SECRET_PREV_EXPIRES
+ * (an ISO-8601 date string). If UNSUBSCRIBE_SECRET_PREV_EXPIRES is not set, the previous secret
+ * is accepted indefinitely until it is removed from the environment.
+ * Once the grace period has passed, remove both UNSUBSCRIBE_SECRET_PREV and
+ * UNSUBSCRIBE_SECRET_PREV_EXPIRES from the environment.
+ */
+const UNSUBSCRIBE_SECRET_PREV: string | null = process.env.UNSUBSCRIBE_SECRET_PREV || null;
+const UNSUBSCRIBE_SECRET_PREV_EXPIRES: Date | null = (() => {
+  const raw = process.env.UNSUBSCRIBE_SECRET_PREV_EXPIRES;
+  if (!raw) return null;
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) {
+    const msg = `UNSUBSCRIBE_SECRET_PREV_EXPIRES value "${raw}" is not a valid ISO-8601 date.`;
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        `FATAL: ${msg} Fix or remove this environment variable before running in production.`
+      );
+    }
+    console.error(
+      `ERROR: ${msg} Ignoring expiry — previous secret will be accepted indefinitely until fixed.`
+    );
+    return null;
+  }
+  return d;
+})();
+
+function hmac(secret: string, email: string): string {
+  return crypto.createHmac("sha256", secret).update(email.toLowerCase()).digest("hex");
 }
 
-export function verifyUnsubscribeToken(email: string, token: string): boolean {
-  const expected = generateUnsubscribeToken(email);
-  return crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(token, "hex"));
+export function generateUnsubscribeToken(email: string): string {
+  return hmac(UNSUBSCRIBE_SECRET, email);
+}
+
+export type UnsubscribeVerifyResult =
+  | { valid: false }
+  | { valid: true; usedPrevSecret: boolean };
+
+export function verifyUnsubscribeToken(email: string, token: string): UnsubscribeVerifyResult {
+  const tokenBuf = Buffer.from(token, "hex");
+  if (tokenBuf.length === 0) return { valid: false };
+
+  const currentExpected = Buffer.from(hmac(UNSUBSCRIBE_SECRET, email), "hex");
+  if (currentExpected.length === tokenBuf.length &&
+      crypto.timingSafeEqual(currentExpected, tokenBuf)) {
+    return { valid: true, usedPrevSecret: false };
+  }
+
+  if (UNSUBSCRIBE_SECRET_PREV) {
+    const now = new Date();
+    if (!UNSUBSCRIBE_SECRET_PREV_EXPIRES || now < UNSUBSCRIBE_SECRET_PREV_EXPIRES) {
+      const prevExpected = Buffer.from(hmac(UNSUBSCRIBE_SECRET_PREV, email), "hex");
+      if (prevExpected.length === tokenBuf.length &&
+          crypto.timingSafeEqual(prevExpected, tokenBuf)) {
+        return { valid: true, usedPrevSecret: true };
+      }
+    }
+  }
+
+  return { valid: false };
 }
 
 export function appendUnsubscribeFooter(html: string, unsubscribeUrl: string): string {
