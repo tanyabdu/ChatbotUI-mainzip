@@ -21,10 +21,10 @@ import {
   LayoutDashboard, Users, BarChart3, Settings, 
   Sparkles, Home, TrendingUp, FileText, Mic, Archive,
   Plus, Clock, Crown, Shield, ShieldOff, Trash2, CreditCard, Tag,
-  UserCheck, CalendarDays, Activity, Banknote, Gift, Search, Mail, Send, RefreshCw, Download, Info, X
+  UserCheck, CalendarDays, Activity, Banknote, Gift, Search, Mail, Send, RefreshCw, Download, Info, X, ScrollText
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import type { User } from "@shared/schema";
+import type { User, ConsentLog } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -96,6 +96,7 @@ export default function Admin() {
   const { toast } = useToast();
   const [userSearch, setUserSearch] = useState("");
   const [usagePeriod, setUsagePeriod] = useState<"day" | "week" | "month">("week");
+  const [consentHistoryUserId, setConsentHistoryUserId] = useState<string | null>(null);
 
   const defaultTo = new Date();
   const defaultFrom = new Date(defaultTo.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -145,6 +146,15 @@ export default function Admin() {
       return res.json();
     },
     enabled: !!user?.isAdmin,
+  });
+
+  const { data: consentLogs = [], isFetching: isConsentLoading } = useQuery<ConsentLog[]>({
+    queryKey: ["/api/admin/users", consentHistoryUserId, "consent-logs"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/admin/users/${consentHistoryUserId}/consent-logs`);
+      return res.json();
+    },
+    enabled: !!consentHistoryUserId,
   });
 
   const extendAccessMutation = useMutation({
@@ -590,6 +600,14 @@ export default function Admin() {
                                   <ShieldOff className="h-3 w-3" />
                                 </Button>
                               )}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                title="История согласий"
+                                onClick={() => setConsentHistoryUserId(u.id)}
+                              >
+                                <ScrollText className="h-3 w-3" />
+                              </Button>
                               {u.id !== user?.id && (
                                 <Button
                                   size="sm"
@@ -989,6 +1007,73 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Dialog open={!!consentHistoryUserId} onOpenChange={(open) => { if (!open) setConsentHistoryUserId(null); }}>
+        <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-purple-700 flex items-center gap-2">
+              <ScrollText className="h-5 w-5 text-pink-500" />
+              История согласий
+              {consentHistoryUserId && allUsers.find(u => u.id === consentHistoryUserId) && (
+                <span className="text-sm font-normal text-purple-500 ml-1">
+                  — {allUsers.find(u => u.id === consentHistoryUserId)?.email}
+                </span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto flex-1 pr-1">
+            {isConsentLoading ? (
+              <p className="text-purple-400 text-center py-8">Загрузка...</p>
+            ) : consentLogs.length === 0 ? (
+              <p className="text-purple-400 text-center py-8">Нет записей о согласиях</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-white z-10">
+                  <tr className="border-b-2 border-purple-200 text-purple-600">
+                    <th className="text-left py-2 pr-3 font-medium">Дата / Время</th>
+                    <th className="text-left py-2 pr-3 font-medium">Тип согласия</th>
+                    <th className="text-left py-2 pr-3 font-medium">Статус</th>
+                    <th className="text-left py-2 pr-3 font-medium">IP-адрес</th>
+                    <th className="text-left py-2 font-medium">User Agent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {consentLogs.map((log) => (
+                    <tr key={log.id} className="border-b border-purple-100 hover:bg-purple-50 transition-colors">
+                      <td className="py-2 pr-3 text-purple-700 whitespace-nowrap">
+                        {log.createdAt ? new Date(log.createdAt).toLocaleString("ru-RU", {
+                          day: "2-digit", month: "2-digit", year: "numeric",
+                          hour: "2-digit", minute: "2-digit", second: "2-digit"
+                        }) : "—"}
+                      </td>
+                      <td className="py-2 pr-3 text-purple-700">
+                        <code className="bg-purple-100 text-purple-700 rounded px-1 py-0.5 text-xs">{log.consentType}</code>
+                      </td>
+                      <td className="py-2 pr-3">
+                        {log.granted ? (
+                          <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 border border-green-200 rounded px-2 py-0.5 font-medium">
+                            Да
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 border border-red-200 rounded px-2 py-0.5 font-medium">
+                            Нет
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2 pr-3 text-purple-500 text-xs font-mono whitespace-nowrap">
+                        {log.ipAddress || "—"}
+                      </td>
+                      <td className="py-2 text-purple-400 text-xs max-w-[200px] truncate" title={log.userAgent ?? undefined}>
+                        {log.userAgent || "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -138,6 +138,9 @@ export interface IStorage {
   getNewsletterLogRecipients(logId: string): Promise<NewsletterLogRecipient[]>;
   updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined>;
   deleteGrimoireTopic(id: string, userId: string): Promise<void>;
+
+  // Consent Logs
+  getConsentLogs(userId: string): Promise<ConsentLog[]>;
 }
 
 export class DatabaseStorage implements IStorage {

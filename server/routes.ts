@@ -664,6 +664,17 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/admin/users/:id/consent-logs", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const logs = await storage.getConsentLogs(id);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching consent logs:", error);
+      res.status(500).json({ error: "Failed to fetch consent logs" });
+    }
+  });
+
   // Access check route
   app.get("/api/auth/access", isAuthenticated, async (req: any, res) => {
     try {
