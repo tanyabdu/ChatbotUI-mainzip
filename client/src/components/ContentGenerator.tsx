@@ -22,7 +22,7 @@ interface GenerationLimit {
 }
 
 type ContentGoal = "sale" | "engagement";
-type DaysCount = "today" | "3" | "7" | "14" | "30";
+type DaysCount = "today" | "3" | "7";
 type StrategyType = "general" | "launch";
 
 interface FormatContent {
@@ -540,8 +540,6 @@ export default function ContentGenerator({ archetypeActive = false, archetypeDat
                     <SelectItem value="today">★ Сегодня (Я в потоке)</SelectItem>
                     <SelectItem value="3">3 Дня (Тест)</SelectItem>
                     <SelectItem value="7">7 Дней (Неделя)</SelectItem>
-                    <SelectItem value="14">14 Дней (Прогрев)</SelectItem>
-                    <SelectItem value="30">30 Дней (Месяц)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

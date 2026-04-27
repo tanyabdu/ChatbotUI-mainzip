@@ -10,7 +10,6 @@ import CasesManager from "@/components/CasesManager";
 import LunarCalendar from "@/components/LunarCalendar";
 import MoneyTrainer from "@/components/MoneyTrainer";
 import CarouselEditor from "@/components/CarouselEditor";
-import ContentAlchemy from "@/components/ContentAlchemy";
 import TriggerReels from "@/components/TriggerReels";
 import ThreadsGenerator from "@/components/ThreadsGenerator";
 import { getArchetypeIdByName } from "@/lib/archetypeFonts";
@@ -96,8 +95,6 @@ export default function Home() {
         {activeTab === "calendar" && <LunarCalendar />}
         
         {activeTab === "trainer" && <MoneyTrainer />}
-        
-        {activeTab === "alchemy" && <ContentAlchemy />}
         
         {activeTab === "triggerReels" && <TriggerReels />}
         

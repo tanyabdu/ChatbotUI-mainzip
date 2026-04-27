@@ -1,8 +1,8 @@
-import { FileText, Dna, Mic, Gem, Moon, DollarSign, Image, Sparkles, Zap, MessageCircle } from "lucide-react";
+import { FileText, Dna, Mic, Gem, Moon, DollarSign, Image, Zap, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export type TabName = "generator" | "archetype" | "voice" | "cases" | "carousel" | "calendar" | "trainer" | "alchemy" | "triggerReels" | "threads";
+export type TabName = "generator" | "archetype" | "voice" | "cases" | "carousel" | "calendar" | "trainer" | "triggerReels" | "threads";
 
 interface NavigationProps {
   activeTab: TabName | null;
@@ -12,7 +12,6 @@ interface NavigationProps {
 const navItems: { id: TabName; label: string; icon: typeof FileText; hint?: string; badge?: string }[] = [
   { id: "archetype", label: "Архетип стратегии", icon: Dna, hint: "Пройдите тест, чтобы генератор учитывал ваш стиль" },
   { id: "generator", label: "Генератор контента", icon: FileText },
-  { id: "alchemy", label: "Алхимия контента", icon: Sparkles, badge: "Тест" },
   { id: "triggerReels", label: "Триггерные Reels", icon: Zap },
   { id: "threads", label: "Треды", icon: MessageCircle },
   { id: "voice", label: "Голос потока", icon: Mic },
