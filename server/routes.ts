@@ -924,6 +924,17 @@ export async function registerRoutes(
     }
   });
 
+  // Webhook status — returns aggregate stats from the newsletter_events table
+  app.get("/api/admin/webhook-status", isAuthenticated, requireAdmin, async (_req, res) => {
+    try {
+      const status = await storage.getWebhookStatus();
+      res.json(status);
+    } catch (error: any) {
+      console.error("[Webhook Status] Error:", error);
+      res.status(500).json({ error: "Internal error" });
+    }
+  });
+
   // Rusender webhook — receives open/click events for newsletter tracking
   // Rusender sends a POST with JSON payload containing the event type and idempotencyKey.
   // Our idempotencyKey format is "{logId}:{uuid}", which lets us identify which newsletter

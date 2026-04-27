@@ -138,6 +138,7 @@ export interface IStorage {
   getNewsletterLogs(): Promise<NewsletterLog[]>;
   saveNewsletterRecipients(logId: string, recipients: { email: string; firstName: string | null; status: "sent" | "failed" }[]): Promise<void>;
   getNewsletterLogRecipients(logId: string): Promise<NewsletterLogRecipient[]>;
+  getWebhookStatus(): Promise<{ last_event_at: string | null; event_count: number }>;
   updateGrimoireTopic(id: string, userId: string, data: Partial<InsertGrimoireTopic>): Promise<GrimoireTopic | undefined>;
   deleteGrimoireTopic(id: string, userId: string): Promise<void>;
 
@@ -1068,6 +1069,19 @@ export class DatabaseStorage implements IStorage {
 
   async getNewsletterLogs(): Promise<NewsletterLog[]> {
     return db.select().from(newsletterLogs).orderBy(desc(newsletterLogs.createdAt)).limit(100);
+  }
+
+  async getWebhookStatus(): Promise<{ last_event_at: string | null; event_count: number }> {
+    const [row] = await db
+      .select({
+        last_event_at: sql<string | null>`MAX(${newsletterEvents.createdAt})`,
+        event_count: count(),
+      })
+      .from(newsletterEvents);
+    return {
+      last_event_at: row?.last_event_at ?? null,
+      event_count: Number(row?.event_count ?? 0),
+    };
   }
 
   async saveNewsletterRecipients(logId: string, recipients: { email: string; firstName: string | null; status: "sent" | "failed" }[]): Promise<void> {

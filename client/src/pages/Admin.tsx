@@ -1149,6 +1149,16 @@ function NewsletterTab() {
     },
   });
 
+  const { data: webhookStatus } = useQuery<{ last_event_at: string | null; event_count: number }>({
+    queryKey: ["/api/admin/webhook-status"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/webhook-status", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load webhook status");
+      return res.json();
+    },
+    refetchInterval: 60_000,
+  });
+
   const selectedLog = selectedLogId ? history.find(l => l.id === selectedLogId) ?? null : null;
 
   const { data: logRecipients = [], isLoading: recipientsLoading } = useQuery<{
@@ -1339,10 +1349,27 @@ function NewsletterTab() {
       {/* History */}
       <Card className="bg-white border-2 border-purple-200">
         <CardHeader>
-          <CardTitle className="text-purple-700 flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            История рассылок
-          </CardTitle>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <CardTitle className="text-purple-700 flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              История рассылок
+            </CardTitle>
+            {webhookStatus !== undefined && (
+              <span className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${webhookStatus.event_count > 0 ? "bg-green-50 text-green-700 border border-green-200" : "bg-gray-50 text-gray-500 border border-gray-200"}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${webhookStatus.event_count > 0 ? "bg-green-500" : "bg-gray-400"}`} />
+                {webhookStatus.event_count > 0
+                  ? (() => {
+                      const diffMs = Date.now() - new Date(webhookStatus.last_event_at!).getTime();
+                      const mins = Math.floor(diffMs / 60000);
+                      const hours = Math.floor(mins / 60);
+                      const days = Math.floor(hours / 24);
+                      const label = days > 0 ? `${days}д назад` : hours > 0 ? `${hours}ч назад` : mins > 0 ? `${mins}м назад` : "только что";
+                      return `Webhook: последнее событие ${label} (всего ${webhookStatus.event_count})`;
+                    })()
+                  : "Webhook: событий ещё не получено"}
+              </span>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {/* Webhook setup hint — shown when no open/click data has been recorded yet */}
