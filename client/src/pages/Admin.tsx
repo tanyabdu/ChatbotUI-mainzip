@@ -89,6 +89,131 @@ interface AdminPayment {
 
 const toInputDate = (d: Date) => d.toISOString().slice(0, 10);
 
+function CreatePromocodeForm({ onCreated }: { onCreated: () => void }) {
+  const { toast } = useToast();
+  const [code, setCode] = useState("");
+  const [type, setType] = useState<"bonus" | "discount">("discount");
+  const [discountPercent, setDiscountPercent] = useState("");
+  const [bonusDays, setBonusDays] = useState("");
+  const [maxUses, setMaxUses] = useState("10000");
+  const [expiresAt, setExpiresAt] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("/api/admin/promocodes", {
+        method: "POST",
+        body: JSON.stringify({
+          code: code.toUpperCase(),
+          promocodeType: type,
+          discountPercent: type === "discount" ? discountPercent : undefined,
+          bonusDays: type === "bonus" ? bonusDays : 0,
+          maxUses,
+          expiresAt: expiresAt || undefined,
+        }),
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "Промокод создан", description: `${code.toUpperCase()} успешно добавлен` });
+      setCode(""); setDiscountPercent(""); setBonusDays(""); setMaxUses("10000"); setExpiresAt(""); setOpen(false);
+      onCreated();
+    },
+    onError: (err: any) => {
+      toast({ title: "Ошибка", description: err.message || "Не удалось создать промокод", variant: "destructive" });
+    },
+  });
+
+  return (
+    <div className="border border-purple-200 rounded-lg bg-purple-50 p-4">
+      {!open ? (
+        <Button variant="outline" size="sm" className="border-purple-300 text-purple-700 hover:bg-purple-100 w-full" onClick={() => setOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Создать новый промокод
+        </Button>
+      ) : (
+        <div className="space-y-3">
+          <p className="font-semibold text-purple-700 text-sm">Новый промокод</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs text-purple-600">Тип</Label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as "bonus" | "discount")}
+                className="w-full mt-1 text-sm border border-purple-300 rounded-md px-2 py-1.5 bg-white text-purple-800 focus:outline-none focus:ring-1 focus:ring-purple-400"
+              >
+                <option value="discount">Скидка (%)</option>
+                <option value="bonus">Бонусные дни</option>
+              </select>
+            </div>
+            <div>
+              <Label className="text-xs text-purple-600">Код</Label>
+              <Input
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                placeholder="MAY845"
+                className="mt-1 text-sm border-purple-300 font-mono uppercase"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {type === "discount" ? (
+              <div>
+                <Label className="text-xs text-purple-600">Скидка %</Label>
+                <Input
+                  value={discountPercent}
+                  onChange={(e) => setDiscountPercent(e.target.value)}
+                  placeholder="50"
+                  type="number"
+                  min="1" max="100"
+                  className="mt-1 text-sm border-purple-300"
+                />
+              </div>
+            ) : (
+              <div>
+                <Label className="text-xs text-purple-600">Бонусных дней</Label>
+                <Input
+                  value={bonusDays}
+                  onChange={(e) => setBonusDays(e.target.value)}
+                  placeholder="30"
+                  type="number"
+                  className="mt-1 text-sm border-purple-300"
+                />
+              </div>
+            )}
+            <div>
+              <Label className="text-xs text-purple-600">Макс. использований</Label>
+              <Input
+                value={maxUses}
+                onChange={(e) => setMaxUses(e.target.value)}
+                placeholder="10000"
+                type="number"
+                className="mt-1 text-sm border-purple-300"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs text-purple-600">Дата истечения (необязательно)</Label>
+            <Input
+              value={expiresAt}
+              onChange={(e) => setExpiresAt(e.target.value)}
+              type="date"
+              className="mt-1 text-sm border-purple-300"
+            />
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button size="sm" onClick={() => createMutation.mutate()} disabled={createMutation.isPending} className="bg-purple-600 hover:bg-purple-700 text-white">
+              {createMutation.isPending ? "Создаём..." : "Создать"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setOpen(false)} className="border-purple-300 text-purple-600">
+              Отмена
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Admin() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
@@ -740,7 +865,10 @@ export default function Admin() {
                   Промокоды
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-6">
+                {/* Форма создания промокода */}
+                <CreatePromocodeForm onCreated={() => queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] })} />
+
                 {!stats?.promocodeStats?.length ? (
                   <p className="text-purple-400 text-center py-6">Промокодов нет</p>
                 ) : (

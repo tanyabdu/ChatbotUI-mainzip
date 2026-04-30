@@ -799,17 +799,30 @@ export async function registerRoutes(
   // Admin: Create promocode
   app.post("/api/admin/promocodes", isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
-      const { code, bonusDays, maxUses, expiresAt } = req.body;
+      const { code, bonusDays, maxUses, expiresAt, promocodeType, discountPercent, discountPlanType } = req.body;
 
-      if (!code || !bonusDays) {
-        return res.status(400).json({ error: "Укажите код и количество дней" });
+      if (!code) {
+        return res.status(400).json({ error: "Укажите код промокода" });
+      }
+
+      const isDiscount = promocodeType === "discount";
+
+      if (isDiscount && !discountPercent) {
+        return res.status(400).json({ error: "Укажите процент скидки" });
+      }
+
+      if (!isDiscount && !bonusDays) {
+        return res.status(400).json({ error: "Укажите количество бонусных дней" });
       }
 
       const promocode = await storage.createPromocode({
         code,
-        bonusDays: parseInt(bonusDays),
+        bonusDays: isDiscount ? 0 : parseInt(bonusDays),
         maxUses: maxUses ? parseInt(maxUses) : undefined,
         expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+        promocodeType: isDiscount ? "discount" : "bonus",
+        discountPercent: isDiscount ? parseInt(discountPercent) : undefined,
+        discountPlanType: isDiscount ? (discountPlanType || "all") : undefined,
       });
 
       res.json(promocode);

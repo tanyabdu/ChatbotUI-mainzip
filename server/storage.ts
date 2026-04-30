@@ -820,12 +820,23 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async createPromocode(data: { code: string; bonusDays: number; maxUses?: number; expiresAt?: Date }): Promise<Promocode> {
+  async createPromocode(data: {
+    code: string;
+    bonusDays: number;
+    maxUses?: number;
+    expiresAt?: Date;
+    promocodeType?: string;
+    discountPercent?: number;
+    discountPlanType?: string;
+  }): Promise<Promocode> {
     const [created] = await db.insert(promocodes).values({
       code: data.code.toUpperCase(),
       bonusDays: data.bonusDays,
       maxUses: data.maxUses || 1,
       expiresAt: data.expiresAt,
+      promocodeType: data.promocodeType || "bonus",
+      discountPercent: data.discountPercent ?? null,
+      discountPlanType: data.discountPlanType ?? null,
     }).returning();
     return created;
   }
