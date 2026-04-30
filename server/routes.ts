@@ -822,7 +822,7 @@ export async function registerRoutes(
         expiresAt: expiresAt ? new Date(expiresAt) : undefined,
         promocodeType: isDiscount ? "discount" : "bonus",
         discountPercent: isDiscount ? parseInt(discountPercent) : undefined,
-        discountPlanType: isDiscount ? (discountPlanType || "all") : undefined,
+        discountPlanType: isDiscount ? (discountPlanType && discountPlanType !== "all" ? discountPlanType : null) : undefined,
       });
 
       res.json(promocode);

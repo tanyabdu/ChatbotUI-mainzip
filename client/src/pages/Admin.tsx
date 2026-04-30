@@ -94,6 +94,7 @@ function CreatePromocodeForm({ onCreated }: { onCreated: () => void }) {
   const [code, setCode] = useState("");
   const [type, setType] = useState<"bonus" | "discount">("discount");
   const [discountPercent, setDiscountPercent] = useState("");
+  const [discountPlanType, setDiscountPlanType] = useState("all");
   const [bonusDays, setBonusDays] = useState("");
   const [maxUses, setMaxUses] = useState("10000");
   const [expiresAt, setExpiresAt] = useState("");
@@ -107,6 +108,7 @@ function CreatePromocodeForm({ onCreated }: { onCreated: () => void }) {
           code: code.toUpperCase(),
           promocodeType: type,
           discountPercent: type === "discount" ? discountPercent : undefined,
+          discountPlanType: type === "discount" ? discountPlanType : undefined,
           bonusDays: type === "bonus" ? bonusDays : 0,
           maxUses,
           expiresAt: expiresAt || undefined,
@@ -115,7 +117,7 @@ function CreatePromocodeForm({ onCreated }: { onCreated: () => void }) {
     },
     onSuccess: () => {
       toast({ title: "Промокод создан", description: `${code.toUpperCase()} успешно добавлен` });
-      setCode(""); setDiscountPercent(""); setBonusDays(""); setMaxUses("10000"); setExpiresAt(""); setOpen(false);
+      setCode(""); setDiscountPercent(""); setDiscountPlanType("all"); setBonusDays(""); setMaxUses("10000"); setExpiresAt(""); setOpen(false);
       onCreated();
     },
     onError: (err: any) => {
@@ -191,6 +193,20 @@ function CreatePromocodeForm({ onCreated }: { onCreated: () => void }) {
               />
             </div>
           </div>
+          {type === "discount" && (
+            <div>
+              <Label className="text-xs text-purple-600">Действует на подписку</Label>
+              <select
+                value={discountPlanType}
+                onChange={(e) => setDiscountPlanType(e.target.value)}
+                className="w-full mt-1 text-sm border border-purple-300 rounded-md px-2 py-1.5 bg-white text-purple-800 focus:outline-none focus:ring-1 focus:ring-purple-400"
+              >
+                <option value="all">Обе подписки (месячная и годовая)</option>
+                <option value="monthly">Только месячная</option>
+                <option value="yearly">Только годовая</option>
+              </select>
+            </div>
+          )}
           <div>
             <Label className="text-xs text-purple-600">Дата истечения (необязательно)</Label>
             <Input

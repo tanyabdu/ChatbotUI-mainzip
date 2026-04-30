@@ -794,13 +794,17 @@ export class DatabaseStorage implements IStorage {
       return { success: false, message: "Вы уже использовали этот промокод" };
     }
 
-    const applicablePlans = promocode.discountPlanType
-      ? [promocode.discountPlanType]
-      : ['monthly', 'yearly'];
+    const applicablePlans = (!promocode.discountPlanType || promocode.discountPlanType === 'all')
+      ? ['monthly', 'yearly']
+      : [promocode.discountPlanType];
+
+    const planLabel = applicablePlans.length === 2
+      ? ''
+      : applicablePlans[0] === 'monthly' ? ' (только месячная)' : ' (только годовая)';
 
     return {
       success: true,
-      message: `Скидка ${promocode.discountPercent}% применена`,
+      message: `Скидка ${promocode.discountPercent}%${planLabel} применена`,
       discountPercent: promocode.discountPercent || 0,
       applicablePlans,
       promocodeId: promocode.id,
