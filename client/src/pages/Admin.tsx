@@ -102,17 +102,14 @@ function CreatePromocodeForm({ onCreated }: { onCreated: () => void }) {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("/api/admin/promocodes", {
-        method: "POST",
-        body: JSON.stringify({
-          code: code.toUpperCase(),
-          promocodeType: type,
-          discountPercent: type === "discount" ? discountPercent : undefined,
-          discountPlanType: type === "discount" ? discountPlanType : undefined,
-          bonusDays: type === "bonus" ? bonusDays : 0,
-          maxUses,
-          expiresAt: expiresAt || undefined,
-        }),
+      return apiRequest("POST", "/api/admin/promocodes", {
+        code: code.toUpperCase(),
+        promocodeType: type,
+        discountPercent: type === "discount" ? discountPercent : undefined,
+        discountPlanType: type === "discount" ? discountPlanType : undefined,
+        bonusDays: type === "bonus" ? bonusDays : 0,
+        maxUses,
+        expiresAt: expiresAt || undefined,
       });
     },
     onSuccess: () => {
