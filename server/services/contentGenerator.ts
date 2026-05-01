@@ -1163,17 +1163,29 @@ ${callToAction}
       try {
         const parsed = JSON.parse(content);
         
-        // Ensure we have the expected structure
-        if (parsed.content) {
-          return parsed as FormatContent;
-        } else {
-          // Try to extract from nested structure
-          const jsonMatch = content.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            return JSON.parse(jsonMatch[0]) as FormatContent;
+        // Normalize response: handle both flat and nested structures from YandexGPT
+        // Expected: {"content": "text"} or {"content": "text", "hashtags": [...]}
+        // YandexGPT sometimes returns: {"content": {"content": "text", "hashtags": [...]}}
+        if (parsed.content !== undefined) {
+          if (typeof parsed.content === 'string') {
+            // Correct flat structure: {"content": "text"}
+            return { content: parsed.content, hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : [] };
+          } else if (typeof parsed.content === 'object' && parsed.content !== null) {
+            if (typeof parsed.content.content === 'string') {
+              // Doubly nested: {"content": {"content": "text", "hashtags": [...]}}
+              return { content: parsed.content.content, hashtags: Array.isArray(parsed.content.hashtags) ? parsed.content.hashtags : [] };
+            }
           }
-          throw new Error("No content field found in response");
         }
+
+        // Fallback: try to find any string field that looks like content
+        for (const key of Object.keys(parsed)) {
+          if (typeof parsed[key] === 'string' && parsed[key].length > 50) {
+            return { content: parsed[key], hashtags: [] };
+          }
+        }
+
+        throw new Error("No valid content field found in response");
       } catch (parseError: any) {
         console.error(`${format} JSON parse error:`, parseError.message);
         console.error("Response content:", content.substring(0, 300));
