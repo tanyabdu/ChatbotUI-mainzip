@@ -1,0 +1,169 @@
+0|esoteric |       "idea": "Почем
+0|esoteric | Ideas generation error (attempt 1): JSON parse failed: Expected ',' or '}' after property value in JSON at position 317
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | JSON parse error: Expected ',' or '}' after property value in JSON at position 303
+0|esoteric | Response content: {
+0|esoteric |   "ideas": [
+0|esoteric |     {
+0|esoteric |       "day": 1,
+0|esoteric |       "idea": "Как я помогала людям обрести финансовое благополучие",
+0|esoteric |       "type": "Знакомство/Боль"
+0|esoteric |     },
+0|esoteric |     {
+0|esoteric |       "day": 2,
+0|esoteric |       "idea": "Почему установки о деньгах так важны",
+0|esoteric |       "type": "Экспертный"
+0|esoteric |     },
+0|esoteric |     {
+0|esoteric |       "day": 3,
+0|esoteric |       "idea": "Интенси
+0|esoteric | Ideas generation error (attempt 1): JSON parse failed: Expected ',' or '}' after property value in JSON at position 303
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | stories JSON parse error: No valid content field found in response
+0|esoteric | Response content: {
+0|esoteric |     "content": [
+0|esoteric |         "Сторис 1: Девочки, у нас с вами май 2026 года по календарю — это не время прохлаждаться! Вам знакомо это чувство, когда кажется, что всё вокруг бурлит, а ты стоишь на месте? Я знаю, как это исправить. Май — месяц, когда всё меняется, и мы должны быть к этому готовы.",
+0|esoteric |    
+0|esoteric | stories generation error (attempt 1): JSON parse failed: No valid content field found in response
+0|esoteric | stories JSON parse error: No valid content field found in response
+0|esoteric | Response content: {
+0|esoteric |   "content": [
+0|esoteric |     {
+0|esoteric |       "text": "Девочки, слышали про май 2026? Это будет не просто месяц, а настоящий вихрь перемен! Если у вас есть бизнес или карьерные амбиции, приготовьтесь — нас ждёт зона турбо-роста!"
+0|esoteric |     },
+0|esoteric |     {
+0|esoteric |       "text": "Я проанализировала транзиты и теперь точно знаю, как май по
+0|esoteric | stories generation error (attempt 2): JSON parse failed: No valid content field found in response
+0|esoteric | All stories retry attempts failed
+0|esoteric | Format generation error: Error: Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.
+0|esoteric |     at GE (/var/www/magic-content/dist/index.cjs:862:1836)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1337:3956
+
+/root/.pm2/logs/esoteric-planner-out.log last 50 lines:
+0|esoteric | остранство — людей, файлы, подписки.\n1–15 мая: Делаем акцент на коммуникации и нетворкинг.\n16 мая: Прописываем твердые финансовые цели.\n17–24 мая: Проявляемся максимально ярко. Говорим, пишем, продаем.\n25 мая: Выдыхаем. Никаких резких движений.\n31 мая: Заявляем о себе на весь мир.\n\nМагия без действия — это галлюцинация. Май даст энергию только тем, кто готов соединить свою интуицию с четким бизнес-расчетом.\n\nЕсли хотите персональный навигатор по вашему знаку зодиака на этот месяц — жмите на кнопочку под постом там уже ждет прогностика. А за ежедневными подсказками, что делать «здесь и сейчас», — жду вас в своем ВК.\n\nСтавьте 🔥, если берете это ТЗ в работу! Отправьте прогноз подружке, которой важно это знать.","archetype":{"name":"Мудрец-Влюблённый-Простодушный","description":"Эксперт с хорошей интуицией. Умеет анализировать и структурировать информацию, находить решения сложных задач. Стремится к истине и глубокому пониманию. С элементами влюблённый: чувственный, эмоциональный, эстетичный, страстный.","recommendations":["знания","анализ","система","понимание","истина","красота"],"triggerWords":["анализ","система","знания","эксперт","истина","интеллект","исследование","технология","логика","доказательства"],"contentStyle":["экспертно через знания","интеллектуально","с призывом к обсуждениям","образовательно"],"tone":"Экспертный, вдумчивый, структурированный. Объясняет сложное простым языком."},"gender":"female"}}
+0|esoteric | 8:39:48 AM [express] GET /api/generation-limit 304 in 30ms :: {"allowed":true,"remaining":-1}
+0|esoteric | Generating stories for: Как май 2026 года поможет достичь финансовых целей..., gender: female
+0|esoteric | Generating stories for idea: Как май 2026 года поможет достичь финансовых целей... (attempt 1/2)
+0|esoteric | stories generated in 4683ms
+0|esoteric | Raw stories response (first 300 chars): {
+0|esoteric |     "content": [
+0|esoteric |         "Сторис 1: Девочки, у нас с вами май 2026 года по календарю — это не время прохлаждаться! Вам знакомо это чувство, когда кажется, что всё вокруг бурлит, а ты стоишь на месте? Я знаю, как это исправить. Май — месяц, когда всё меняется, и мы должны быть к этому готовы.",
+0|esoteric |    
+0|esoteric | Retrying in 1 second...
+0|esoteric | Generating stories for idea: Как май 2026 года поможет достичь финансовых целей... (attempt 2/2)
+0|esoteric | stories generated in 3260ms
+0|esoteric | Raw stories response (first 300 chars): {
+0|esoteric |   "content": [
+0|esoteric |     {
+0|esoteric |       "text": "Девочки, слышали про май 2026? Это будет не просто месяц, а настоящий вихрь перемен! Если у вас есть бизнес или карьерные амбиции, приготовьтесь — нас ждёт зона турбо-роста!"
+0|esoteric |     },
+0|esoteric |     {
+0|esoteric |       "text": "Я проанализировала транзиты и теперь точно знаю, как май по
+0|esoteric | [Email] Attempting to send email to tanya.fskate@gmail.com, subject: "Ошибка: ContentGenerator:stories"
+0|esoteric | [Email] FROM_EMAIL: klimova@magic-content.ru, API Key exists: true
+0|esoteric | [Email] Sending request to Rusender API...
+0|esoteric | 8:40:00 AM [express] POST /api/strategies/generate-format 500 in 8964ms :: {"error":"Ошибка генерации контента. Попробуйте ещё раз."}
+0|esoteric | [Email] Rusender response status: 201, body: {"uuid":"b1530e6a-bbc1-451b-aba7-ef4175727935","additionalRecipients":[]}
+0|esoteric | [Email] Successfully sent email to tanya.fskate@gmail.com
+0|esoteric | 8:40:01 AM [express] GET /api/auth/user 304 in 17ms :: {"id":"55a7db6a-6d25-4653-aa55-cb78d7f5fe45","email":"shystova.i@mail.ru","firstName":"Ирина","lastName":"Мартынова","nickname":null,"profileImageUrl":null,"isAdmin":false,"subscriptionTier":"yearly","trialEndsAt":"2026-01-04T09:56:49.101Z","subscriptionExpiresAt":"2027-04-08T10:36:15.274Z","marketingConsent":true}
+0|esoteric | 8:40:01 AM [express] GET /api/auth/access 304 in 15ms :: {"hasAccess":true,"daysLeft":343}
+0|esoteric | 8:40:01 AM [express] GET /api/auth/consent-status 304 in 32ms :: {"consentsComplete":true,"missing":[],"granted":["offer","personal_data","marketing"]}
+0|esoteric | New database connection established
+0|esoteric | 8:40:01 AM [express] GET /api/archetypes/latest 304 in 136ms :: {"id":"98e77caf-2373-4ea5-b39e-0aa3f0b238ca","userId":"55a7db6a-6d25-4653-aa55-cb78d7f5fe45","archetypeName":"Искатель-Бунтарь-Мудрец","archetypeDescription":"Постоянно в движении и поиске. Индивидуалист, авантюрист, искатель приключений. Жаждет свободы и новых открытий. С элементами бунтарь: смелый, провокационный, независимый, революционный.","answers":[3,0,2,1,2,2,1,3],"recommendations":["свобода","путь","открытие","приключение","новое","правда"],"brandColors":["#059669","#34d399","#fcd34d"],"brandFonts":["Montserrat для заголовков, Lato для текста"],"gender":"female","createdAt":"2026-04-08T13:44:47.410Z"}
+0|esoteric | 8:40:32 AM [express] POST /api/threads/generate 200 in 6462ms :: {"posts":[{"format":"Интрига + обещание","time":"08:00","text":"Вы когда-нибудь задумывались, как астрология может изменить вашу жизнь? Недавно я узнала кое-что интересное о себе благодаря анализу натальной карты. Оказалось, что некоторые аспекты моего гороскопа требовали проработки. Я поняла, что для изменений нужно, прежде всего, измениться самой. Хотите узнать, как это произошло? Расскажу подробнее о своём опыте и том, как астрология помогает находить баланс и расти внутренне."},{"format":"Поиск аудитории","time":"11:00","text":"Часто ли вы сталкиваетесь с тем, что погружаетесь в детали астрологических прогнозов и упускаете очевидные вещи? Недавно я поняла, что сама совершаю такую ошибку. Мой коллега помог мне увидеть, что я не уделяла внимание важным аспектам своей натальной карты. А у вас было такое? Поделитесь своими мыслями в комментариях!"},{"format":"Факт дня / Экспертный пост","time":"14:00","text":"Знаете ли вы, что анализ натальной карты может помочь вам найти баланс в жизни? Например, если у вас есть квадратура Солнца к Нептуну, это может означать, что вам стоит заняться медитацией и духовными практиками. А квадратура Солнца к Сатурну и Урану требует проработки чётких планов и структур. Однако Уран не терпит рамок, поэтому важно находить гибкие подходы. Астрология помогает нам понять себя лучше и найти путь к внутреннему росту."},{"format":"Провокационный вопрос","time":"17:00","text":"Считаете ли вы, что астрология — это просто развлечение, или она может быть инструментом для саморазвития? Многие люди недооценивают потенциал астрологии в поиске баланса и гармонии. А что думаете вы?"},{"format":"Лид-магнит / Оффер","time":"20:00","text":"Чувствуете, что застряли на одном месте и не можете двигаться вперёд? Астрология может помочь вам найти путь к изменениям. Анализ натальной карты позволит увидеть аспекты, требующие проработки, и предложить эффективные практики. Хотите узнать больше о том, как астрология может изменить вашу жизнь? Пишите мне, и я расскажу о своём опыте и том, как астрология помогает достигать внутреннего роста."}]}
+
+0|esoteric-planner  | Generating reels for: Как май 2026 года поможет достичь финансовых целей..., gender: female
+0|esoteric-planner  | Generating reels for idea: Как май 2026 года поможет достичь финансовых целей... (attempt 1/2)
+0|esoteric-planner  | reels generated in 5548ms
+0|esoteric-planner  | Raw reels response (first 300 chars): {
+0|esoteric-planner  |   "content": "Девочки, знаете что я поняла? Май 2026 года — это не просто месяц в календаре. Это настоящий коридор возможностей для тех, кто хочет достичь своих финансовых целей. Я всегда считала, что успех — это дело удачи, но теперь понимаю: всё дело в знании астрологических транзитов и умении и
+0|esoteric-planner  | 8:41:29 AM [express] POST /api/strategies/generate-format 200 in 5565ms :: {"content":{"content":"Девочки, знаете что я поняла? Май 2026 года — это не просто месяц в календаре. Это настоящий коридор возможностей для тех, кто хочет достичь своих финансовых целей. Я всегда считала, что успех — это дело удачи, но теперь понимаю: всё дело в знании астрологических транзитов и умении их использовать.\n\nЯ проанализировала все ключевые точки мая и готова поделиться своими знаниями. Если вы хотите запустить новый проект, увеличить продажи или просто выйти на новый уровень, то этот месяц — ваш шанс.\n\nВот что нас ждёт:\n\n🔮 1 мая — Полнолуние в Скорпионе. Это день, когда нужно быть честными с собой и другими. Пришло время избавиться от всего, что мешает нам двигаться вперёд.\n🔮 До 18 мая — Венера в Близнецах. Это идеальное время для продаж голосом, нетворкинга и коллабораций.\n🔮 14 мая — Меркурий в соединении с Солнцем. Это лучший день для разработки стратегии и отправки офферов.\n🔮 16 мая — Новолуние в Тельце. Это главное «денежное» событие года. Пишите конкретную сумму, которую хотите получить, и дату, к которой хотите её достичь.\n🔮 17–22 мая — Информационный взрыв. Идеи будут приходить пачками, так что будьте готовы их реализовать.\n🔮 25 мая — Марс квадрат Плутон. Это опасный аспект, так что избегайте конфликтов и не подписывайте договоры.\n🔮 31 мая — Голубая Луна в Стрельце. Это финал месяца, когда нужно объявить о своих больших целях.\n\nМай — это коридор возможностей, но он открыт только для тех, кто готов действовать. Если вы хотите персональный навигатор по вашему знаку зодиака на этот месяц, то жмите на кнопочку под постом. А за ежедневными подсказками, что делать «здесь и сейчас», — жду вас в своём ВК.\n\nСтавьте 🔥, если берёте это ТЗ в работу! Отправьте прогноз подружке, которой важно это знать. Вместе мы сможем достичь любых целей!","hashtags":[]}}
+0|esoteric-planner  | Generating stories for: Как май 2026 года поможет достичь финансовых целей..., gender: female
+0|esoteric-planner  | Generating stories for idea: Как май 2026 года поможет достичь финансовых целей... (attempt 1/2)
+0|esoteric-planner  | stories generated in 3978ms
+0|esoteric-planner  | Raw stories response (first 300 chars): {
+0|esoteric-planner  |   "content": [
+0|esoteric-planner  |     "Сторис 1: Девочки, представьте: май — это не просто «ах, весна, красота», а настоящий месяц возможностей! У вас есть шанс прокачать свои финансы, но для этого нужна система. А вы готовы встретить май во всеоружии?",
+0|esoteric-planner  |     "Сторис 2: Я проанализировала все транзиты и могу сказать 
+0|esoteric-planner  | stories JSON parse error: No valid content field found in response
+0|esoteric-planner  | Response content: {
+0|esoteric-planner  |   "content": [
+0|esoteric-planner  |     "Сторис 1: Девочки, представьте: май — это не просто «ах, весна, красота», а настоящий месяц возможностей! У вас есть шанс прокачать свои финансы, но для этого нужна система. А вы готовы встретить май во всеоружии?",
+0|esoteric-planner  |     "Сторис 2: Я проанализировала все транзиты и могу сказать 
+0|esoteric-planner  | stories generation error (attempt 1): JSON parse failed: No valid content field found in response
+0|esoteric-planner  | Retrying in 1 second...
+0|esoteric-planner  | Generating stories for idea: Как май 2026 года поможет достичь финансовых целей... (attempt 2/2)
+0|esoteric-planner  | 8:41:43 AM [express] GET /api/auth/user 200 in 15ms :: {"id":"809c4b86-1b55-4dbd-9c4c-4f6468eea4e5","email":"liliya_3466_75@mail.ru","firstName":"Лилия","lastName":"Инжиневская","nickname":null,"profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-04-04T09:46:25.811Z","subscriptionExpiresAt":"2026-05-26T03:35:11.584Z","marketingConsent":true}
+0|esoteric-planner  | 8:41:43 AM [express] GET /api/auth/consent-status 200 in 38ms :: {"consentsComplete":true,"missing":[],"granted":["marketing","offer","personal_data"]}
+0|esoteric-planner  | stories generated in 3949ms
+0|esoteric-planner  | Raw stories response (first 300 chars): {
+0|esoteric-planner  |   "content": [
+0|esoteric-planner  |     "Сторис 1: Девочки, представьте: открывается дверь, и вы видите мая 2026 года — не просто месяц, а ваш личный путь к успеху. А у вас всё готово? Не чувствуете, что нужно чёткое ТЗ, чтобы не упустить шанс? Сегодня расскажу, как не просто пройти этот месяц, а взять от него всё!",
+0|esoteric-planner  | stories JSON parse error: No valid content field found in response
+0|esoteric-planner  | Response content: {
+0|esoteric-planner  |   "content": [
+0|esoteric-planner  |     "Сторис 1: Девочки, представьте: открывается дверь, и вы видите мая 2026 года — не просто месяц, а ваш личный путь к успеху. А у вас всё готово? Не чувствуете, что нужно чёткое ТЗ, чтобы не упустить шанс? Сегодня расскажу, как не просто пройти этот месяц, а взять от него всё!",
+0|esoteric-planner  | stories generation error (attempt 2): JSON parse failed: No valid content field found in response
+0|esoteric-planner  | All stories retry attempts failed
+0|esoteric-planner  | [Email] Error notification for "ContentGenerator:stories" throttled (last sent 103s ago)
+0|esoteric-planner  | Format generation error: Error: Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.
+0|esoteric-planner  |     at GE (/var/www/magic-content/dist/index.cjs:862:1836)
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:1337:3956
+0|esoteric-planner  | 8:41:43 AM [express] POST /api/strategies/generate-format 500 in 8944ms :: {"error":"Ошибка генерации контента. Попробуйте ещё раз."}
+0|esoteric-planner  | New database connection established
+0|esoteric-planner  | New database connection established
+0|esoteric-planner  | 8:41:43 AM [express] GET /api/archetypes/latest 304 in 123ms :: {"id":"09a19025-8cfd-4fe2-8139-fded8c89656c","userId":"809c4b86-1b55-4dbd-9c4c-4f6468eea4e5","archetypeName":"Мудрец-Маг-Славный малый","archetypeDescription":"Эксперт с хорошей интуицией. Умеет анализировать и структурировать информацию, находить решения сложных задач. Стремится к истине и глубокому пониманию. С элементами маг: харизматичный, влиятельный, таинственный, трансформирующий.","answers":[0,0,0,0,3,0,2,1],"recommendations":["знания","анализ","система","понимание","истина","трансформация"],"brandColors":["#1e3a5f","#94a3b8","#f8fafc"],"brandFonts":["Merriweather для заголовков, Roboto для текста"],"gender":"female","createdAt":"2026-04-01T12:53:01.076Z"}
+0|esoteric-planner  | 8:41:43 AM [express] GET /api/auth/access 200 in 137ms :: {"hasAccess":true,"daysLeft":25}
+0|esoteric-planner  | 8:41:46 AM [express] GET /api/generation-limit 304 in 25ms :: {"allowed":true,"remaining":-1}
+0|esoteric-planner  | 8:41:46 AM [express] GET /api/strategies 200 in 34ms :: []
+0|esoteric-planner  | Generating carousel for: Как май 2026 года поможет достичь финансовых целей..., gender: female
+0|esoteric-planner  | Generating carousel for idea: Как май 2026 года поможет достичь финансовых целей... (attempt 1/2)
+0|esoteric-planner  | carousel generated in 5617ms
+0|esoteric-planner  | Raw carousel response (first 300 chars): {
+0|esoteric-planner  |     "content": "Девочки, представляете, май 2026 года — это не просто очередной месяц в календаре. Это наш шанс на финансовый рывок! Я проанализировала астрологические транзиты и готова поделиться уникальными инсайтами, которые помогут вам достичь поставленных целей.\n\n---\n\nЗнаете, сколько возм
+0|esoteric-planner  | 8:41:53 AM [express] POST /api/strategies/generate-format 200 in 5633ms :: {"content":{"content":"Девочки, представляете, май 2026 года — это не просто очередной месяц в календаре. Это наш шанс на финансовый рывок! Я проанализировала астрологические транзиты и готова поделиться уникальными инсайтами, которые помогут вам достичь поставленных целей.\n\n---\n\nЗнаете, сколько возможностей упускает человек, не используя потенциал астрологии? Бесчисленное множество! Система астрологических влияний может стать вашим личным навигатором по жизни и бизнесу. Если вы хотите понять, как использовать энергию планет в своих интересах, то эта информация для вас.\n\n---\n\nДавайте разберём ключевые моменты мая 2026 года. 1 мая — Полнолуние в Скорпионе, идеальное время для честного разговора с собой и очищения от лишнего. До 18 мая — Венера в Близнецах, отличный период для продаж голосом и нетворкинга. 14 мая — Меркурий в соединении с Солнцем, используйте этот день для формулирования своей стратегии.\n\n---\n\nА что у нас с финансами? Деньги любят конкретику. Размытые желания оставьте в прошлом. Пишите чёткие финансовые цели, например: «Мне нужно 1 200 000 ₽ на запуске к 25 мая». Помните, что деньги идут на систему, а не на авось.\n\n---\n\nНе забывайте о личных отношениях. До 18 мая — время лёгких связей и флирта. После 18-го (Венера в Раке) — переходите к более глубокому и уютному общению. Это идеальное время для публикации контента о семье, доме и ваших чувствах.\n\n---\n\nВаш план действий: до 1 мая — очистите пространство от ненужного, 1–15 мая — акцентируйте внимание на коммуникации и нетворкинг, 16 мая — пропишите твёрдые финансовые цели, 17–24 мая — проявляйтесь максимально ярко, 25 мая — отдохните и не делайте резких движений, 31 мая — заявите о себе на весь мир.\n\n---\n\nХотите персональный гороскоп на май 2026 года? Жмите на кнопку под постом и получите свой астрологический прогноз. За ежедневными подсказками жду вас в своём ВК. Не упустите шанс использовать энергию мая для достижения своих целей!","hashtags":[]}}
+0|esoteric-planner  | Generating stories for: Как май 2026 года поможет достичь финансовых целей..., gender: female
+0|esoteric-planner  | Generating stories for idea: Как май 2026 года поможет достичь финансовых целей... (attempt 1/2)
+0|esoteric-planner  | stories generated in 4036ms
+0|esoteric-planner  | Raw stories response (first 300 chars): {
+0|esoteric-planner  |   "content": [
+0|esoteric-planner  |     "Сторис 1: Девчонки, слышали про май 2026 года? Это не просто месяц в календаре. Это настоящий взрыв энергии и возможностей для всех, кто мечтает о финансовом прорыве. Готовы узнать, как вам не проспать свой шанс? 🌟",
+0|esoteric-planner  |     "Сторис 2: Я проанализировала все транзиты до последней 
+0|esoteric-planner  | stories JSON parse error: No valid content field found in response
+0|esoteric-planner  | Response content: {
+0|esoteric-planner  |   "content": [
+0|esoteric-planner  |     "Сторис 1: Девчонки, слышали про май 2026 года? Это не просто месяц в календаре. Это настоящий взрыв энергии и возможностей для всех, кто мечтает о финансовом прорыве. Готовы узнать, как вам не проспать свой шанс? 🌟",
+0|esoteric-planner  |     "Сторис 2: Я проанализировала все транзиты до последней 
+0|esoteric-planner  | stories generation error (attempt 1): JSON parse failed: No valid content field found in response
+0|esoteric-planner  | Retrying in 1 second...
+0|esoteric-planner  | Generating stories for idea: Как май 2026 года поможет достичь финансовых целей... (attempt 2/2)
+0|esoteric-planner  | stories generated in 3562ms
+0|esoteric-planner  | Raw stories response (first 300 chars): {
+0|esoteric-planner  |     "content": "
+0|esoteric-planner  | Сторис 1: Девчонки, а вы знали, что май 2026 года — это не просто весна и цветочки? Этот месяц — настоящий энергетический вихрь для тех, кто мечтает о финансовом взлёте! 💵✨\n
+0|esoteric-planner  | Сторис 2: Представьте: вы чётко знаете, когда запускать новый проект, какие переговоры вести и даже как 
+0|esoteric-planner  | stories JSON parse error: Bad control character in string literal in JSON at position 18
+0|esoteric-planner  | Response content: {
+0|esoteric-planner  |     "content": "
+0|esoteric-planner  | Сторис 1: Девчонки, а вы знали, что май 2026 года — это не просто весна и цветочки? Этот месяц — настоящий энергетический вихрь для тех, кто мечтает о финансовом взлёте! 💵✨\n
+0|esoteric-planner  | Сторис 2: Представьте: вы чётко знаете, когда запускать новый проект, какие переговоры вести и даже как 
+0|esoteric-planner  | stories generation error (attempt 2): JSON parse failed: Bad control character in string literal in JSON at position 18
+0|esoteric-planner  | All stories retry attempts failed
+0|esoteric-planner  | [Email] Error notification for "ContentGenerator:stories" throttled (last sent 137s ago)
+0|esoteric-planner  | Format generation error: Error: Сервис временно недоступен. Пожалуйста, попробуйте через 5 минут.
+0|esoteric-planner  |     at GE (/var/www/magic-content/dist/index.cjs:862:1836)
+0|esoteric-planner  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric-planner  |     at async /var/www/magic-content/dist/index.cjs:1337:3956
+0|esoteric-planner  | 8:42:18 AM [express] POST /api/strategies/generate-format 500 in 8619ms :: {"error":"Ошибка генерации контента. Попробуйте ещё раз."}
+

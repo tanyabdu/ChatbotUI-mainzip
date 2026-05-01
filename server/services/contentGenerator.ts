@@ -1104,10 +1104,10 @@ ${selectedStoriesHooks.map((h, i) => `${i + 1}. ${h}`).join('\n')}
 
 СТИЛЬ ПОДАЧИ (выбран случайно): ${selectedStoriesStyle}
 
-Формат:
-'Сторис 1: [текст или описание]
-Сторис 2: [следующий слайд]...'
+Запиши все сторис одной строкой через \\n\\n (переносы строк), например:
+"Сторис 1: [текст]\\n\\nСторис 2: [текст]\\n\\nСторис 3: [текст]"
 
+⚠️ ЗАПРЕЩЕНО: использовать массив JSON! Только одна строка "content".
 ⚠️ ЗАПРЕЩЕНО: повторять одни и те же структуры! Каждая серия УНИКАЛЬНА.
 Сторис 1 — зацепить (вопрос, интрига, НО каждый раз по-разному!)
 Последняя — призыв к действию`
@@ -1163,13 +1163,27 @@ ${callToAction}
       try {
         const parsed = JSON.parse(content);
         
-        // Normalize response: handle both flat and nested structures from YandexGPT
-        // Expected: {"content": "text"} or {"content": "text", "hashtags": [...]}
-        // YandexGPT sometimes returns: {"content": {"content": "text", "hashtags": [...]}}
+        // Normalize response: handle all structures YandexGPT may return
+        // Expected: {"content": "text"}
+        // Also handles:
+        //   {"content": ["Сторис 1: ...", "Сторис 2: ..."]}       — array of strings
+        //   {"content": [{"text": "..."}, {"text": "..."}]}        — array of objects
+        //   {"content": {"content": "text", "hashtags": [...]}}    — doubly nested object
         if (parsed.content !== undefined) {
           if (typeof parsed.content === 'string') {
-            // Correct flat structure: {"content": "text"}
             return { content: parsed.content, hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : [] };
+          } else if (Array.isArray(parsed.content)) {
+            // Array of strings: join them
+            if (parsed.content.length > 0 && typeof parsed.content[0] === 'string') {
+              return { content: parsed.content.join('\n\n'), hashtags: [] };
+            }
+            // Array of objects with text/content field
+            if (parsed.content.length > 0 && typeof parsed.content[0] === 'object') {
+              const parts = parsed.content.map((item: any) => item.text || item.content || '').filter(Boolean);
+              if (parts.length > 0) {
+                return { content: parts.join('\n\n'), hashtags: [] };
+              }
+            }
           } else if (typeof parsed.content === 'object' && parsed.content !== null) {
             if (typeof parsed.content.content === 'string') {
               // Doubly nested: {"content": {"content": "text", "hashtags": [...]}}
