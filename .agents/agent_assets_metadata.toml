@@ -12,3 +12,9 @@ id = "3lO0f3-QlfYTZKdvgw7hi"
 uri = "file://trigger_reels_knowledge_base.md"
 type = "text"
 title = "Триггерные Reels — Полная База Знаний"
+
+[[outputs]]
+id = "7X0AjaBEyL4gM06jA5tqs"
+uri = "file://lunar_calendar_spec.md"
+type = "text"
+title = "ТЗ: Лунный Календарь"
