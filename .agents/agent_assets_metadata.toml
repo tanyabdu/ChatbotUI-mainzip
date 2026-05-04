@@ -6,3 +6,9 @@ id = "IjWhdcpVMGWFWWFFvgQz2"
 uri = "file://триггерный_контент.txt"
 type = "text"
 title = "Триггерный контент — полная база знаний"
+
+[[outputs]]
+id = "3lO0f3-QlfYTZKdvgw7hi"
+uri = "file://trigger_reels_knowledge_base.md"
+type = "text"
+title = "Триггерные Reels — Полная База Знаний"
