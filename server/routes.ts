@@ -854,7 +854,7 @@ export async function registerRoutes(
     }
   });
 
-  const VALID_SEGMENTS = new Set(["all","trial","monthly","yearly","free","active","inactive","new7","new30"]);
+  const VALID_SEGMENTS = new Set(["all","trial","monthly","yearly","free","active","inactive","new7","new30","noAccess"]);
 
   function parseSegments(raw: unknown): string[] {
     const arr: string[] = raw

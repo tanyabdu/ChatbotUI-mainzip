@@ -1042,6 +1042,19 @@ export class DatabaseStorage implements IStorage {
           case "new30":
             segmentClauses.push(gte(users.createdAt, thirtyDaysAgo));
             break;
+          case "noAccess":
+            segmentClauses.push(
+              or(
+                and(eq(users.subscriptionTier, "trial"), sql`${users.trialEndsAt} < NOW()`),
+                and(
+                  or(eq(users.subscriptionTier, "monthly"), eq(users.subscriptionTier, "yearly")),
+                  sql`${users.subscriptionExpiresAt} < NOW()`
+                ),
+                eq(users.subscriptionTier, "free"),
+                isNull(users.subscriptionTier)
+              )
+            );
+            break;
         }
       }
       if (segmentClauses.length > 0) {

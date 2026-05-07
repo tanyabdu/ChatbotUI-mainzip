@@ -1235,9 +1235,10 @@ export default function Admin() {
 
 const SEGMENTS = [
   { value: "all", label: "Все пользователи" },
-  { value: "trial", label: "Пробный период" },
-  { value: "monthly", label: "Месячная подписка" },
-  { value: "yearly", label: "Годовая подписка" },
+  { value: "noAccess", label: "Нет активного доступа (триал/подписка истекли)" },
+  { value: "trial", label: "Пробный период (все, включая истёкших)" },
+  { value: "monthly", label: "Месячная подписка (все, включая истёкших)" },
+  { value: "yearly", label: "Годовая подписка (все, включая истёкших)" },
   { value: "free", label: "Без доступа (free)" },
   { value: "active", label: "Активные (вход за 30 дней)" },
   { value: "inactive", label: "Неактивные (нет входа 30+ дней)" },
