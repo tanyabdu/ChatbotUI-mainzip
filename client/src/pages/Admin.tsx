@@ -1307,8 +1307,7 @@ function NewsletterTab() {
   }[]>({
     queryKey: ["/api/admin/newsletter", selectedLogId, "recipients"],
     queryFn: async () => {
-      const res = await fetch(`/api/admin/newsletter/${selectedLogId}/recipients`, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to load recipients");
+      const res = await apiRequest("GET", `/api/admin/newsletter/${selectedLogId}/recipients`);
       return res.json();
     },
     enabled: !!selectedLogId,
@@ -1330,8 +1329,7 @@ function NewsletterTab() {
     try {
       const params = new URLSearchParams({ marketingOnly: String(marketingOnly) });
       segments.forEach(s => params.append("segments", s));
-      const res = await fetch(`/api/admin/newsletter/count?${params}`, { credentials: "include" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await apiRequest("GET", `/api/admin/newsletter/count?${params}`);
       const data = await res.json();
       setRecipientCount(data.count);
     } catch {

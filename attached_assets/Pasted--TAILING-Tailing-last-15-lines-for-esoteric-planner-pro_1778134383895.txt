@@ -1,0 +1,29 @@
+[TAILING] Tailing last 15 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 15 lines:
+0|esoteric |     {
+0|esoteric |       "day": 2,
+0|esoteric |       "idea": "Сексуальность как источник внутренней силы",
+0|esoteric |       "type": "Экспертный"
+0|esoteric |     },
+0|esoteric |     {
+0|esoteric |       "day": 3,
+0|esoteric |       "idea": "Инвестиции в 
+0|esoteric | Ideas generation error (attempt 1): JSON parse failed: Expected ',' or '}' after property value in JSON at position 319
+0|esoteric | Payment webhook: signature verification failed, but continuing
+0|esoteric | carousel JSON parse error: Bad control character in string literal in JSON at position 1581
+0|esoteric | Response content: {
+0|esoteric |     "content": "🔮Запуталась в чувствах партнёра и не знаешь, что делать?🔮\n\n---\n\nОтношения — это такой калейдоскоп эмоций, правда? Иногда кажется, что всё идеально, а потом вдруг накатывает тревога: а что он думает на самом деле? А чувствует ли то же, что и я? Не лукавит ли?\n\nЯ помню, как с
+0|esoteric | carousel generation error (attempt 1): JSON parse failed: Bad control character in string literal in JSON at position 1581
+0|esoteric | Payment webhook: signature verification failed, but continuing
+
+/root/.pm2/logs/esoteric-planner-out.log last 15 lines:
+0|esoteric | t":"990.00","planType":"monthly","status":"pending","prodamusData":null,"createdAt":"2026-01-01T09:02:16.428Z","userEmail":"violettovaya@yandex.ru","userName":"Виолетта"},{"id":"b5048392-26be-4c87-86e5-ae6c63f26e0a","userId":"24773a2d-c59b-4fcd-a9c2-b892f75d6747","orderId":"ESP-260101-5239","amount":"990.00","planType":"monthly","status":"pending","prodamusData":null,"createdAt":"2026-01-01T08:29:27.747Z","userEmail":"lesenok.46@mail.ru","userName":"Олеся "},{"id":"8ed9d4e5-3a1c-4052-9c47-62c116e0b042","userId":"cd387f94-6d18-4d28-aed5-ccca9efe5981","orderId":"ESP-260101-RYWS","amount":"3990.00","planType":"yearly","status":"pending","prodamusData":null,"createdAt":"2026-01-01T08:26:19.848Z","userEmail":"rubtsova.marina6@gmail.com","userName":"Марина"},{"id":"0e3a6258-0f4f-4ca3-a497-b467ac609091","userId":"cd387f94-6d18-4d28-aed5-ccca9efe5981","orderId":"ESP-260101-9FIO","amount":"990.00","planType":"monthly","status":"pending","prodamusData":null,"createdAt":"2026-01-01T08:26:10.372Z","userEmail":"rubtsova.marina6@gmail.com","userName":"Марина"}]
+0|esoteric | 9:10:08 AM [express] GET /api/admin/webhook-status 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 9:10:08 AM [express] GET /api/admin/newsletter/history 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | 9:10:09 AM [express] GET /api/admin/stats 200 in 1933ms :: {"totalUsers":1272,"usersWithAccess":130,"activeToday":3,"activePaidSubscriptions":107,"totalStrategies":702,"totalVoicePosts":326,"totalCaseStudies":268,"subscriptionBreakdown":{"trial":651,"free":0,"monthly":589,"yearly":32},"activeTrials":21,"expiredTrials":1249,"activeMonthly":75,"activeYearly":32,"noAccess":1142,"newUsersLast7Days":38,"newUsersLast30Days":203,"totalSuccessfulPayments":151,"paidMonthlyPayments":120,"paidYearlyPayments":31,"paidWithMoney":35,"paidWithPromocode":281,"paidBoth":97,"periodNewUsers":203,"periodPayments":91,"periodPromoUsages":64,"promocodeStats":[{"code":"MAY845","usedCount":24,"maxUses":10000,"type":"discount","discountPercent":50,"bonusDays":0,"isActive":true,"expiresAt":"2026-05-31T00:00:00.000Z","bonusUntil":null},{"code":"MARCHCLUB","usedCount":175,"maxUses":null,"type":"bonus","discountPercent":0,"bonusDays":0,"isActive":true,"expiresAt":"2026-03-31T23:59:59.000Z","bonusUntil":"2026-03-31T23:59:59.000Z"},{"code":"MARCHCLUB50","usedCount":70,"maxUses":10000,"type":"discount","discountPercent":50,"bonusDays":0,"isActive":true,"expiresAt":null,"bonusUntil":null},{"code":"FEB30","usedCount":298,"maxUses":null,"type":"bonus","discountPercent":0,"bonusDays":30,"isActive":true,"expiresAt":"2026-03-01T00:00:00.000Z","bonusUntil":null}]}
+0|esoteric | 9:10:11 AM [express] GET /api/admin/newsletter/count 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 9:12:41 AM [express] GET /api/admin/newsletter/history 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 9:12:41 AM [express] GET /api/admin/webhook-status 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | 9:12:43 AM [express] GET /api/admin/newsletter/count 401 in 0ms :: {"message":"Unauthorized"}
+
+root@cv5653817:/var/www/magic-content# 
