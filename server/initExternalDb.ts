@@ -35,10 +35,12 @@ async function initDatabase() {
       CREATE TABLE IF NOT EXISTS esoteric_planner.users (
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid()::text,
         email VARCHAR UNIQUE,
+        password_hash VARCHAR,
         first_name VARCHAR,
         last_name VARCHAR,
         profile_image_url VARCHAR,
         nickname VARCHAR,
+        email_verified_at TIMESTAMP,
         subscription_tier VARCHAR DEFAULT 'trial',
         subscription_expires_at TIMESTAMP,
         trial_ends_at TIMESTAMP,
@@ -46,11 +48,19 @@ async function initDatabase() {
         generations_limit INTEGER DEFAULT 50,
         daily_generations_used INTEGER DEFAULT 0,
         last_generation_date VARCHAR,
+        last_login_at TIMESTAMP,
         is_admin BOOLEAN DEFAULT false,
+        marketing_consent BOOLEAN DEFAULT false,
+        marketing_consent_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
+    await pool.query(`ALTER TABLE esoteric_planner.users ADD COLUMN IF NOT EXISTS password_hash VARCHAR`);
+    await pool.query(`ALTER TABLE esoteric_planner.users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMP`);
+    await pool.query(`ALTER TABLE esoteric_planner.users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP`);
+    await pool.query(`ALTER TABLE esoteric_planner.users ADD COLUMN IF NOT EXISTS marketing_consent BOOLEAN DEFAULT false`);
+    await pool.query(`ALTER TABLE esoteric_planner.users ADD COLUMN IF NOT EXISTS marketing_consent_at TIMESTAMP`);
     
     console.log("Creating content_strategies table...");
     await pool.query(`
@@ -147,9 +157,17 @@ async function initDatabase() {
         used_count INTEGER DEFAULT 0,
         is_active BOOLEAN DEFAULT true,
         expires_at TIMESTAMP,
+        promocode_type VARCHAR DEFAULT 'bonus',
+        discount_percent INTEGER,
+        discount_plan_type VARCHAR,
+        bonus_until TIMESTAMP,
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
+    await pool.query(`ALTER TABLE esoteric_planner.promocodes ADD COLUMN IF NOT EXISTS promocode_type VARCHAR DEFAULT 'bonus'`);
+    await pool.query(`ALTER TABLE esoteric_planner.promocodes ADD COLUMN IF NOT EXISTS discount_percent INTEGER`);
+    await pool.query(`ALTER TABLE esoteric_planner.promocodes ADD COLUMN IF NOT EXISTS discount_plan_type VARCHAR`);
+    await pool.query(`ALTER TABLE esoteric_planner.promocodes ADD COLUMN IF NOT EXISTS bonus_until TIMESTAMP`);
     
     console.log("Creating promocode_usages table...");
     await pool.query(`
