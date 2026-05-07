@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Подарок от нас — 3 дня бесплатно 🎁</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: #f3f0fb;
+    font-family: 'Jost', sans-serif;
+    color: #2a1f4a;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrapper {
+    max-width: 620px;
+    margin: 0 auto;
+    background-color: #ffffff;
+  }
+
+  .urgency-line {
+    background: linear-gradient(90deg, #9b59d0 0%, #c45fd4 50%, #9b59d0 100%);
+    padding: 12px 48px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+
+  .header {
+    background: linear-gradient(160deg, #f8f4ff 0%, #fdf0ff 50%, #f4f0ff 100%);
+    padding: 48px 40px 44px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid #e8d8f8;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(180,100,220,0.12) 0%, transparent 70%);
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -40px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,95,212,0.1) 0%, transparent 70%);
+  }
+
+  .logo-line {
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #b47add;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo-line a {
+    color: #b47add;
+    text-decoration: none;
+  }
+
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 44px;
+    font-weight: 400;
+    color: #8b35c9;
+    line-height: 1.12;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-title em {
+    font-style: italic;
+    color: #c45fd4;
+  }
+
+  .header-sub {
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    color: #a07ac0;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 30px;
+  }
+
+  .gift-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #9b59d0, #c45fd4);
+    color: #ffffff;
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 10px 28px;
+    border-radius: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .body {
+    padding: 44px 48px 32px;
+  }
+
+  .greeting {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 23px;
+    font-weight: 400;
+    color: #7a2db8;
+    margin-bottom: 22px;
+    line-height: 1.4;
+  }
+
+  .body p {
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.85;
+    color: #3a2d5a;
+    margin-bottom: 18px;
+  }
+
+  .body p strong {
+    font-weight: 600;
+    color: #2a1f4a;
+  }
+
+  .body p a {
+    color: #9b59d0;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(155,89,208,0.3);
+  }
+
+  .features {
+    background: linear-gradient(135deg, #faf6ff 0%, #fdf0ff 100%);
+    border: 1px solid #e5d0f5;
+    border-left: 3px solid #c45fd4;
+    border-radius: 0 8px 8px 0;
+    padding: 30px 32px;
+    margin: 32px 0;
+  }
+
+  .features-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6a20a8;
+    margin-bottom: 24px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    gap: 14px;
+  }
+
+  .feature-item:last-child { margin-bottom: 0; }
+
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    background: linear-gradient(135deg, #9b59d0, #c45fd4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    margin-top: 2px;
+  }
+
+  .feature-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2a1f4a;
+    margin-bottom: 3px;
+  }
+
+  .feature-text span {
+    font-size: 13px;
+    font-weight: 300;
+    color: #6a5a84;
+    line-height: 1.65;
+  }
+
+  .promo-block {
+    background: linear-gradient(135deg, #8b35c9 0%, #b44ad0 50%, #c45fd4 100%);
+    padding: 34px 36px;
+    margin: 0 0 32px;
+    text-align: center;
+    border-radius: 8px;
+  }
+
+  .promo-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 14px;
+  }
+
+  .promo-code {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 10px;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.15);
+  }
+
+  .promo-desc {
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 0.5px;
+  }
+
+  .cta-wrap {
+    text-align: center;
+    margin: 8px 0 36px;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #9b59d0 0%, #c45fd4 100%);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 18px 52px;
+    border-radius: 40px;
+    box-shadow: 0 8px 24px rgba(155, 89, 208, 0.35);
+  }
+
+  .cta-hint {
+    margin-top: 14px;
+    font-size: 12px;
+    font-weight: 300;
+    color: #a090c0;
+    letter-spacing: 0.5px;
+  }
+
+  .social-proof {
+    border-top: 1px solid #eeddf8;
+    padding-top: 30px;
+    margin-bottom: 32px;
+  }
+
+  .sp-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    font-style: italic;
+    color: #7a2db8;
+    margin-bottom: 18px;
+  }
+
+  .quote-item {
+    padding: 16px 20px;
+    background: #faf6ff;
+    border: 1px solid #e5d0f5;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .quote-item::before {
+    content: '\201C';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    color: #c45fd4;
+    position: absolute;
+    top: 2px; left: 10px;
+    line-height: 1;
+    opacity: 0.35;
+  }
+
+  .quote-text {
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: #3a2d5a;
+    padding-left: 24px;
+  }
+
+  .quote-author {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #9b59d0;
+    text-transform: uppercase;
+    margin-top: 8px;
+    padding-left: 24px;
+  }
+
+  .deadline-note {
+    text-align: center;
+    font-size: 13px;
+    color: #8a7aa0;
+    padding-bottom: 8px;
+  }
+
+  .deadline-note strong {
+    color: #7a2db8;
+    font-weight: 600;
+  }
+
+  .footer {
+    background: #f8f4ff;
+    padding: 28px 48px;
+    text-align: center;
+    border-top: 1px solid #e5d0f5;
+  }
+
+  .footer p {
+    font-size: 11px;
+    font-weight: 300;
+    line-height: 1.9;
+    color: #9a8ab0;
+    letter-spacing: 0.3px;
+  }
+
+  .footer a {
+    color: #9b59d0;
+    text-decoration: none;
+  }
+
+  @media only screen and (max-width: 480px) {
+    .body { padding: 30px 24px 20px; }
+    .features { padding: 22px 18px; }
+    .promo-block { padding: 26px 20px; }
+    .promo-code { font-size: 38px; letter-spacing: 6px; }
+    .header { padding: 36px 24px 32px; }
+    .header-title { font-size: 34px; }
+    .cta-btn { padding: 16px 36px; }
+    .footer { padding: 24px 20px; }
+    .urgency-line { padding: 12px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- URGENCY BAR -->
+  <div class="urgency-line">
+    🎁 &nbsp;Подарок действует 72 часа &nbsp;🎁
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-line">
+      <a href="https://magic-content1.ru/">✦ Эзотерический Планировщик</a>
+    </div>
+    <div class="header-title">
+      Мы скучаем<br>и <em>дарим</em> вам<br>три дня доступа
+    </div>
+    <div class="header-sub">Полный доступ — бесплатно, по промокоду</div>
+    <div class="gift-badge">✨ &nbsp;Специально для вас</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <div class="greeting">
+      Ваш доступ истёк — и мы это заметили 🤍
+    </div>
+
+    <p>
+      Пока вас не было, в <a href="https://magic-content1.ru/">планировщике</a> всё по-прежнему работает: рилс залетают, тредс пишутся, кейсы продают. А вы где-то там — без инструмента, который делает контент за вас.
+    </p>
+
+    <p>
+      Поэтому мы решили просто подарить вам ещё три дня. <strong>Без вопросов, без объяснений.</strong> Просто потому что хотим, чтобы вы вернулись и почувствовали — как это, когда контент перестаёт быть мукой.
+    </p>
+
+    <p>
+      Зайдите на <a href="https://magic-content1.ru/">magic-content1.ru</a>, откройте раздел <strong>«Подписка»</strong> и введите промокод <strong>3GIFT</strong> — и всё снова ваше.
+    </p>
+
+    <!-- FEATURES -->
+    <div class="features">
+      <div class="features-title">Что вас ждёт внутри</div>
+
+      <div class="feature-item">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-text">
+          <strong>Триггерные Reels</strong>
+          <span>Готовые крючки и структуры под вашу нишу. Снимать больше не страшно.</span>
+        </div>
+      </div>
+
+      <div class="feature-item">
+        <div class="feature-icon">💬</div>
+        <div class="feature-text">
+          <strong>Треды на целый день</strong>
+          <span>Планируйте цепочки постов заранее. Один раз — и весь день публикации идут сами.</span>
+        </div>
+      </div>
+
+      <div class="feature-item">
+        <div class="feature-icon">💎</div>
+        <div class="feature-text">
+          <strong>Кейсы, которые продают</strong>
+          <span>Шаблоны продающих историй. Без «купите мой курс» — только нативно и мощно.</span>
+        </div>
+      </div>
+
+      <div class="feature-item">
+        <div class="feature-icon">🎙</div>
+        <div class="feature-text">
+          <strong>Голос потока</strong>
+          <span>Ваш уникальный стиль — в каждом тексте. Контент, который звучит как вы.</span>
+        </div>
+      </div>
+
+      <div class="feature-item">
+        <div class="feature-icon">✦</div>
+        <div class="feature-text">
+          <strong>Архетип стратегии</strong>
+          <span>Один тест — и генератор понимает ваш стиль. Всё остальное делает сам.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PROMO -->
+    <div class="promo-block">
+      <div class="promo-label">Ваш промокод</div>
+      <div class="promo-code">3GIFT</div>
+      <div class="promo-desc">Введите на magic-content1.ru — и три дня снова ваши</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-wrap">
+      <a href="https://magic-content1.ru/" class="cta-btn">Вернуться в планировщик</a>
+      <div class="cta-hint">Промокод: 3GIFT · Без привязки карты</div>
+    </div>
+
+    <p style="font-style: italic; color: #6a5a84; font-size: 14px; text-align: center; margin-bottom: 32px;">
+      Это не демо-режим с ограничениями.<br>Полный доступ — как раньше, только бесплатно.
+    </p>
+
+    <!-- SOCIAL PROOF -->
+    <div class="social-proof">
+      <div class="sp-title">Что говорят те, кто уже внутри</div>
+
+      <div class="quote-item">
+        <div class="quote-text">Первый же рилс по шаблону набрал в три раза больше охватов, чем мои обычные. Не пов, а рил.</div>
+        <div class="quote-author">— Марина, нумеролог</div>
+      </div>
+
+      <div class="quote-item">
+        <div class="quote-text">Наконец-то не надо думать «что писать сегодня». Захожу, вижу план, делаю. Два часа в неделю — и контент готов. Я кайфую.</div>
+        <div class="quote-author">— Алёна, таролог</div>
+      </div>
+
+    </div>
+
+    <p class="deadline-note">
+      Промокод действует <strong>72 часа</strong> с момента получения письма 🤍
+    </p>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>
+      © 2025 Эзотерический Планировщик · <a href="https://magic-content1.ru/">magic-content1.ru</a>
+    </p>
+  </div>
+
+</div>
+
+</body>
+</html>

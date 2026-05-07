@@ -877,6 +877,29 @@ export async function registerRoutes(
     }
   });
 
+  // Admin: Newsletter — send test email to one address
+  app.post("/api/admin/newsletter/test", isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { email, subject, html } = req.body;
+      if (!email?.trim() || !subject?.trim() || !html?.trim()) {
+        return res.status(400).json({ error: "Укажите email, тему и текст письма" });
+      }
+      const baseUrl = process.env.APP_URL || `https://${req.hostname}`;
+      const token = generateUnsubscribeToken(email);
+      const unsubscribeUrl = `${baseUrl}/api/unsubscribe?token=${token}&email=${encodeURIComponent(email)}`;
+      const htmlWithFooter = appendUnsubscribeFooter(html, unsubscribeUrl);
+      const ok = await sendEmail({ to: email, subject: `[ТЕСТ] ${subject}`, html: htmlWithFooter });
+      if (ok) {
+        res.json({ success: true, message: `Тестовое письмо отправлено на ${email}` });
+      } else {
+        res.status(500).json({ error: "Не удалось отправить письмо" });
+      }
+    } catch (error: any) {
+      console.error("Newsletter test error:", error);
+      res.status(500).json({ error: "Ошибка при отправке тестового письма" });
+    }
+  });
+
   // Admin: Newsletter — send emails
   app.post("/api/admin/newsletter/send", isAuthenticated, requireAdmin, async (req: any, res) => {
     try {

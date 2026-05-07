@@ -1233,6 +1233,55 @@ export default function Admin() {
   );
 }
 
+function TestSendBlock({ subject, html }: { subject: string; html: string }) {
+  const { toast } = useToast();
+  const [testEmail, setTestEmail] = useState("");
+  const [sending, setSending] = useState(false);
+
+  async function sendTest() {
+    if (!testEmail.trim()) {
+      toast({ title: "Введите email", description: "Укажите адрес для тестовой отправки", variant: "destructive" });
+      return;
+    }
+    if (!subject.trim() || !html.trim()) {
+      toast({ title: "Заполните письмо", description: "Укажите тему и текст перед тестом", variant: "destructive" });
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await apiRequest("POST", "/api/admin/newsletter/test", { email: testEmail.trim(), subject, html });
+      const data = await res.json();
+      toast({ title: "✅ Тест отправлен", description: data.message });
+    } catch {
+      toast({ title: "Ошибка", description: "Не удалось отправить тестовое письмо", variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="flex gap-2 items-center p-3 rounded-lg border border-dashed border-purple-300 bg-purple-50/50">
+      <Input
+        type="email"
+        placeholder="your@email.com"
+        value={testEmail}
+        onChange={(e) => setTestEmail(e.target.value)}
+        className="border-purple-200 focus:border-purple-400 text-sm h-9"
+      />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={sendTest}
+        disabled={sending}
+        className="shrink-0 border-purple-300 text-purple-600 hover:bg-purple-100 h-9"
+      >
+        {sending ? <RefreshCw className="h-3 w-3 mr-1 animate-spin" /> : <Send className="h-3 w-3 mr-1" />}
+        Тест
+      </Button>
+    </div>
+  );
+}
+
 const SEGMENTS = [
   { value: "all", label: "Все пользователи" },
   { value: "noAccess", label: "Нет активного доступа (триал/подписка истекли)" },
@@ -1445,6 +1494,9 @@ function NewsletterTab() {
             />
             <p className="text-xs text-purple-400">Поддерживается HTML. Для простого текста просто пишите без тегов.</p>
           </div>
+
+          {/* Test send */}
+          <TestSendBlock subject={subject} html={html} />
 
           {/* Send button */}
           <AlertDialog>
