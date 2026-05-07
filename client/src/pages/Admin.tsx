@@ -1334,7 +1334,7 @@ function NewsletterTab() {
   }[]>({
     queryKey: ["/api/admin/newsletter/history"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/newsletter/history", { credentials: "include" });
+      const res = await apiRequest("GET", "/api/admin/newsletter/history");
       if (!res.ok) throw new Error("Failed to load history");
       return res.json();
     },
@@ -1343,7 +1343,7 @@ function NewsletterTab() {
   const { data: webhookStatus } = useQuery<{ last_event_at: string | null; event_count: number }>({
     queryKey: ["/api/admin/webhook-status"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/webhook-status", { credentials: "include" });
+      const res = await apiRequest("GET", "/api/admin/webhook-status");
       if (!res.ok) throw new Error("Failed to load webhook status");
       return res.json();
     },

@@ -1,0 +1,36 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 15 --nostream
+[TAILING] Tailing last 15 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 15 lines:
+0|esoteric |   detail: undefined,
+0|esoteric |   hint: undefined,
+0|esoteric |   position: '79',
+0|esoteric |   internalPosition: undefined,
+0|esoteric |   internalQuery: undefined,
+0|esoteric |   where: undefined,
+0|esoteric |   schema: undefined,
+0|esoteric |   table: undefined,
+0|esoteric |   column: undefined,
+0|esoteric |   dataType: undefined,
+0|esoteric |   constraint: undefined,
+0|esoteric |   file: 'parse_target.c',
+0|esoteric |   line: '1068',
+0|esoteric |   routine: 'checkInsertTargets'
+0|esoteric | }
+
+/root/.pm2/logs/esoteric-planner-out.log last 15 lines:
+0|esoteric | Архетип стратегии","count":78},{"section":"voice","label":"Голос потока","count":63},{"section":"trainer","label":"Денежный тренажёр","count":25},{"section":"cases","label":"Кейсы","count":12},{"section":"alchemy","label":"Алхимия контента","count":1}]}
+0|esoteric | 10:00:42 AM [express] GET /api/admin/newsletter/history 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | 10:00:42 AM [express] GET /api/admin/ai-status 304 in 26ms :: {"provider":"YandexGPT","model":"yandexgpt-latest"}
+0|esoteric | 10:00:42 AM [express] GET /api/admin/webhook-status 401 in 0ms :: {"message":"Unauthorized"}
+0|esoteric | 10:00:43 AM [express] GET /api/admin/stats 304 in 1893ms :: {"totalUsers":1272,"usersWithAccess":130,"activeToday":4,"activePaidSubscriptions":109,"totalStrategies":702,"totalVoicePosts":326,"totalCaseStudies":268,"subscriptionBreakdown":{"trial":651,"free":0,"monthly":589,"yearly":32},"activeTrials":20,"expiredTrials":1250,"activeMonthly":77,"activeYearly":32,"noAccess":1142,"newUsersLast7Days":38,"newUsersLast30Days":203,"totalSuccessfulPayments":151,"paidMonthlyPayments":120,"paidYearlyPayments":31,"paidWithMoney":35,"paidWithPromocode":281,"paidBoth":97,"periodNewUsers":203,"periodPayments":91,"periodPromoUsages":66,"promocodeStats":[{"code":"MAY845","usedCount":24,"maxUses":10000,"type":"discount","discountPercent":50,"bonusDays":0,"isActive":true,"expiresAt":"2026-05-31T00:00:00.000Z","bonusUntil":null},{"code":"3GIFT","usedCount":2,"maxUses":10000,"type":"bonus","discountPercent":null,"bonusDays":3,"isActive":true,"expiresAt":null,"bonusUntil":null},{"code":"MARCHCLUB","usedCount":175,"maxUses":null,"type":"bonus","discountPercent":0,"bonusDays":0,"isActive":true,"expiresAt":"2026-03-31T23:59:59.000Z","bonusUntil":"2026-03-31T23:59:59.000Z"},{"code":"MARCHCLUB50","usedCount":70,"maxUses":10000,"type":"discount","discountPercent":50,"bonusDays":0,"isActive":true,"expiresAt":null,"bonusUntil":null},{"code":"FEB30","usedCount":298,"maxUses":null,"type":"bonus","discountPercent":0,"bonusDays":30,"isActive":true,"expiresAt":"2026-03-01T00:00:00.000Z","bonusUntil":null}]}
+0|esoteric | 10:00:45 AM [express] GET /api/admin/newsletter/count 304 in 61ms :: {"count":773}
+0|esoteric | [Email] Attempting to send email to tanya.fskate@gmail.com, subject: "[ТЕСТ] Мы скучаем 🥲 и у нас для Вас кое-что есть 🎁"
+0|esoteric | [Email] FROM_EMAIL: klimova@magic-content.ru, API Key exists: true
+0|esoteric | [Email] Sending request to Rusender API...
+0|esoteric | [Email] Rusender response status: 201, body: {"uuid":"7f81af2f-601a-412c-8c97-0d4951280ba9","additionalRecipients":[]}
+0|esoteric | [Email] Successfully sent email to tanya.fskate@gmail.com
+0|esoteric | 10:01:07 AM [express] POST /api/admin/newsletter/test 200 in 127ms :: {"success":true,"message":"Тестовое письмо отправлено на tanya.fskate@gmail.com"}
+0|esoteric | 10:01:26 AM [express] POST /api/admin/newsletter/send 500 in 80ms :: {"error":"Ошибка при отправке рассылки"}
+0|esoteric | New database connection established
+
+root@cv5653817:/var/www/magic-content# 
