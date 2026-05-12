@@ -199,7 +199,15 @@ export async function transformToTriggerReels(originalScript: string): Promise<{
     try {
       parsed = JSON.parse(extractJson(content));
     } catch {
-      throw new ParseError("AI вернул некорректный формат ответа");
+      // YandexGPT sometimes returns plain text instead of JSON — use it directly
+      console.warn("[TriggerReels] JSON parse failed, using raw text. First 300 chars:", content.substring(0, 300));
+      return {
+        transformedScript: content,
+        usedTriggers: [],
+        hookAnalysis: "",
+        ctaType: "",
+        usedFormulas: "",
+      };
     }
 
     return {

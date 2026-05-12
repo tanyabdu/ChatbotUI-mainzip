@@ -1,0 +1,45 @@
+root@cv5653817:/var/www/magic-content# pm2 logs esoteric-planner --lines 30 --nostream
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+
+/root/.pm2/logs/esoteric-planner-out.log last 30 lines:
+0|esoteric | ский, рассудительный, объективный.","answers":[2,0,0,3,3,0,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-01T09:43:36.360Z"}
+0|esoteric | 9:01:26 AM [express] POST /api/trigger-reels/transform 200 in 8044ms :: {"transformedScript":"Ты до сих пор не знаешь, как вернуть энергию и гармонию в жизнь? История клиентки, которая была на грани истощения и потеряла себя. Она просыпалась уставшей и жила в тяжёлом сне. Не было сил, энергии, желания жить. Каждый день был борьбой. Появились бессонница, тревога, панические атаки. Она говорила: «Я давно не чувствую себя живой». Отношения с мужчиной стали невыносимыми. Постоянные ссоры и эмоциональное выгорание. Параллельно рушились другие сферы жизни. Она уволилась с работы, деньги заканчивались. Жизнь засасывала как болото. Мы начали работать через очищение воском. Убирали напряжение, негатив, истощение. Шаг за шагом возвращала внутренний ресурс. Параллельно работали с мыслями и эмоциями. Спустя несколько чисток произошли изменения. Она стала лучше спать и просыпаться утром. Ощущение внутреннего облегчения. Стало меньше тревоги и негативных мыслей. Появилось спокойствие и уверенность. Отношения начали меняться. Ушло напряжение, стало меньше конфликтов. Рядом с мужчиной она снова почувствовала себя женщиной. И она написала: «У нас сейчас всё хорошо. Он сделал мне подарок». Состояние внутри влияет на всё вокруг. Если ты устала жить без сил и готова вернуть энергию — напиши «ЧИСТКА».","usedTriggers":[{"name":"Сравнение","explanation":"Используются контрасты до и после очищения воском."},{"name":"Личное обращение","explanation":"Обращение к зрителю на 'ты', создание эффекта присутствия."},{"name":"Моментальная выгода","explanation":"Подчёркивается быстрое улучшение состояния после применения метода."},{"name":"Результат","explanation":"Демонстрируются конкретные улучшения в жизни клиентки."},{"name":"Противоречие/отталкивание","explanation":"Используется фраза 'Ты до сих пор не знаешь', что привлекает внимание."},{"name":"Наглядность","explanation":"Описываются видимые изменения в жизни клиентки."}],"hookAnalysis":"Фраза 'Ты до сих пор не знаешь' привлекает внимание и вызывает желание узнать больше, так как подразумевает наличие важной информации.","ctaType":"Пиши [СЛОВО] и я научу тебя [результату]","usedFormulas":"1, 21"}
+0|esoteric | 9:01:33 AM [express] GET /api/auth/user 304 in 15ms :: {"id":"89b52ab2-5e4e-4a43-aae9-eba056e86b5a","email":"ylia_evpas90@mail.ru","firstName":"Юля","lastName":"Турикович ","nickname":null,"profileImageUrl":null,"isAdmin":false,"subscriptionTier":"monthly","trialEndsAt":"2026-01-04T06:37:01.300Z","subscriptionExpiresAt":"2026-06-04T05:07:07.156Z","marketingConsent":true}
+0|esoteric | 9:01:34 AM [express] GET /api/auth/consent-status 304 in 30ms :: {"consentsComplete":true,"missing":[],"granted":["marketing","offer","personal_data"]}
+0|esoteric | 9:01:34 AM [express] GET /api/archetypes/latest 304 in 34ms :: {"id":"9509b871-01e8-4ce3-9085-70997279acf9","userId":"89b52ab2-5e4e-4a43-aae9-eba056e86b5a","archetypeName":"Маг-Мудрец-Искатель","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","answers":[2,0,0,3,3,0,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-01T09:43:36.360Z"}
+0|esoteric | New database connection established
+0|esoteric | 9:01:34 AM [express] GET /api/auth/access 304 in 102ms :: {"hasAccess":true,"daysLeft":23}
+0|esoteric | 9:01:39 AM [express] POST /api/trigger-reels/transform 500 in 189ms :: {"error":"Ошибка при обработке сценария. Попробуйте ещё раз."}
+
+root@cv5653817:/var/www/magic-content# 
