@@ -1,0 +1,13 @@
+root@cv5653817:~# ss -tlnp
+State          Recv-Q          Send-Q                   Local Address:Port                   Peer Address:Port         Process                                                                                                                
+LISTEN         0               200                          127.0.0.1:5432                        0.0.0.0:*             users:(("postgres",pid=1246774,fd=7))                                                                                 
+LISTEN         0               4096                        127.0.0.54:53                          0.0.0.0:*             users:(("systemd-resolve",pid=4476,fd=17))                                                                            
+LISTEN         0               511                            0.0.0.0:5000                        0.0.0.0:*             users:(("node /var/www/m",pid=1768212,fd=20))                                                                         
+LISTEN         0               4096                     127.0.0.53%lo:53                          0.0.0.0:*             users:(("systemd-resolve",pid=4476,fd=15))                                                                            
+LISTEN         0               511                            0.0.0.0:443                         0.0.0.0:*             users:(("nginx",pid=1657638,fd=16),("nginx",pid=1657637,fd=16),("nginx",pid=1657636,fd=16),("nginx",pid=1657635,fd=16),("nginx",pid=14154,fd=16))
+LISTEN         0               128                          127.0.0.1:5001                        0.0.0.0:*             users:(("python",pid=1694977,fd=7),("python",pid=1694977,fd=6),("python",pid=1694976,fd=6))                           
+LISTEN         0               511                            0.0.0.0:80                          0.0.0.0:*             users:(("nginx",pid=1657638,fd=5),("nginx",pid=1657637,fd=5),("nginx",pid=1657636,fd=5),("nginx",pid=1657635,fd=5),("nginx",pid=14154,fd=5))
+LISTEN         0               4096                           0.0.0.0:22                          0.0.0.0:*             users:(("sshd",pid=12270,fd=3),("systemd",pid=1,fd=219))                                                              
+LISTEN         0               200                              [::1]:5432                           [::]:*             users:(("postgres",pid=1246774,fd=6))                                                                                 
+LISTEN         0               4096                              [::]:22                             [::]:*             users:(("sshd",pid=12270,fd=4),("systemd",pid=1,fd=220))                                                              
+root@cv5653817:~# 

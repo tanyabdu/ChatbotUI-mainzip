@@ -1,5 +1,5 @@
 import { getDeepseekClient, AI_MODEL } from "./deepseekClient";
-import { withRetry, extractContent, ParseError } from "./deepseekRetry";
+import { withRetry, extractContent, extractJson, ParseError } from "./deepseekRetry";
 
 const deepseek = getDeepseekClient();
 
@@ -197,8 +197,7 @@ export async function transformToTriggerReels(originalScript: string): Promise<{
 
     let parsed: any;
     try {
-      const cleaned = content.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
-      parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(extractJson(content));
     } catch {
       throw new ParseError("AI вернул некорректный формат ответа");
     }

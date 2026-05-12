@@ -1,0 +1,46 @@
+[TAILING] Tailing last 30 lines for [esoteric-planner] process (change the value with --lines option)
+/root/.pm2/logs/esoteric-planner-error.log last 30 lines:
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+0|esoteric | [TriggerReels] Parse error (not retrying): AI вернул некорректный формат ответа
+0|esoteric | Trigger Reels transform error: Error: AI вернул некорректный ответ. Пожалуйста, попробуйте ещё раз.
+0|esoteric |     at Qr (/var/www/magic-content/dist/index.cjs:208:14856)
+0|esoteric |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|esoteric |     at async /var/www/magic-content/dist/index.cjs:1344:9792
+
+/root/.pm2/logs/esoteric-planner-out.log last 30 lines:
+0|esoteric | ess] GET /api/archetypes/latest 304 in 28ms :: {"id":"9509b871-01e8-4ce3-9085-70997279acf9","userId":"89b52ab2-5e4e-4a43-aae9-eba056e86b5a","archetypeName":"Маг-Мудрец-Искатель","archetypeDescription":"Харизматичный человек, обладающий силой влияния. Помогает трансформироваться изнутри, его образу сопутствует атмосфера таинственности — это самый сильный архетип действия. С элементами мудрец: экспертный, аналитический, рассудительный, объективный.","answers":[2,0,0,3,3,0,1,0],"recommendations":["трансформация","глубина","магия","видение","пробуждение","знания"],"brandColors":["#7c3aed","#1e1b4b","#fbbf24"],"brandFonts":["Cormorant Garamond для заголовков, Inter для текста"],"gender":"female","createdAt":"2026-01-01T09:43:36.360Z"}
+0|esoteric | 8:50:59 AM [express] POST /api/trigger-reels/transform 500 in 313ms :: {"error":"Ошибка при обработке сценария. Попробуйте ещё раз."}
+0|esoteric | 8:52:08 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+0|esoteric | 8:53:08 AM [express] GET /api/auth/user 304 in 15ms :: {"id":"3a4a572b-ae98-42e3-846c-5718285d1d92","email":"tanya.fskate@gmail.com","firstName":"Татьяна ","lastName":"Абдулаева","nickname":null,"profileImageUrl":null,"isAdmin":true,"subscriptionTier":"monthly","trialEndsAt":"2025-12-24T05:18:58.747Z","subscriptionExpiresAt":"2026-05-10T06:27:15.631Z","marketingConsent":true}
+0|esoteric | 8:53:08 AM [express] GET /api/auth/access 304 in 13ms :: {"hasAccess":true,"daysLeft":-1}
+0|esoteric | New database connection established
+0|esoteric | New database connection established
+0|esoteric | 8:53:09 AM [express] GET /api/archetypes/latest 304 in 151ms :: {"id":"18800bea-4b0b-446a-bf64-1d62ba8cd328","userId":"3a4a572b-ae98-42e3-846c-5718285d1d92","archetypeName":"Простодушный-Маг-Мудрец","archetypeDescription":"Оптимист и идеалист. Стремится к счастью, видит красоту в простых вещах. Верит в лучшее и несёт в мир доброту и позитив. С элементами маг: харизматичный, влиятельный, таинственный, трансформирующий.","answers":[0,0,0,1,2,1,0,2],"recommendations":["радость","простота","счастье","свет","гармония","трансформация"],"brandColors":["#fef3c7","#fde68a","#93c5fd"],"brandFonts":["Nunito для заголовков, Open Sans для текста"],"gender":"female","createdAt":"2026-05-09T18:26:20.753Z"}
+0|esoteric | 8:53:09 AM [express] GET /api/auth/consent-status 304 in 152ms :: {"consentsComplete":true,"missing":[],"granted":["offer","personal_data","marketing"]}
+0|esoteric | 8:53:19 AM [express] POST /api/trigger-reels/transform 200 in 6117ms :: {"transformedScript":"ИИ может выдать трактовку, но не дать поддержки. Ты же до сих пор веришь, что нейросети заменят экспертов? Отвечаю как приземлённый эзотерик: человеку всегда будет нужен человек. Наши инструменты — не замена тебе, а твой главный отдел продаж. Бот — это диагностика, а ты — решение. ИИ даёт информацию, а ты — бережную поддержку. На «Магии ИИ» мы учимся создавать сервисы, которые готовят клиента к консультации, а не заменяют её. Воронка нового времени: клиент осознаёт важность темы и понимает — чтобы пойти в глубину, ему нужен проводник. Ты можешь перестать быть говорящим справочником. Забирай себе личную работу и высокий чек, а нейросетям отдай рутину. Хочешь узнать, как занять своё место в новой реальности? Пиши «Подробнее» в комментариях — расскажу всё без секретов.","usedTriggers":[{"name":"Противоречие/отталкивание","explanation":"Использую вопрос, который вызывает удивление и интерес: «Ты же до сих пор веришь, что нейросети заменят экспертов?»"},{"name":"Личный обращение","explanation":"Обращаюсь напрямую к зрителю: «тебе», «ты» — создаю эффект присутствия."},{"name":"Результат","explanation":"Показываю, что достигнуто: «Забирай себе личную работу и высокий чек»"},{"name":"Простота и лёгкость","explanation":"Предлагаю простой шаг для получения информации: «Пиши «Подробнее» в комментариях»"},{"name":"FOMO","explanation":"Создаю ощущение упущенной выгоды: «Хочешь узнать, как занять своё место в новой реальности?»"}],"hookAnalysis":"Новый хук цепляет, потому что сразу ставит под сомнение распространённое мнение о замене экспертов нейросетями и привлекает внимание к теме взаимодействия человека и технологий.","ctaType":"Пиши «Подробнее» в комментариях","usedFormulas":"2"}
+
+root@cv5653817:~# 

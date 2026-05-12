@@ -56,3 +56,42 @@ export function extractContent(response: any): string | null {
   if (!content) return null;
   return stripCodeFences(content);
 }
+
+/**
+ * Robustly extracts a JSON object or array from AI response text.
+ * Handles cases where YandexGPT wraps JSON in extra text or markdown.
+ * Falls back gracefully — caller should still handle JSON.parse errors.
+ */
+export function extractJson(text: string, type: "object" | "array" = "object"): string {
+  // Try direct parse first (already stripped by extractContent)
+  try {
+    JSON.parse(text);
+    return text;
+  } catch {}
+
+  if (type === "array") {
+    // Try to find JSON array
+    const first = text.indexOf("[");
+    const last = text.lastIndexOf("]");
+    if (first !== -1 && last > first) {
+      const candidate = text.slice(first, last + 1);
+      try { JSON.parse(candidate); return candidate; } catch {}
+    }
+  }
+
+  // Try to find JSON object
+  const first = text.indexOf("{");
+  const last = text.lastIndexOf("}");
+  if (first !== -1 && last > first) {
+    const candidate = text.slice(first, last + 1);
+    try { JSON.parse(candidate); return candidate; } catch {}
+  }
+
+  // Try stripping code fences again (in case of nested fences)
+  const stripped = stripCodeFences(text);
+  if (stripped !== text) {
+    return extractJson(stripped, type);
+  }
+
+  return text;
+}

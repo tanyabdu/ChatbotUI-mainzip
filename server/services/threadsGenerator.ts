@@ -1,4 +1,4 @@
-import { withRetry, extractContent, ParseError } from "./deepseekRetry";
+import { withRetry, extractContent, extractJson, ParseError } from "./deepseekRetry";
 import { getDeepseekClient, AI_MODEL, getProvider } from "./deepseekClient";
 
 const deepseek = getDeepseekClient();
@@ -173,11 +173,7 @@ export async function generateThreadsPosts(
 
     let parsed: any;
     try {
-      const cleaned = content
-        .replace(/^```(?:json)?\s*/i, "")
-        .replace(/```\s*$/i, "")
-        .trim();
-      parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(extractJson(content));
     } catch {
       throw new ParseError("AI вернул некорректный формат ответа");
     }
